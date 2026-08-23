@@ -352,7 +352,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       chapters: [],
       diagnostics: emptyDiagnostics(Date.now()),
       showControls: true,
-      isFullscreen: false,
+      // Not reset here: switching episodes never changes the real native
+      // window fullscreen state, only starts a new stream in it. Resetting
+      // this to false desyncs the store from the window (mpv/AppKit stays
+      // fullscreen), which shows the wrong fullscreen icon and, on macOS,
+      // brings back the traffic-light window controls (WindowChrome hides
+      // them based on this flag). Only setPlayerFullscreen's backend round
+      // trip should ever change it.
       activePopover: null,
       showEpisodesDrawer: false,
       feedback: null,
