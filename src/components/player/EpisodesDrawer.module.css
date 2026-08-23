@@ -1,0 +1,26 @@
+/* Episode-specific content inside the shared PlayerDrawer shell. */
+
+.episodesLoading,
+.episodesEmpty {
+  color: var(--text-muted);
+  font-size: var(--font-size-body);
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.thumbnailContainer {
+  position: relative;
+  width: 48px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.episodeThumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -1,0 +1,7 @@
+#EXTM3U x-tvg-url="https://guide.example.test/epg.xml" playlist-name="Sample Playlist"
+#EXTINF:-1 tvg-id="sample-news" tvg-logo="https://images.example.test/news.png" group-title="News",Sample News
+https://stream.example.test/news.m3u8
+#EXTINF:5400 group-title="Movies",Sample Movie (2025)
+https://stream.example.test/movie.mp4
+#EXTINF:-1 group-title="Series",Sample Show S01E01 - Pilot
+https://stream.example.test/show/s01e01.mkv

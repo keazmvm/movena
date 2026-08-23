@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Movena — Fast, native desktop IPTV player powered by libmpv and Tauri 2." />
+    <meta name="theme-color" content="#0b0e14" />
+    <title>Movena — Your media, in one focused workspace</title>
+    <link rel="icon" href="favicon.png" />
+    <link rel="stylesheet" href="site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Movena home">
+        <img src="favicon.png" alt="" width="28" height="28" />
+        <span>movena</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/keazmvm/movena" target="_blank" rel="noreferrer" class="nav-gh">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title">Everything you watch,<br /><em>in its place.</em></h1>
+          <p class="lede">Movena brings your Xtream accounts and M3U playlists into one calm, native desktop player—built with libmpv for browsing less and watching more.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#download">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download Movena</span>
+              <span class="version-chip">v0.1.0</span>
+            </a>
+            <a class="button button-quiet" href="https://github.com/keazmvm/movena" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span>View source</span>
+            </a>
+          </div>
+          <p class="availability">Free and open source · Windows, macOS &amp; Linux</p>
+        </div>
+
+        <div class="app-frame" aria-label="Movena application preview">
+          <div class="window-bar">
+            <div class="window-controls">
+              <span class="ctrl close"></span>
+              <span class="ctrl min"></span>
+              <span class="ctrl max"></span>
+            </div>
+            <span class="window-title">Movena</span>
+          </div>
+          <div class="app-body">
+            <aside class="preview-sidebar">
+              <div class="mini-brand"><img src="favicon.png" alt="" /> <strong>movena</strong></div>
+              <p>LIBRARY</p>
+              <a class="active">Home</a>
+              <a>Live TV</a>
+              <a>Movies</a>
+              <a>Series</a>
+              <p class="side-bottom">COLLECTIONS</p>
+              <a>Favorites</a>
+              <a>Continue watching</a>
+            </aside>
+            <div class="preview-content">
+              <div class="preview-top">
+                <div>
+                  <small>GOOD EVENING</small>
+                  <h2>Pick up where you left off.</h2>
+                </div>
+                <div class="search">
+                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <span>Search library</span>
+                </div>
+              </div>
+              <div class="continue-card">
+                <div class="card-art art-wide"><span>SEVERANCE</span></div>
+                <div class="continue-info">
+                  <small>CONTINUE WATCHING · S2 E04</small>
+                  <h3>Woe's Hollow</h3>
+                  <p>38 min remaining</p>
+                  <div class="progress"><i></i></div>
+                </div>
+                <button class="play-btn" aria-label="Play Woe's Hollow">
+                  <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </button>
+              </div>
+              <div class="preview-row-title"><h3>Because you watched Drama</h3><span>See all</span></div>
+              <div class="poster-row"><div class="poster art-one"></div><div class="poster art-two"></div><div class="poster art-three"></div><div class="poster art-four"></div><div class="poster art-five"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clean Editorial Features -->
+      <section class="statement" id="features">
+        <h2>The player gets out of the way.<br />Your media does not.</h2>
+        <div class="feature-grid">
+          <article>
+            <h3>Native libmpv pipeline</h3>
+            <p>Direct GPU video rendering via <code>gpu-next</code>. Zero webview decoding overhead, hardware acceleration (NVDEC, VA-API, VideoToolbox), HDR tone mapping, and microsecond audio/subtitle sync.</p>
+          </article>
+          <article>
+            <h3>Multi-gigabyte playlists</h3>
+            <p>Dedicated background Web Workers parse 500,000+ item M3U playlists and multi-day XMLTV guides without UI freezes, memory spikes, or dropped frames.</p>
+          </article>
+          <article>
+            <h3>OS vault security</h3>
+            <p>Zero tracking, zero plain JSON passwords. Source credentials stay encrypted directly inside Windows Credential Manager, macOS Keychain, or Linux Secret Service.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Direct Downloads Section -->
+      <section class="download-section" id="download" aria-labelledby="download-title">
+        <div class="download-heading">
+          <h2 id="download-title">Download Movena</h2>
+          <p>Get the latest release for your platform. Direct links to standalone installers and portable packages.</p>
+        </div>
+
+        <div class="platform-cards-row">
+          <!-- Windows Card -->
+          <div class="dl-platform-card">
+            <div class="dl-card-top">
+              <div class="dl-icon-badge">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.801"/></svg>
+              </div>
+              <div class="dl-card-info">
+                <h3>Windows</h3>
+                <span>Windows 10 / 11 (64-bit)</span>
+              </div>
+            </div>
+            <div class="dl-card-actions">
+              <a class="direct-dl-btn primary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/Movena_0.1.0_x64-setup.exe" download>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Installer (.exe)</span>
+              </a>
+              <a class="direct-dl-btn secondary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/Movena-v0.1.0-windows-x64-portable.zip" download>
+                <span>Portable (.zip)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- macOS Card -->
+          <div class="dl-platform-card">
+            <div class="dl-card-top">
+              <div class="dl-icon-badge">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-.96.04-2.12.64-2.8 1.44-.6.69-1.13 1.83-0.99 2.92 1.07.08 2.14-.54 2.8-1.32z"/></svg>
+              </div>
+              <div class="dl-card-info">
+                <h3>macOS</h3>
+                <span>Apple Silicon &amp; Intel</span>
+              </div>
+            </div>
+            <div class="dl-card-actions">
+              <a class="direct-dl-btn primary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/Movena_0.1.0_x64.dmg" download>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Disk Image (.dmg)</span>
+              </a>
+              <a class="direct-dl-btn secondary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/Movena.app.tar.gz" download>
+                <span>App Archive (.tar.gz)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Linux Card -->
+          <div class="dl-platform-card">
+            <div class="dl-card-top">
+              <div class="dl-icon-badge">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="3"/><path d="m7 10 3 2-3 2"/><path d="M12 14h5"/></svg>
+              </div>
+              <div class="dl-card-info">
+                <h3>Linux</h3>
+                <span>Ubuntu, Fedora, Arch</span>
+              </div>
+            </div>
+            <div class="dl-card-actions">
+              <a class="direct-dl-btn primary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/Movena_0.1.0_amd64.AppImage" download>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>AppImage</span>
+              </a>
+              <a class="direct-dl-btn secondary" href="https://github.com/keazmvm/movena/releases/download/v0.1.0/movena_0.1.0_amd64.deb" download>
+                <span>Debian (.deb)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="download-meta-strip">
+          <a class="releases-hub-link" href="https://github.com/keazmvm/movena/releases" target="_blank" rel="noreferrer">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>View all GitHub releases and SHA256 checksums</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="wordmark" href="#top">
+        <img src="favicon.png" alt="" width="24" height="24" />
+        <span>movena</span>
+      </a>
+      <p>Built for media you’re authorized to watch.</p>
+      <div>
+        <a href="https://github.com/keazmvm/movena/blob/main/docs/PRIVACY.md">Privacy</a>
+        <a href="https://github.com/keazmvm/movena/blob/main/LICENSE">GPL-3.0</a>
+      </div>
+    </footer>
+  </body>
+</html>

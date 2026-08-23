@@ -1,0 +1,95 @@
+import { existsSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const libDir = join(root, 'src-tauri', 'lib');
+const mpvDevDir = join(libDir, 'mpv-dev');
+const targetDllInMpvDev = join(mpvDevDir, 'libmpv-2.dll');
+const targetDllInLib = join(libDir, 'libmpv-2.dll');
+
+// Keep native development reproducible. Update these values deliberately when
+// upgrading mpv; do not silently move every developer to a new engine build.
+const MPV_RELEASE_TAG = '20260811';
+const MPV_ASSET_NAME = 'mpv-dev-x86_64-20260811-git-f4d13e1c2c.7z';
+const MPV_ARCHIVE_SHA256 = 'd849de71d4e57ac7f92cedbda50564af4431d84bd1898e9ee6f9a9fc21d42427';
+
+function sha256(buffer) {
+  return createHash('sha256').update(buffer).digest('hex');
+}
+
+async function ensureWindowsMpv() {
+  if (process.platform !== 'win32') {
+    console.log('[ensure-windows-mpv] Non-Windows OS detected; skipping Windows mpv DLL auto-fetch.');
+    return;
+  }
+
+  mkdirSync(mpvDevDir, { recursive: true });
+
+  if (existsSync(targetDllInMpvDev) && existsSync(targetDllInLib)) {
+    console.log('[ensure-windows-mpv] Windows libmpv engine dependencies are present.');
+    return;
+  }
+
+  console.log(`[ensure-windows-mpv] Windows libmpv-2.dll missing. Fetching pinned mpv-dev build ${MPV_RELEASE_TAG}...`);
+
+  try {
+    const archivePath = join(root, 'src-tauri', 'mpv-dev.7z');
+    const extractDir = join(root, 'src-tauri', 'tmp_mpv');
+    const assetUrl = `https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/${MPV_RELEASE_TAG}/${MPV_ASSET_NAME}`;
+
+    console.log(`[ensure-windows-mpv] Downloading asset ${MPV_ASSET_NAME}...`);
+    const downloadRes = await fetch(assetUrl);
+    if (!downloadRes.ok) {
+      throw new Error(`Failed to download ${assetUrl}: HTTP ${downloadRes.status}`);
+    }
+
+    const archiveBuffer = Buffer.from(await downloadRes.arrayBuffer());
+    const archiveSha256 = sha256(archiveBuffer);
+    if (archiveSha256 !== MPV_ARCHIVE_SHA256) {
+      throw new Error(`mpv archive checksum mismatch: expected ${MPV_ARCHIVE_SHA256}, received ${archiveSha256}`);
+    }
+
+    writeFileSync(archivePath, archiveBuffer);
+
+    if (existsSync(extractDir)) {
+      rmSync(extractDir, { recursive: true, force: true });
+    }
+    mkdirSync(extractDir, { recursive: true });
+
+    console.log('[ensure-windows-mpv] Extracting archive...');
+    execSync(`tar -xf "${archivePath}" -C "${extractDir}"`, { stdio: 'inherit' });
+
+    const extractedDll = join(extractDir, 'libmpv-2.dll');
+    const extractedLib = join(extractDir, 'libmpv.dll.a');
+
+    if (!existsSync(extractedDll)) {
+      throw new Error('libmpv-2.dll was not found inside the downloaded archive.');
+    }
+
+    console.log('[ensure-windows-mpv] Copying libmpv-2.dll and import libraries to src-tauri/lib...');
+    copyFileSync(extractedDll, targetDllInMpvDev);
+    copyFileSync(extractedDll, targetDllInLib);
+
+    if (existsSync(extractedLib)) {
+      copyFileSync(extractedLib, join(libDir, 'libmpv.dll.a'));
+      copyFileSync(extractedLib, join(libDir, 'mpv.dll.a'));
+      copyFileSync(extractedLib, join(libDir, 'mpv.lib'));
+      copyFileSync(extractedLib, join(libDir, 'libmpv.lib'));
+      copyFileSync(extractedLib, join(libDir, 'libmpv-2.lib'));
+    }
+
+    rmSync(archivePath, { force: true });
+    rmSync(extractDir, { recursive: true, force: true });
+
+    console.log('[ensure-windows-mpv] Successfully configured Windows libmpv engine binaries!');
+  } catch (error) {
+    console.error('[ensure-windows-mpv] Error auto-provisioning Windows libmpv:', error.message || error);
+    console.error('[ensure-windows-mpv] Run npm run setup:mpv after fixing the download or provide the pinned files manually.');
+    process.exitCode = 1;
+  }
+}
+
+ensureWindowsMpv();

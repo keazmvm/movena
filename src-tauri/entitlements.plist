@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	Movena links against libmpv, which most users get via Homebrew rather
+	than a copy signed with our own identity. Ad-hoc code signing (see
+	`signingIdentity` in tauri.conf.json) otherwise triggers macOS Library
+	Validation, which refuses to dlopen any dylib whose signing Team ID
+	doesn't match ours — that's what turns into a "Movena kann aufgrund
+	eines Problems nicht geöffnet werden" crash on launch. This entitlement
+	turns that check off for this app specifically.
+
+	Once the app is signed with a real Apple Developer ID and libmpv is
+	vendored into Contents/Frameworks instead of loaded from Homebrew's
+	install path, this entitlement (and the Homebrew dependency itself)
+	should be dropped.
+	-->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+
+	<!--
+	mpv's default on-screen-controller/console UI runs on LuaJIT, which
+	Homebrew's libmpv links in and which JIT-compiles Lua bytecode into
+	executable memory at runtime — only once playback actually starts,
+	which is why this doesn't show up until then. That trips macOS's W^X
+	enforcement (SIGKILL "Code Signature Invalid") unless the app is
+	allowed to create executable memory outside the MAP_JIT convention,
+	which is what LuaJIT uses on its own.
+	-->
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+</dict>
+</plist>

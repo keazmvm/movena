@@ -1,0 +1,92 @@
+# Logs & debugging
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.offline-markdown-preview/
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+.pnpm-store/
+
+# Vite / Frontend Build outputs
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+
+# Rust / Tauri build cache & generated schema/gen files
+target/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/lib/mpv-dev/
+src-tauri/lib/*.dll
+src-tauri/lib/*.lib
+src-tauri/lib/*.exp
+src-tauri/lib/*.dylib
+src-tauri/lib/*.so
+
+# Python / Virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# TypeScript
+*.tsbuildinfo
+.tscache
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+!.env.example
+
+# Cache & Temporary files
+.cache/
+coverage/
+coverage-*/
+
+# Local/private IPTV playlists and provider exports must never enter source control.
+*.m3u
+*.m3u8
+*.xspf
+*.xmltv
+provider-*.json
+sources-*.json
+diagnostics-*.json
+recordings/
+downloads/
+# Deliberately public, synthetic fixtures are allowlisted.
+!tests/fixtures/*.m3u
+!tests/fixtures/*.m3u8
+*.tmp
+*.bak
+.tauri-keys/
+tauri-signing-key*

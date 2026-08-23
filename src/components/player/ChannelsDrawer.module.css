@@ -1,0 +1,72 @@
+/* Channel-specific content inside the shared PlayerDrawer shell. */
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  padding: 0 var(--space-3) 0 var(--space-7);
+  font-size: var(--font-size-body);
+}
+
+.channelsEmpty {
+  color: var(--text-muted);
+  font-size: var(--font-size-body);
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.channelLogo {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.channelLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoUnsquish169 {
+  transform: scaleY(0.5625);
+  transform-origin: center;
+}
+
+.logoUnsquish43 {
+  transform: scaleY(0.75);
+  transform-origin: center;
+}
+
+.channelLogoFallback {
+  color: var(--text-muted);
+}
+
+.channelBadge {
+  --badge-accent: var(--text-secondary);
+
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-px) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--badge-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--badge-accent) 30%, transparent);
+  color: var(--badge-accent);
+  flex-shrink: 0;
+}

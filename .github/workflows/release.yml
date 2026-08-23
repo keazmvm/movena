@@ -1,0 +1,227 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-source:
+    name: Build source archives
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Confirm project versions match
+        shell: bash
+        run: |
+          package_version="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; console.log(JSON.parse(readFileSync('package.json', 'utf8')).version)")"
+          cargo_version="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; console.log((readFileSync('src-tauri/Cargo.toml', 'utf8').match(/^version\s*=\s*\"([^\"]+)\"/m) ?? [])[1] ?? '')")"
+          test "$package_version" = "$cargo_version"
+          if [[ "$GITHUB_REF_NAME" == v* ]]; then
+            test "${GITHUB_REF_NAME#v}" = "$package_version"
+          fi
+      - name: Create source archives
+        shell: bash
+        run: |
+          package_version="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; console.log(JSON.parse(readFileSync('package.json', 'utf8')).version)")"
+          tag="v${package_version}"
+          mkdir -p dist-source
+          git archive --format=tar.gz --prefix="movena-${tag}/" --output="dist-source/movena-${tag}-source.tar.gz" HEAD
+          git archive --format=zip --prefix="movena-${tag}/" --output="dist-source/movena-${tag}-source.zip" HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-artifacts
+          path: dist-source/*
+
+  build-windows:
+    name: Build Windows installers & portable
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci
+      - name: Setup Windows mpv binaries
+        run: npm run setup:mpv
+      - name: Build frontend
+        run: npm run build
+      - name: Build Tauri bundles
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --config src-tauri/tauri.windows.conf.json
+      - name: Package Windows artifacts
+        shell: pwsh
+        run: |
+          $version = (Get-Content "package.json" -Raw | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Path "windows-artifacts" -Force | Out-Null
+
+          # NSIS Installer
+          if (Test-Path "src-tauri/target/release/bundle/nsis") {
+            Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | ForEach-Object {
+              Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
+            }
+            Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.sig" | ForEach-Object {
+              Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
+            }
+          }
+
+          # MSI Installer
+          if (Test-Path "src-tauri/target/release/bundle/msi") {
+            Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.msi" | ForEach-Object {
+              Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
+            }
+          }
+
+          # Updater metadata
+          if (Test-Path "src-tauri/target/release/bundle/updater") {
+            Get-ChildItem -Path "src-tauri/target/release/bundle/updater" -Recurse -File | ForEach-Object {
+              Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
+            }
+          }
+
+          # Portable Zip
+          $portableDir = "portable-windows"
+          New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+          Copy-Item "src-tauri/target/release/movena.exe" "$portableDir/Movena.exe"
+          Copy-Item "src-tauri/lib/mpv-dev/libmpv-2.dll" "$portableDir/libmpv-2.dll"
+          Copy-Item "LICENSE" "$portableDir/LICENSE"
+          Copy-Item "THIRD_PARTY_LICENSES.txt" "$portableDir/THIRD_PARTY_LICENSES.txt"
+          Compress-Archive -Path "$portableDir/*" -DestinationPath "windows-artifacts/Movena-v${version}-windows-x64-portable.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: windows-artifacts/*
+
+  build-macos:
+    name: Build macOS DMG & app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install mpv
+        run: brew install mpv
+      - run: npm ci
+      - name: Build frontend
+        run: npm run build
+      - name: Build Tauri bundles
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build
+      - name: Package macOS artifacts
+        shell: bash
+        run: |
+          mkdir -p macos-artifacts
+          if [ -d "src-tauri/target/release/bundle/dmg" ]; then
+            cp src-tauri/target/release/bundle/dmg/*.dmg macos-artifacts/ 2>/dev/null || true
+          fi
+          if [ -d "src-tauri/target/release/bundle/updater" ]; then
+            cp src-tauri/target/release/bundle/updater/* macos-artifacts/ 2>/dev/null || true
+          fi
+          if [ -d "src-tauri/target/release/bundle/macos" ]; then
+            cd src-tauri/target/release/bundle/macos
+            for app in *.app; do
+              if [ -d "$app" ]; then
+                tar -czf "../../../../../macos-artifacts/${app}.tar.gz" "$app"
+              fi
+            done
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: macos-artifacts/*
+
+  build-linux:
+    name: Build Linux packages
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libmpv-dev \
+            patchelf
+      - run: npm ci
+      - name: Build frontend
+        run: npm run build
+      - name: Build Tauri bundles
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build
+      - name: Package Linux artifacts
+        shell: bash
+        run: |
+          mkdir -p linux-artifacts
+          if [ -d "src-tauri/target/release/bundle/deb" ]; then
+            cp src-tauri/target/release/bundle/deb/*.deb linux-artifacts/ 2>/dev/null || true
+          fi
+          if [ -d "src-tauri/target/release/bundle/appimage" ]; then
+            cp src-tauri/target/release/bundle/appimage/*.AppImage linux-artifacts/ 2>/dev/null || true
+          fi
+          if [ -d "src-tauri/target/release/bundle/updater" ]; then
+            cp src-tauri/target/release/bundle/updater/* linux-artifacts/ 2>/dev/null || true
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: linux-artifacts/*
+
+  publish:
+    name: Publish Release with All Artifacts
+    needs: [build-source, build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-downloads
+      - name: Collect all assets and generate checksums
+        shell: bash
+        run: |
+          mkdir -p release-final
+          find release-downloads -type f -exec cp {} release-final/ \;
+          cd release-final
+          sha256sum * > SHA256SUMS.txt
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          package_version="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; console.log(JSON.parse(readFileSync('package.json', 'utf8')).version)")"
+          tag="v${package_version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release-final/* --clobber
+          else
+            gh release create "$tag" release-final/* \
+              --target "$GITHUB_SHA" \
+              --title "Movena $tag" \
+              --generate-notes
+          fi

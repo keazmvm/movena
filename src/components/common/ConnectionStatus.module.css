@@ -1,0 +1,47 @@
+.banner {
+  position: fixed;
+  top: var(--space-4);
+  left: 50%;
+  z-index: var(--z-toast);
+  width: min(520px, calc(100vw - 32px));
+  min-height: var(--control-height-lg);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-primary);
+  background: var(--surface-player);
+  border: 1px solid rgba(var(--color-warning-rgb), var(--alpha-30));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-toast);
+}
+
+.iconBadge {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--color-warning);
+  background: rgba(var(--color-warning-rgb), var(--alpha-12));
+  border-radius: var(--radius-sm);
+}
+
+.copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.copy strong {
+  font-size: var(--font-size-control);
+  line-height: var(--line-height-tight);
+}
+
+.copy span {
+  color: var(--text-secondary);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-normal);
+}

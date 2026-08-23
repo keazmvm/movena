@@ -1,0 +1,58 @@
+[package]
+name = "movena"
+version = "0.1.0"
+description = "Movena — Cross-platform IPTV streaming app"
+authors = []
+license = "GPL-3.0-or-later"
+repository = "https://github.com/keazmvm/movena"
+publish = false
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "movena_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.3", features = ["macos-private-api"] }
+tauri-plugin-log = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-updater = "2"
+libmpv-sys = "3.1.0"
+raw-window-handle = "0.6"
+keyring = { version = "4.1.5", features = ["v1"] }
+encoding_rs = "0.8"
+flate2 = "1"
+reqwest = { version = "0.13", default-features = false, features = ["brotli", "deflate", "gzip", "rustls"] }
+tokio = { version = "1", features = ["time", "macros"] }
+url = "2"
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "0.3.2", features = ["objc2-quartz-core"] }
+objc2-foundation = "0.3.2"
+objc2 = "0.6.4"
+objc2-quartz-core = "0.3.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Shell",
+    "Win32_System_Com",
+    "Win32_Graphics_Gdi",
+] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
