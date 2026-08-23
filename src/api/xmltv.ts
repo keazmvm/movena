@@ -135,10 +135,9 @@ export async function fetchXmltvGuide(
   url: string,
   signal?: AbortSignal,
   headers?: Record<string, string>,
-  allowInsecureHttp = false,
 ): Promise<XmltvGuide> {
   if (isTauri()) {
-    const document = await tauriApi.xmltvFetch({ url, headers, allowInsecureHttp });
+    const document = await tauriApi.xmltvFetch({ url, headers });
     const guide = parseXmltv(document.content);
     if (document.cacheKey) {
       await tauriApi.xmltvCacheCommit(document.cacheKey).catch(() => {});
@@ -191,14 +190,14 @@ export function useXmltvGuide(enabled = true) {
   const fallbackUrl = sourceSetting === 'xmltv' ? configuredUrl.trim() : '';
   const descriptors = [
     ...sources.availableXtreamSources.flatMap((source) => (source.credentials?.epgUrl || fallbackUrl)
-      ? [{ sourceId: source.id, url: source.credentials?.epgUrl || fallbackUrl, headers: undefined, allowInsecureHttp: source.credentials?.allowInsecureHttp === true }]
+      ? [{ sourceId: source.id, url: source.credentials?.epgUrl || fallbackUrl, headers: undefined }]
       : []),
     ...sources.availableM3uSources.flatMap((source) => {
       const playlistUrl = source.runtime?.connection?.epgUrl
         || source.runtime?.playlist?.epgUrls[0]
         || fallbackUrl;
       return playlistUrl.trim()
-        ? [{ sourceId: source.id, url: playlistUrl.trim(), headers: source.runtime?.connection?.headers, allowInsecureHttp: source.runtime?.connection?.allowInsecureHttp === true }]
+        ? [{ sourceId: source.id, url: playlistUrl.trim(), headers: source.runtime?.connection?.headers }]
         : [];
     }),
   ];
@@ -213,19 +212,18 @@ export function useXmltvGuide(enabled = true) {
       const requests = new Map<string, {
         url: string;
         headers?: Record<string, string>;
-        allowInsecureHttp: boolean;
         sourceIds: string[];
       }>();
       for (const descriptor of descriptors) {
         const headerKey = JSON.stringify(Object.entries(descriptor.headers ?? {}).sort());
-        const key = `${descriptor.url}\n${headerKey}\n${descriptor.allowInsecureHttp ? 'allow-http' : 'https-only'}`;
+        const key = `${descriptor.url}\n${headerKey}`;
         const request = requests.get(key);
         if (request) request.sourceIds.push(descriptor.sourceId);
-        else requests.set(key, { url: descriptor.url, headers: descriptor.headers, allowInsecureHttp: descriptor.allowInsecureHttp, sourceIds: [descriptor.sourceId] });
+        else requests.set(key, { url: descriptor.url, headers: descriptor.headers, sourceIds: [descriptor.sourceId] });
       }
       const results = await Promise.allSettled([...requests.values()].map(async (request) => ({
         request,
-        guide: await fetchXmltvGuide(request.url, signal, request.headers, request.allowInsecureHttp),
+        guide: await fetchXmltvGuide(request.url, signal, request.headers),
       })));
       const loaded = results.flatMap((result) => result.status === 'fulfilled'
         ? result.value.request.sourceIds.map((sourceId) => ({ sourceId, guide: result.value.guide }))

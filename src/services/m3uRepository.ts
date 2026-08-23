@@ -5,7 +5,6 @@ export interface M3uConnectionSecret {
   location: string;
   epgUrl?: string;
   headers?: Record<string, string>;
-  allowInsecureHttp?: boolean;
 }
 
 const browserSecrets = new Map<string, string>();
@@ -34,7 +33,6 @@ export async function loadM3uConnection(sourceId: string): Promise<M3uConnection
       location: parsed.location,
       epgUrl: typeof parsed.epgUrl === 'string' && parsed.epgUrl ? parsed.epgUrl : undefined,
       headers,
-      allowInsecureHttp: parsed.allowInsecureHttp === true,
     };
   } catch {
     return null;
@@ -48,7 +46,7 @@ export async function deleteM3uConnection(sourceId: string): Promise<void> {
 
 export async function fetchRemoteM3u(secret: M3uConnectionSecret, sourceId?: string): Promise<M3uDocument> {
   if (isTauri()) {
-    return tauriApi.m3uFetch({ url: secret.location, headers: secret.headers, cacheKey: sourceId, allowInsecureHttp: secret.allowInsecureHttp });
+    return tauriApi.m3uFetch({ url: secret.location, headers: secret.headers, cacheKey: sourceId });
   }
   const response = await fetch(secret.location, { headers: secret.headers });
   if (!response.ok) throw new Error(`The playlist URL answered HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''}.`);

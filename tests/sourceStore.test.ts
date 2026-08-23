@@ -50,21 +50,13 @@ beforeEach(() => {
   });
 });
 describe('M3U source state and secret boundary', () => {
-  it('requires an explicit source exception before loading unencrypted HTTP', async () => {
-    await expect(useSourceStore.getState().addRemoteSource({
-      name: 'Legacy provider',
-      url: 'http://list.test/main.m3u',
-    })).rejects.toThrow('HTTP is not encrypted');
-    expect(repository.fetchRemoteM3u).not.toHaveBeenCalled();
-
+  it('allows plain HTTP playlists, since most IPTV providers only offer HTTP', async () => {
     const profile = await useSourceStore.getState().addRemoteSource({
       name: 'Legacy provider',
       url: 'http://list.test/main.m3u',
-      allowInsecureHttp: true,
     });
     expect(repository.storeM3uConnection).toHaveBeenCalledWith(profile.id, expect.objectContaining({
       location: 'http://list.test/main.m3u',
-      allowInsecureHttp: true,
     }));
   });
 
@@ -160,7 +152,6 @@ describe('M3U source state and secret boundary', () => {
 
     expect(updated).toMatchObject({ id: profile.id, name: 'After', refreshIntervalMinutes: 720, hasEpg: true });
     expect(repository.storeM3uConnection).toHaveBeenLastCalledWith(profile.id, {
-      allowInsecureHttp: false,
       location: 'https://list.test/new.m3u',
       epgUrl: 'https://guide.test/new.xml',
       headers: { 'User-Agent': 'Movena Test' },

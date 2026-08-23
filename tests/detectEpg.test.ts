@@ -58,6 +58,6 @@ describe('EPG source detection', () => {
     ipc.xmltvProbe.mockResolvedValue(true);
 
     await expect(looksLikeXmltv('https://guide.test/native.xml')).resolves.toBe(true);
-    expect(ipc.xmltvProbe).toHaveBeenCalledWith({ url: 'https://guide.test/native.xml', allowInsecureHttp: false });
+    expect(ipc.xmltvProbe).toHaveBeenCalledWith({ url: 'https://guide.test/native.xml' });
   });
 });

@@ -64,7 +64,6 @@ export interface AddRemoteM3uInput {
   userAgent?: string;
   referrer?: string;
   refreshIntervalMinutes?: number;
-  allowInsecureHttp?: boolean;
 }
 
 export interface AddLocalM3uInput {
@@ -192,15 +191,12 @@ function sourceId(): string {
   return `m3u-${uuid.toLowerCase().replace(/[^a-z0-9-]/g, '')}`;
 }
 
-function normalizedRemoteUrl(value: string, allowInsecureHttp = false): string {
+function normalizedRemoteUrl(value: string): string {
   const trimmed = value.trim();
   const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   const parsed = new URL(candidate);
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     throw new Error('Playlist URLs must start with http:// or https://.');
-  }
-  if (parsed.protocol === 'http:' && !allowInsecureHttp) {
-    throw new Error('HTTP is not encrypted. Enable the insecure HTTP exception for this source to continue.');
   }
   return parsed.toString();
 }
@@ -365,12 +361,12 @@ export const useSourceStore = create<SourceState>((set, get) => ({
 
   addRemoteSource: async (input) => {
     const id = sourceId();
-    const location = normalizedRemoteUrl(input.url, input.allowInsecureHttp);
-    const epgUrl = input.epgUrl?.trim() ? normalizedRemoteUrl(input.epgUrl, input.allowInsecureHttp) : undefined;
+    const location = normalizedRemoteUrl(input.url);
+    const epgUrl = input.epgUrl?.trim() ? normalizedRemoteUrl(input.epgUrl) : undefined;
     const headers: Record<string, string> = {};
     if (input.userAgent?.trim()) headers['User-Agent'] = input.userAgent.trim();
     if (input.referrer?.trim()) headers.Referer = input.referrer.trim();
-    const connection: M3uConnectionSecret = { location, epgUrl, headers, allowInsecureHttp: input.allowInsecureHttp === true };
+    const connection: M3uConnectionSecret = { location, epgUrl, headers };
     const document = await fetchRemoteM3u(connection, id);
     const playlist = await parseDocument(id, document, connection.headers);
     const profile = createProfile(
@@ -485,12 +481,12 @@ export const useSourceStore = create<SourceState>((set, get) => ({
     const previous = get().profiles.find((profile) => profile.id === id && profile.locationType === 'remote');
     const previousRuntime = get().runtimes[id];
     if (!previous || !previousRuntime?.connection || !previousRuntime.playlist) throw new Error('Remote playlist not found');
-    const location = normalizedRemoteUrl(input.url, input.allowInsecureHttp);
-    const epgUrl = input.epgUrl?.trim() ? normalizedRemoteUrl(input.epgUrl, input.allowInsecureHttp) : undefined;
+    const location = normalizedRemoteUrl(input.url);
+    const epgUrl = input.epgUrl?.trim() ? normalizedRemoteUrl(input.epgUrl) : undefined;
     const headers: Record<string, string> = {};
     if (input.userAgent?.trim()) headers['User-Agent'] = input.userAgent.trim();
     if (input.referrer?.trim()) headers.Referer = input.referrer.trim();
-    const connection: M3uConnectionSecret = { location, epgUrl, headers, allowInsecureHttp: input.allowInsecureHttp === true };
+    const connection: M3uConnectionSecret = { location, epgUrl, headers };
     const transportChanged = location !== previousRuntime.connection.location
       || JSON.stringify(headers) !== JSON.stringify(previousRuntime.connection.headers ?? {});
     if (transportChanged && previous.hasLocalEdits && previous.editorRefreshPolicy !== 'replace-edits') {

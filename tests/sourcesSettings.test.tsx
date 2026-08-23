@@ -169,25 +169,21 @@ describe('unified source settings', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Source' }));
 
     expect(addRemoteSource).toHaveBeenCalledWith({
-      allowInsecureHttp: false,
       name: 'Living Room', url: 'https://list.test/main.m3u', epgUrl: 'https://guide.test/epg.xml',
       userAgent: 'Provider App', referrer: 'https://portal.test/', refreshIntervalMinutes: 720,
     });
   });
 
-  it('requires an explicit acknowledgement for an HTTP playlist', async () => {
+  it('accepts a plain HTTP playlist without any extra acknowledgement', async () => {
     const addRemoteSource = vi.fn().mockResolvedValue(remoteProfile);
     useSourceStore.setState({ addRemoteSource });
     render(<M3uSourceForm />);
 
     fireEvent.change(screen.getByLabelText('Playlist URL'), { target: { value: 'http://list.test/main.m3u' } });
-    const acknowledgement = screen.getByRole('checkbox', { name: /Allow insecure HTTP for this source/i });
-    fireEvent.click(acknowledgement);
     fireEvent.click(screen.getByRole('button', { name: 'Save Source' }));
 
     expect(addRemoteSource).toHaveBeenCalledWith(expect.objectContaining({
       url: 'http://list.test/main.m3u',
-      allowInsecureHttp: true,
     }));
   });
 

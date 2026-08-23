@@ -1,5 +1,4 @@
 import type { XCCredentials, XCUserInfo, XCServerInfo } from '../store/useAuthStore';
-import { assertInsecureHttpAllowed } from '../utils/transportSecurity';
 
 // Helper to normalize the URL (remove trailing slashes, add player_api.php)
 const getApiUrl = (baseUrl: string) => {
@@ -242,7 +241,6 @@ async function fetchSingleXC<T>(
 // Generic fetch wrapper for XC API with automatic alternative server fallback
 async function fetchXC<T>(creds: XCCredentials, extraParams: Record<string, string> = {}, signal?: AbortSignal): Promise<T> {
   const urlsToTry = [creds.url, ...(creds.alternativeUrls || [])].filter(Boolean);
-  assertInsecureHttpAllowed([...urlsToTry, creds.epgUrl], creds.allowInsecureHttp === true);
   const failoverStartedAt = Date.now();
 
   const failures: string[] = [];

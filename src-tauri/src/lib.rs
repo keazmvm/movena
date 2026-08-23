@@ -149,8 +149,6 @@ struct M3uFetchOptions {
     headers: HashMap<String, String>,
     #[serde(default)]
     cache_key: Option<String>,
-    #[serde(default)]
-    allow_insecure_http: bool,
 }
 
 #[derive(Deserialize)]
@@ -256,13 +254,6 @@ fn validate_remote_url(value: &str) -> Result<url::Url, String> {
     Ok(parsed)
 }
 
-fn validate_source_transport(url: &url::Url, allow_insecure_http: bool) -> Result<(), String> {
-    if url.scheme() == "http" && !allow_insecure_http {
-        return Err("HTTP is not encrypted. Enable the insecure HTTP exception for this source to continue.".to_string());
-    }
-    Ok(())
-}
-
 fn same_origin_redirect_policy() -> reqwest::redirect::Policy {
     reqwest::redirect::Policy::custom(|attempt| {
         if attempt.previous().len() >= 8 {
@@ -335,7 +326,6 @@ async fn download_remote(
     validators: Option<&HttpValidators>,
 ) -> Result<RemoteDownloadResult, String> {
     let url = validate_remote_url(&options.url)?;
-    validate_source_transport(&url, options.allow_insecure_http)?;
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
         .redirect(same_origin_redirect_policy())
@@ -1185,7 +1175,6 @@ fn looks_like_xmltv_prefix(bytes: &[u8]) -> bool {
 #[tauri::command(async)]
 async fn xmltv_probe(options: M3uFetchOptions) -> Result<bool, String> {
     let url = validate_remote_url(&options.url)?;
-    validate_source_transport(&url, options.allow_insecure_http)?;
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
         .redirect(same_origin_redirect_policy())
@@ -1325,7 +1314,7 @@ mod source_tests {
     use super::{
         apply_conditional_headers, decode_m3u, decode_xmltv, looks_like_xmltv_prefix,
         remote_cache_key, validate_m3u_write_path, validate_remote_cache_key, validate_remote_url,
-        validate_settings_path, validate_source_id, validate_source_transport, HttpValidators,
+        validate_settings_path, validate_source_id, HttpValidators,
         M3uFetchOptions,
     };
     use flate2::{write::GzEncoder, Compression};
@@ -1338,9 +1327,7 @@ mod source_tests {
         assert!(validate_source_id("../cache").is_err());
         assert!(validate_remote_url("https://list.test/main.m3u").is_ok());
         assert!(validate_remote_url("file:///private/list.m3u").is_err());
-        let insecure = validate_remote_url("http://list.test/main.m3u").unwrap();
-        assert!(validate_source_transport(&insecure, false).is_err());
-        assert!(validate_source_transport(&insecure, true).is_ok());
+        assert!(validate_remote_url("http://list.test/main.m3u").is_ok());
     }
 
     #[test]
@@ -1389,7 +1376,6 @@ mod source_tests {
                 ("Authorization".to_string(), "Bearer private".to_string()),
             ]),
             cache_key: None,
-            allow_insecure_http: false,
         };
         let reordered = M3uFetchOptions {
             url: first.url.clone(),
@@ -1398,7 +1384,6 @@ mod source_tests {
                 ("referer".to_string(), "https://portal.test".to_string()),
             ]),
             cache_key: None,
-            allow_insecure_http: false,
         };
         let key = remote_cache_key(&first);
         assert_eq!(key, remote_cache_key(&reordered));

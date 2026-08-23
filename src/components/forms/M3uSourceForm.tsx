@@ -9,7 +9,6 @@ import { SegmentedControl } from '../common/SegmentedControl';
 import { Button, IconButton } from '../common/Button';
 import styles from './AccountConnectionForm.module.css';
 import { useI18n } from '../../i18n';
-import { isInsecureHttpUrl } from '../../utils/transportSecurity';
 
 interface M3uSourceFormProps {
   sourceId?: string;
@@ -42,7 +41,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
   const [refreshHours, setRefreshHours] = useState('6');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [allowInsecureHttp, setAllowInsecureHttp] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
@@ -53,7 +51,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
     setUserAgent(runtime?.connection?.headers?.['User-Agent'] || '');
     setReferrer(runtime?.connection?.headers?.Referer || '');
     setRefreshHours(String(profile.refreshIntervalMinutes / 60));
-    setAllowInsecureHttp(runtime?.connection?.allowInsecureHttp === true);
   }, [profile, runtime?.connection]);
 
   const finish = (message: string) => {
@@ -77,7 +74,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
         userAgent,
         referrer,
         refreshIntervalMinutes: Math.max(15, Number(refreshHours || 6) * 60),
-        allowInsecureHttp,
       };
       const saved = sourceId ? await updateRemote(sourceId, input) : await addRemote(input);
       finish(t('{name} is active with {count} entries.', { name: saved.name, count: number(saved.entryCount) }));
@@ -218,21 +214,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
               <div className={styles.inputWrapper}><Globe className={styles.fieldIcon} size={15} /><input type="url" className={`${styles.input} uiField`} value={referrer} onChange={(event) => setReferrer(event.target.value)} placeholder="https://referrer.example/" aria-label={t('HTTP referrer')} autoComplete="off" /></div>
             </div>
           </>
-        )}
-
-        {(isInsecureHttpUrl(url) || isInsecureHttpUrl(epgUrl)) && (
-          <label className={styles.securityWarning}>
-            <input
-              type="checkbox"
-              checked={allowInsecureHttp}
-              onChange={(event) => setAllowInsecureHttp(event.target.checked)}
-              disabled={isLoading}
-            />
-            <span>
-              <strong>{t('Allow insecure HTTP for this source')}</strong>
-              <small>{t('Playlist addresses, credentials, requested media, and viewing activity can be exposed or altered in transit.')}</small>
-            </span>
-          </label>
         )}
 
         <div className={styles.inputGroup}>

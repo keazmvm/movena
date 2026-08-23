@@ -59,7 +59,6 @@ describe('browser repository fallbacks', () => {
     });
 
     expect(await loadM3uConnection('m3u-test')).toEqual({
-      allowInsecureHttp: false,
       location: 'https://list.test/main.m3u',
       epgUrl: 'https://guide.test/epg.xml',
       headers: { Referer: 'https://portal.test', 'Bad-Value': 'kept' },

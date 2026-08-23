@@ -63,7 +63,7 @@ export async function detectEpgSource(credentials: XCCredentials): Promise<EpgDe
   }
 
   const xmltvUrl = xtreamXmltvUrl(credentials);
-  if (await looksLikeXmltv(xmltvUrl, credentials.allowInsecureHttp === true)) {
+  if (await looksLikeXmltv(xmltvUrl)) {
     return {
       kind: 'xmltv',
       message: 'Your provider has no per-channel listings, but it does publish an XMLTV file. Saved below.',
@@ -93,9 +93,9 @@ export function xtreamXmltvUrl(credentials: XCCredentials): string {
  * channels is tens of megabytes, which is far too much to spend on a question
  * the opening bytes already answer.
  */
-export async function looksLikeXmltv(url: string, allowInsecureHttp = false): Promise<boolean> {
+export async function looksLikeXmltv(url: string): Promise<boolean> {
   try {
-    if (isTauri()) return tauriApi.xmltvProbe({ url, allowInsecureHttp });
+    if (isTauri()) return tauriApi.xmltvProbe({ url });
     const response = await fetch(url);
     if (!response.ok) return false;
 

@@ -280,32 +280,3 @@
     transform: rotate(360deg);
   }
 }
-.securityWarning {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  color: var(--text-secondary);
-  background: color-mix(in srgb, var(--color-warning) 10%, var(--bg-surface));
-  border: 1px solid color-mix(in srgb, var(--color-warning) 38%, transparent);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.securityWarning input {
-  margin-top: var(--space-0-5);
-}
-
-.securityWarning span {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.securityWarning strong {
-  color: var(--text-primary);
-  font-size: var(--font-size-small);
-}
-
-.securityWarning small {
-  line-height: var(--line-height-relaxed);
-}

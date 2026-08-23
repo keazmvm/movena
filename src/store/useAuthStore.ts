@@ -21,8 +21,6 @@ export interface XCCredentials {
   displayName?: string;
   /** Optional source-specific XMLTV override, kept with the secure connection record. */
   epgUrl?: string;
-  /** Explicit consent for legacy unencrypted provider connections. */
-  allowInsecureHttp?: boolean;
   username: string;
   password: string;
 }

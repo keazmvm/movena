@@ -8,7 +8,6 @@ import { Globe, User, Lock, Loader2, ArrowRight, AlertCircle, Plus, Trash2, Zap,
 import { Button, IconButton } from '../common/Button';
 import styles from './AccountConnectionForm.module.css';
 import { useI18n } from '../../i18n';
-import { assertInsecureHttpAllowed, isInsecureHttpUrl } from '../../utils/transportSecurity';
 
 interface AccountConnectionFormProps {
   title?: string;
@@ -54,7 +53,6 @@ export function AccountConnectionForm({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [epgUrl, setEpgUrl] = useState('');
-  const [allowInsecureHttp, setAllowInsecureHttp] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTestingSpeed, setIsTestingSpeed] = useState(false);
@@ -68,7 +66,6 @@ export function AccountConnectionForm({
       setUsername('');
       setPassword('');
       setEpgUrl('');
-      setAllowInsecureHttp(false);
       return;
     }
     setDisplayName(credentials.displayName || '');
@@ -77,7 +74,6 @@ export function AccountConnectionForm({
     setUsername(credentials.username || '');
     setPassword(credentials.password || '');
     setEpgUrl(credentials.epgUrl || '');
-    setAllowInsecureHttp(credentials.allowInsecureHttp === true);
   }, [credentials]);
 
   const handleAddServer = () => {
@@ -117,12 +113,6 @@ export function AccountConnectionForm({
     }
 
     const allUrls = [primaryUrl, ...alternativeUrls].map(normalizeUrl).filter(Boolean);
-    try {
-      assertInsecureHttpAllowed([...allUrls, epgUrl], allowInsecureHttp);
-    } catch (reason: unknown) {
-      notify.warning('Insecure HTTP Blocked', getUserFacingErrorMessage(reason, 'Enable the insecure HTTP exception to test this source.'));
-      return;
-    }
     if (allUrls.length === 0) {
       notify.warning('No Server Addresses', 'Enter at least one server address before running the speed test.');
       return;
@@ -190,14 +180,6 @@ export function AccountConnectionForm({
     }
 
     const formattedAlternatives = alternativeUrls.map(normalizeUrl).filter((u) => u && u !== formattedPrimary);
-    try {
-      assertInsecureHttpAllowed([formattedPrimary, ...formattedAlternatives, epgUrl], allowInsecureHttp);
-    } catch (reason: unknown) {
-      const message = getUserFacingErrorMessage(reason, 'Insecure HTTP is blocked.');
-      setError(message);
-      notify.warning('Insecure HTTP Blocked', message);
-      return;
-    }
 
     setIsLoading(true);
     try {
@@ -209,7 +191,6 @@ export function AccountConnectionForm({
         username: username.trim(),
         password: password.trim(),
         epgUrl: epgUrl.trim() || undefined,
-        allowInsecureHttp,
       };
 
       const profile = sourceId
@@ -448,21 +429,6 @@ export function AccountConnectionForm({
             />
           </div>
         </div>
-
-        {(isInsecureHttpUrl(primaryUrl) || alternativeUrls.some(isInsecureHttpUrl) || isInsecureHttpUrl(epgUrl)) && (
-          <label className={styles.securityWarning}>
-            <input
-              type="checkbox"
-              checked={allowInsecureHttp}
-              onChange={(event) => setAllowInsecureHttp(event.target.checked)}
-              disabled={isLoading}
-            />
-            <span>
-              <strong>{t('Allow insecure HTTP for this source')}</strong>
-              <small>{t('Credentials, requested media, and viewing activity can be read or changed by anyone able to observe the connection.')}</small>
-            </span>
-          </label>
-        )}
 
         {error && (
           <div className={styles.error} role="alert" aria-live="assertive">

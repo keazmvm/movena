@@ -27,7 +27,6 @@ export interface M3uFetchOptions {
   headers?: Record<string, string>;
   /** Opaque source id used by native conditional-request caching. */
   cacheKey?: string;
-  allowInsecureHttp?: boolean;
 }
 
 export interface M3uDocument {
