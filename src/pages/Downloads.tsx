@@ -12,14 +12,8 @@ import { getUserFacingErrorMessage } from '../utils/error';
 import appStyles from '../App.module.css';
 import styles from './Downloads.module.css';
 import { Button, IconButton } from '../components/common/Button';
-import { useI18n, type I18nApi } from '../i18n';
-
-function formatBytes(value: number | null, number: I18nApi['number']) {
-  if (value === null || value <= 0) return null;
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
-  return `${number(value / 1024 ** index, { minimumFractionDigits: 0, maximumFractionDigits: index === 0 ? 0 : 1 })} ${units[index]}`;
-}
+import { useI18n } from '../i18n';
+import { formatBytes } from '../utils/formatBytes';
 
 function DownloadRow({ job }: { job: DownloadJob }) {
   const { t, number } = useI18n();

@@ -114,6 +114,77 @@
   height: auto;
 }
 
+.updatePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-input);
+}
+
+.updatePanelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.updatePanelTitle {
+  color: var(--text-primary);
+  font-size: var(--font-size-control);
+  font-weight: var(--font-weight-semibold);
+}
+
+.updatePanelMeta {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+}
+
+.updatePanelNotes {
+  max-height: 160px;
+  margin: 0;
+  overflow-y: auto;
+  color: var(--text-secondary);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-line;
+}
+
+.updatePanelActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.updatePanelProgress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.updatePanelProgress .progressTrack {
+  flex: 1;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--surface-control);
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-color);
+  transition: width var(--duration-normal) var(--ease-standard);
+}
+
 .successText {
   color: var(--color-success);
 }
