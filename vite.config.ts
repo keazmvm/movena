@@ -20,6 +20,11 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    watch: {
+      // Cargo's build output is huge and its files get locked mid-compile;
+      // watching it can crash Vite with EBUSY on Windows.
+      ignored: ['**/src-tauri/target/**'],
+    },
   },
   envPrefix: ['VITE_', 'TAURI_'],
   build: {
