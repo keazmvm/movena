@@ -1,10 +1,10 @@
 [package]
 name = "movena"
-version = "0.1.1"
+version = "0.1.2"
 description = "Movena — Cross-platform IPTV streaming app"
 authors = []
 license = "GPL-3.0-or-later"
-repository = "https://github.com/keazmvm/movena"
+repository = "https://github.com/movena-app/movena"
 publish = false
 edition = "2021"
 rust-version = "1.77.2"

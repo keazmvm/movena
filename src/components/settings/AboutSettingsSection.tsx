@@ -93,10 +93,10 @@ export function AboutSettingsSection() {
             <SettingsButton onClick={handleCheckUpdates} disabled={isCheckingUpdate}>
               <RefreshCw size={15} className={isCheckingUpdate ? 'animate-spin' : undefined} /> {t('Check for Updates')}
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/keazmvm/movena')}>
+            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena')}>
               <ExternalLink size={15} /> {t('View on GitHub')}
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/keazmvm/movena/issues/new')}>
+            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/issues/new')}>
               <Bug size={15} /> {t('Report an Issue')}
             </SettingsButton>
           </div>
@@ -130,13 +130,13 @@ export function AboutSettingsSection() {
         <div className={styles.aboutBody}>
           <p className={styles.aboutTagline}>Configure only sources you are authorized to access. Record or download media only when you have the necessary rights. Movena does not bypass DRM.</p>
           <div className={styles.aboutLinks}>
-            <SettingsButton onClick={() => openUrl('https://github.com/keazmvm/movena/blob/main/LICENSE')}>
+            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/LICENSE')}>
               <ExternalLink size={15} /> GPL-3.0-or-later
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/keazmvm/movena/blob/main/docs/PRIVACY.md')}>
+            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/docs/PRIVACY.md')}>
               <ExternalLink size={15} /> Privacy
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/keazmvm/movena/blob/main/docs/THIRD_PARTY_NOTICES.md')}>
+            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/docs/THIRD_PARTY_NOTICES.md')}>
               <ExternalLink size={15} /> Third-party notices
             </SettingsButton>
           </div>
