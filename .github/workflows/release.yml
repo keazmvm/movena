@@ -83,11 +83,7 @@ jobs:
             Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.msi" | ForEach-Object {
               Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
             }
-          }
-
-          # Updater metadata
-          if (Test-Path "src-tauri/target/release/bundle/updater") {
-            Get-ChildItem -Path "src-tauri/target/release/bundle/updater" -Recurse -File | ForEach-Object {
+            Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.sig" | ForEach-Object {
               Copy-Item $_.FullName "windows-artifacts/$($_.Name)"
             }
           }
@@ -132,16 +128,13 @@ jobs:
           if [ -d "src-tauri/target/release/bundle/dmg" ]; then
             cp src-tauri/target/release/bundle/dmg/*.dmg macos-artifacts/ 2>/dev/null || true
           fi
-          if [ -d "src-tauri/target/release/bundle/updater" ]; then
-            cp src-tauri/target/release/bundle/updater/* macos-artifacts/ 2>/dev/null || true
-          fi
+          # Tauri already builds and signs the .app.tar.gz updater bundle itself
+          # (with bundle.createUpdaterArtifacts on) — reuse that file instead of
+          # re-tarring the .app, which would produce different bytes than what
+          # got signed and break updater signature verification.
           if [ -d "src-tauri/target/release/bundle/macos" ]; then
-            cd src-tauri/target/release/bundle/macos
-            for app in *.app; do
-              if [ -d "$app" ]; then
-                tar -czf "../../../../../macos-artifacts/${app}.tar.gz" "$app"
-              fi
-            done
+            cp src-tauri/target/release/bundle/macos/*.tar.gz macos-artifacts/ 2>/dev/null || true
+            cp src-tauri/target/release/bundle/macos/*.tar.gz.sig macos-artifacts/ 2>/dev/null || true
           fi
       - uses: actions/upload-artifact@v4
         with:
@@ -182,12 +175,11 @@ jobs:
           mkdir -p linux-artifacts
           if [ -d "src-tauri/target/release/bundle/deb" ]; then
             cp src-tauri/target/release/bundle/deb/*.deb linux-artifacts/ 2>/dev/null || true
+            cp src-tauri/target/release/bundle/deb/*.sig linux-artifacts/ 2>/dev/null || true
           fi
           if [ -d "src-tauri/target/release/bundle/appimage" ]; then
             cp src-tauri/target/release/bundle/appimage/*.AppImage linux-artifacts/ 2>/dev/null || true
-          fi
-          if [ -d "src-tauri/target/release/bundle/updater" ]; then
-            cp src-tauri/target/release/bundle/updater/* linux-artifacts/ 2>/dev/null || true
+            cp src-tauri/target/release/bundle/appimage/*.sig linux-artifacts/ 2>/dev/null || true
           fi
       - uses: actions/upload-artifact@v4
         with:
@@ -203,11 +195,21 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: release-downloads
-      - name: Collect all assets and generate checksums
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Collect all assets
         shell: bash
         run: |
           mkdir -p release-final
           find release-downloads -type f -exec cp {} release-final/ \;
+      - name: Generate updater manifest
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/generate-latest-json.mjs release-final
+      - name: Checksum all assets
+        shell: bash
+        run: |
           cd release-final
           sha256sum * > SHA256SUMS.txt
       - name: Publish GitHub release
