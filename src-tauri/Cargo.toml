@@ -1,6 +1,6 @@
 [package]
 name = "movena"
-version = "0.1.5"
+version = "0.1.6"
 description = "Movena — Cross-platform IPTV streaming app"
 authors = []
 license = "GPL-3.0-or-later"
@@ -27,6 +27,7 @@ tauri-plugin-log = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 libmpv-sys = "3.1.0"
 raw-window-handle = "0.6"
 keyring = { version = "4.1.5", features = ["v1"] }

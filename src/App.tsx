@@ -8,6 +8,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { WindowChrome } from './components/layout/WindowChrome';
 import { PageTransition } from './components/layout/PageTransition';
 import { useSettingsStore } from './store/useSettingsStore';
+import { useUpdateStore } from './store/useUpdateStore';
 import { usePlayerStore } from './store/usePlayerStore';
 import { useAuthStore } from './store/useAuthStore';
 import { useSourceStore } from './store/useSourceStore';
@@ -222,35 +223,39 @@ function AppShell() {
   }, []);
 
   const autoCheckUpdates = useSettingsStore((state) => state.autoCheckUpdates);
-  const dismissedUpdateVersion = useSettingsStore((state) => state.dismissedUpdateVersion);
-  const updateSetting = useSettingsStore((state) => state.updateSetting);
 
   useEffect(() => {
     if (!autoCheckUpdates) return;
-    const timer = window.setTimeout(async () => {
-      try {
-        const { checkForAppUpdates } = await import('./services/appUpdater');
-        const result = await checkForAppUpdates();
-        updateSetting('lastUpdateCheckTime', Date.now());
-        if (result.available && result.updateInfo) {
-          if (result.updateInfo.version !== dismissedUpdateVersion) {
-            notify.info(
-              'Update Available',
-              `Movena v${result.updateInfo.version} is now available.`,
-              8000,
-              {
-                label: 'View',
-                onClick: () => navigate('/settings?section=about'),
-              },
-            );
-          }
-        }
-      } catch {
-        // Silently ignore background check failures
-      }
+    const timer = window.setTimeout(() => {
+      void useUpdateStore.getState().check();
     }, 4000);
     return () => window.clearTimeout(timer);
-  }, [autoCheckUpdates, dismissedUpdateVersion, navigate, updateSetting]);
+  }, [autoCheckUpdates]);
+
+  // Announce whatever check() lands on — the background timer above or a
+  // manual "Check for Updates" click in Settings > About both flow through
+  // the same store, so this fires exactly once per newly-found version.
+  // Installing never happens from here: only the About panel's explicit
+  // "Download & Install" button starts a download.
+  const updatePhase = useUpdateStore((state) => state.phase);
+  const updateInfo = useUpdateStore((state) => state.info);
+  const dismissedUpdateVersion = useSettingsStore((state) => state.dismissedUpdateVersion);
+  const announcedUpdateVersion = useRef<string | null>(null);
+  useEffect(() => {
+    if (updatePhase !== 'available' || !updateInfo) return;
+    if (updateInfo.version === dismissedUpdateVersion) return;
+    if (announcedUpdateVersion.current === updateInfo.version) return;
+    announcedUpdateVersion.current = updateInfo.version;
+    notify.info(
+      'Update Available',
+      `Movena v${updateInfo.version} is now available.`,
+      8000,
+      {
+        label: 'View',
+        onClick: () => navigate('/settings?section=about'),
+      },
+    );
+  }, [updatePhase, updateInfo, dismissedUpdateVersion, navigate]);
 
   useEffect(() => {
     document.documentElement.dataset.motion = motionPreference;

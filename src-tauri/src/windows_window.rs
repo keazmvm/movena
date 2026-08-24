@@ -255,18 +255,28 @@ pub fn set_fullscreen(app: &AppHandle, on: bool) -> Result<bool, String> {
                 taskbar.mark_fullscreen(hwnd, true);
             }
 
+            // Undecorated windows get DWM's 1px shadow border (and, on
+            // Windows 11, rounded corners) — desirable in windowed mode, but
+            // once the window covers the full monitor edge-to-edge that same
+            // border/corner clipping sits on the screen edge and lets the
+            // desktop behind it show through. Drop it only while fullscreen.
+            let _ = window.set_shadow(false);
+
             // 5. Remove resizing frame borders (WS_THICKFRAME), captions, borders, and maximize styles
             // so DWM treats the surface as gapless full-canvas without frame margins.
             let fullscreen_style = (style
                 & !(WS_THICKFRAME | WS_CAPTION | WS_BORDER | WS_MAXIMIZE))
                 | WS_POPUP
                 | WS_VISIBLE;
-            set_window_style(
+            if let Err(error) = set_window_style(
                 hwnd,
                 GWL_STYLE,
                 fullscreen_style,
                 "Applying fullscreen window style",
-            )?;
+            ) {
+                let _ = window.set_shadow(true);
+                return Err(error);
+            }
 
             let fullscreen_ex_style =
                 ex_style & !(WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
@@ -277,6 +287,7 @@ pub fn set_fullscreen(app: &AppHandle, on: bool) -> Result<bool, String> {
                 "Applying fullscreen extended style",
             ) {
                 let _ = set_window_style(hwnd, GWL_STYLE, style, "Rolling back window style");
+                let _ = window.set_shadow(true);
                 return Err(error);
             }
 
@@ -299,6 +310,7 @@ pub fn set_fullscreen(app: &AppHandle, on: bool) -> Result<bool, String> {
                 if let Some(taskbar) = TaskbarList::new() {
                     taskbar.mark_fullscreen(hwnd, false);
                 }
+                let _ = window.set_shadow(true);
                 state.placement = None;
                 state.style = None;
                 state.ex_style = None;
@@ -313,6 +325,9 @@ pub fn set_fullscreen(app: &AppHandle, on: bool) -> Result<bool, String> {
             if let Some(taskbar) = TaskbarList::new() {
                 taskbar.mark_fullscreen(hwnd, false);
             }
+
+            // Restore the windowed-mode shadow/border dropped on entry.
+            let _ = window.set_shadow(true);
 
             // 2. Restore original styles
             if let Some(ex_style) = state.ex_style {

@@ -1,22 +1,34 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const clearAllAppDataMock = vi.hoisted(() => vi.fn());
+const appUpdater = vi.hoisted(() => ({
+  checkForAppUpdates: vi.fn(),
+  installAppUpdate: vi.fn(),
+}));
 
 vi.mock('../src/services/appDataReset', () => ({ clearAllAppData: clearAllAppDataMock }));
+vi.mock('../src/services/appUpdater', () => appUpdater);
 
 import { AboutSettingsSection } from '../src/components/settings/AboutSettingsSection';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { useNotificationStore } from '../src/store/useNotificationStore';
+import { useUpdateStore } from '../src/store/useUpdateStore';
+
+const updateHandle = { close: vi.fn().mockResolvedValue(undefined) } as unknown as never;
+const updateInfo = { version: '2.0.0', currentVersion: '1.0.0', body: 'Fixes things.' };
 
 beforeEach(() => {
   localStorage.clear();
   useSettingsStore.getState().resetSettings();
   useNotificationStore.getState().clearAll();
+  useUpdateStore.setState({ phase: 'idle', info: null, progress: null, error: null, handle: null });
   clearAllAppDataMock.mockReset().mockResolvedValue(undefined);
+  appUpdater.checkForAppUpdates.mockReset();
+  appUpdater.installAppUpdate.mockReset();
 });
 
 describe('all-data deletion settings control', () => {
@@ -71,5 +83,72 @@ describe('all-data deletion settings control', () => {
   it('renders a Check for Updates button', () => {
     render(<AboutSettingsSection />);
     expect(screen.getByRole('button', { name: 'Check for Updates' })).toBeTruthy();
+  });
+});
+
+describe('update download and install flow', () => {
+  it('never installs on its own — checking only reveals a Download & Install button', async () => {
+    const user = userEvent.setup();
+    appUpdater.checkForAppUpdates.mockResolvedValue({ available: true, updateInfo, update: updateHandle });
+    render(<AboutSettingsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Check for Updates/ }));
+
+    expect(await screen.findByRole('button', { name: /Download & Install/ })).toBeTruthy();
+    expect(appUpdater.installAppUpdate).not.toHaveBeenCalled();
+  });
+
+  it('reports up to date without touching the installer when nothing is available', async () => {
+    const user = userEvent.setup();
+    appUpdater.checkForAppUpdates.mockResolvedValue({ available: false });
+    render(<AboutSettingsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Check for Updates/ }));
+
+    await waitFor(() => expect(useNotificationStore.getState().notifications[0]).toMatchObject({ type: 'info', title: 'Up to Date' }));
+    expect(screen.queryByRole('button', { name: /Download & Install/ })).toBeNull();
+  });
+
+  it('shows download progress and never leaves the button silently finishing', async () => {
+    const user = userEvent.setup();
+    let releaseInstall!: () => void;
+    appUpdater.installAppUpdate.mockImplementation((_handle: unknown, options: {
+      onProgress?: (p: { downloaded: number; total: number | null }) => void;
+    }) => new Promise<void>((resolve) => {
+      options.onProgress?.({ downloaded: 0, total: 200 });
+      options.onProgress?.({ downloaded: 100, total: 200 });
+      releaseInstall = resolve;
+    }));
+    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    render(<AboutSettingsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Download & Install/ }));
+
+    expect(await screen.findByText('50%', { exact: false })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Download & Install/ })).toBeNull();
+    releaseInstall();
+  });
+
+  it('surfaces an install failure instead of leaving the UI stuck mid-download', async () => {
+    const user = userEvent.setup();
+    appUpdater.installAppUpdate.mockRejectedValue(new Error('disk full'));
+    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    render(<AboutSettingsSection />);
+
+    await user.click(screen.getByRole('button', { name: /Download & Install/ }));
+
+    expect(await screen.findByRole('button', { name: /Check for Updates/ })).toBeTruthy();
+    expect(useNotificationStore.getState().notifications[0]).toMatchObject({ type: 'error', title: 'Update Failed', message: 'disk full' });
+  });
+
+  it('lets the user dismiss an available update instead of forcing the install', async () => {
+    const user = userEvent.setup();
+    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    render(<AboutSettingsSection />);
+
+    await user.click(screen.getByRole('button', { name: 'Later' }));
+
+    expect(screen.queryByRole('button', { name: /Download & Install/ })).toBeNull();
+    expect(useSettingsStore.getState().dismissedUpdateVersion).toBe('2.0.0');
   });
 });

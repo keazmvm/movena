@@ -83,6 +83,7 @@ cargo:Apache-2.0 OR MIT
 - tauri-plugin-fs@2.5.1
 - tauri-plugin-log@2.9.0
 - tauri-plugin-opener@2.5.4
+- tauri-plugin-process@2.3.1
 - tauri-plugin-updater@2.10.1
 - tauri-plugin@2.6.3
 - tauri-runtime-wry@2.11.4
@@ -796,6 +797,7 @@ npm:MIT OR Apache-2.0
 ---------------------
 - @tauri-apps/plugin-dialog@2.7.2
 - @tauri-apps/plugin-opener@2.5.4
+- @tauri-apps/plugin-process@2.3.1
 - @tauri-apps/plugin-updater@2.10.1
 
 npm:MPL-2.0
@@ -10946,9 +10948,11 @@ Used by:
 - cargo:tauri-plugin-fs@2.5.1 (LICENSE.spdx)
 - cargo:tauri-plugin-log@2.9.0 (LICENSE.spdx)
 - cargo:tauri-plugin-opener@2.5.4 (LICENSE.spdx)
+- cargo:tauri-plugin-process@2.3.1 (LICENSE.spdx)
 - cargo:tauri-plugin-updater@2.10.1 (LICENSE.spdx)
 - npm:@tauri-apps/plugin-dialog@2.7.2 (LICENSE.spdx)
 - npm:@tauri-apps/plugin-opener@2.5.4 (LICENSE.spdx)
+- npm:@tauri-apps/plugin-process@2.3.1 (LICENSE.spdx)
 - npm:@tauri-apps/plugin-updater@2.10.1 (LICENSE.spdx)
 
 SPDXVersion: SPDX-2.1

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { RefreshCw, Bug, ExternalLink } from 'lucide-react';
+import { RefreshCw, Bug, ExternalLink, Download } from 'lucide-react';
 import { notify } from '../../store/useNotificationStore';
 import { clearAllAppData } from '../../services/appDataReset';
-import { checkForAppUpdates } from '../../services/appUpdater';
+import { useUpdateStore } from '../../store/useUpdateStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import {
@@ -17,43 +17,45 @@ import styles from '../../pages/Settings.module.css';
 import { useI18n } from '../../i18n';
 import { deleteTmdbApiKey } from '../../services/tmdbCredentialVault';
 import { getErrorMessage } from '../../utils/error';
+import { formatBytes } from '../../utils/formatBytes';
 
 export function AboutSettingsSection() {
-  const { t } = useI18n();
+  const { t, number } = useI18n();
   const settings = useSettingsStore();
   const [confirmAction, setConfirmAction] = useState<'settings' | 'all-data' | null>(null);
   const [isClearingData, setIsClearingData] = useState(false);
-  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const [appVersion, setAppVersion] = useState<string | null>(null);
+
+  const updatePhase = useUpdateStore((state) => state.phase);
+  const updateInfo = useUpdateStore((state) => state.info);
+  const updateProgress = useUpdateStore((state) => state.progress);
+  const checkForUpdates = useUpdateStore((state) => state.check);
+  const installUpdate = useUpdateStore((state) => state.install);
+  const dismissUpdate = useUpdateStore((state) => state.dismiss);
 
   useEffect(() => {
     getVersion().then(setAppVersion).catch(() => {});
   }, []);
 
   const handleCheckUpdates = async () => {
-    setIsCheckingUpdate(true);
-    try {
-      const result = await checkForAppUpdates();
-      settings.updateSetting('lastUpdateCheckTime', Date.now());
-      if (result.available && result.updateInfo) {
-        notify.info(
-          'Update Available',
-          `Version ${result.updateInfo.version} is available.`,
-        );
-        if (result.installUpdate) {
-          try {
-            await result.installUpdate();
-          } catch (installErr) {
-            notify.error('Update Failed', getErrorMessage(installErr, 'Failed to install update.'));
-          }
-        }
-      } else if (result.error) {
-        notify.warning('Update Check', result.error);
-      } else {
-        notify.info('Up to Date', `Movena ${appVersion ? `v${appVersion}` : ''} is the latest version.`);
-      }
-    } finally {
-      setIsCheckingUpdate(false);
+    await checkForUpdates();
+    const { phase, error } = useUpdateStore.getState();
+    if (phase !== 'idle') return; // 'available' renders its own panel below
+    if (error) {
+      notify.warning('Update Check', error);
+    } else {
+      notify.info('Up to Date', `Movena ${appVersion ? `v${appVersion}` : ''} is the latest version.`);
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    await installUpdate();
+    const { phase, error } = useUpdateStore.getState();
+    // A successful install relaunches the app before this line would run in
+    // practice — reaching 'idle' with an error means downloadAndInstall
+    // rejected (network drop, signature mismatch, disk full, ...).
+    if (phase === 'idle' && error) {
+      notify.error('Update Failed', error);
     }
   };
 
@@ -81,6 +83,18 @@ export function AboutSettingsSection() {
     }
   };
 
+  const progressPercent = updateProgress?.total
+    ? Math.min(100, Math.round((updateProgress.downloaded / updateProgress.total) * 100))
+    : null;
+  const progressByteText = updateProgress
+    ? updateProgress.total
+      ? t('{downloaded} of {total}', {
+        downloaded: formatBytes(updateProgress.downloaded, number) ?? '0 B',
+        total: formatBytes(updateProgress.total, number) ?? '0 B',
+      })
+      : formatBytes(updateProgress.downloaded, number)
+    : null;
+
   return (
     <SettingsPageContent>
       <SettingsGroup
@@ -90,8 +104,11 @@ export function AboutSettingsSection() {
         <div className={styles.aboutBody}>
           <p className={styles.aboutTagline}>{t('A native desktop client for Xtream and M3U live TV, movies, and series.')}</p>
           <div className={styles.aboutLinks}>
-            <SettingsButton onClick={handleCheckUpdates} disabled={isCheckingUpdate}>
-              <RefreshCw size={15} className={isCheckingUpdate ? 'animate-spin' : undefined} /> {t('Check for Updates')}
+            <SettingsButton
+              onClick={handleCheckUpdates}
+              disabled={updatePhase !== 'idle'}
+            >
+              <RefreshCw size={15} className={updatePhase === 'checking' ? 'animate-spin' : undefined} /> {t('Check for Updates')}
             </SettingsButton>
             <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena')}>
               <ExternalLink size={15} /> {t('View on GitHub')}
@@ -100,6 +117,48 @@ export function AboutSettingsSection() {
               <Bug size={15} /> {t('Report an Issue')}
             </SettingsButton>
           </div>
+
+          {updateInfo && (updatePhase === 'available' || updatePhase === 'downloading' || updatePhase === 'restarting') && (
+            <div className={styles.updatePanel}>
+              <div className={styles.updatePanelHeader}>
+                <span className={styles.updatePanelTitle}>{t('Movena {version} is available', { version: `v${updateInfo.version}` })}</span>
+                <span className={styles.updatePanelMeta}>{t('You have {version}', { version: `v${updateInfo.currentVersion}` })}</span>
+              </div>
+
+              {updateInfo.body && updatePhase === 'available' && (
+                <p className={styles.updatePanelNotes}>{updateInfo.body}</p>
+              )}
+
+              {updatePhase === 'available' && (
+                <div className={styles.updatePanelActions}>
+                  <SettingsButton variant="primary" onClick={handleInstallUpdate}>
+                    <Download size={15} /> {t('Download & Install')}
+                  </SettingsButton>
+                  <SettingsButton onClick={dismissUpdate}>{t('Later')}</SettingsButton>
+                </div>
+              )}
+
+              {updatePhase === 'downloading' && (
+                <div className={styles.updatePanelProgress}>
+                  <div className={styles.progressTrack} aria-label={t('Downloading update')}>
+                    <span style={{ width: progressPercent === null ? '35%' : `${progressPercent}%` }} />
+                  </div>
+                  <span className={styles.updatePanelMeta}>
+                    {progressPercent === null
+                      ? (progressByteText ?? t('Downloading…'))
+                      : `${number(progressPercent)}%${progressByteText ? ` · ${progressByteText}` : ''}`}
+                  </span>
+                </div>
+              )}
+
+              {updatePhase === 'restarting' && (
+                <div className={styles.updatePanelProgress}>
+                  <RefreshCw size={15} className="animate-spin" />
+                  <span className={styles.updatePanelMeta}>{t('Installed. Restarting Movena…')}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </SettingsGroup>
 
