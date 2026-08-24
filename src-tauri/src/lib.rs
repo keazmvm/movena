@@ -1314,8 +1314,7 @@ mod source_tests {
     use super::{
         apply_conditional_headers, decode_m3u, decode_xmltv, looks_like_xmltv_prefix,
         remote_cache_key, validate_m3u_write_path, validate_remote_cache_key, validate_remote_url,
-        validate_settings_path, validate_source_id, HttpValidators,
-        M3uFetchOptions,
+        validate_settings_path, validate_source_id, HttpValidators, M3uFetchOptions,
     };
     use flate2::{write::GzEncoder, Compression};
     use std::collections::HashMap;
