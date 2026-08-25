@@ -9,8 +9,10 @@ const buildRoot = join(projectRoot, 'src-tauri', '.twitch-resolver-build');
 const outputRoot = join(projectRoot, 'src-tauri', 'lib');
 const outputDir = join(outputRoot, 'twitch-resolver');
 const venvDir = join(buildRoot, 'venv');
-const python = process.env.MOVENA_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
-const pythonPrefix = process.platform === 'win32' && !process.env.MOVENA_PYTHON ? ['-3'] : [];
+// Prefer the interpreter on PATH so CI and local version managers can select the
+// exact pinned patch release. The Windows `py -3` launcher otherwise chooses the
+// newest installed Python 3 version and can bypass actions/setup-python.
+const python = process.env.MOVENA_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
 const venvPython = process.platform === 'win32'
   ? join(venvDir, 'Scripts', 'python.exe')
   : join(venvDir, 'bin', 'python');
@@ -33,7 +35,7 @@ mkdirSync(buildRoot, { recursive: true });
 mkdirSync(outputRoot, { recursive: true });
 
 if (!existsSync(venvPython)) {
-  run(python, [...pythonPrefix, '-m', 'venv', venvDir]);
+  run(python, ['-m', 'venv', venvDir]);
 }
 
 const pythonVersion = execFileSync(venvPython, ['-c', 'import platform; print(platform.python_version())'], {
