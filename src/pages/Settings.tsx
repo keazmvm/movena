@@ -28,7 +28,7 @@ import {
   resolveSettingsSectionId,
   type SettingsSectionId,
 } from '../utils/settingsNavigation';
-import styles from '../App.module.css';
+import styles from '../components/layout/AppLayout.module.css';
 import settingsStyles from './Settings.module.css';
 import { useI18n } from '../i18n';
 

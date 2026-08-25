@@ -9,7 +9,7 @@ import { Button } from '../common/Button';
 import { SegmentedControl } from '../common/SegmentedControl';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { M3uChannelDetailDrawer } from './M3uChannelDetailDrawer';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { getErrorMessage } from '../../utils/error';
 

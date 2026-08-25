@@ -9,7 +9,7 @@ import type { DownloadJob } from '../utils/downloads';
 import { tauriApi } from '../api/ipc';
 import { notify } from '../store/useNotificationStore';
 import { getUserFacingErrorMessage } from '../utils/error';
-import appStyles from '../App.module.css';
+import appStyles from '../components/layout/AppLayout.module.css';
 import styles from './Downloads.module.css';
 import { Button, IconButton } from '../components/common/Button';
 import { useI18n } from '../i18n';

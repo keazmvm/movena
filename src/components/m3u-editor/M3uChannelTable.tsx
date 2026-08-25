@@ -16,7 +16,7 @@ import { WorkspaceSidebar, WorkspaceSidebarSearch } from '../common/WorkspaceSid
 import { Select } from '../shared/Select';
 import { M3uChannelDetailDrawer } from './M3uChannelDetailDrawer';
 import { M3uBatchToolsModal } from './M3uBatchToolsModal';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 
 interface M3uChannelTableProps {

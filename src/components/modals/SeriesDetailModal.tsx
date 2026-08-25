@@ -194,6 +194,10 @@ function XtreamSeriesDetailModal({
     }));
   }, [seasons, t]);
 
+  const displayedSeasonCount = enriched?.numberOfSeasons ?? seasons.length;
+  const displayedEpisodeCount = enriched?.numberOfEpisodes
+    ?? Object.values(data?.episodes ?? {}).reduce((count, episodes) => count + episodes.length, 0);
+
   useEffect(() => {
     setSelectedSeason('');
     positionedEpisodeRef.current = false;
@@ -421,8 +425,8 @@ function XtreamSeriesDetailModal({
                   {genres && (
                     <span className={styles.factItem}>{genres}</span>
                   )}
-                  {enriched?.numberOfSeasons && <span className={styles.factItem}>{tn('{count} season', '{count} seasons', enriched.numberOfSeasons, { count: number(enriched.numberOfSeasons) })}</span>}
-                  {enriched?.numberOfEpisodes && <span className={styles.factItem}>{tn('{count} episode', '{count} episodes', enriched.numberOfEpisodes, { count: number(enriched.numberOfEpisodes) })}</span>}
+                  {displayedSeasonCount > 0 && <span className={styles.factItem}>{tn('{count} season', '{count} seasons', displayedSeasonCount, { count: number(displayedSeasonCount) })}</span>}
+                  {displayedEpisodeCount > 0 && <span className={styles.factItem}>{tn('{count} episode', '{count} episodes', displayedEpisodeCount, { count: number(displayedEpisodeCount) })}</span>}
                   {displayCountry && <span className={styles.factItem}>{displayCountry}</span>}
                   {getPrimaryMediaTags(parsedTitle.tags).map((tag) => (
                     <span

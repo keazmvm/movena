@@ -83,25 +83,7 @@ async function fetchSingleXC<T>(
   const settings = useSettingsStore.getState();
   const startTime = Date.now();
 
-  const abortError = () => signal?.reason ?? Object.assign(new Error('Provider request cancelled'), { name: 'AbortError' });
-  if (signal?.aborted) throw abortError();
-
-  if (settings.debugMode && settings.simulateNetworkDelay) {
-    const delay = settings.simulateNetworkDelayMs ?? 800;
-    await new Promise<void>((resolve, reject) => {
-      const cancelDelay = () => {
-        clearTimeout(timeoutId);
-        signal?.removeEventListener('abort', cancelDelay);
-        reject(abortError());
-      };
-      const finishDelay = () => {
-        signal?.removeEventListener('abort', cancelDelay);
-        resolve();
-      };
-      const timeoutId = setTimeout(finishDelay, delay);
-      signal?.addEventListener('abort', cancelDelay, { once: true });
-    });
-  }
+  if (signal?.aborted) throw signal.reason ?? Object.assign(new Error('Provider request cancelled'), { name: 'AbortError' });
 
   const url = new URL(getApiUrl(baseUrl));
   url.searchParams.append('username', creds.username);
@@ -113,23 +95,6 @@ async function fetchSingleXC<T>(
 
   const sanitizedUrl = url.toString().replace(/password=[^&]+/gi, 'password=***');
   const actionName = extraParams.action || 'auth';
-
-  if (settings.debugMode && (settings.simulateNetworkErrorRate ?? 0) > 0) {
-    if (Math.random() * 100 < settings.simulateNetworkErrorRate) {
-      const errText = 'Simulated network connection failure (Developer Settings)';
-      const durationMs = Date.now() - startTime;
-      if (settings.logApiRequests) {
-        useDebugStore.getState().addNetworkLog({
-          url: sanitizedUrl,
-          method: 'GET',
-          durationMs,
-          error: errText,
-        });
-      }
-      debugLog.error('api', errText, { url: sanitizedUrl, action: actionName });
-      throw new Error(errText);
-    }
-  }
 
   const requestController = new AbortController();
   let timedOut = false;

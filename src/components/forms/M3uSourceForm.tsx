@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { desktopApi } from '../../api/desktop';
 import { AlertCircle, ArrowRight, CalendarDays, FileUp, Globe, Loader2, Tag, UserRound, X } from 'lucide-react';
 import { useSourceStore } from '../../store/useSourceStore';
@@ -26,11 +26,9 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
   const profile = useSourceStore((state) => state.profiles.find((candidate) => candidate.id === sourceId));
   const runtime = useSourceStore((state) => sourceId ? state.runtimes[sourceId] : undefined);
   const addRemote = useSourceStore((state) => state.addRemoteSource);
-  const addLocal = useSourceStore((state) => state.addLocalSource);
   const addLocalPath = useSourceStore((state) => state.addLocalPath);
   const updateRemote = useSourceStore((state) => state.updateRemoteSource);
   const updateLocal = useSourceStore((state) => state.updateLocalSource);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [locationType, setLocationType] = useState<'remote' | 'local'>(profile?.locationType || 'remote');
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
@@ -85,33 +83,7 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
     }
   };
 
-  const saveBrowserFile = async (file: File) => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const input = {
-        name: name || file.name.replace(/\.(?:m3u8?|txt)$/i, ''),
-        fileName: file.name,
-        content: await file.text(),
-        epgUrl,
-      };
-      const saved = sourceId ? await updateLocal(sourceId, input) : await addLocal(input);
-      finish(t('{name} is active with {count} entries.', { name: saved.name, count: number(saved.entryCount) }));
-    } catch (reason: unknown) {
-      const message = getUserFacingErrorMessage(reason, t('The selected file is not a valid playlist.'));
-      setError(message);
-      notify.error('Playlist Could Not Be Saved', message);
-    } finally {
-      setIsLoading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
   const chooseLocalFile = async () => {
-    if (!desktopApi.isDesktop()) {
-      fileInputRef.current?.click();
-      return;
-    }
     let selection: string | string[] | null;
     try {
       selection = await desktopApi.openPath({
@@ -160,11 +132,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fileChanged = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) void saveBrowserFile(file);
   };
 
   return (
@@ -234,7 +201,6 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
             {isLoading ? <><Loader2 size={15} className={styles.spinner} /> {t('Saving...')}</> : locationType === 'local' && !sourceId ? <><FileUp size={15} /> {t('Choose File')}</> : <>{t('Save Source')} <ArrowRight size={15} /></>}
           </Button>
         </div>
-        <input ref={fileInputRef} type="file" accept=".m3u,.m3u8,.txt,audio/x-mpegurl" aria-label={t('Choose M3U playlist file')} hidden onChange={fileChanged} />
       </form>
     </div>
   );

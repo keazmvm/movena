@@ -1,9 +1,5 @@
-import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 import { queryClient } from '../api/queryClient';
-import { deleteProviderPassword } from './credentialVault';
-import { deleteM3uCache, deleteM3uConnection } from './m3uRepository';
-import { deleteXtreamCredentials } from './xtreamRepository';
 import {
   ACTIVE_SOURCE_STORAGE_KEY,
   ENABLED_SOURCE_IDS_STORAGE_KEY,
@@ -25,10 +21,7 @@ import { useNotificationStore } from '../store/useNotificationStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useStreamVerificationStore } from '../store/useStreamVerificationStore';
 import { clearPlaybackRecovery } from '../utils/playbackRecovery';
-import {
-  clearM3uEditorStorageMemory,
-  deleteLegacyM3uEditorDatabase,
-} from './m3uEditorStorage';
+import { deleteLegacyM3uEditorDatabase } from './m3uEditorStorage';
 import { TRANSFORM_PRESET_KEY } from '../utils/m3uEditor';
 import { deleteTmdbApiKey } from './tmdbCredentialVault';
 
@@ -66,17 +59,9 @@ export async function clearAllAppData(): Promise<void> {
   await deleteTmdbApiKey();
   usePlayerStore.getState().closePlayer();
 
-  if (desktopApi.isDesktop()) {
-    await Promise.allSettled(activeDownloadIds.map((id) => tauriApi.downloadMediaCancel(id)));
-    await tauriApi.mpvStop();
-    await tauriApi.appDataClear(sourceIds);
-  } else {
-    await Promise.all([
-      ...m3uSourceIds.flatMap((id) => [deleteM3uConnection(id), deleteM3uCache(id)]),
-      ...xtreamSourceIds.map((id) => deleteXtreamCredentials(id)),
-      deleteProviderPassword(),
-    ]);
-  }
+  await Promise.allSettled(activeDownloadIds.map((id) => tauriApi.downloadMediaCancel(id)));
+  await tauriApi.mpvStop();
+  await tauriApi.appDataClear(sourceIds);
 
   useSourceStore.setState({
     profiles: [],
@@ -88,9 +73,6 @@ export async function clearAllAppData(): Promise<void> {
   useAuthStore.setState({
     profiles: [],
     runtimes: {},
-    credentials: null,
-    userInfo: null,
-    serverInfo: null,
     isInitializing: false,
     initializationError: null,
   });
@@ -112,7 +94,6 @@ export async function clearAllAppData(): Promise<void> {
   useSearchStore.persist.clearStorage();
   useStreamVerificationStore.persist.clearStorage();
   clearPlaybackRecovery();
-  clearM3uEditorStorageMemory();
   await deleteLegacyM3uEditorDatabase().catch(() => {});
   PERSISTED_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
   for (let index = localStorage.length - 1; index >= 0; index -= 1) {

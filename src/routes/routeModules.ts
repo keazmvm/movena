@@ -23,16 +23,6 @@ export function preloadRouteModule(path: string): Promise<unknown> | undefined {
   return loaders[route as PreloadableRoute]?.();
 }
 
-export function preloadPrimaryRouteModules(): Promise<PromiseSettledResult<unknown>[]> {
-  return Promise.allSettled([
-    loaders['/'](),
-    loaders['/live'](),
-    loaders['/epg'](),
-    loaders['/movies'](),
-    loaders['/series'](),
-  ]);
-}
-
 export const Home = lazy(() => loaders['/']().then((module) => ({ default: module.Home })));
 export const LiveTV = lazy(() => loaders['/live']().then((module) => ({ default: module.LiveTV })));
 export const Epg = lazy(() => loaders['/epg']().then((module) => ({ default: module.Epg })));

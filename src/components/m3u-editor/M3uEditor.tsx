@@ -33,7 +33,7 @@ import { M3uVersionHistoryDialog } from './M3uVersionHistoryDialog';
 import { M3uCommandPalette, type M3uEditorCommand } from './M3uCommandPalette';
 import { saveM3uVersion } from '../../services/m3uVersionHistory';
 import { deleteM3uDraft, loadM3uDraft, saveM3uDraft } from '../../services/m3uDraftRepository';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { getErrorMessage } from '../../utils/error';
 import {
@@ -347,26 +347,10 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
 
   const handleOpenFile = async () => {
     try {
-      if (desktopApi.isDesktop()) {
-        const path = await desktopApi.openPath({ multiple: false, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }] });
-        if (!path) return;
-        const document = await tauriApi.m3uReadFile(path);
-        finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-file', document.fileName || 'Local file');
-        return;
-      }
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.m3u,.m3u8,.txt';
-      input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        try {
-          finishImport(parseM3u(await file.text(), { sourceId: 'm3u-import' }), 'custom-file', file.name);
-        } catch (error: unknown) {
-          notify.error('File Error', getErrorMessage(error, 'Playlist file loading failed without an error message.'));
-        }
-      };
-      input.click();
+      const path = await desktopApi.openPath({ multiple: false, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }] });
+      if (!path || Array.isArray(path)) return;
+      const document = await tauriApi.m3uReadFile(path);
+      finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-file', document.fileName || 'Local file');
     } catch (error: unknown) {
       notify.error('File Error', getErrorMessage(error, 'Playlist file loading failed without an error message.'));
     }
@@ -376,13 +360,7 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
     const url = remoteUrlInput.trim();
     if (!url) return;
     try {
-      const document = desktopApi.isDesktop()
-        ? await tauriApi.m3uFetch({ url })
-        : { content: await (async () => {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`The playlist URL answered ${response.status}.`);
-            return response.text();
-          })(), baseUrl: url };
+      const document = await tauriApi.m3uFetch({ url });
       finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-url', new URL(url).host);
       setLoadUrlModal(false);
       setRemoteUrlInput('');
@@ -394,18 +372,9 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
   const handleExportFile = async (content = currentM3uContent) => {
     const fileName = `${snapshot.name?.trim().replace(/[^a-z0-9-]+/gi, '-') || 'playlist'}-${new Date().toISOString().slice(0, 10)}.m3u`;
     try {
-      if (desktopApi.isDesktop()) {
-        const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
-        if (!path) return;
-        await tauriApi.m3uWriteFile(path, content);
-      } else {
-        const url = URL.createObjectURL(new Blob([content], { type: 'audio/x-mpegurl;charset=utf-8' }));
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = fileName;
-        anchor.click();
-        URL.revokeObjectURL(url);
-      }
+      const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
+      if (!path || Array.isArray(path)) return;
+      await tauriApi.m3uWriteFile(path, content);
       notify.success('Playlist Exported', 'The edited playlist was saved successfully.');
     } catch (error: unknown) {
       notify.error('Export Failed', getErrorMessage(error, 'Playlist export failed without an error message.'));

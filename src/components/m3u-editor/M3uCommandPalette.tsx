@@ -3,7 +3,7 @@ import { Command, Search, X } from 'lucide-react';
 import { useModalFocus } from '../../hooks/useModalFocus';
 import { IconButton } from '../common/Button';
 import { useI18n } from '../../i18n';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 
 export interface M3uEditorCommand {
   id: string;

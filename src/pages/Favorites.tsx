@@ -4,7 +4,7 @@ import { CatalogViewToggle } from '../components/catalog/CatalogViewToggle';
 import { Heart } from 'lucide-react';
 import { EmptyState } from '../components/shared/EmptyState';
 import { HeaderSearch } from '../components/layout/HeaderSearch';
-import styles from '../App.module.css';
+import styles from '../components/layout/AppLayout.module.css';
 import { CatalogPageHeader } from '../components/common/CatalogPageHeader';
 import { MediaDetailModals } from '../components/modals/MediaDetailModals';
 import { useMediaDetailState } from '../hooks/useMediaDetailState';

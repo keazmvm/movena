@@ -339,7 +339,6 @@ export function DebugOverlay() {
       settings: {
         debugLogLevel: settings.debugLogLevel,
         logApiRequests: settings.logApiRequests,
-        simulateNetworkDelay: settings.simulateNetworkDelay,
         hardwareAcceleration: settings.hardwareAcceleration,
         hwdecMode: settings.hwdecMode,
         cacheSecs: settings.cacheSecs,

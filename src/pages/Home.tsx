@@ -11,7 +11,7 @@ import { Tv } from 'lucide-react';
 import { EmptyState } from '../components/shared/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { HeaderSearch } from '../components/layout/HeaderSearch';
-import styles from '../App.module.css';
+import styles from '../components/layout/AppLayout.module.css';
 import { useVisibleCatalog } from '../api/useCategories';
 import { ErrorState } from '../components/common/ErrorState';
 import { getCombinedErrorMessage, getErrorPresentation } from '../utils/error';

@@ -1,6 +1,5 @@
 import type { M3uEntry } from '../api/m3u';
 import type { XmltvGuide } from '../api/xmltv';
-import { desktopApi } from '../api/desktop';
 import { tauriApi, type M3uProbeResult, type M3uProbeStatus } from '../api/ipc';
 import { getErrorMessage } from './error';
 
@@ -432,43 +431,12 @@ export async function probeStreamHealth(
   timeoutMs = 6000,
 ): Promise<M3uProbeResult> {
   const started = performance.now();
-  if (desktopApi.isDesktop()) {
-    try {
-      return await tauriApi.m3uProbeStream({ url, headers, timeoutMs });
-    } catch (error: unknown) {
-      return {
-        status: 'offline',
-        errorMessage: getErrorMessage(error, 'Native stream probe failed without an error message.'),
-        latencyMs: Math.round(performance.now() - started),
-      };
-    }
-  }
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { ...headers, Range: 'bytes=0-1023' },
-      signal: controller.signal,
-    }).finally(() => clearTimeout(timer));
-    const status: M3uProbeStatus = response.status === 401 || response.status === 403
-      ? 'unauthorized'
-      : response.status >= 200 && response.status < 400 ? 'online' : 'offline';
-    return {
-      status,
-      httpStatus: response.status,
-      errorMessage: status === 'online'
-        ? undefined
-        : `Stream probe returned HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''}.`,
-      latencyMs: Math.round(performance.now() - started),
-    };
+    return await tauriApi.m3uProbeStream({ url, headers, timeoutMs });
   } catch (error: unknown) {
-    const status: M3uProbeStatus = error instanceof DOMException && error.name === 'AbortError' ? 'timeout' : 'offline';
     return {
-      status,
-      errorMessage: status === 'timeout'
-        ? `Stream probe timed out after ${timeoutMs} ms.`
-        : getErrorMessage(error, 'Stream probe failed without an error message.'),
+      status: 'offline',
+      errorMessage: getErrorMessage(error, 'Native stream probe failed without an error message.'),
       latencyMs: Math.round(performance.now() - started),
     };
   }

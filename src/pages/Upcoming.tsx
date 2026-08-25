@@ -20,7 +20,7 @@ import {
   groupUpcomingReleases,
   type UpcomingKindFilter,
 } from '../utils/upcoming';
-import pageStyles from '../App.module.css';
+import pageStyles from '../components/layout/AppLayout.module.css';
 import styles from './Upcoming.module.css';
 import { getErrorMessage } from '../utils/error';
 

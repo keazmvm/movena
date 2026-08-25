@@ -21,7 +21,7 @@ import { useCategories, useHiddenCategoryIds } from '../../api/useCategories';
 import { filterItemsBySmartCategory, filterItemsByGenre, sortCatalogItems } from '../../utils/smartCatalogFilter';
 import { getCombinedErrorMessage, getErrorPresentation } from '../../utils/error';
 import { useI18n } from '../../i18n';
-import styles from '../../App.module.css';
+import styles from '../layout/AppLayout.module.css';
 
 export interface CatalogPageProps {
   type: 'vod' | 'series' | 'live';

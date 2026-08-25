@@ -24,10 +24,6 @@ export function StorageSettingsSection() {
   }, [settings.autoStartDownloads, settings.maxConcurrentDownloads]);
 
   const chooseDownloadDirectory = async () => {
-    if (!desktopApi.isDesktop()) {
-      notify.info('Download Folder', 'Choose a destination from the desktop app.');
-      return;
-    }
     try {
       const selection = await desktopApi.openPath({ directory: true, multiple: false });
       if (selection && !Array.isArray(selection)) settings.updateSetting('downloadDirectory', selection);

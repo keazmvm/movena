@@ -28,10 +28,7 @@ const catalogLoaders: Record<MessageLanguage, () => Promise<MessageCatalog>> = {
 export const UI_MESSAGE_CATALOGS: Partial<Record<MessageLanguage, MessageCatalog>> = {};
 
 const catalogPromises = new Map<MessageLanguage, Promise<void>>();
-const reverseCatalogs = new Map<MessageLanguage, Map<string, string>>();
 const catalogListeners = new Set<() => void>();
-const sourceMessages = new Set<string>();
-const englishByTranslatedMessage = new Map<string, string>();
 
 function subscribeCatalogs(listener: () => void): () => void {
   catalogListeners.add(listener);
@@ -40,16 +37,6 @@ function subscribeCatalogs(listener: () => void): () => void {
 
 function installCatalog(language: MessageLanguage, catalog: MessageCatalog): void {
   UI_MESSAGE_CATALOGS[language] = catalog;
-  const reverse = new Map<string, string>();
-  for (const [english, translated] of Object.entries(catalog)) {
-    sourceMessages.add(english);
-    if (/\{\w+\}/.test(translated)) continue;
-    reverse.set(translated, english);
-    if (!englishByTranslatedMessage.has(translated)) {
-      englishByTranslatedMessage.set(translated, english);
-    }
-  }
-  reverseCatalogs.set(language, reverse);
   catalogListeners.forEach((listener) => listener());
 }
 
@@ -157,19 +144,10 @@ export function translateUiText(
   const catalog = catalogFor(language);
 
   if (language === 'en') {
-    // Catalogs that were actually used remain indexed, allowing a component
-    // holding localized copy during a language switch to return to English.
-    // A known English key wins over an identical translated value.
-    const english = sourceMessages.has(message)
-      ? message
-      : englishByTranslatedMessage.get(message) ?? message;
-    return interpolate(english, values);
+    return interpolate(message, values);
   }
 
-  const english = Object.prototype.hasOwnProperty.call(catalog, message)
-    ? message
-    : reverseCatalogs.get(language)?.get(message) ?? message;
-  const exact = catalog[english];
+  const exact = catalog[message];
   if (exact) return interpolate(exact, values);
 
   if (Object.keys(values).length > 0) return interpolate(message, values);

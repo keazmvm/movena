@@ -14,7 +14,7 @@ import {
 import { Button, IconButton } from '../common/Button';
 import { SegmentedControl } from '../common/SegmentedControl';
 import { Select } from '../shared/Select';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { useModalFocus } from '../../hooks/useModalFocus';
 

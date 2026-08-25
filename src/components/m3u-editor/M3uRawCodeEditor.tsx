@@ -5,7 +5,7 @@ import { parseM3uAsync } from '../../services/m3uParser';
 import { Button } from '../common/Button';
 import { notify } from '../../store/useNotificationStore';
 import { getErrorMessage } from '../../utils/error';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 
 export interface M3uRawEditorViewState {

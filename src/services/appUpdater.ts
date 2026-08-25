@@ -23,10 +23,6 @@ export async function checkForAppUpdates(): Promise<{
   update?: DesktopUpdate | undefined;
   error?: string | undefined;
 }> {
-  if (!desktopApi.isDesktop()) {
-    return { available: false };
-  }
-
   if (isChecking) {
     return { available: false };
   }

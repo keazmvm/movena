@@ -4,7 +4,7 @@ import type { M3uEntry } from '../../api/m3u';
 import { Button, IconButton } from '../common/Button';
 import { Select } from '../shared/Select';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 
 interface M3uGroupManagerProps {

@@ -10,11 +10,11 @@ import { lookupXmltvChannel, useXmltvGuide, type XmltvGuide } from '../api/xmltv
 import { useCategories, useHiddenCategoryIds } from '../api/useCategories';
 import { useLiveStreams } from '../api/useCatalog';
 import type { CatalogItem } from '../api/useCatalog';
-import { getXtreamCredentials, useAuthStore } from '../store/useAuthStore';
+import { getXtreamCredentials, selectPrimaryXtreamCredentials, useAuthStore } from '../store/useAuthStore';
 import { useSourceStore } from '../store/useSourceStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import appStyles from '../App.module.css';
+import appStyles from '../components/layout/AppLayout.module.css';
 import styles from './Epg.module.css';
 import {
   cleanProviderDescription,
@@ -93,7 +93,7 @@ const HOUR = 60 * MINUTE;
 
 export function Epg() {
   const { t, number, date, time } = useI18n();
-  const credentials = useAuthStore((state) => state.credentials);
+  const credentials = useAuthStore(selectPrimaryXtreamCredentials);
   const sources = useEnabledSources();
   const playStream = usePlayerStore((state) => state.playStream);
   const navigate = useNavigate();

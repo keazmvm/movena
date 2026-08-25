@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useI18n } from '../../i18n';
-import styles from '../../App.module.css';
+import styles from '../layout/AppLayout.module.css';
 
 interface CatalogPageHeaderProps {
   title: string;

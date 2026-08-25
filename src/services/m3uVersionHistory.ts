@@ -1,7 +1,6 @@
 import {
   deleteM3uEditorState,
   loadM3uEditorState,
-  resetM3uEditorStorageMemoryForTests,
   storeM3uEditorState,
 } from './m3uEditorStorage';
 
@@ -71,8 +70,4 @@ export async function deleteM3uVersion(id: string): Promise<void> {
 
 export async function clearM3uVersions(sourceId: string): Promise<void> {
   await deleteM3uEditorState(HISTORY_NAMESPACE, sourceId);
-}
-
-export function resetM3uVersionMemoryForTests(): void {
-  resetM3uEditorStorageMemoryForTests();
 }

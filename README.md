@@ -32,7 +32,12 @@
 > Bring your own authorized content. Movena does not bypass DRM; use recording,
 > catch-up, and download features only where you have permission.
 
-![Movena Discover view with synthetic movies and Continue Watching content](.github/assets/readme/hero.webp)
+![Movena Discover view showing real movie and series metadata with TMDB artwork](.github/assets/readme/hero.webp)
+
+<p align="center">
+  <a href="https://www.themoviedb.org/"><img src="public/tmdb-logo.svg" alt="TMDB" width="72" /></a><br>
+  <sub>Movie and series metadata and artwork are provided by TMDB. This product uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</sub>
+</p>
 
 ## Get started
 
@@ -100,29 +105,25 @@ enabled channels, catalogues, categories, and guides in one workspace.
 
 ## Product tour
 
-These are captures of Movena's real interface at 1440×900, populated entirely
-with fictional titles, geometric project artwork, and reserved example data.
-The player images use a synthetic video frame behind the production player
-controls because libmpv renders video in a separate native surface. No capture
-contains provider accounts, private URLs, third-party channel artwork, or
-commercial media.
+These are browser captures of Movena's production React pages, shared
+components, CSS modules, and application shell at 1440×900—not recreated
+mockups. The movie and series surfaces use real titles, factual TMDB metadata,
+and TMDB poster/backdrop artwork. Live TV uses real channel identities and
+official channel marks; programme times remain deterministic example XMLTV
+data. Provider accounts, stream URLs, downloads, and playback state use
+reserved `.test` fixture data. No commercial video is included.
 
 | Live TV catalogue | Timeline programme guide |
 | :---: | :---: |
-| ![Movena Live TV catalogue with synthetic news, sports, culture, and radio channels](.github/assets/readme/live-tv.webp) | ![Movena timeline programme guide showing synthetic channels and XMLTV programmes](.github/assets/readme/live-epg.webp) |
-| VOD player controls | Live player and now-playing guide |
-| ![Movena native VOD player controls with timeline, chapters, playback settings, and fictional movie metadata](.github/assets/readme/player-vod.webp) | ![Movena live player controls showing a fictional channel, current programme, recording, and guide actions](.github/assets/readme/player-live.webp) |
+| ![Movena Live TV catalogue with real channel identities and logos](.github/assets/readme/live-tv.webp) | ![Movena timeline programme guide with real channels and example XMLTV scheduling](.github/assets/readme/live-epg.webp) |
 | Movie details and playback actions | Seasons and episode browser |
-| ![Movena movie details using fictional content and geometric artwork](.github/assets/readme/library-details.webp) | ![Movena series details with a synthetic programme, season selector, and episode list](.github/assets/readme/series-details.webp) |
+| ![Movena movie details showing real Dune Part Two metadata and TMDB poster artwork](.github/assets/readme/library-details.webp) | ![Movena series details showing Severance with its correct two seasons and 19 episodes](.github/assets/readme/series-details.webp) |
 | Global library search | M3U workspace |
-| ![Movena global search returning synthetic movie and Live TV results](.github/assets/readme/search.webp) | ![Movena M3U editor with synthetic channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp) |
+| ![Movena global search returning a real movie title and example Live TV results](.github/assets/readme/search.webp) | ![Movena M3U editor with example channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp) |
 | Download queue | Source management |
-| ![Movena downloads page with fictional movies and episodes](.github/assets/readme/downloads.webp) | ![Movena source settings with a synthetic M3U library](.github/assets/readme/settings.webp) |
-
-<p align="center">
-  <strong>Playback configuration</strong><br><br>
-  <img src=".github/assets/readme/playback-settings.webp" alt="Movena player and video settings for decoding, buffering, playback behavior, and subtitles" width="720" />
-</p>
+| ![Movena downloads page with real movie titles and deterministic example transfers](.github/assets/readme/downloads.webp) | ![Movena source settings with a reserved example M3U library](.github/assets/readme/settings.webp) |
+| VOD player controls | Playback configuration |
+| ![Movena native VOD player controls over a TMDB backdrop with timeline, chapters, and playback settings](.github/assets/readme/player-vod.webp) | ![Movena player and video settings for decoding, buffering, playback behavior, and subtitles](.github/assets/readme/playback-settings.webp) |
 
 ## Download and platform support
 

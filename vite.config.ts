@@ -34,41 +34,6 @@ export default defineConfig({
     },
   },
   envPrefix: ['VITE_', 'TAURI_'],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          const localeModule = id.match(/[\\/]src[\\/]locales[\\/]([^\\/]+)\.ts$/)
-          if (localeModule) {
-            return `locale-${localeModule[1]}`
-          }
-          if (id.includes('node_modules')) {
-            if (id.includes('framer-motion')) {
-              return 'motion-vendor'
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons-vendor'
-            }
-            if (id.includes('@tauri-apps')) {
-              return 'tauri-vendor'
-            }
-            if (id.includes('react-router') || id.includes('@remix-run')) {
-              return 'router-vendor'
-            }
-            if (id.includes('react-dom')) {
-              return 'react-dom-vendor'
-            }
-            if (/[\\/]node_modules[\\/](react|scheduler)[\\/]/.test(id)) {
-              return 'react-vendor'
-            }
-            if (id.includes('@tanstack')) {
-              return 'tanstack-vendor'
-            }
-          }
-        },
-      },
-    },
-  },
 })
 
 

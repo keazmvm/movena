@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { MediaItem, MediaOpenContext } from '../components/catalog/MediaCard';
-import { useAuthStore, getLegacyXtreamSourceId } from '../store/useAuthStore';
+import { useAuthStore, getLegacyXtreamSourceId, selectPrimaryXtreamCredentials } from '../store/useAuthStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useSourceStore } from '../store/useSourceStore';
 import { playableFromMediaItem } from '../utils/playback';
@@ -14,7 +14,7 @@ export function useMediaDetailState(options: UseMediaDetailStateOptions = {}) {
   const [selectedMovie, setSelectedMovie] = useState<MediaItem | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<MediaItem | null>(null);
 
-  const credentials = useAuthStore((state) => state.credentials);
+  const credentials = useAuthStore(selectPrimaryXtreamCredentials);
   const playStream = usePlayerStore((state) => state.playStream);
 
   const handleCloseMovie = useCallback(() => {

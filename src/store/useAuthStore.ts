@@ -12,6 +12,7 @@ import {
 import { registerXtreamServerPromoter } from '../services/xtreamServerEvents';
 import { invalidateSourceQueries } from '../api/queryClient';
 import { getErrorMessage } from '../utils/error';
+import { useSourceStore } from './useSourceStore';
 
 export interface XCCredentials {
   /** Runtime source identity; stored only inside that source's vault record. */
@@ -88,12 +89,9 @@ export interface SaveXtreamSourceInput extends XCCredentials {
   name?: string | undefined;
 }
 
-interface AuthState {
+export interface AuthState {
   profiles: XtreamSourceProfile[];
   runtimes: Record<string, XtreamSourceRuntime>;
-  credentials: XCCredentials | null;
-  userInfo: XCUserInfo | null;
-  serverInfo: XCServerInfo | null;
   isInitializing: boolean;
   initializationError: string | null;
   initialize: () => Promise<void>;
@@ -220,15 +218,6 @@ function readLegacyProfile(): { profile: StoredAuthProfile; password: string } |
   }
 }
 
-function aliases(profiles: XtreamSourceProfile[], runtimes: Record<string, XtreamSourceRuntime>) {
-  const profile = profiles.find((candidate) => runtimes[candidate.id]?.credentials) ?? profiles[0];
-  return {
-    credentials: profile ? runtimes[profile.id]?.credentials ?? null : null,
-    userInfo: profile?.userInfo ?? null,
-    serverInfo: profile?.serverInfo ?? null,
-  };
-}
-
 const serverPromotionQueues = new Map<string, Promise<void>>();
 
 async function persistServerPromotion(sourceId: string, promoted: XCCredentials): Promise<void> {
@@ -262,7 +251,7 @@ function queueServerPromotion(
             revision: currentRuntime.revision + 1,
           },
         };
-        useAuthStore.setState({ runtimes, ...aliases(currentState.profiles, runtimes) });
+        useAuthStore.setState({ runtimes });
       }
       throw error;
     }
@@ -291,12 +280,15 @@ export const selectIsAuthenticated = (state: AuthState) =>
     state.runtimes[profile.id]?.credentials && profile.userInfo.auth === 1
   ));
 
+export const selectPrimaryXtreamCredentials = (state: AuthState): XCCredentials | null => (
+  state.profiles
+    .map((profile) => state.runtimes[profile.id]?.credentials)
+    .find((credentials): credentials is XCCredentials => Boolean(credentials)) ?? null
+);
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   profiles: [],
   runtimes: {},
-  credentials: null,
-  userInfo: null,
-  serverInfo: null,
   isInitializing: true,
   initializationError: null,
 
@@ -323,7 +315,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               profiles = [profile];
               legacyMigrated = true;
               writeProfiles(profiles);
-              const { useSourceStore } = await import('./useSourceStore');
               useSourceStore.getState().replaceEnabledSourceId('xtream', profile.id);
             }
           }
@@ -349,7 +340,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
           await deleteProviderPassword();
         }
-        set({ profiles, runtimes, ...aliases(profiles, runtimes), isInitializing: false });
+        set({ profiles, runtimes, isInitializing: false });
       } catch (error: unknown) {
         set({ isInitializing: false, initializationError: errorMessage(error) });
       } finally {
@@ -376,8 +367,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await deleteXtreamCredentials(id).catch(() => undefined);
       throw error;
     }
-    set({ profiles, runtimes, ...aliases(profiles, runtimes), initializationError: null });
-    const { useSourceStore } = await import('./useSourceStore');
+    set({ profiles, runtimes, initializationError: null });
     useSourceStore.getState().setSourceEnabled(id, true);
     return profile;
   },
@@ -408,7 +398,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       else await deleteXtreamCredentials(id).catch(() => undefined);
       throw error;
     }
-    set({ profiles, runtimes, ...aliases(profiles, runtimes), initializationError: null });
+    set({ profiles, runtimes, initializationError: null });
     void invalidateSourceQueries();
     return profile;
   },
@@ -428,7 +418,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         [id]: { ...runtime, status: 'ready' as const, error: null, revision: runtime.revision + 1 },
       };
       writeProfiles(profiles);
-      set({ profiles, runtimes, ...aliases(profiles, runtimes) });
+      set({ profiles, runtimes });
       void invalidateSourceQueries();
     } catch (error: unknown) {
       set((state) => ({
@@ -450,7 +440,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       ...get().runtimes,
       [id]: { ...runtime, credentials, revision: runtime.revision + 1 },
     };
-    set({ runtimes, ...aliases(get().profiles, runtimes) });
+    set({ runtimes });
     void invalidateSourceQueries();
   },
 
@@ -466,8 +456,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (previousCredentials) await storeXtreamCredentials(id, previousCredentials).catch(() => undefined);
       throw error;
     }
-    set({ profiles, runtimes, ...aliases(profiles, runtimes) });
-    const { useSourceStore } = await import('./useSourceStore');
+    set({ profiles, runtimes });
     useSourceStore.getState().setSourceEnabled(id, false);
   },
 
@@ -494,7 +483,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     localStorage.removeItem(AUTH_PROFILE_STORAGE_KEY);
     localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
-    set({ profiles, runtimes, ...aliases(profiles, runtimes), initializationError: null });
+    set({ profiles, runtimes, initializationError: null });
     void invalidateSourceQueries();
   },
 
@@ -507,7 +496,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!credentials || credentials.url === url) return;
     const promoted = promoteServerCredentials(credentials, profile.id, url);
     const runtimes = { ...get().runtimes, [profile.id]: { ...runtime, credentials: promoted, revision: runtime.revision + 1 } };
-    set({ runtimes, ...aliases(get().profiles, runtimes) });
+    set({ runtimes });
     void queueServerPromotion(profile.id, promoted, credentials).catch(() => undefined);
   },
 
@@ -517,7 +506,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!credentials || credentials.url === url) return;
     const promoted = promoteServerCredentials(credentials, id, url);
     const runtimes = { ...get().runtimes, [id]: { ...runtime, credentials: promoted, revision: runtime.revision + 1 } };
-    set({ runtimes, ...aliases(get().profiles, runtimes) });
+    set({ runtimes });
     void queueServerPromotion(id, promoted, credentials).catch(() => undefined);
   },
 

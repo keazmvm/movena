@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { desktopApi } from './desktop';
 import { useSettingsStore } from '../store/useSettingsStore';
 import type { EpgProgramme } from './useEpg';
 import { useEnabledSources } from '../hooks/useEnabledSources';
@@ -29,18 +28,6 @@ export type { XmltvGuide } from './xmltvNormalizer';
  * bytes themselves are compressed and arrive intact, so they have to be
  * inflated here.
  */
-async function readGuideBody(response: Response): Promise<string> {
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  const gzipped = bytes[0] === 0x1f && bytes[1] === 0x8b;
-  if (!gzipped) return new TextDecoder('utf-8').decode(bytes);
-
-  if (typeof DecompressionStream === 'undefined') {
-    throw new Error('This guide uses gzip compression, which is not supported on this system.');
-  }
-  const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return new Response(stream).text();
-}
-
 export function parseXmltv(xml: string): XmltvGuide {
   const document = new DOMParser().parseFromString(xml, 'text/xml');
   if (document.querySelector('parsererror')) {
@@ -92,18 +79,10 @@ export function parseXmltv(xml: string): XmltvGuide {
 
 export async function fetchXmltvGuide(
   url: string,
-  signal?: AbortSignal,
+  _signal?: AbortSignal,
   headers?: Record<string, string>,
 ): Promise<XmltvGuide> {
-  if (desktopApi.isDesktop()) {
-    return hydrateXmltvGuide(await tauriApi.xmltvFetch({ url, headers }));
-  }
-  const response = await fetch(url, {
-    ...(signal ? { signal } : {}),
-    ...(headers ? { headers } : {}),
-  });
-  if (!response.ok) throw new Error(`The guide URL answered HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''}.`);
-  return parseXmltv(await readGuideBody(response));
+  return hydrateXmltvGuide(await tauriApi.xmltvFetch({ url, headers }));
 }
 
 type Settled<T> = { status: 'fulfilled'; value: T } | { status: 'rejected'; reason: unknown };

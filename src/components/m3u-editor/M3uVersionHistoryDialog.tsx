@@ -14,7 +14,7 @@ import { useI18n } from '../../i18n';
 import { tauriApi } from '../../api/ipc';
 import { notify } from '../../store/useNotificationStore';
 import { getErrorMessage } from '../../utils/error';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 
 interface M3uVersionHistoryDialogProps {
   sourceId: string;
@@ -52,18 +52,9 @@ export function M3uVersionHistoryDialog({
   const exportVersion = async (version: M3uVersionRecord) => {
     const fileName = `playlist-backup-${new Date(version.createdAt).toISOString().slice(0, 10)}.m3u`;
     try {
-      if (desktopApi.isDesktop()) {
-        const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
-        if (!path) return;
-        await tauriApi.m3uWriteFile(path, version.content);
-      } else {
-        const url = URL.createObjectURL(new Blob([version.content], { type: 'audio/x-mpegurl;charset=utf-8' }));
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = fileName;
-        anchor.click();
-        URL.revokeObjectURL(url);
-      }
+      const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
+      if (!path || Array.isArray(path)) return;
+      await tauriApi.m3uWriteFile(path, version.content);
       notify.success('Version Exported', 'The playlist checkpoint was exported successfully.');
     } catch (error: unknown) {
       notify.error('Export Failed', getErrorMessage(error, 'Playlist checkpoint export failed without an error message.'));

@@ -250,9 +250,6 @@ const DEFAULT_SETTINGS = {
   showDebugOverlay: true,
   debugLogLevel: 'info' as const,
   logApiRequests: true,
-  simulateNetworkDelay: false,
-  simulateNetworkDelayMs: 800,
-  simulateNetworkErrorRate: 0,
 };
 
 export function getSettingsSnapshot(state: SettingsState): SettingsSnapshot {
@@ -278,10 +275,16 @@ export function migrateSettingsState(persistedState: unknown): SettingsState {
     doviSupport?: unknown | undefined;
     playlistInput?: unknown | undefined;
     hdrMode?: HdrMode | 'always' | undefined;
+    simulateNetworkDelay?: unknown | undefined;
+    simulateNetworkDelayMs?: unknown | undefined;
+    simulateNetworkErrorRate?: unknown | undefined;
   };
   const nextState = { ...state };
   delete nextState.doviSupport;
   delete nextState.playlistInput;
+  delete nextState.simulateNetworkDelay;
+  delete nextState.simulateNetworkDelayMs;
+  delete nextState.simulateNetworkErrorRate;
 
   const legacyRecordingPaths = new Set([
     'Downloads/IPTV_Recordings',
@@ -402,8 +405,6 @@ export function migrateSettingsState(persistedState: unknown): SettingsState {
     imageSaturation: clampImageValue(state.imageSaturation, -100, 100, 0),
     imageHue: clampImageValue(state.imageHue, -100, 100, 0),
     imageGamma: clampImageValue(state.imageGamma, -100, 100, 0),
-    simulateNetworkDelayMs: clampImageValue(state.simulateNetworkDelayMs, 0, 10_000, 800),
-    simulateNetworkErrorRate: clampImageValue(state.simulateNetworkErrorRate, 0, 100, 0),
   } as SettingsState;
 }
 

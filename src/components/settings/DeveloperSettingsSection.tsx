@@ -5,7 +5,6 @@ import { SegmentedControl } from '../common/SegmentedControl';
 import {
   SettingsButton,
   SettingsGroup,
-  SettingsInput,
   SettingsPageContent,
   SettingsRow,
   SettingsToggle,
@@ -32,7 +31,6 @@ export function DeveloperSettingsSection() {
         {([ 
           ['showDebugOverlay', 'Floating Debug Overlay', 'Show logs, network history, and runtime state'],
           ['logApiRequests', 'Log Network Requests', 'Record provider calls and latency in diagnostic history'],
-          ['simulateNetworkDelay', 'Simulate Network Delay', 'Add an artificial delay to exercise loading states'],
         ] as const).map(([key, title, description]) => (
           <SettingsRow key={key} title={title} description={`${description}.`} disabled={!settings.debugMode}>
             <SettingsToggle
@@ -43,34 +41,6 @@ export function DeveloperSettingsSection() {
             />
           </SettingsRow>
         ))}
-
-        {settings.simulateNetworkDelay && (
-          <SettingsRow title="Network Delay (ms)" description="Artificial latency duration." disabled={!settings.debugMode}>
-            <SettingsInput
-              type="number"
-              min={0}
-              max={10000}
-              step={100}
-              value={settings.simulateNetworkDelayMs}
-              onChange={(event) => settings.updateSetting('simulateNetworkDelayMs', Math.max(0, Math.min(10000, parseInt(event.target.value) || 0)))}
-              disabled={!settings.debugMode}
-              style={{ width: '100px', textAlign: 'right' }}
-            />
-          </SettingsRow>
-        )}
-
-        <SettingsRow title="Simulated Failure Rate (%)" description="Randomly fail provider requests to test error handling." disabled={!settings.debugMode}>
-          <SettingsInput
-            type="number"
-            min={0}
-            max={100}
-            step={5}
-            value={settings.simulateNetworkErrorRate}
-            onChange={(event) => settings.updateSetting('simulateNetworkErrorRate', Math.max(0, Math.min(100, parseInt(event.target.value) || 0)))}
-            disabled={!settings.debugMode}
-            style={{ width: '100px', textAlign: 'right' }}
-          />
-        </SettingsRow>
 
         <SettingsRow title="Log Filter Level" description="Minimum severity stored in diagnostic history." disabled={!settings.debugMode}>
           <SegmentedControl

@@ -11,7 +11,7 @@ import { GridSkeleton, TextLineSkeleton } from '../components/shared/Skeleton';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { CatalogViewToggle } from '../components/catalog/CatalogViewToggle';
 import { SegmentedControl } from '../components/common/SegmentedControl';
-import styles from '../App.module.css';
+import styles from '../components/layout/AppLayout.module.css';
 import searchStyles from './Search.module.css';
 import { useLiveStreams, useVodStreams, useSeriesList } from '../api/useCatalog';
 import { ErrorState } from '../components/common/ErrorState';

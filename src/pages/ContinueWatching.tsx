@@ -6,7 +6,7 @@ import { CatalogViewToggle } from '../components/catalog/CatalogViewToggle';
 import { History, Trash2 } from 'lucide-react';
 import { EmptyState } from '../components/shared/EmptyState';
 import { HeaderSearch } from '../components/layout/HeaderSearch';
-import styles from '../App.module.css';
+import styles from '../components/layout/AppLayout.module.css';
 import pageStyles from './ContinueWatching.module.css';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { CatalogPageHeader } from '../components/common/CatalogPageHeader';

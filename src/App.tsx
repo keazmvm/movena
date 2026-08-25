@@ -16,7 +16,7 @@ const PlayerShell = lazy(() => import('./components/player/PlayerShell').then((m
 const DebugOverlay = lazy(() => import('./components/shared/DebugOverlay').then((module) => ({ default: module.DebugOverlay })));
 import { ContextMenu } from './components/common/ContextMenu';
 import { useContextMenu } from './hooks/useContextMenu';
-import styles from './App.module.css';
+import styles from './components/layout/AppLayout.module.css';
 import { accessibleAccentForeground, accentHoverColor, contrastingTextColor, DEFAULT_ACCENT_COLOR, parseHex } from './utils/color';
 import { getCombinedErrorMessage, getErrorPresentation, getUserFacingErrorMessage } from './utils/error';
 import { queryClient } from './api/queryClient';
@@ -42,7 +42,6 @@ import {
   LiveTV,
   M3uEditorPage,
   Movies,
-  preloadPrimaryRouteModules,
   Search,
   Series,
   Settings,
@@ -201,20 +200,6 @@ function AppShell() {
       .then(() => refreshStaleSources())
       .catch(() => {});
   }, [initializeAuth, initializeSources, refreshStaleSources]);
-
-  useEffect(() => {
-    const windowWithIdle = window as Window & {
-      requestIdleCallback?: ((callback: IdleRequestCallback, options?: IdleRequestOptions) => number) | undefined;
-      cancelIdleCallback?: ((handle: number) => void) | undefined;
-    };
-    const warmRoutes = () => void preloadPrimaryRouteModules();
-    if (windowWithIdle.requestIdleCallback) {
-      const handle = windowWithIdle.requestIdleCallback(warmRoutes, { timeout: 2_000 });
-      return () => windowWithIdle.cancelIdleCallback?.(handle);
-    }
-    const handle = window.setTimeout(warmRoutes, 250);
-    return () => window.clearTimeout(handle);
-  }, []);
 
   useEffect(() => {
     void import('./services/m3uEditorStorage')

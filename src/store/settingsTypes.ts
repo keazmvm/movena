@@ -159,9 +159,6 @@ export interface SettingsState {
   showDebugOverlay: boolean;
   debugLogLevel: 'verbose' | 'info' | 'warn' | 'error';
   logApiRequests: boolean;
-  simulateNetworkDelay: boolean;
-  simulateNetworkDelayMs: number;
-  simulateNetworkErrorRate: number;
 
   // Live TV & Logo Aspect
   smartLogoAspectMode: SmartLogoAspectMode;
@@ -194,19 +191,17 @@ export const SETTINGS_SNAPSHOT_KEYS = [
   'upcomingEnabled', 'upcomingHomeEnabled', 'upcomingCountdownEnabled', 'upcomingCalendarEnabled', 'upcomingExactTimesEnabled',
   'upcomingHistoryDays',
   'streamFoldingEnabled', 'customTitleRules', 'badgeVisibility',
-  'smartLogoAspectMode', 'channelLogoAspectOverrides',
+  'smartLogoAspectMode',
   'imageSharpness', 'imageBrightness', 'imageContrast', 'imageSaturation', 'imageHue', 'imageGamma',
   'epgSource', 'm3uEditorDensity', 'm3uEditorAutosaveDrafts',
   'm3uEditorConfirmDestructive', 'm3uEditorRememberFilters', 'm3uEditorSidebarWidth',
   'm3uEditorInspectorWidth', 'm3uHealthTimeoutMs', 'm3uHealthConcurrency', 'm3uPreserveUnknownTags',
-  'categoryPrefs', 'sidebarWidth', 'viewMode', 'alwaysOnTop',
+  'sidebarWidth', 'viewMode', 'alwaysOnTop',
   'accentColor', 'motionPreference', 'showCollapsedSidebarBadges', 'recordingPath', 'instantRecord',
   'downloadDirectory', 'maxConcurrentDownloads', 'autoStartDownloads',
   'enableNotifications', 'toastPosition', 'toastDurationSecs', 'dndDuringPlayback',
   'notifyPlaybackEvents', 'notifyConnectionStatus', 'notifyLibraryUpdates', 'notifyDownloadEvents', 'notifySound',
   'autoCheckUpdates',
-  'debugMode', 'showDebugOverlay', 'debugLogLevel', 'logApiRequests', 'simulateNetworkDelay',
-  'simulateNetworkDelayMs', 'simulateNetworkErrorRate',
 ] as const satisfies readonly (keyof SettingsState)[];
 
 export type SettingsSnapshotKey = typeof SETTINGS_SNAPSHOT_KEYS[number];

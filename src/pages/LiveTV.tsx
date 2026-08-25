@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { Tv } from 'lucide-react';
 import type { MediaItem } from '../components/catalog/MediaCard';
 import { CatalogPage } from '../components/catalog/CatalogPage';
-import { useAuthStore } from '../store/useAuthStore';
+import { selectPrimaryXtreamCredentials, useAuthStore } from '../store/useAuthStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { playableFromMediaItem } from '../utils/playback';
 
 export function LiveTV() {
-  const credentials = useAuthStore((state) => state.credentials);
+  const credentials = useAuthStore(selectPrimaryXtreamCredentials);
   const playStream = usePlayerStore((state) => state.playStream);
 
   const handlePlay = useCallback(

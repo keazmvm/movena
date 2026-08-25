@@ -5,7 +5,7 @@ import { CatalogViewToggle } from '../components/catalog/CatalogViewToggle';
 import { FolderHeart, Plus, Edit2, Trash2, X } from 'lucide-react';
 import { EmptyState } from '../components/shared/EmptyState';
 import { HeaderSearch } from '../components/layout/HeaderSearch';
-import appStyles from '../App.module.css';
+import appStyles from '../components/layout/AppLayout.module.css';
 import styles from './Collections.module.css';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { WorkspaceSidebar } from '../components/common/WorkspaceSidebar';

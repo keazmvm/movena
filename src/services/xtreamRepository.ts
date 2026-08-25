@@ -1,19 +1,12 @@
-import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 import type { XCCredentials } from '../store/useAuthStore';
 
-const browserSecrets = new Map<string, string>();
-
 export async function storeXtreamCredentials(sourceId: string, credentials: XCCredentials): Promise<void> {
-  const value = JSON.stringify(credentials);
-  if (desktopApi.isDesktop()) await tauriApi.sourceSecretStore(sourceId, value);
-  else browserSecrets.set(sourceId, value);
+  await tauriApi.sourceSecretStore(sourceId, JSON.stringify(credentials));
 }
 
 export async function loadXtreamCredentials(sourceId: string): Promise<XCCredentials | null> {
-  const value = desktopApi.isDesktop()
-    ? await tauriApi.sourceSecretLoad(sourceId)
-    : browserSecrets.get(sourceId) ?? null;
+  const value = await tauriApi.sourceSecretLoad(sourceId);
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<XCCredentials>;
@@ -35,6 +28,5 @@ export async function loadXtreamCredentials(sourceId: string): Promise<XCCredent
 }
 
 export async function deleteXtreamCredentials(sourceId: string): Promise<void> {
-  if (desktopApi.isDesktop()) await tauriApi.sourceSecretDelete(sourceId);
-  browserSecrets.delete(sourceId);
+  await tauriApi.sourceSecretDelete(sourceId);
 }

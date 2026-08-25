@@ -99,7 +99,6 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     customTitleRules: migrated.customTitleRules,
     badgeVisibility: migrated.badgeVisibility,
     smartLogoAspectMode: oneOf(source.smartLogoAspectMode, ['auto', 'force-16:9', 'off'] as const, migrated.smartLogoAspectMode),
-    channelLogoAspectOverrides: migrated.channelLogoAspectOverrides,
     hdrMode: oneOf(source.hdrMode, ['auto', 'off'] as const, migrated.hdrMode),
     toneMappingMode: oneOf(source.toneMappingMode, ['auto', 'hable', 'reinhard', 'mobius', 'bt.2446a'] as const, 'auto'),
     imageSharpness: numberOr(source.imageSharpness, migrated.imageSharpness, 0, 100),
@@ -118,7 +117,6 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     m3uHealthTimeoutMs: numberOr(source.m3uHealthTimeoutMs, 6000, 1000, 30000),
     m3uHealthConcurrency: numberOr(source.m3uHealthConcurrency, 5, 1, 12),
     m3uPreserveUnknownTags: booleanOr(source.m3uPreserveUnknownTags, true),
-    categoryPrefs: migrated.categoryPrefs,
     sidebarWidth: numberOr(source.sidebarWidth, 260, 180, 520),
     viewMode: oneOf(source.viewMode, ['grid', 'list'] as const, 'grid'),
     alwaysOnTop: booleanOr(source.alwaysOnTop, false),
@@ -140,13 +138,6 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     notifyDownloadEvents: booleanOr(source.notifyDownloadEvents, true),
     notifySound: booleanOr(source.notifySound, false),
     autoCheckUpdates: booleanOr(source.autoCheckUpdates, true),
-    debugMode: booleanOr(source.debugMode, false),
-    showDebugOverlay: booleanOr(source.showDebugOverlay, true),
-    debugLogLevel: oneOf(source.debugLogLevel, ['verbose', 'info', 'warn', 'error'] as const, 'info'),
-    logApiRequests: booleanOr(source.logApiRequests, true),
-    simulateNetworkDelay: booleanOr(source.simulateNetworkDelay, false),
-    simulateNetworkDelayMs: numberOr(source.simulateNetworkDelayMs, 800, 0, 10000),
-    simulateNetworkErrorRate: numberOr(source.simulateNetworkErrorRate, 0, 0, 100),
   };
 }
 
@@ -227,56 +218,24 @@ function backupFileName(date = new Date()): string {
 export async function saveSettingsConfig(state: SettingsState): Promise<string | null> {
   const content = serializeSettingsConfig(state);
   const fileName = backupFileName();
-  if (desktopApi.isDesktop()) {
-    const path = await desktopApi.savePath({
-      defaultPath: fileName,
-      filters: [{ name: 'Movena settings', extensions: ['json'] }],
-    });
-    if (!path) return null;
-    await tauriApi.settingsConfigWrite(path, content);
-    return path.split(/[\\/]/).at(-1) || fileName;
-  }
-
-  const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.click();
-  URL.revokeObjectURL(url);
-  return fileName;
-}
-
-async function selectBrowserFile(): Promise<{ fileName: string; content: string } | null> {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,application/json';
-    input.onchange = () => {
-      const file = input.files?.[0];
-      if (!file) return resolve(null);
-      file.text()
-        .then((content) => resolve({ fileName: file.name, content }))
-        .catch(reject);
-    };
-    input.click();
+  const path = await desktopApi.savePath({
+    defaultPath: fileName,
+    filters: [{ name: 'Movena settings', extensions: ['json'] }],
   });
+  if (!path) return null;
+  await tauriApi.settingsConfigWrite(path, content);
+  return path.split(/[\\/]/).at(-1) || fileName;
 }
 
 export async function selectSettingsConfig(): Promise<SelectedSettingsConfig | null> {
-  let selected: { fileName: string; content: string } | null;
-  if (desktopApi.isDesktop()) {
-    const path = await desktopApi.openPath({
-      multiple: false,
-      filters: [{ name: 'Movena settings', extensions: ['json'] }],
-    });
-    if (!path) return null;
-    selected = {
-      fileName: path.split(/[\\/]/).at(-1) || 'Movena settings',
-      content: await tauriApi.settingsConfigRead(path),
-    };
-  } else {
-    selected = await selectBrowserFile();
-  }
-  if (!selected) return null;
+  const path = await desktopApi.openPath({
+    multiple: false,
+    filters: [{ name: 'Movena settings', extensions: ['json'] }],
+  });
+  if (!path || Array.isArray(path)) return null;
+  const selected = {
+    fileName: path.split(/[\\/]/).at(-1) || 'Movena settings',
+    content: await tauriApi.settingsConfigRead(path),
+  };
   return { fileName: selected.fileName, ...parseSettingsConfig(selected.content) };
 }

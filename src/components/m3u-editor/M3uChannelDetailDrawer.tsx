@@ -5,7 +5,7 @@ import type { M3uProbeStatus } from '../../api/ipc';
 import { cleanChannelTitle, probeStreamHealth } from '../../utils/m3uEditor';
 import { Button, IconButton } from '../common/Button';
 import { SegmentedControl } from '../common/SegmentedControl';
-import styles from './M3uEditor.module.css';
+import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useModalFocus } from '../../hooks/useModalFocus';

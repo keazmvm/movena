@@ -14,10 +14,7 @@ const asDataUrl = async (filePath, mimeType) => {
 
 const [heroUrl, wordmarkFontUrl] = await Promise.all([
   asDataUrl(path.join(assetDir, 'hero.webp'), 'image/webp'),
-  asDataUrl(
-    path.join(projectRoot, 'public', 'fonts', 'righteous-latin-400.woff2'),
-    'font/woff2',
-  ),
+  asDataUrl(path.join(projectRoot, 'public', 'fonts', 'righteous-latin-400.woff2'), 'font/woff2'),
 ]);
 
 const html = String.raw`<!doctype html>
@@ -29,205 +26,127 @@ const html = String.raw`<!doctype html>
         font-family: "Righteous";
         src: url("${wordmarkFontUrl}") format("woff2");
         font-weight: 400;
-        font-style: normal;
       }
 
       * { box-sizing: border-box; }
 
-      html,
-      body {
+      html, body {
         width: 1280px;
         height: 640px;
         margin: 0;
         overflow: hidden;
-        background: #050912;
-        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
-        color: #f8fbff;
+        background: #05080d;
+        color: #f7fbff;
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
       .card {
         position: relative;
         width: 1280px;
         height: 640px;
-        isolation: isolate;
         overflow: hidden;
         background:
-          radial-gradient(circle at 84% 30%, rgba(26, 132, 255, 0.31), transparent 31%),
-          radial-gradient(circle at 42% 104%, rgba(61, 71, 255, 0.2), transparent 34%),
-          linear-gradient(122deg, #060b15 0%, #07111f 53%, #071425 100%);
+          radial-gradient(circle at 75% 45%, rgba(0, 139, 255, 0.2), transparent 43%),
+          #05080d;
       }
 
-      .card::before {
+      .top-rule {
         position: absolute;
-        inset: 0;
-        z-index: -1;
-        content: "";
-        opacity: 0.32;
-        background-image:
-          linear-gradient(rgba(130, 184, 255, 0.08) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(130, 184, 255, 0.08) 1px, transparent 1px);
-        background-size: 46px 46px;
-        mask-image: linear-gradient(90deg, black, transparent 69%);
-      }
-
-      .beam {
-        position: absolute;
-        top: -310px;
-        right: -190px;
-        width: 780px;
-        height: 780px;
-        border: 1px solid rgba(89, 173, 255, 0.22);
-        border-radius: 50%;
-        box-shadow:
-          0 0 0 76px rgba(25, 116, 229, 0.035),
-          0 0 0 150px rgba(25, 116, 229, 0.028);
+        z-index: 8;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, #0588ff 0%, #48b8ff 33%, #0588ff 67%, #0063bd 100%);
       }
 
       .content {
         position: absolute;
-        z-index: 4;
-        top: 62px;
-        left: 64px;
-        width: 520px;
+        z-index: 6;
+        top: 49px;
+        left: 48px;
+        width: 360px;
       }
 
       .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        height: 30px;
-        padding: 0 13px;
-        border: 1px solid rgba(84, 168, 255, 0.35);
-        border-radius: 999px;
-        background: rgba(8, 38, 73, 0.58);
-        color: #9dceff;
+        color: #65b9ff;
         font-size: 12px;
-        font-weight: 760;
-        letter-spacing: 1.55px;
+        font-weight: 800;
+        letter-spacing: 2.1px;
         text-transform: uppercase;
-        box-shadow: inset 0 0 18px rgba(5, 114, 229, 0.08);
-      }
-
-      .eyebrow::before {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #28a4ff;
-        content: "";
-        box-shadow: 0 0 13px #168fff;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        margin-top: 31px;
       }
 
       .wordmark {
-        margin-top: -3px;
+        margin-top: 14px;
         font-family: "Righteous", sans-serif;
-        font-size: 57px;
+        font-size: 49px;
         font-weight: 400;
-        letter-spacing: 7px;
+        letter-spacing: 8px;
         line-height: 1;
-        text-shadow: 0 0 32px rgba(86, 171, 255, 0.2);
       }
 
       h1 {
-        max-width: 500px;
-        margin: 37px 0 0;
-        font-size: 49px;
-        font-weight: 790;
-        letter-spacing: -2.25px;
-        line-height: 1.01;
+        margin: 52px 0 0;
+        font-size: 47px;
+        font-weight: 850;
+        letter-spacing: -3px;
+        line-height: 0.96;
+        text-transform: uppercase;
       }
 
-      h1 span {
-        color: #62b0ff;
-        text-shadow: 0 0 36px rgba(27, 139, 255, 0.28);
-      }
+      h1 span { color: #2da4ff; }
 
       .description {
-        width: 470px;
-        margin-top: 20px;
-        color: #b9c8d9;
-        font-size: 18px;
-        font-weight: 480;
-        letter-spacing: -0.2px;
-        line-height: 1.47;
+        width: 350px;
+        margin: 22px 0 0;
+        color: #b5c2d0;
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.48;
       }
 
-      .pills {
+      .features {
         display: flex;
-        flex-wrap: wrap;
-        gap: 9px;
-        margin-top: 27px;
+        margin-top: 25px;
+        color: #dfeaff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
       }
 
-      .pill {
-        height: 31px;
-        padding: 0 12px;
-        border: 1px solid rgba(141, 181, 225, 0.18);
-        border-radius: 8px;
-        background: rgba(16, 27, 44, 0.72);
-        color: #dbe9f8;
-        font-size: 12px;
-        font-weight: 680;
-        line-height: 29px;
+      .features span + span::before {
+        margin: 0 10px;
+        color: #277fc1;
+        content: "/";
       }
 
-      .url {
-        position: absolute;
-        bottom: 42px;
-        left: 65px;
-        z-index: 5;
-        color: #7f93aa;
-        font-size: 14px;
-        font-weight: 620;
-        letter-spacing: 0.5px;
-      }
-
-      .preview-glow {
+      .preview-shadow {
         position: absolute;
         z-index: 1;
-        top: 109px;
-        right: -25px;
-        width: 720px;
-        height: 470px;
-        border-radius: 50%;
-        background: rgba(0, 115, 237, 0.25);
-        filter: blur(70px);
-        transform: rotate(-3deg);
+        top: 84px;
+        right: 22px;
+        width: 830px;
+        height: 510px;
+        background: #008dff;
+        filter: blur(68px);
+        opacity: 0.3;
       }
 
       .preview {
         position: absolute;
         z-index: 3;
-        top: 105px;
-        right: -79px;
-        width: 730px;
-        height: 456px;
+        top: 62px;
+        right: 28px;
+        width: 824px;
+        height: 515px;
         overflow: hidden;
-        border: 1px solid rgba(121, 190, 255, 0.36);
-        border-radius: 20px;
-        background: #070c14;
-        transform: perspective(1200px) rotateY(-5deg) rotateZ(-1.6deg);
-        transform-origin: center center;
+        border: 1px solid rgba(129, 199, 255, 0.5);
+        border-radius: 14px;
+        background: #080c12;
         box-shadow:
-          0 42px 90px rgba(0, 0, 0, 0.58),
-          0 0 0 1px rgba(255, 255, 255, 0.045) inset,
-          0 0 65px rgba(14, 119, 240, 0.15);
-      }
-
-      .preview::after {
-        position: absolute;
-        inset: 0;
-        content: "";
-        pointer-events: none;
-        background:
-          linear-gradient(118deg, rgba(255, 255, 255, 0.07), transparent 22%, transparent 77%),
-          linear-gradient(180deg, transparent 72%, rgba(0, 0, 0, 0.1));
+          -20px 30px 70px rgba(0, 0, 0, 0.7),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
       }
 
       .preview img {
@@ -237,91 +156,39 @@ const html = String.raw`<!doctype html>
         object-fit: cover;
       }
 
-      .privacy-card {
+      .preview::after {
         position: absolute;
-        z-index: 5;
-        right: 46px;
-        bottom: 45px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 222px;
-        height: 56px;
-        padding: 0 17px;
-        border: 1px solid rgba(113, 186, 255, 0.3);
-        border-radius: 15px;
-        background: rgba(8, 18, 32, 0.88);
-        backdrop-filter: blur(15px);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
-      }
-
-      .shield {
-        position: relative;
-        width: 29px;
-        height: 34px;
-        flex: 0 0 auto;
-        clip-path: polygon(50% 0, 91% 16%, 86% 67%, 50% 100%, 14% 67%, 9% 16%);
-        background: linear-gradient(180deg, #37a8ff, #076ee0);
-        filter: drop-shadow(0 0 10px rgba(39, 157, 255, 0.4));
-      }
-
-      .shield::after {
-        position: absolute;
-        top: 9px;
-        left: 9px;
-        width: 10px;
-        height: 6px;
-        border-bottom: 3px solid white;
-        border-left: 3px solid white;
+        inset: 0;
         content: "";
-        transform: rotate(-45deg);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+        pointer-events: none;
       }
 
-      .privacy-copy strong {
-        display: block;
-        color: #f3f8ff;
-        font-size: 14px;
-        line-height: 1.15;
-      }
-
-      .privacy-copy span {
-        display: block;
-        margin-top: 4px;
-        color: #8fa3ba;
-        font-size: 11px;
-        font-weight: 540;
+      .footer {
+        position: absolute;
+        z-index: 7;
+        bottom: 38px;
+        left: 48px;
+        color: #718299;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
       }
     </style>
   </head>
   <body>
     <main class="card">
-      <div class="beam"></div>
-      <div class="content">
-        <div class="eyebrow">Open source desktop player</div>
-        <div class="brand">
-          <div class="wordmark">MOVENA</div>
-        </div>
-        <h1>Your IPTV.<br /><span>Your library.</span><br />Your player.</h1>
-        <p class="description">
-          Xtream Codes, M3U/M3U8 and XMLTV EPG—powered by native libmpv.
-        </p>
-        <div class="pills">
-          <span class="pill">Windows</span>
-          <span class="pill">macOS</span>
-          <span class="pill">Linux</span>
-          <span class="pill">GPL-3.0</span>
-        </div>
-      </div>
-      <div class="preview-glow"></div>
+      <div class="top-rule"></div>
+      <div class="preview-shadow"></div>
       <div class="preview"><img src="${heroUrl}" alt="" /></div>
-      <div class="privacy-card">
-        <div class="shield"></div>
-        <div class="privacy-copy">
-          <strong>Private by design</strong>
-          <span>No account · No telemetry</span>
-        </div>
-      </div>
-      <div class="url">movena.frtx.cc</div>
+      <section class="content">
+        <div class="eyebrow">Open-source desktop IPTV</div>
+        <div class="wordmark">MOVENA</div>
+        <h1>A proper<br />home for<br /><span>your IPTV.</span></h1>
+        <p class="description">Live TV, movies and series from Xtream or M3U—without an account or telemetry.</p>
+        <div class="features"><span>Xtream</span><span>M3U</span><span>XMLTV</span><span>libmpv</span></div>
+      </section>
+      <div class="footer">movena.frtx.cc · Windows · macOS · Linux</div>
     </main>
   </body>
 </html>`;

@@ -26,7 +26,7 @@
 /* Keeps the window's top strip draggable while a video plays. The overlay
    above covers the full viewport for its click-to-toggle-play handler, which
    would otherwise sit above (and swallow) the app-level drag strip from
-   App.module.css — that one lives outside the player and is z-indexed far
+   AppLayout.module.css — that one lives outside the player and is z-indexed far
    below it. `.topBar` doesn't fill this gap either: it only appears once
    `showControls` fades it in, and controlsContainer's own padding starts it
    `--window-chrome-height` down, clear of the window-chrome buttons. This is
