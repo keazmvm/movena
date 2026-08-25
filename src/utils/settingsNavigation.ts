@@ -158,7 +158,7 @@ export function resolveSettingsSectionId(value: string | null): SettingsSectionI
 }
 
 export function getSettingsSection(id: SettingsSectionId): SettingsNavItem {
-  return SETTINGS_SECTIONS.find((section) => section.id === id) ?? SETTINGS_SECTIONS[0];
+  return SETTINGS_SECTIONS.find((section) => section.id === id) ?? SETTINGS_SECTIONS[0]!;
 }
 
 export function getSettingsGroupLabel(id: SettingsSectionId): string {

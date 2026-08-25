@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DebugOverlay } from '../src/components/shared/DebugOverlay';
@@ -28,6 +28,38 @@ beforeEach(() => {
 });
 
 describe('Developer HUD', () => {
+  it('provides bounded keyboard resizing and a reset affordance', async () => {
+    renderHud();
+    const user = userEvent.setup();
+    const hud = screen.getByRole('region', { name: 'Developer HUD' });
+    const resizeHandle = screen.getByRole('button', {
+      name: 'Resize Developer HUD. Use arrow keys; Home resets.',
+    });
+
+    expect(hud.style.width).toBe('680px');
+    expect(hud.style.height).toBe('520px');
+
+    resizeHandle.focus();
+    await user.keyboard('{ArrowLeft}{ArrowUp}');
+    expect(hud.style.width).toBe('664px');
+    expect(hud.style.height).toBe('504px');
+
+    await user.keyboard('{Home}');
+    expect(hud.style.width).toBe('680px');
+    expect(hud.style.height).toBe('520px');
+
+    let capturedPointer: number | null = null;
+    resizeHandle.setPointerCapture = (pointerId) => { capturedPointer = pointerId; };
+    resizeHandle.hasPointerCapture = (pointerId) => capturedPointer === pointerId;
+    resizeHandle.releasePointerCapture = () => { capturedPointer = null; };
+    fireEvent.pointerDown(resizeHandle, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(resizeHandle, { pointerId: 1, clientX: 132, clientY: 148 });
+    fireEvent.pointerUp(resizeHandle, { pointerId: 1, clientX: 132, clientY: 148 });
+
+    expect(hud.style.width).toBe('712px');
+    expect(hud.style.height).toBe('568px');
+  });
+
   it('exposes accessible tabs and expands structured log details', async () => {
     useDebugStore.getState().addLog('error', 'search', 'Search index failed', {
       reason: 'needle in payload',

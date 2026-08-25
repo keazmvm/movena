@@ -8,8 +8,8 @@ interface ParseRequest {
 
 interface ParseResponse {
   id: number;
-  playlist?: M3uPlaylist;
-  error?: string;
+  playlist?: M3uPlaylist | undefined;
+  error?: string | undefined;
 }
 
 self.addEventListener('message', (event: MessageEvent<ParseRequest>) => {

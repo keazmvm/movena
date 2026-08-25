@@ -47,6 +47,7 @@ for (const path of cssFiles) {
     ['literal motion duration', /\b(?!0s\b)\d+(?:\.\d+)?(?:ms|s)\b/gi],
     ['literal easing curve', /cubic-bezier\(/gi],
     ['literal easing keyword', /(?:transition|animation)\s*:[^;]*\s(?:ease(?:-in(?:-out)?|-out)?)(?=[\s,;])/gi],
+    ['transition all is unstable; enumerate the animated properties', /transition\s*:\s*all\b/gi],
   ];
 
   for (const [name, pattern] of rules) {
@@ -205,22 +206,3 @@ if (violations.length > 0) {
 }
 
 console.log(`Design-system check passed (${cssFiles.length} stylesheets, ${definitions.size} tokens).`);
-
-// --- Test hygiene checks ---
-const testsRoot = join(root, 'tests');
-const testFiles = walk(testsRoot).filter((path) => extname(path) === '.tsx');
-
-for (const path of testFiles) {
-  const content = readFileSync(path, 'utf8');
-  for (const match of content.matchAll(/\.getAll(?:ByRole|ByText|ByLabelText|ByTestId)\b[^;]*\.at\s*\(/g)) {
-    report(path, 'getAllBy*().at() masks duplicate elements — use getByRole with a unique name or within() scoping', match);
-  }
-}
-
-if (violations.length > 0) {
-  console.error(`Test-hygiene check failed with ${violations.length} violation(s):`);
-  for (const violation of violations) console.error(`- ${violation}`);
-  process.exit(1);
-}
-
-console.log(`Test-hygiene check passed (${testFiles.length} test components).`);

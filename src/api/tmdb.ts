@@ -13,9 +13,9 @@ import type { UiLocale } from '../i18nConfig';
 const TMDB_API = 'https://api.themoviedb.org/3';
 
 export interface TmdbRequestOptions {
-  language?: UiLocale;
-  includeAdult?: boolean;
-  imageSize?: TmdbImageSize;
+  language?: UiLocale | undefined;
+  includeAdult?: boolean | undefined;
+  imageSize?: TmdbImageSize | undefined;
 }
 
 async function tmdbRequest(path: string, apiKey: string, signal?: AbortSignal, options: TmdbRequestOptions = {}): Promise<unknown> {
@@ -25,7 +25,10 @@ async function tmdbRequest(path: string, apiKey: string, signal?: AbortSignal, o
   url.searchParams.set('api_key', key);
   if (options.language) url.searchParams.set('language', options.language);
   if (options.includeAdult !== undefined) url.searchParams.set('include_adult', String(options.includeAdult));
-  const response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+  const response = await fetch(url, {
+    ...(signal ? { signal } : {}),
+    headers: { Accept: 'application/json' },
+  });
   if (!response.ok) throw new Error(`TMDB request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`);
   return response.json();
 }

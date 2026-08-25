@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { desktopApi } from '../src/api/desktop';
+import { tauriApi } from '../src/api/ipc';
 import { queryClient } from '../src/api/queryClient';
 import { clearAllAppData } from '../src/services/appDataReset';
 import { storeM3uConnection, loadM3uConnection } from '../src/services/m3uRepository';
@@ -18,6 +20,7 @@ const m3uId = 'm3u-12345678';
 const xtreamId = 'xtream-12345678';
 
 beforeEach(() => {
+  vi.restoreAllMocks();
   localStorage.clear();
   queryClient.clear();
   useSettingsStore.getState().resetSettings();
@@ -32,6 +35,22 @@ beforeEach(() => {
 });
 
 describe('clearAllAppData', () => {
+  it('stops native playback before deleting desktop caches', async () => {
+    const calls: string[] = [];
+    vi.spyOn(desktopApi, 'isDesktop').mockReturnValue(true);
+    vi.spyOn(tauriApi, 'sourceSecretDelete').mockResolvedValue(undefined);
+    vi.spyOn(tauriApi, 'mpvStop').mockImplementation(async () => {
+      calls.push('stop');
+    });
+    vi.spyOn(tauriApi, 'appDataClear').mockImplementation(async () => {
+      calls.push('clear');
+    });
+
+    await clearAllAppData();
+
+    expect(calls).toEqual(['stop', 'clear']);
+  });
+
   it('removes persisted state, source credentials, library data, download records, and cached queries', async () => {
     await storeM3uConnection(m3uId, { location: 'https://list.test/main.m3u' });
     await storeXtreamCredentials(xtreamId, {

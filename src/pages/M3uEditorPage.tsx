@@ -5,7 +5,7 @@ import styles from './M3uEditorPage.module.css';
 
 export function M3uEditorPage() {
   const navigate = useNavigate();
-  const { sourceId } = useParams<{ sourceId?: string }>();
+  const { sourceId } = useParams<{ sourceId?: string | undefined }>();
 
   return (
     <PageTransition>

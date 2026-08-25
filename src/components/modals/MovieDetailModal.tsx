@@ -27,8 +27,8 @@ interface MovieDetailModalProps {
   movieId: string;
   movieTitle: string;
   moviePoster: string;
-  sourceId?: string;
-  sourceItemId?: string;
+  sourceId?: string | undefined;
+  sourceItemId?: string | undefined;
   onClose: () => void;
 }
 

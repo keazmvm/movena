@@ -48,7 +48,8 @@ vi.mock('../src/hooks/useEnabledSources', () => {
   };
 });
 
-import { Epg, epgNowScrollLeft } from '../src/pages/Epg';
+import { Epg } from '../src/pages/Epg';
+import { epgNowScrollLeft } from '../src/utils/epgGeometry';
 import { useLiveStreams } from '../src/api/useCatalog';
 import { useCategories, useHiddenCategoryIds } from '../src/api/useCategories';
 

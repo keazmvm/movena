@@ -1,10 +1,10 @@
-/// Window operations kept separate from the media/source command surface.
-///
-/// Fullscreen is intentionally implemented here instead of in the frontend:
-/// macOS uses a simple content resize so the child libmpv window remains below
-/// the webview controls; Windows uses direct Win32 placement/shell management
-/// so frameless windows cover the taskbar without resizing jumps or edge gaps;
-/// other platforms fall back to Tauri's native fullscreen.
+//! Window operations kept separate from the media/source command surface.
+//!
+//! Fullscreen is intentionally implemented here instead of in the frontend:
+//! macOS uses a simple content resize so the child libmpv window remains below
+//! the webview controls; Windows uses direct Win32 placement/shell management
+//! so frameless windows cover the taskbar without resizing jumps or edge gaps;
+//! other platforms fall back to Tauri's native fullscreen.
 
 /// Put the player into fullscreen and report the state actually applied.
 #[tauri::command(async)]

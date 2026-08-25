@@ -2,8 +2,8 @@ export interface PlaybackRecoveryRecord {
   streamId: string;
   title: string;
   type: 'live' | 'vod' | 'series';
-  sourceId?: string;
-  sourceItemId?: string;
+  sourceId?: string | undefined;
+  sourceItemId?: string | undefined;
   currentTime: number;
   duration: number;
   savedAt: number;

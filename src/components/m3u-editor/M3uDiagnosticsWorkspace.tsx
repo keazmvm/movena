@@ -8,7 +8,7 @@ interface M3uDiagnosticsWorkspaceProps {
   onUpdateHealthStatuses: (statuses: M3uHealthStatuses) => void;
   onUpdateEntries: (entries: M3uEntry[]) => void;
   parserWarnings: string[];
-  sourceId?: string;
+  sourceId?: string | undefined;
 }
 
 export function M3uDiagnosticsWorkspace(props: M3uDiagnosticsWorkspaceProps) {

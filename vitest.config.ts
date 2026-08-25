@@ -14,12 +14,14 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/main.tsx', 'src/types/**'],
       thresholds: {
-        // Keep the suite above the verified baseline while the UI is covered
-        // incrementally. These are aggregate gates, not per-file targets.
-        statements: 50,
-        branches: 45,
-        functions: 45,
-        lines: 52,
+        statements: 60,
+        branches: 55,
+        functions: 55,
+        lines: 62,
+        'src/api/desktop.ts': { statements: 80, branches: 70, functions: 75, lines: 80 },
+        'src/api/xmltvNormalizer.ts': { statements: 80, branches: 70, functions: 75, lines: 80 },
+        'src/services/credentialVault.ts': { statements: 80, branches: 70, functions: 75, lines: 80 },
+        'src/services/m3uParser.ts': { statements: 80, branches: 70, functions: 75, lines: 80 },
       },
     },
   },

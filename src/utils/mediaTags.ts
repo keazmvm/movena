@@ -195,10 +195,10 @@ export function mergeMediaTags(...values: Array<string | null | undefined>): str
 export function filterMediaTagsByVisibility(
   tags: readonly string[],
   visibility?: {
-    resolution?: boolean;
-    fps?: boolean;
-    audio?: boolean;
-    edition?: boolean;
+    resolution?: boolean | undefined;
+    fps?: boolean | undefined;
+    audio?: boolean | undefined;
+    edition?: boolean | undefined;
   },
 ): string[] {
   if (!visibility) return [...tags];

@@ -15,99 +15,99 @@ export interface PlayableStream {
   title: string;
   type: StreamType;
   streamUrl: string;
-  httpHeaders?: Record<string, string>;
-  sourceId?: string;
-  sourceItemId?: string;
-  epgChannelId?: string;
+  httpHeaders?: Record<string, string> | undefined;
+  sourceId?: string | undefined;
+  sourceItemId?: string | undefined;
+  epgChannelId?: string | undefined;
   /** The provider category this stream was opened from — scopes the Live TV channel switcher to it. */
-  categoryId?: string;
-  posterUrl?: string;
+  categoryId?: string | undefined;
+  posterUrl?: string | undefined;
   /**
    * The show's own artwork, kept alongside the episode still in `posterUrl`.
    * Continue Watching lists one card per series, so it wants the series cover
    * rather than whatever frame the current episode happens to use.
    */
-  seriesPosterUrl?: string;
-  seriesId?: string | number;
+  seriesPosterUrl?: string | undefined;
+  seriesId?: string | number | undefined;
   /** Provider-local series id used for source-specific detail requests. */
-  seriesSourceItemId?: string | number;
+  seriesSourceItemId?: string | number | undefined;
   /** Clean series identity kept separate from the provider's episode name. */
-  seriesTitle?: string;
-  seasonNum?: string | number;
-  episodeNum?: string | number;
+  seriesTitle?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
   /** Clean episode-only label, for example `Stick or Twist`. */
-  episodeTitle?: string;
-  startPosition?: number;
+  episodeTitle?: string | undefined;
+  startPosition?: number | undefined;
   /** Last-known total duration (from watch history) so the seekbar can
    *  render at the correct position before mpv reports the real value. */
-  knownDuration?: number;
-  tags?: string[];
-  country?: string | null;
-  radio?: boolean;
+  knownDuration?: number | undefined;
+  tags?: string[] | undefined;
+  country?: string | null | undefined;
+  radio?: boolean | undefined;
   radioMetadata?: {
     title: string;
-    artist?: string;
-    album?: string;
-    genre?: string;
-    channelNumber?: string;
-    logoUrl?: string;
-  };
+    artist?: string | undefined;
+    album?: string | undefined;
+    genre?: string | undefined;
+    channelNumber?: string | undefined;
+    logoUrl?: string | undefined;
+  } | undefined;
   /** Ordered stream-level fallbacks used when the primary URL cannot start. */
-  fallbacks?: Array<Pick<PlayableStream, 'streamUrl' | 'httpHeaders'>>;
+  fallbacks?: Array<Pick<PlayableStream, 'streamUrl' | 'httpHeaders'>> | undefined;
 }
 
 export interface MpvTrack {
   id: number;
   type: 'video' | 'audio' | 'sub';
-  title?: string;
-  lang?: string;
-  selected?: boolean;
-  codec?: string;
-  codecDescription?: string;
-  codecProfile?: string;
-  decoderDescription?: string;
-  default?: boolean;
+  title?: string | undefined;
+  lang?: string | undefined;
+  selected?: boolean | undefined;
+  codec?: string | undefined;
+  codecDescription?: string | undefined;
+  codecProfile?: string | undefined;
+  decoderDescription?: string | undefined;
+  default?: boolean | undefined;
 }
 
 /** A chapter mark, when the source embeds any — most IPTV streams have none. */
 export interface MpvChapter {
-  title?: string;
+  title?: string | undefined;
   time: number;
 }
 
 export interface PlayerVideoParams {
-  width?: number;
-  height?: number;
-  displayWidth?: number;
-  displayHeight?: number;
-  pixelFormat?: string;
-  hardwarePixelFormat?: string;
-  colorPrimaries?: string;
-  colorTransfer?: string;
-  colorMatrix?: string;
-  maxCll?: number;
-  maxFall?: number;
+  width?: number | undefined;
+  height?: number | undefined;
+  displayWidth?: number | undefined;
+  displayHeight?: number | undefined;
+  pixelFormat?: string | undefined;
+  hardwarePixelFormat?: string | undefined;
+  colorPrimaries?: string | undefined;
+  colorTransfer?: string | undefined;
+  colorMatrix?: string | undefined;
+  maxCll?: number | undefined;
+  maxFall?: number | undefined;
 }
 
 export interface PlayerAudioParams {
-  format?: string;
-  sampleRate?: number;
-  channels?: string;
-  channelCount?: number;
+  format?: string | undefined;
+  sampleRate?: number | undefined;
+  channels?: string | undefined;
+  channelCount?: number | undefined;
 }
 
 export interface PlayerDiagnosticSample {
   timestamp: number;
-  cacheDurationSeconds?: number;
-  cacheBufferingPercent?: number;
-  cacheSpeedBytesPerSecond?: number;
-  videoBitrateBitsPerSecond?: number;
-  audioBitrateBitsPerSecond?: number;
-  estimatedFps?: number;
-  avSyncSeconds?: number;
-  totalAvSyncChangeSeconds?: number;
-  frameDropCount?: number;
-  decoderFrameDropCount?: number;
+  cacheDurationSeconds?: number | undefined;
+  cacheBufferingPercent?: number | undefined;
+  cacheSpeedBytesPerSecond?: number | undefined;
+  videoBitrateBitsPerSecond?: number | undefined;
+  audioBitrateBitsPerSecond?: number | undefined;
+  estimatedFps?: number | undefined;
+  avSyncSeconds?: number | undefined;
+  totalAvSyncChangeSeconds?: number | undefined;
+  frameDropCount?: number | undefined;
+  decoderFrameDropCount?: number | undefined;
 }
 
 export interface PlayerDiagnostics {
@@ -125,6 +125,13 @@ export interface PlayerDiagnostics {
   audioParams: PlayerAudioParams | null;
   latest: PlayerDiagnosticSample | null;
   samples: PlayerDiagnosticSample[];
+}
+
+export interface PlayerResolverStatus {
+  provider: 'twitch';
+  phase: 'starting' | 'ready' | 'ad-break' | 'failed';
+  expectedDurationSeconds?: number | undefined;
+  code?: string | undefined;
 }
 
 const MAX_DIAGNOSTIC_SAMPLES = 60;
@@ -164,9 +171,9 @@ function stringValue(value: unknown): string | undefined {
 
 function parseDiagnosticSample(data: unknown): {
   sample: PlayerDiagnosticSample;
-  hardwareDecoder?: string;
-  videoParams?: PlayerVideoParams;
-  audioParams?: PlayerAudioParams;
+  hardwareDecoder?: string | undefined;
+  videoParams?: PlayerVideoParams | undefined;
+  audioParams?: PlayerAudioParams | undefined;
 } | null {
   const value = recordValue(data);
   if (!value) return null;
@@ -232,6 +239,7 @@ interface PlayerState {
   isVideoReady: boolean;
   eofReached: boolean;
   isRecording: boolean;
+  resolverStatus: PlayerResolverStatus | null;
 
   // Track info from MPV
   videoTracks: MpvTrack[];
@@ -256,7 +264,7 @@ interface PlayerState {
   // Feedback HUD
   feedback: {
     type: 'play' | 'pause' | 'volume';
-    value?: number;
+    value?: number | undefined;
     key: number;
   } | null;
 
@@ -269,6 +277,7 @@ interface PlayerState {
   setTrackList: (tracks: unknown[], sessionId?: string) => void;
   startPlaybackSession: () => void;
   markMpvStartCompleted: () => void;
+  setResolverStatus: (status: PlayerResolverStatus | null, sessionId?: string) => void;
 
   // Actions — UI state
   setShowControls: (show: boolean) => void;
@@ -304,6 +313,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isVideoReady: false,
   eofReached: false,
   isRecording: false,
+  resolverStatus: null,
 
   videoTracks: [],
   audioTracks: [],
@@ -343,6 +353,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       isVideoReady: false,
       eofReached: false,
       isRecording: false,
+      resolverStatus: null,
       videoTracks: [],
       audioTracks: [],
       subtitleTracks: [],
@@ -376,6 +387,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       isVideoReady: false,
       eofReached: false,
       isRecording: false,
+      resolverStatus: null,
       videoTracks: [],
       audioTracks: [],
       subtitleTracks: [],
@@ -395,6 +407,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       isVideoReady: false,
       eofReached: false,
       isRecording: false,
+      resolverStatus: null,
       videoTracks: [],
       audioTracks: [],
       subtitleTracks: [],
@@ -411,6 +424,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }),
 
   // ── MPV event sync ──────────────────────────────────────────
+
+  setResolverStatus: (resolverStatus, eventSessionId) => {
+    if (eventSessionId && eventSessionId !== get().sessionId) return;
+    set({ resolverStatus });
+  },
 
   updateFromMpvEvent: (name, data, eventSessionId) => {
     if (eventSessionId && eventSessionId !== get().sessionId) return;
@@ -570,9 +588,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       case 'chapter-list':
         if (Array.isArray(data)) {
           const chapters = data
-            .filter((chapter): chapter is { title?: unknown; time: number } =>
+            .filter((chapter): chapter is { title?: unknown | undefined; time: number } =>
               !!chapter && typeof chapter === 'object' && 'time' in chapter &&
-              typeof (chapter as { time?: unknown }).time === 'number'
+              typeof (chapter as { time?: unknown | undefined }).time === 'number'
             )
             .map((chapter) => ({
               title: typeof chapter.title === 'string' ? chapter.title : undefined,

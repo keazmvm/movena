@@ -31,8 +31,9 @@ import { resolveM3uCatchupUrl, resolveXtreamCatchupUrl } from '../utils/catchup'
 import { useCatalogCategorySelection } from '../hooks/useCatalogCategorySelection';
 import { useI18n } from '../i18n';
 import { useLogoAspect } from '../hooks/useLogoAspect';
+import { epgNowScrollLeft } from '../utils/epgGeometry';
 
-function EpgChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string; channelKey: string; sourceId?: string }) {
+function EpgChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string | undefined; channelKey: string; sourceId?: string | undefined }) {
   const logoAspect = useLogoAspect(posterUrl, channelKey, sourceId);
   const aspectClass = logoAspect === '16:9' ? styles.logoUnsquish169 : (logoAspect === '4:3' ? styles.logoUnsquish43 : '');
 
@@ -87,16 +88,6 @@ const NOW_INSET = 160;
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
-
-export function epgNowScrollLeft(
-  now: number,
-  windowStart: number,
-  pixelsPerMinute: number,
-  inset = NOW_INSET,
-): number {
-  if (!Number.isFinite(now) || !Number.isFinite(windowStart) || !Number.isFinite(pixelsPerMinute)) return 0;
-  return Math.max(0, ((now - windowStart) / MINUTE) * pixelsPerMinute - inset);
-}
 
 // ── Page ──────────────────────────────────────────────────────
 
@@ -216,7 +207,7 @@ export function Epg() {
 
   const jumpToNow = useCallback((behavior: ScrollBehavior = 'smooth') => {
     scrollerRef.current?.scrollTo({
-      left: epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute),
+      left: epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute, NOW_INSET),
       behavior,
     });
   }, [pixelsPerMinute, windowStart]);
@@ -237,7 +228,7 @@ export function Epg() {
     const scroller = scrollerRef.current;
     if (!scroller) return;
     const align = () => {
-      const left = epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute);
+      const left = epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute, NOW_INSET);
       scroller.scrollLeft = left;
       scroller.style.setProperty('--timeline-scroll-left', `${left}px`);
     };
@@ -452,6 +443,7 @@ export function Epg() {
 
                 {rows.getVirtualItems().map((row) => {
                   const channel = channels[row.index];
+                  if (!channel) return null;
                   return (
                     <EpgRow
                       key={channel.id}

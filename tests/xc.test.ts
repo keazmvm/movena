@@ -51,8 +51,8 @@ describe('Xtream API client', () => {
 
     await expect(getVodCategories(credentials)).resolves.toEqual([{ category_id: '10' }]);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(String(fetchMock.mock.calls[0][0])).toContain('primary.test/player_api.php');
-    expect(String(fetchMock.mock.calls[1][0])).toContain('backup.test/player_api.php');
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('primary.test/player_api.php');
+    expect(String(fetchMock.mock.calls[1]![0])).toContain('backup.test/player_api.php');
     expect(promoteServer).toHaveBeenCalledWith('https://backup.test');
   });
 

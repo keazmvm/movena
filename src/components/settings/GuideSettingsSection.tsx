@@ -14,7 +14,7 @@ import {
 import styles from '../../pages/Settings.module.css';
 import { useI18n } from '../../i18n';
 
-export function GuideSettingsSection({ embedded = false }: { embedded?: boolean }) {
+export function GuideSettingsSection({ embedded = false }: { embedded?: boolean | undefined }) {
   const { t, number } = useI18n();
   const settings = useSettingsStore();
   const [testResult, setTestResult] = useState<string | null>(null);

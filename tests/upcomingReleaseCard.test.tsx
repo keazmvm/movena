@@ -23,7 +23,7 @@ const favorites: MediaItem[] = [
 
 const releases: UpcomingRelease[] = [
   {
-    favorite: favorites[0],
+    favorite: favorites[0]!,
     tmdbId: 1,
     airDate: '2030-01-02',
     kind: 'episode',
@@ -35,7 +35,7 @@ const releases: UpcomingRelease[] = [
     timeSource: 'tvmaze',
   },
   {
-    favorite: favorites[1],
+    favorite: favorites[1]!,
     tmdbId: 2,
     airDate: '2030-02-03',
     kind: 'episode',

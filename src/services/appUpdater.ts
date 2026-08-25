@@ -1,12 +1,10 @@
-import { check, type DownloadEvent, type Update } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
-import { isTauri } from '../utils/platform';
+import { desktopApi, type DesktopUpdate } from '../api/desktop';
 
 export interface UpdateInfo {
   version: string;
   currentVersion: string;
-  body?: string;
-  date?: string;
+  body?: string | undefined;
+  date?: string | undefined;
 }
 
 export interface UpdateDownloadProgress {
@@ -20,12 +18,12 @@ let isChecking = false;
 
 export async function checkForAppUpdates(): Promise<{
   available: boolean;
-  updateInfo?: UpdateInfo;
+  updateInfo?: UpdateInfo | undefined;
   /** The live update handle — pass to {@link installAppUpdate} to download it. */
-  update?: Update;
-  error?: string;
+  update?: DesktopUpdate | undefined;
+  error?: string | undefined;
 }> {
-  if (!isTauri()) {
+  if (!desktopApi.isDesktop()) {
     return { available: false };
   }
 
@@ -35,7 +33,7 @@ export async function checkForAppUpdates(): Promise<{
 
   isChecking = true;
   try {
-    const update = await check();
+    const update = await desktopApi.checkForUpdate();
     if (!update) {
       return { available: false };
     }
@@ -45,8 +43,8 @@ export async function checkForAppUpdates(): Promise<{
       updateInfo: {
         version: update.version,
         currentVersion: update.currentVersion,
-        body: update.body ?? undefined,
-        date: update.date ?? undefined,
+        ...(update.body === undefined ? {} : { body: update.body }),
+        ...(update.date === undefined ? {} : { date: update.date }),
       },
       update,
     };
@@ -71,34 +69,16 @@ export async function checkForAppUpdates(): Promise<{
  * remember it.
  */
 export async function installAppUpdate(
-  update: Update,
+  update: DesktopUpdate,
   options: {
-    onProgress?: (progress: UpdateDownloadProgress) => void;
+    onProgress?: ((progress: UpdateDownloadProgress) => void) | undefined;
     /** Fires once install has finished, right before the app relaunches. */
-    onInstalled?: () => void;
+    onInstalled?: (() => void) | undefined;
   } = {},
 ): Promise<void> {
   const { onProgress, onInstalled } = options;
-  let downloaded = 0;
-  let total: number | null = null;
-
   try {
-    await update.downloadAndInstall((event: DownloadEvent) => {
-      switch (event.event) {
-        case 'Started':
-          total = event.data.contentLength ?? null;
-          onProgress?.({ downloaded, total });
-          break;
-        case 'Progress':
-          downloaded += event.data.chunkLength;
-          onProgress?.({ downloaded, total });
-          break;
-        case 'Finished':
-          if (total !== null) downloaded = total;
-          onProgress?.({ downloaded, total });
-          break;
-      }
-    });
+    await update.downloadAndInstall(onProgress);
   } finally {
     // Release the backend resource handle regardless of outcome. Errors here
     // are not worth surfacing — the app is either about to relaunch or the
@@ -107,5 +87,5 @@ export async function installAppUpdate(
   }
 
   onInstalled?.();
-  await relaunch();
+  await desktopApi.relaunch();
 }

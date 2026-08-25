@@ -1,4 +1,4 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 import { queryClient } from '../api/queryClient';
 import { deleteProviderPassword } from './credentialVault';
@@ -64,9 +64,11 @@ export async function clearAllAppData(): Promise<void> {
 
   await queryClient.cancelQueries();
   await deleteTmdbApiKey();
+  usePlayerStore.getState().closePlayer();
 
-  if (isTauri()) {
+  if (desktopApi.isDesktop()) {
     await Promise.allSettled(activeDownloadIds.map((id) => tauriApi.downloadMediaCancel(id)));
+    await tauriApi.mpvStop();
     await tauriApi.appDataClear(sourceIds);
   } else {
     await Promise.all([
@@ -76,7 +78,6 @@ export async function clearAllAppData(): Promise<void> {
     ]);
   }
 
-  usePlayerStore.getState().closePlayer();
   useSourceStore.setState({
     profiles: [],
     runtimes: {},

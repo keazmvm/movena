@@ -32,7 +32,7 @@ describe('search normalization and ranking', () => {
   });
 
   it('tolerates small typos and uses metadata as a ranking signal', () => {
-    expect(calculateMatchScore(items[0], 'spidr 2021 4k')).toBeGreaterThan(0);
+    expect(calculateMatchScore(items[0]!, 'spidr 2021 4k')).toBeGreaterThan(0);
     expect(smartSearch(items, '2021 4k').map((item) => item.id)).toEqual(['1']);
   });
 

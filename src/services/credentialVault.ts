@@ -1,10 +1,10 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 
 let browserSessionPassword: string | null = null;
 
 export async function storeProviderPassword(password: string): Promise<void> {
-  if (isTauri()) {
+  if (desktopApi.isDesktop()) {
     await tauriApi.credentialStore(password);
     return;
   }
@@ -13,11 +13,11 @@ export async function storeProviderPassword(password: string): Promise<void> {
 }
 
 export async function loadProviderPassword(): Promise<string | null> {
-  return isTauri() ? tauriApi.credentialLoad() : browserSessionPassword;
+  return desktopApi.isDesktop() ? tauriApi.credentialLoad() : browserSessionPassword;
 }
 
 export async function deleteProviderPassword(): Promise<void> {
-  if (isTauri()) {
+  if (desktopApi.isDesktop()) {
     await tauriApi.credentialDelete();
   }
   browserSessionPassword = null;

@@ -22,7 +22,7 @@ export interface LogEntry {
   level: LogLevel;
   category: LogCategory;
   message: string;
-  details?: unknown;
+  details?: unknown | undefined;
 }
 
 export interface NetworkLogEntry {
@@ -30,12 +30,12 @@ export interface NetworkLogEntry {
   timestamp: number;
   url: string;
   method: string;
-  status?: number;
-  durationMs?: number;
-  error?: string;
-  contentType?: string;
-  responseSize?: number;
-  responsePreview?: string;
+  status?: number | undefined;
+  durationMs?: number | undefined;
+  error?: string | undefined;
+  contentType?: string | undefined;
+  responseSize?: number | undefined;
+  responsePreview?: string | undefined;
 }
 
 interface DebugState {

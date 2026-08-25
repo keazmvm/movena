@@ -13,7 +13,7 @@ describe('category sidebar visibility', () => {
     const hidden = new Set(['movies']);
     const hiddenCountries = new Set(['DE']);
 
-    expect(isCategoryHidden(rows[0], hidden, hiddenCountries)).toBe(true);
+    expect(isCategoryHidden(rows[0]!, hidden, hiddenCountries)).toBe(true);
     expect(countHiddenCategories(rows, hidden, hiddenCountries)).toBe(2);
   });
 });

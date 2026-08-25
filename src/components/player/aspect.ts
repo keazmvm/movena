@@ -1,4 +1,4 @@
-import { tauriApi } from '../../api/ipc';
+import { tauriApi, type MpvPropertyUpdate } from '../../api/ipc';
 import { aspectSettingsFor, type AspectMode } from '../../utils/aspect';
 
 /**
@@ -13,9 +13,15 @@ import { aspectSettingsFor, type AspectMode } from '../../utils/aspect';
  */
 export async function applyAspectRatio(mode: AspectMode, throwOnError = false): Promise<void> {
   const settings = aspectSettingsFor(mode);
-  for (const [property, value] of Object.entries(settings)) {
+  const updates: MpvPropertyUpdate[] = [
+    { property: 'video-aspect-override', value: settings['video-aspect-override'] },
+    { property: 'keepaspect', value: settings.keepaspect },
+    { property: 'panscan', value: settings.panscan },
+    { property: 'video-unscaled', value: settings['video-unscaled'] },
+  ];
+  for (const update of updates) {
     try {
-      await tauriApi.mpvCommand(['set', property, value]);
+      await tauriApi.mpvSetProperty(update);
     } catch (error: unknown) {
       if (throwOnError) throw error;
       /* Settings may change with no player running; the next session reapplies them. */
@@ -30,7 +36,7 @@ export async function applyAspectRatio(mode: AspectMode, throwOnError = false): 
  * can leave the cropped eye displayed as a tall 8:9 image.
  */
 export async function applySbsTo2d(enabled: boolean, restoreMode: AspectMode): Promise<void> {
-  await tauriApi.mpvCommand(['set', 'video-crop', enabled ? '50%x100%+0+0' : '']);
+  await tauriApi.mpvSetProperty({ property: 'video-crop', value: enabled ? '50%x100%+0+0' : '' });
   await applyAspectRatio(enabled ? '16:9' : restoreMode, true);
 }
 

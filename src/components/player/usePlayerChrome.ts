@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { listen } from '@tauri-apps/api/event';
+import { desktopApi } from '../../api/desktop';
 import { tauriApi } from '../../api/ipc';
 import { usePlayerStore } from '../../store/usePlayerStore';
 
@@ -118,7 +118,7 @@ export function usePlayerChrome(isActive: boolean) {
     // The DOM stops seeing mouse-moves while the pointer is hidden, so the
     // backend watches the pointer during exactly that window and says when it
     // stirs. Without this, only a click could bring the controls back.
-    const unlisten = listen('pointer-moved', onActivity);
+    const unlisten = desktopApi.onPointerMoved(onActivity);
 
     return () => {
       window.removeEventListener('mousemove', onActivity);

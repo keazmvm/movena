@@ -23,6 +23,7 @@ describe('portable settings configuration', () => {
     useSettingsStore.getState().updateSetting('tmdbApiKey', 'local-secret');
     useSettingsStore.getState().updateSetting('tmdbLanguage', 'de-DE');
     useSettingsStore.getState().updateSetting('tmdbImageSize', 'w780');
+    useSettingsStore.getState().updateSetting('epgXmltvUrl', 'https://guide.test/private.xml?token=secret');
     useSettingsStore.getState().updateSetting('upcomingHomeEnabled', false);
     useSettingsStore.getState().updateSetting('upcomingCalendarEnabled', false);
     useSettingsStore.getState().updateSetting('upcomingHistoryDays', 14);
@@ -48,6 +49,8 @@ describe('portable settings configuration', () => {
     expect(serialized).not.toContain('password');
     expect(serialized).not.toContain('streamUrl');
     expect(serialized).not.toContain('local-secret');
+    expect(serialized).not.toContain('guide.test');
+    expect(document.settings).not.toHaveProperty('epgXmltvUrl');
   });
 
   it('migrates partial files, sanitizes malformed values, and reports unknown entries', () => {
@@ -67,6 +70,7 @@ describe('portable settings configuration', () => {
         simulateNetworkErrorRate: -5, // out of bounds, min is 0
         upcomingHistoryDays: 365,
         futurePreference: true,
+        epgXmltvUrl: 'https://guide.test/legacy.xml',
       },
     }));
 
@@ -82,7 +86,7 @@ describe('portable settings configuration', () => {
       upcomingHistoryDays: 7,
     });
     expect(parsed.document.settings.categoryPrefs.hidden.vod).toEqual(['10']);
-    expect(parsed.ignoredKeys).toEqual(['futurePreference']);
+    expect(parsed.ignoredKeys).toEqual(['futurePreference', 'epgXmltvUrl']);
   });
 
   it('rejects non-finite runtime values during sanitization', () => {

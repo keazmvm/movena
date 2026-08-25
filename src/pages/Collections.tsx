@@ -63,9 +63,9 @@ export function Collections() {
     if (collections.length === 0) {
       setActiveCollectionId(null);
     } else if (activeCollectionId && !collections.some((c) => c.id === activeCollectionId)) {
-      setActiveCollectionId(collections[0].id);
+      setActiveCollectionId(collections[0]!.id);
     } else if (!activeCollectionId && collections.length > 0) {
-      setActiveCollectionId(collections[0].id);
+      setActiveCollectionId(collections[0]!.id);
     }
   }, [collections, activeCollectionId, setActiveCollectionId]);
 
@@ -209,7 +209,8 @@ export function Collections() {
                   ? t('"{name}" has no items yet. Add movies or series from their detail modals or context menus.', { name: activeCollection.name })
                   : 'Group your favorite movies and shows into custom playlists and collections.'
               }
-              actionLabel={!activeCollection ? t('+ Create Collection') : undefined}
+              actionLabel={!activeCollection ? 'Create Collection' : undefined}
+              actionIcon={!activeCollection ? Plus : undefined}
               onAction={!activeCollection ? openCreateModal : undefined}
             />
           )}

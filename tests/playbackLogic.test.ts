@@ -144,7 +144,7 @@ describe('playback domain logic', () => {
 
     const diagnostics = usePlayerStore.getState().diagnostics;
     expect(diagnostics.samples).toHaveLength(60);
-    expect(diagnostics.samples[0].cacheDurationSeconds).toBe(5);
+    expect(diagnostics.samples[0]!.cacheDurationSeconds).toBe(5);
     expect(diagnostics.hardwareDecoder).toBe('d3d11va');
     expect(diagnostics.videoParams).toMatchObject({ width: 1920, height: 1080, pixelFormat: 'nv12' });
     expect(diagnostics.audioParams).toMatchObject({ sampleRate: 48000, channels: 'stereo' });

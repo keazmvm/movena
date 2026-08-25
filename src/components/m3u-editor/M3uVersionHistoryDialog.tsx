@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { History, RotateCcw, Save, Trash2, X, Download } from 'lucide-react';
-import { isTauri } from '@tauri-apps/api/core';
-import { save } from '@tauri-apps/plugin-dialog';
+import { desktopApi } from '../../api/desktop';
 import {
   clearM3uVersions,
   deleteM3uVersion,
@@ -53,8 +52,8 @@ export function M3uVersionHistoryDialog({
   const exportVersion = async (version: M3uVersionRecord) => {
     const fileName = `playlist-backup-${new Date(version.createdAt).toISOString().slice(0, 10)}.m3u`;
     try {
-      if (isTauri()) {
-        const path = await save({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
+      if (desktopApi.isDesktop()) {
+        const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
         if (!path) return;
         await tauriApi.m3uWriteFile(path, version.content);
       } else {

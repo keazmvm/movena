@@ -1,5 +1,4 @@
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../../api/desktop';
 import { Minus, Square, X } from 'lucide-react';
 import { IconButton } from '../common/Button';
 import { usePlayerStore } from '../../store/usePlayerStore';
@@ -7,8 +6,8 @@ import { isMacOS } from '../../utils/platform';
 import styles from './WindowChrome.module.css';
 import { useI18n } from '../../i18n';
 
-function runWindowAction(action: (window: ReturnType<typeof getCurrentWindow>) => Promise<void>) {
-  if (isTauri()) void action(getCurrentWindow());
+function runWindowAction(action: () => Promise<void>) {
+  if (desktopApi.isDesktop()) void action();
 }
 
 /** Native-Windows-style minimize/maximize/close buttons, right-aligned. */
@@ -18,7 +17,7 @@ function WindowsWindowChrome() {
       <IconButton
         size="sm"
         className={styles.windowControl}
-        onClick={() => runWindowAction((window) => window.minimize())}
+        onClick={() => runWindowAction(desktopApi.minimizeWindow)}
         aria-label="Minimize window"
       >
         <Minus size={15} />
@@ -26,7 +25,7 @@ function WindowsWindowChrome() {
       <IconButton
         size="sm"
         className={styles.windowControl}
-        onClick={() => runWindowAction((window) => window.toggleMaximize())}
+        onClick={() => runWindowAction(desktopApi.toggleMaximizeWindow)}
         aria-label="Maximize or restore window"
       >
         <Square size={13} />
@@ -34,7 +33,7 @@ function WindowsWindowChrome() {
       <IconButton
         size="sm"
         className={`${styles.windowControl} ${styles.windowClose}`}
-        onClick={() => runWindowAction((window) => window.close())}
+        onClick={() => runWindowAction(desktopApi.closeWindow)}
         aria-label="Close window"
       >
         <X size={16} />
@@ -51,7 +50,7 @@ function MacWindowChrome() {
       <button
         type="button"
         className={`${styles.trafficLight} ${styles.trafficLightClose}`}
-        onClick={() => runWindowAction((window) => window.close())}
+        onClick={() => runWindowAction(desktopApi.closeWindow)}
         aria-label={t('Close window')}
       >
         <span className={styles.trafficLightIcon}>
@@ -61,7 +60,7 @@ function MacWindowChrome() {
       <button
         type="button"
         className={`${styles.trafficLight} ${styles.trafficLightMinimize}`}
-        onClick={() => runWindowAction((window) => window.minimize())}
+        onClick={() => runWindowAction(desktopApi.minimizeWindow)}
         aria-label={t('Minimize window')}
       >
         <span className={styles.trafficLightIcon}>
@@ -71,7 +70,7 @@ function MacWindowChrome() {
       <button
         type="button"
         className={`${styles.trafficLight} ${styles.trafficLightMaximize}`}
-        onClick={() => runWindowAction((window) => window.toggleMaximize())}
+        onClick={() => runWindowAction(desktopApi.toggleMaximizeWindow)}
         aria-label={t('Maximize window')}
       >
         <span className={styles.trafficLightIcon}>

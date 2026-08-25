@@ -89,24 +89,24 @@ export function foldLiveChannels(items: readonly MediaItem[]): MediaItem[] {
 
   for (const group of groups.values()) {
     if (group.length === 1) {
-      result.push(group[0].item);
+      result.push(group[0]!.item);
       continue;
     }
 
     // Sort descending by quality rank
     group.sort((a, b) => b.rank - a.rank);
 
-    const primary = group[0];
+    const primary = group[0]!;
     const allBadges = mergeMediaTags(...group.flatMap((g) => g.qualityBadges));
 
     // Assemble ordered fallbacks from other quality streams
-    const alternativeFallbacks: Array<{ streamUrl: string; httpHeaders?: Record<string, string> }> = [];
+    const alternativeFallbacks: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> = [];
     const seenUrls = new Set<string>();
     if (primary.item.streamUrl) {
       seenUrls.add(primary.item.streamUrl);
     }
 
-    const addFallback = (fallback: { streamUrl: string; httpHeaders?: Record<string, string> }) => {
+    const addFallback = (fallback: { streamUrl: string; httpHeaders?: Record<string, string> | undefined }) => {
       if (!fallback.streamUrl || seenUrls.has(fallback.streamUrl)) return;
       seenUrls.add(fallback.streamUrl);
       alternativeFallbacks.push(fallback);
@@ -115,7 +115,7 @@ export function foldLiveChannels(items: readonly MediaItem[]): MediaItem[] {
     for (const fallback of primary.item.fallbacks ?? []) addFallback(fallback);
 
     for (let i = 1; i < group.length; i++) {
-      const variant = group[i].item;
+      const variant = group[i]!.item;
       if (variant.streamUrl) {
         addFallback({
           streamUrl: variant.streamUrl,

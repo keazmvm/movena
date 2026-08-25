@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useSettingsStore } from './store/useSettingsStore';
 import {
   UI_LANGUAGES,
@@ -99,6 +99,7 @@ function compileTemplate(template: string) {
   while ((match = placeholder.exec(template))) {
     source += template.slice(cursor, match.index).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const name = match[1];
+    if (!name) continue;
     source += NUMERIC_PLACEHOLDERS.has(name)
       ? '([+-]?(?:\\d[\\d.,\\s]*|—))'
       : '(.+?)';
@@ -135,7 +136,7 @@ function translateDynamicEnglish(message: string, catalog: MessageCatalog): { te
     if (!match) continue;
     return {
       template,
-      values: Object.fromEntries(names.map((name, index) => [name, match[index + 1]])),
+      values: Object.fromEntries(names.map((name, index) => [name, match[index + 1] ?? ''])),
     };
   }
   return null;
@@ -236,11 +237,12 @@ export function useI18n(): I18nApi {
     });
   }, [language]);
 
-  const api = useMemo(() => createI18n(language), [language, catalogReady]);
-
-  // Keep the translator identity stable for memoized option and callback trees.
-  const t = useCallback(api.t, [api]);
-  return useMemo(() => ({ ...api, t }), [api, t]);
+  return useMemo(() => {
+    // Reading this subscription value is what rebuilds the API after a lazy
+    // locale catalogue becomes available.
+    void catalogReady;
+    return createI18n(language);
+  }, [language, catalogReady]);
 }
 
 /** Translation helper for stores and services that run outside React. */

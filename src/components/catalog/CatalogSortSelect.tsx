@@ -6,8 +6,8 @@ import { useI18n } from '../../i18n';
 interface CatalogSortSelectProps {
   value: CatalogSortMode;
   onChange: (value: CatalogSortMode) => void;
-  className?: string;
-  isLiveTv?: boolean;
+  className?: string | undefined;
+  isLiveTv?: boolean | undefined;
 }
 
 export function CatalogSortSelect({

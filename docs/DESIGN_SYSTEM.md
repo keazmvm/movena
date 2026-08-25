@@ -17,6 +17,8 @@ second control language.
 - `--surface-control` is a contained panel or control group.
 - `--surface-input` is an editable field.
 - `--surface-elevated` is a modal, menu, or popover.
+- `--surface-player-elevated` is the opaque-enough player menu surface used
+  over native video.
 - `--surface-selection` is the full-surface selected state.
 - Shadows are reserved for cards, menus, dialogs, and other floating layers.
 
@@ -66,11 +68,13 @@ player, but normal app navigation should always retain the functional bar.
   the accent tokens from the settings store.
 - Use the finite alpha and duration scales. Do not introduce a one-off alpha,
   easing curve, shadow, or transition duration in a component stylesheet.
+- Enumerate animated properties. `transition: all` is forbidden because it
+  makes later layout and visibility changes animate accidentally.
 - Use the finite type, weight, spacing, and radius scales too. Small optical
   spacing comes from the shared `--space-px` through `--space-3-5` tokens;
   component styles must not introduce literal values for these properties.
 - Every interactive element needs an accessible name, a visible
-  `:focus-visible` state, and the shared compact pointer target.
+  `:focus-visible` state, and a pointer target of at least 24×24 CSS pixels.
 - Respect `prefers-reduced-motion` and the app motion preference.
 - Do not put emojis in titles, settings labels, or notification headings. Use
   `CountryFlag` instead of emoji flags.
@@ -89,13 +93,20 @@ player, but normal app navigation should always retain the functional bar.
 - The shell reserves one title-bar height; route content uses the responsive
   `--page-top-inset` only for breathing room below it. Do not add another
   page-level top spacer.
+- The 960×600 minimum and 1280×800 default desktop sizes are release
+  contracts. Content may scroll vertically, but the document must never gain
+  unintended horizontal overflow, including at 200% zoom.
+- Long titles and translated copy wrap or truncate non-destructively. Never
+  hide the only label, value, recovery action, or destructive warning.
 
 ## Media and player rules
 
 Provider metadata remains normalized by `src/utils/mediaTags.ts` and
 `src/utils/titleParser.ts`; feature code must not create local provider tag or
-color maps. Use Remix line/fill icons for navigation and stateful player
-controls, and Lucide for general-purpose controls.
+color maps. Use the semantic aliases in `src/components/shared/icons.ts` for
+icons. Their implementations come from Lucide; active state belongs to the
+surrounding selected surface and accessible state rather than a separate icon
+library.
 
 Native video is rendered by libmpv behind a transparent webview. Over the
 player use flat translucent surfaces, never `backdrop-filter`, and use
@@ -110,7 +121,15 @@ Run these after visual changes:
 npm run design:check
 npm run typecheck
 npm run test -- --run
+npm run ui:qa
 ```
+
+The component QA harness is a separate Vite entry under `tests-ui/harness`.
+It renders production primitives, content states, settings controls, and
+overlays without adding a development route or fixture code to the app.
+`npm run ui:qa` checks accessibility and the 960×600/200%-zoom geometry
+contracts; `npm run ui:qa:visual` also compares the representative Windows
+screenshots. Update a baseline only after reviewing the rendered difference.
 
 Shared controls should have role-based tests for keyboard navigation, focus,
 ARIA state, disabled behavior, dismissal, selection, and boundaries. Pure grid

@@ -9,14 +9,14 @@ export const WORKSPACE_SIDEBAR_MIN_WIDTH = 180;
 export const WORKSPACE_SIDEBAR_MAX_WIDTH = 520;
 
 interface WorkspaceSidebarProps {
-  className?: string;
-  title?: string;
-  count?: number;
+  className?: string | undefined;
+  title?: string | undefined;
+  count?: number | undefined;
   width: number;
   onWidthChange: (width: number) => void;
-  headerAction?: ReactNode;
-  headerContent?: ReactNode;
-  ariaLabel?: string;
+  headerAction?: ReactNode | undefined;
+  headerContent?: ReactNode | undefined;
+  ariaLabel?: string | undefined;
   children: ReactNode;
 }
 
@@ -125,8 +125,8 @@ export function WorkspaceSidebar({
 interface WorkspaceSidebarSearchProps {
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
-  ariaLabel?: string;
+  placeholder?: string | undefined;
+  ariaLabel?: string | undefined;
 }
 
 /** Consistent filtering control for shared secondary navigation. */

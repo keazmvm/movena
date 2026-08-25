@@ -38,8 +38,31 @@ jobs:
       - run: npm run check
       - run: npm run build
 
+  ui-quality:
+    name: UI component quality
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Run accessibility, geometry, locale, and visual component QA
+        run: npm run ui:qa:visual
+      - name: Upload UI evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ui-qa-windows
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+
   source-and-dependencies:
-    name: Source and dependency compliance
+    name: Windows native and source compliance
     # The committed license report includes platform-specific optional packages.
     # Generate and verify it on the project's Windows development target.
     runs-on: windows-latest
@@ -51,8 +74,15 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
       - run: npm ci --ignore-scripts
+      - run: npm run setup:mpv
+      - run: npm run setup:twitch
+      - name: Run native tests on Windows
+        run: npm run test:rust
       - run: npm audit --audit-level=high
       - run: npm run licenses:check
       - run: npm run public-tree:check
@@ -63,6 +93,20 @@ jobs:
             echo 'Private playlists or bundled media remain in Git history.' >&2
             exit 1
           fi
+
+  macos-native:
+    name: macOS native tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: brew install mpv
+      - run: npm ci --ignore-scripts
+      - run: npm run test:rust
 
   rust-dependency-policy:
     name: Rust dependency policy

@@ -13,7 +13,7 @@ import { useI18n } from '../../i18n';
  * itself be a token reference. They mirror the system hues the design system
  * lists, so the row stays in the same family as the rest of the interface.
  */
-export const ACCENT_PRESETS = [
+const ACCENT_PRESETS = [
   { name: 'Electric Blue', hex: DEFAULT_ACCENT_COLOR },
   { name: 'Vibrant Purple', hex: '#af52de' },
   { name: 'Emerald Green', hex: '#34c759' },

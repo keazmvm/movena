@@ -16,6 +16,10 @@ const pendingDetections: Array<() => void> = [];
 const inFlightDetections = new Map<string, Promise<LogoAspect>>();
 let activeDetections = 0;
 
+function pixel(data: ArrayLike<number>, index: number): number {
+  return data[index] ?? 0;
+}
+
 function pumpDetectionQueue(): void {
   while (activeDetections < MAX_CONCURRENT_DETECTIONS) {
     const start = pendingDetections.shift();
@@ -52,10 +56,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
     // Top and bottom borders
     for (const y of [0, height - 1]) {
       const idx = (y * width + x) * 4;
-      bgR += data[idx];
-      bgG += data[idx + 1];
-      bgB += data[idx + 2];
-      bgA += data[idx + 3];
+      bgR += pixel(data, idx);
+      bgG += pixel(data, idx + 1);
+      bgB += pixel(data, idx + 2);
+      bgA += pixel(data, idx + 3);
       borderPixelCount++;
     }
   }
@@ -64,10 +68,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
     // Left and right borders
     for (const x of [0, width - 1]) {
       const idx = (y * width + x) * 4;
-      bgR += data[idx];
-      bgG += data[idx + 1];
-      bgB += data[idx + 2];
-      bgA += data[idx + 3];
+      bgR += pixel(data, idx);
+      bgG += pixel(data, idx + 1);
+      bgB += pixel(data, idx + 2);
+      bgA += pixel(data, idx + 3);
       borderPixelCount++;
     }
   }
@@ -89,10 +93,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = (y * width + x) * 4;
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const a = data[idx + 3];
+      const r = pixel(data, idx);
+      const g = pixel(data, idx + 1);
+      const b = pixel(data, idx + 2);
+      const a = pixel(data, idx + 3);
 
       luma[y * width + x] = 0.299 * r + 0.587 * g + 0.114 * b;
 
@@ -139,8 +143,8 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   for (let y = minY + 1; y < maxY - 1; y++) {
     for (let x = minX + 1; x < maxX - 1; x++) {
       const idx = y * width + x;
-      const gx = Math.abs(luma[idx + 1] - luma[idx - 1]);
-      const gy = Math.abs(luma[idx + width] - luma[idx - width]);
+      const gx = Math.abs(pixel(luma, idx + 1) - pixel(luma, idx - 1));
+      const gy = Math.abs(pixel(luma, idx + width) - pixel(luma, idx - width));
 
       // Only count gradients with meaningful contrast
       if (gx > 15 || gy > 15) {
@@ -162,10 +166,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       const idx = (y * width + x) * 4;
-      const a = data[idx + 3];
+      const a = pixel(data, idx + 3);
       const isFg = isBgTransparent 
         ? a >= 32 
-        : (Math.abs(data[idx] - bgR) + Math.abs(data[idx + 1] - bgG) + Math.abs(data[idx + 2] - bgB)) > 40;
+        : (Math.abs(pixel(data, idx) - bgR) + Math.abs(pixel(data, idx + 1) - bgG) + Math.abs(pixel(data, idx + 2) - bgB)) > 40;
       if (isFg) {
         sumX += x;
         sumY += y;
@@ -182,10 +186,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       const idx = (y * width + x) * 4;
-      const a = data[idx + 3];
+      const a = pixel(data, idx + 3);
       const isFg = isBgTransparent 
         ? a >= 32 
-        : (Math.abs(data[idx] - bgR) + Math.abs(data[idx + 1] - bgG) + Math.abs(data[idx + 2] - bgB)) > 40;
+        : (Math.abs(pixel(data, idx) - bgR) + Math.abs(pixel(data, idx + 1) - bgG) + Math.abs(pixel(data, idx + 2) - bgB)) > 40;
       if (isFg) {
         const dx = x - centerX;
         const dy = y - centerY;
@@ -226,7 +230,6 @@ function performLogoAspectDetection(url: string): Promise<LogoAspect> {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     let settled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const finish = (result: LogoAspect, cacheResult: boolean) => {
       if (settled) return;
@@ -243,7 +246,7 @@ function performLogoAspectDetection(url: string): Promise<LogoAspect> {
       resolve(result);
     };
 
-    timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       finish('original', false);
       img.src = '';
     }, 2500);

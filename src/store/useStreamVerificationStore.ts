@@ -4,11 +4,11 @@ import { persist } from 'zustand/middleware';
 export interface VerifiedStreamMetadata {
   width: number;
   height: number;
-  fps?: number;
-  videoCodec?: string;
-  audioCodec?: string;
-  audioChannels?: number;
-  isHdr?: boolean;
+  fps?: number | undefined;
+  videoCodec?: string | undefined;
+  audioCodec?: string | undefined;
+  audioChannels?: number | undefined;
+  isHdr?: boolean | undefined;
   verifiedAt: number;
 }
 

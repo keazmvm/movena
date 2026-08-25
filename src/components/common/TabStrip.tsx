@@ -12,9 +12,9 @@ interface TabStripProps<T extends string | number> {
   value: T;
   onChange: (value: T) => void;
   ariaLabel: string;
-  id?: string;
-  panelId?: string;
-  className?: string;
+  id?: string | undefined;
+  panelId?: string | undefined;
+  className?: string | undefined;
 }
 
 export function TabStrip<T extends string | number>({

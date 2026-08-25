@@ -369,7 +369,7 @@ function normalizeCreditList(value: unknown, kind: 'cast' | 'crew'): NormalizedT
       indexes.set(key, result.length);
       result.push(credit);
     } else {
-      result[existingIndex] = mergeCredit(result[existingIndex], credit);
+      result[existingIndex] = mergeCredit(result[existingIndex]!, credit);
     }
   }
   return result;

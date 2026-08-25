@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { isTauri } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
+import { desktopApi } from '../api/desktop';
 import { useDownloadStore } from '../store/useDownloadStore';
 import { notify } from '../store/useNotificationStore';
 import { getUserFacingErrorMessage } from '../utils/error';
@@ -10,9 +9,9 @@ import type { DownloadStatusEvent } from '../utils/downloads';
 /** Keeps the persisted queue synchronized with native download lifecycle events. */
 export function useDownloadEvents() {
   useEffect(() => {
-    if (!isTauri()) return;
+    if (!desktopApi.isDesktop()) return;
     let disposed = false;
-    const subscription = listen<DownloadStatusEvent>('download-event', ({ payload }) => {
+    const subscription = desktopApi.onDownloadEvent((payload: DownloadStatusEvent) => {
       useDownloadStore.getState().sync(payload);
       const job = useDownloadStore.getState().jobs.find((candidate) => candidate.id === payload.id);
       if (payload.state === 'completed' && job) {

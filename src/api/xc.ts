@@ -344,9 +344,9 @@ export interface XCVodInfo {
     name: string;
     added: string;
     container_extension: string;
-    direct_stream_url?: string;
-    http_headers?: Record<string, string>;
-    source_id?: string;
+    direct_stream_url?: string | undefined;
+    http_headers?: Record<string, string> | undefined;
+    source_id?: string | undefined;
   };
 }
 
@@ -393,42 +393,42 @@ export async function getSeries(creds: XCCredentials, categoryId?: string, signa
 export interface XCEpisode {
   id: string | number;
   episode_num: string | number;
-  title?: string;
-  container_extension?: string;
+  title?: string | undefined;
+  container_extension?: string | undefined;
   info?: {
-    plot?: string;
-    duration_secs?: number;
-    duration?: string;
-    movie_image?: string;
-    rating?: string;
-  };
-  custom_sid?: string;
-  added?: string;
-  season?: number;
-  direct_source?: string;
-  stream_url?: string;
-  http_headers?: Record<string, string>;
-  source_id?: string;
+    plot?: string | undefined;
+    duration_secs?: number | undefined;
+    duration?: string | undefined;
+    movie_image?: string | undefined;
+    rating?: string | undefined;
+  } | undefined;
+  custom_sid?: string | undefined;
+  added?: string | undefined;
+  season?: number | undefined;
+  direct_source?: string | undefined;
+  stream_url?: string | undefined;
+  http_headers?: Record<string, string> | undefined;
+  source_id?: string | undefined;
 }
 
 export interface XCSeriesMetadata {
-  name?: string;
-  cover?: string;
-  plot?: string;
-  cast?: string;
-  director?: string;
-  genre?: string;
-  releaseDate?: string;
-  rating?: string;
-  backdrop_path?: string[];
+  name?: string | undefined;
+  cover?: string | undefined;
+  plot?: string | undefined;
+  cast?: string | undefined;
+  director?: string | undefined;
+  genre?: string | undefined;
+  releaseDate?: string | undefined;
+  rating?: string | undefined;
+  backdrop_path?: string[] | undefined;
 }
 
 export interface XCSeason {
-  id?: string | number;
-  name?: string;
-  season_number?: number;
-  episode_count?: number;
-  cover?: string;
+  id?: string | number | undefined;
+  name?: string | undefined;
+  season_number?: number | undefined;
+  episode_count?: number | undefined;
+  cover?: string | undefined;
 }
 
 export interface XCSeriesInfoResponse {

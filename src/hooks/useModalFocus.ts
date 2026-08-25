@@ -11,10 +11,10 @@ const FOCUSABLE_SELECTOR = [
 ].join(',');
 
 interface UseModalFocusOptions {
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   onClose: () => void;
-  initialFocusSelector?: string;
-  focusKey?: unknown;
+  initialFocusSelector?: string | undefined;
+  focusKey?: unknown | undefined;
 }
 
 /** Shared escape handling, focus containment, scroll lock, and focus restore. */
@@ -64,6 +64,7 @@ export function useModalFocus<T extends HTMLElement>({
 
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
       const active = document.activeElement;
 
       if (!modal.contains(active)) {

@@ -27,7 +27,7 @@ export interface UpcomingRelease {
 export interface UpcomingReleaseOptions {
   /** Restrict the batch to specific favorite ids while preserving the same
    * canonical search/detail caches used by the full Coming Up workspace. */
-  favoriteIds?: readonly string[];
+  favoriteIds?: readonly string[] | undefined;
 }
 
 const SEARCH_STALE_TIME = 1000 * 60 * 60 * 24 * 30;
@@ -47,8 +47,8 @@ interface TmdbMatchCandidate {
   mediaType: 'movie' | 'tv' | 'person';
   id: number;
   title: string;
-  originalTitle?: string | null;
-  releaseYear?: string | number | null;
+  originalTitle?: string | null | undefined;
+  releaseYear?: string | number | null | undefined;
 }
 
 /** Prefer the actual title/year match instead of trusting TMDB result order. */
@@ -101,7 +101,7 @@ async function mapWithConcurrency<T, R>(items: readonly T[], limit: number, work
   const run = async () => {
     while (next < items.length) {
       const index = next++;
-      result[index] = await worker(items[index]);
+      result[index] = await worker(items[index]!);
     }
   };
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));

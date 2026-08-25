@@ -11,8 +11,8 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
-  danger?: boolean;
-  isConfirming?: boolean;
+  danger?: boolean | undefined;
+  isConfirming?: boolean | undefined;
 }
 
 export function ConfirmDialog({

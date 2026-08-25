@@ -8,8 +8,8 @@ interface GenreFilterBarProps<T extends SmartCatalogItem> {
   items: T[];
   selectedGenre: string | null;
   onSelectGenre: (genre: string | null) => void;
-  categoryNameMap?: Map<string, string>;
-  className?: string;
+  categoryNameMap?: Map<string, string> | undefined;
+  className?: string | undefined;
 }
 
 export function GenreFilterBar<T extends SmartCatalogItem>({

@@ -208,6 +208,50 @@ describe('custom control keyboard contracts', () => {
     expect(screen.queryByRole('button', { name: 'View Details' })).toBeNull();
   });
 
+  it('opens a media card from the keyboard without re-triggering nested actions', async () => {
+    useLibraryStore.setState({ favorites: [], collections: [], history: [], watched: [] });
+    const openDetails = vi.fn();
+    render(
+      <MemoryRouter>
+        <MediaCard
+          item={{ id: 'movie-keyboard', title: 'Keyboard Movie', posterUrl: '', type: 'vod' }}
+          onClick={openDetails}
+        />
+      </MemoryRouter>,
+    );
+
+    const card = screen.getByRole('group', { name: 'Open Keyboard Movie' });
+    card.focus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+
+    expect(openDetails).toHaveBeenCalledTimes(2);
+  });
+
+  it('uses provider marks only for logo-less YouTube and Twitch live cards', () => {
+    render(
+      <MemoryRouter>
+        <MediaCard
+          item={{ id: 'youtube-live', title: 'YouTube Live', posterUrl: '', type: 'live', streamUrl: 'https://www.youtube.com/@channel/live' }}
+        />
+        <MediaCard
+          item={{ id: 'twitch-live', title: 'Twitch Live', posterUrl: '', type: 'live', streamUrl: 'https://www.twitch.tv/channel' }}
+        />
+        <MediaCard
+          item={{ id: 'ordinary-live', title: 'Ordinary Live', posterUrl: '', type: 'live', streamUrl: 'https://stream.example.test/live.m3u8' }}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('img', { name: 'YouTube' })).toBeTruthy();
+    expect(screen.getByRole('img', { name: 'Twitch' })).toBeTruthy();
+    expect(screen.getAllByText('YouTube Live')).toHaveLength(1);
+    expect(screen.getAllByText('Twitch Live')).toHaveLength(1);
+    expect(
+      screen.getByRole('group', { name: 'Ordinary Live' }).querySelector('[aria-label="YouTube"], [aria-label="Twitch"]'),
+    ).toBeNull();
+  });
+
   it('moves content-tab selection with arrows, Home, and End', async () => {
     function Harness() {
       const [value, setValue] = useState('one');

@@ -63,6 +63,8 @@ if (-not $SkipBuild) {
   try {
     & npm.cmd run setup:mpv
     if ($LASTEXITCODE -ne 0) { throw 'The libmpv setup step failed.' }
+    & npm.cmd run setup:twitch
+    if ($LASTEXITCODE -ne 0) { throw 'The Twitch resolver setup step failed.' }
     & npx.cmd tauri build --no-bundle
     if ($LASTEXITCODE -ne 0) { throw 'The Tauri release build failed.' }
   }
@@ -71,7 +73,9 @@ if (-not $SkipBuild) {
 
 $executable = Join-Path $releaseDirectory 'movena.exe'
 $mpvLibrary = Join-Path $releaseDirectory 'libmpv-2.dll'
-foreach ($file in @($manifestTemplate, $executable, $mpvLibrary)) {
+$ytdlp = Join-Path $releaseDirectory 'yt-dlp.exe'
+$twitchResolver = Join-Path $releaseDirectory 'twitch-resolver'
+foreach ($file in @($manifestTemplate, $executable, $mpvLibrary, $ytdlp, $twitchResolver)) {
   if (-not (Test-Path $file)) { throw "Required MSIX input is missing: $file" }
 }
 
@@ -80,7 +84,8 @@ $stagingDirectory = Join-Path $releaseDirectory 'msix-staging'
 Remove-Item -LiteralPath $stagingDirectory -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Path $stagingDirectory, $OutputDirectory -Force | Out-Null
 
-Copy-Item -LiteralPath $executable, $mpvLibrary -Destination $stagingDirectory
+Copy-Item -LiteralPath $executable, $mpvLibrary, $ytdlp -Destination $stagingDirectory
+Copy-Item -LiteralPath $twitchResolver -Destination $stagingDirectory -Recurse
 $assetsDirectory = Join-Path $stagingDirectory 'Assets'
 New-Item -ItemType Directory -Path $assetsDirectory -Force | Out-Null
 $assetNames = @(

@@ -10,20 +10,25 @@ network/cache operations.
 React UI
   ├─ Zustand: local UI, player, library, source, and preference state
   ├─ TanStack Query: source-scoped catalog and guide cache
-  └─ src/api/ipc.ts: typed Tauri command boundary
+  ├─ src/api/ipc.ts: typed domain command boundary
+  └─ src/api/desktop.ts: typed desktop event/window boundary
         │
         ▼
 Tauri/Rust
   ├─ native_player.rs: libmpv lifecycle, commands, and events
+  ├─ twitch_resolver.rs: Twitch URL routing and resolver process lifecycle
   ├─ window_commands.rs: fullscreen and cursor behavior
-  ├─ credentials.rs: operating-system credential vault
-  ├─ lib.rs: source loading, downloads, XMLTV, and app wiring
+  ├─ credentials.rs / source_secrets.rs: operating-system credential vault
+  ├─ remote_media.rs / m3u_cache.rs / xmltv.rs: validated remote data and caches
+  ├─ downloads.rs / app_files.rs: downloads and allowlisted file operations
+  ├─ lib.rs: module registration, app-data deletion, and Tauri wiring
   └─ macos_embed.rs: macOS mpv child-window integration
 ```
 
-The frontend never talks to Rust through ad-hoc `invoke` calls. Add commands to
-the typed wrapper in `src/api/ipc.ts`, register them in `src-tauri/src/lib.rs`,
-and test the wrapper.
+The frontend never talks to Rust through ad-hoc `invoke` calls. Add domain
+commands to `src/api/ipc.ts`, desktop/window and event operations to
+`src/api/desktop.ts`, register them in `src-tauri/src/lib.rs`, and test the
+wrapper.
 
 ## State ownership
 
@@ -32,7 +37,7 @@ and test the wrapper.
 - `useAuthStore`: Xtream profiles, credentials, and provider runtimes.
 - `useSettingsStore`: persisted preferences and layout settings.
 - `useLibraryStore`: favorites, collections, history, and watch progress.
-- `useDownloadStore`: download queue, active media downloads, and completion state.
+- `useDownloadStore`: session-only download queue and active/completion state.
 - `useNotificationStore`, `useSearchStore`, `useContextMenuStore`, `useDebugStore`: focused UI and diagnostic concerns.
 - TanStack Query: remote catalog/detail/EPG data keyed by source identity.
 
@@ -66,7 +71,26 @@ The public playback commands are:
 `mpv_start`, `mpv_stop`, `mpv_play_pause`, `mpv_seek`,
 `mpv_seek_relative`, `mpv_set_volume`, `mpv_set_speed`,
 `mpv_set_audio_track`, `mpv_set_sub_track`, `mpv_set_recording`, and
-`mpv_command`.
+the allowlisted `mpv_set_property` boundary.
+
+Canonical Twitch live-channel pages take a provider-specific path before
+`loadfile`: `twitch_resolver.rs` starts the bundled Streamlink 8.5.0 onedir
+runtime, validates its random `127.0.0.1` HTTP endpoint, and gives only that
+local URL to libmpv. Streamlink removes Twitch's stitched advertising segments;
+Movena represents the resulting unavailable interval with typed
+`resolver-status` events. VODs, clips, unrelated Twitch pages, and direct HLS
+URLs remain on the ordinary playback path.
+
+The resolver can use an installed Chromium-based browser in headless mode when
+Twitch requires a client-integrity token. Streamlink state is redirected into
+Movena's application cache; Delete All App Data removes that cache. The local
+HTTP listener must bind only to a random `127.0.0.1` port.
+
+The resolver is owned by the same `NativePlayerManager` session as mpv. Stream
+replacement and shutdown disconnect mpv first, then stop the complete resolver
+process group within a bounded timeout. Resolver output is never passed through
+as raw diagnostics, and URL or token fields retained for failure classification
+are redacted.
 
 Fullscreen and pointer visibility use `player_set_fullscreen` and
 `player_set_cursor_hidden`. Source, settings, cache, and download commands are
@@ -85,13 +109,17 @@ Media URLs and required stream headers are passed to libmpv only after source
 validation. Diagnostics must redact credentials and media URLs.
 
 Settings backups are an allowlisted, versioned JSON format. They may contain
-preferences and layout settings, but never credentials, source connections,
-playlist headers, history, favorites, diagnostics, or media caches. Imports
-validate and sanitize the complete document before one store update.
+portable preferences and layout settings, but never credentials, source or
+guide URLs, playlist headers, history, favorites, diagnostics, or media caches.
+Imports validate and sanitize the complete document before one store update.
 
-The Tauri capability file grants only shell APIs used by the frontend. The CSP
-allows the provider/TMDB network paths required by the current architecture
-while keeping objects and framing disabled.
+The Tauri capability file grants the frontend only the required app/event,
+window, opener, dialog, updater, and restart permissions. The CSP keeps scripts
+self-hosted and disables objects and framing. Images and frontend connections
+currently permit broad `https:` and legacy `http:` destinations because users
+can configure arbitrary providers; Rust commands still validate remote URLs.
+Plain HTTP is accepted when configured but is unencrypted, so HTTPS should be
+preferred wherever the source supports it.
 
 ## Repository map
 
@@ -101,6 +129,7 @@ src-tauri/src/       Rust commands and native playback
 src-tauri/capabilities/ Tauri permissions
 scripts/             Local checks and pinned native setup
 tests/               Frontend and Rust-adjacent regression tests
+tests-ui/            Playwright accessibility, geometry, locale, and visual QA
 ```
 
 ## Verification
@@ -110,6 +139,9 @@ npm run check
 npm run build
 ```
 
-Push CI is intentionally disabled. Native playback still needs manual testing
-in a real Tauri window: stream start/stop, seek, fullscreen, track switching,
-recording, resize, and teardown.
+Push and pull-request CI run through `.github/workflows/compliance.yml`; release
+jobs call the same reusable verification workflow before building artifacts.
+Native playback still needs manual testing in a real Tauri window: stream
+start/stop, seek, fullscreen, track switching, recording, resize, and teardown.
+For Twitch, cover startup, pre-roll and mid-roll waiting states, recovery,
+replacement, close, resolver-process teardown, and loopback-listener teardown.

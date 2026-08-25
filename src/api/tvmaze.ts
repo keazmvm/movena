@@ -15,7 +15,7 @@ export function cleanTvmazeSearchTitle(title: string): string {
 
 async function tvmazeRequest(path: string, signal?: AbortSignal): Promise<unknown> {
   const response = await fetch(new URL(path, TVMAZE_API), {
-    signal,
+    ...(signal ? { signal } : {}),
     headers: { Accept: 'application/json' },
   });
   if (!response.ok) throw new Error(`TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`);
@@ -28,7 +28,10 @@ export async function searchTvmazeShows(query: string, signal?: AbortSignal): Pr
   if (!title) return [];
   const url = new URL('/search/shows', TVMAZE_API);
   url.searchParams.set('q', title);
-  const response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+  const response = await fetch(url, {
+    ...(signal ? { signal } : {}),
+    headers: { Accept: 'application/json' },
+  });
   if (!response.ok) throw new Error(`TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`);
   return normalizeTvmazeShowSearch(await response.json());
 }

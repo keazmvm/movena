@@ -1,6 +1,6 @@
 export interface TrackLabelInput {
-  title?: string;
-  lang?: string;
+  title?: string | undefined;
+  lang?: string | undefined;
 }
 
 function clean(value: string | undefined): string | null {

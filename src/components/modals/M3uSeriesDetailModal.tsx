@@ -10,7 +10,8 @@ import { ErrorState } from '../common/ErrorState';
 import { parseEpisodeTitle, parseMediaDisplayTitle, formatEpisodePlaybackTitle } from '../../utils/titleParser';
 import styles from './SeriesDetailModal.module.css';
 import { useI18n } from '../../i18n';
-import { episodeScheduleKey, SeriesUpcomingEpisodes } from '../upcoming/SeriesUpcomingEpisodes';
+import { SeriesUpcomingEpisodes } from '../upcoming/SeriesUpcomingEpisodes';
+import { episodeScheduleKey } from '../../utils/upcoming';
 import { Select } from '../shared/Select';
 
 interface M3uSeriesDetailModalProps {
@@ -18,9 +19,9 @@ interface M3uSeriesDetailModalProps {
   seriesTitle: string;
   seriesPoster: string;
   sourceId: string;
-  sourceItemId?: string;
-  initialSeasonNumber?: number;
-  initialEpisodeNumber?: number;
+  sourceItemId?: string | undefined;
+  initialSeasonNumber?: number | undefined;
+  initialEpisodeNumber?: number | undefined;
   onClose: () => void;
 }
 
@@ -90,7 +91,7 @@ export function M3uSeriesDetailModal({
         ? requestedSeason
         : savedSeason && seasons.includes(savedSeason)
           ? savedSeason
-          : seasons[0],
+          : seasons[0] ?? '',
     );
   }, [historyItem?.seasonNum, initialSeasonNumber, seasons, selectedSeason]);
 

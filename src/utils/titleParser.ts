@@ -9,7 +9,7 @@ import { normalizeFancyUnicode } from './textNormalization';
 export interface ParsedChannelTitle {
   cleanTitle: string;
   qualityBadges: string[];
-  categoryPrefix?: string;
+  categoryPrefix?: string | undefined;
   country: string | null;
 }
 
@@ -30,16 +30,16 @@ export interface ParsedEpisodeTitle extends ParsedMediaTitle {
 }
 
 export interface EpisodeTitleContext {
-  seriesTitle?: string;
-  seasonNum?: string | number;
-  episodeNum?: string | number;
+  seriesTitle?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
 }
 
 export interface CustomTitleRule {
   id: string;
   pattern: string;
-  isRegex?: boolean;
-  enabled?: boolean;
+  isRegex?: boolean | undefined;
+  enabled?: boolean | undefined;
 }
 
 const compiledRuleCache = new WeakMap<readonly CustomTitleRule[], RegExp[]>();
@@ -257,9 +257,9 @@ export function parseMediaTitle(
 
   const bracketPrefix = title.match(/^[([]([^()[\]]{1,40})[)\]]\s*[-–—|:]?\s*(.+)$/);
   if (bracketPrefix) {
-    const parsed = parseMarkerCluster(bracketPrefix[1]);
+    const parsed = parseMarkerCluster(bracketPrefix[1]!);
     if (parsed.recognized) {
-      title = bracketPrefix[2];
+      title = bracketPrefix[2]!;
       country = country ?? parsed.country;
       tags = mergeMediaTags(...tags, ...parsed.tags);
     }
@@ -267,9 +267,9 @@ export function parseMediaTitle(
 
   const prefix = title.match(/^(.{1,60}?)\s+-\s+(.+)$/);
   if (prefix) {
-    const parsed = parseMarkerCluster(prefix[1]);
+    const parsed = parseMarkerCluster(prefix[1]!);
     if (parsed.recognized) {
-      title = prefix[2];
+      title = prefix[2]!;
       country = country ?? parsed.country;
       tags = mergeMediaTags(...tags, ...parsed.tags);
     }
@@ -278,9 +278,9 @@ export function parseMediaTitle(
   if (!country && tags.length === 0) {
     const pipePrefix = title.match(/^([^|:]{1,40})\s*[|:]\s*(.+)$/);
     if (pipePrefix) {
-      const parsed = parseMarkerCluster(pipePrefix[1]);
+      const parsed = parseMarkerCluster(pipePrefix[1]!);
       if (parsed.recognized) {
-        title = pipePrefix[2];
+        title = pipePrefix[2]!;
         country = parsed.country;
         tags = parsed.tags;
       }
@@ -289,9 +289,9 @@ export function parseMediaTitle(
 
   const suffix = title.match(/^(.+?)\s+(?:-|\|)\s+(.{1,50})$/);
   if (suffix) {
-    const parsed = parseMarkerCluster(suffix[2]);
+    const parsed = parseMarkerCluster(suffix[2]!);
     if (parsed.recognized) {
-      title = suffix[1];
+      title = suffix[1]!;
       country = country ?? parsed.country;
       tags = mergeMediaTags(...tags, ...parsed.tags);
     }
@@ -301,9 +301,9 @@ export function parseMediaTitle(
   // for example `MobLand (2025) (GB)` or `Movie [4K] [UHD]`.
   let parenthesizedSuffix = title.match(/^(.+?)\s+[([]([^()[\]]{1,30})[)\]]$/);
   while (parenthesizedSuffix) {
-    const parsed = parseMarkerCluster(parenthesizedSuffix[2]);
+    const parsed = parseMarkerCluster(parenthesizedSuffix[2]!);
     if (!parsed.recognized) break;
-    title = parenthesizedSuffix[1];
+    title = parenthesizedSuffix[1]!;
     country = country ?? parsed.country;
     tags = mergeMediaTags(...tags, ...parsed.tags);
     parenthesizedSuffix = title.match(/^(.+?)\s+[([]([^()[\]]{1,30})[)\]]$/);
@@ -336,7 +336,7 @@ export function parseMediaDisplayTitle(
     const trailingDuplicate = parsed.cleanTitle.match(/^(.+?)\s+[([]?(?:18|19|20)\d{2}[)\]]?$/);
     return {
       ...parsed,
-      cleanTitle: trailingDuplicate ? cleanSeparators(trailingDuplicate[1]) : parsed.cleanTitle,
+      cleanTitle: trailingDuplicate ? cleanSeparators(trailingDuplicate[1]!) : parsed.cleanTitle,
       releaseYear: normalizedExplicitYear,
     };
   }
@@ -346,8 +346,8 @@ export function parseMediaDisplayTitle(
   if (bracketYearMatch) {
     return {
       ...parsed,
-      cleanTitle: cleanSeparators(bracketYearMatch[1]),
-      releaseYear: bracketYearMatch[2],
+      cleanTitle: cleanSeparators(bracketYearMatch[1]!),
+      releaseYear: bracketYearMatch[2]!,
     };
   }
 
@@ -356,8 +356,8 @@ export function parseMediaDisplayTitle(
   if (trailingYearMatch) {
     return {
       ...parsed,
-      cleanTitle: cleanSeparators(trailingYearMatch[1]),
-      releaseYear: trailingYearMatch[2],
+      cleanTitle: cleanSeparators(trailingYearMatch[1]!),
+      releaseYear: trailingYearMatch[2]!,
     };
   }
 
@@ -366,8 +366,8 @@ export function parseMediaDisplayTitle(
   if (inlineYearMatch) {
     return {
       ...parsed,
-      cleanTitle: cleanSeparators(`${inlineYearMatch[1]} ${inlineYearMatch[3]}`),
-      releaseYear: inlineYearMatch[2],
+      cleanTitle: cleanSeparators(`${inlineYearMatch[1]!} ${inlineYearMatch[3]!}`),
+      releaseYear: inlineYearMatch[2]!,
     };
   }
 
@@ -432,7 +432,7 @@ export function parseEpisodeTitle(
     const shortCode = workingTitle.match(/^(?:EPISODE|E)\s*0*(\d{1,4})\s*(?:[-–—:|.]\s*)?(.*)$/i);
     if (shortCode) {
       episodeNum = normalizeEpisodeIndex(shortCode[1]) ?? episodeNum;
-      workingTitle = cleanSeparators(shortCode[2]);
+      workingTitle = cleanSeparators(shortCode[2]!);
     }
 
     // If the provider repeated the known series name without an episode code,
@@ -494,11 +494,11 @@ export function parseLiveChannelTitle(
 
   const pipePrefix = title.match(/^([A-Z]{2,12})\s*[|:]\s*(.+)$/i);
   if (pipePrefix) {
-    categoryPrefix = pipePrefix[1].toUpperCase();
+    categoryPrefix = pipePrefix[1]!.toUpperCase();
     if (KNOWN_COUNTRY_CODES.has(categoryPrefix)) {
       prefixCountry = normalizeCountryCode(categoryPrefix);
     }
-    title = pipePrefix[2];
+    title = pipePrefix[2]!;
   }
 
   const parsed = parseMediaTitle(title, customRules);
@@ -507,9 +507,9 @@ export function parseLiveChannelTitle(
   let country = prefixCountry ?? parsed.country;
 
   const trailingCountry = cleanTitle.match(/^(.+?)\s+([A-Z]{2})$/);
-  if (trailingCountry && KNOWN_COUNTRY_CODES.has(trailingCountry[2].toUpperCase())) {
-    cleanTitle = cleanSeparators(trailingCountry[1]);
-    country = country ?? normalizeCountryCode(trailingCountry[2].toUpperCase());
+  if (trailingCountry && KNOWN_COUNTRY_CODES.has(trailingCountry[2]!.toUpperCase())) {
+    cleanTitle = cleanSeparators(trailingCountry[1]!);
+    country = country ?? normalizeCountryCode(trailingCountry[2]!.toUpperCase());
   }
 
   cleanTitle = cleanTitle

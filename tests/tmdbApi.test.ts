@@ -29,7 +29,7 @@ describe('TMDB API boundary', () => {
     });
     expect(result.results[0]).toMatchObject({ id: 603, title: 'The Matrix' });
 
-    const requestUrl = new URL(fetchMock.mock.calls[0][0].toString());
+    const requestUrl = new URL(fetchMock.mock.calls[0]![0].toString());
     expect(requestUrl.pathname).toBe('/3/search/multi');
     expect(requestUrl.searchParams.get('api_key')).toBe('api-key');
     expect(requestUrl.searchParams.get('query')).toBe('The Matrix & Friends');
@@ -58,7 +58,7 @@ describe('TMDB API boundary', () => {
       posterUrl: 'https://image.tmdb.org/t/p/w500/show.jpg',
     });
 
-    const movieUrl = new URL(fetchMock.mock.calls[0][0].toString());
+    const movieUrl = new URL(fetchMock.mock.calls[0]![0].toString());
     expect(movieUrl.pathname).toBe('/3/movie/10');
     expect(movieUrl.searchParams.get('append_to_response')).toBe('credits,videos');
     expect(movieUrl.searchParams.get('api_key')).toBe('key');

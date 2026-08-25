@@ -122,7 +122,7 @@ export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigati
 
   if (isCompact) {
     const activeItem = SETTINGS_SECTIONS.find((item) => item.id === activeSection)
-      ?? SETTINGS_SECTIONS[0];
+      ?? SETTINGS_SECTIONS[0]!;
 
     return (
       <nav className={styles.compactNavigation} aria-label={t('Settings navigation')}>

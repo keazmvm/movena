@@ -15,7 +15,7 @@ export function findIntroChapter(
   if (index === -1) return null;
   const next = chapters[index + 1];
   if (!next) return null;
-  return { start: chapters[index].time, skipTo: next.time };
+  return { start: chapters[index]!.time, skipTo: next.time };
 }
 
 /**

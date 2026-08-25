@@ -25,15 +25,9 @@ function resolve(code: string | null): string | undefined {
   return FLAG_URLS[`/node_modules/country-flag-icons/3x2/${key}.svg`];
 }
 
-export function hasFlag(code: string | null): boolean {
-  const key = normalizeCountryCode(code);
-  if (!key) return false;
-  return /^[A-Z]{2}$/.test(key);
-}
-
 interface CountryFlagProps {
   code: string;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function CountryFlag({ code, className }: CountryFlagProps) {

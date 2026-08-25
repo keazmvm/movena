@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { isTauri } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
+import { desktopApi } from '../../api/desktop';
 import { AlertCircle, ArrowRight, CalendarDays, FileUp, Globe, Loader2, Tag, UserRound, X } from 'lucide-react';
 import { useSourceStore } from '../../store/useSourceStore';
 import { notify } from '../../store/useNotificationStore';
@@ -11,10 +10,10 @@ import styles from './AccountConnectionForm.module.css';
 import { useI18n } from '../../i18n';
 
 interface M3uSourceFormProps {
-  sourceId?: string;
-  onSuccess?: () => void;
-  onCancel?: () => void;
-  compact?: boolean;
+  sourceId?: string | undefined;
+  onSuccess?: (() => void) | undefined;
+  onCancel?: (() => void) | undefined;
+  compact?: boolean | undefined;
 }
 
 export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }: M3uSourceFormProps) {
@@ -109,13 +108,13 @@ export function M3uSourceForm({ sourceId, onSuccess, onCancel, compact = false }
   };
 
   const chooseLocalFile = async () => {
-    if (!isTauri()) {
+    if (!desktopApi.isDesktop()) {
       fileInputRef.current?.click();
       return;
     }
     let selection: string | string[] | null;
     try {
-      selection = await open({
+      selection = await desktopApi.openPath({
         multiple: false,
         directory: false,
         filters: [{ name: 'M3U playlists', extensions: ['m3u', 'm3u8', 'txt'] }],

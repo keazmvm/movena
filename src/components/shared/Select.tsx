@@ -10,25 +10,25 @@ export interface SelectOption<T extends string | number> {
   value: T;
   label: string;
   /** Keep provider data and language autonyms out of interface translation. */
-  localize?: boolean;
+  localize?: boolean | undefined;
 }
 
 export interface SelectProps<T extends string | number> {
   value: T;
   options: SelectOption<T>[];
   onChange: (value: T) => void;
-  disabled?: boolean;
-  className?: string;
-  width?: string | number;
-  variant?: 'default' | 'player' | 'settings';
-  ariaLabel?: string;
+  disabled?: boolean | undefined;
+  className?: string | undefined;
+  width?: string | number | undefined;
+  variant?: 'default' | 'player' | 'settings' | undefined;
+  ariaLabel?: string | undefined;
 }
 
 interface DropdownCoords {
   left: number;
   width: number;
-  top?: number;
-  bottom?: number;
+  top?: number | undefined;
+  bottom?: number | undefined;
   placement: 'top' | 'bottom';
 }
 

@@ -31,8 +31,8 @@ export interface CatalogPageProps {
   emptyDescription: string;
   noSourceDescription: string;
   onItemClick: (item: MediaItem) => void;
-  onViewDetails?: (item: MediaItem) => void;
-  isLiveTv?: boolean;
+  onViewDetails?: ((item: MediaItem) => void) | undefined;
+  isLiveTv?: boolean | undefined;
 }
 
 export function CatalogPage({

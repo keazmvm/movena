@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { listen, type UnlistenFn } from '@tauri-apps/api/event';
-import { isTauri } from '@tauri-apps/api/core';
-import { tauriApi } from '../../api/ipc';
+import { desktopApi, type ResolverStatusEventData } from '../../api/desktop';
+import { tauriApi, type MpvPropertyUpdate } from '../../api/ipc';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { debugLog, type LogLevel } from '../../store/useDebugStore';
@@ -12,17 +11,16 @@ import { setPlayerFullscreen } from './fullscreen';
 import { clearPlaybackRecovery, writePlaybackRecovery } from '../../utils/playbackRecovery';
 import { getErrorMessage } from '../../utils/error';
 
-interface MpvEvent {
-  type: 'property-change' | 'end-file' | 'log-message';
-  name?: string;
-  data?: unknown;
-  sessionId?: string;
+interface EndFileData {
+  reason?: 'eof' | 'stop' | 'quit' | 'error' | 'redirect' | 'unknown' | undefined;
+  errorCode?: number | undefined;
+  errorMessage?: string | null | undefined;
 }
 
-interface EndFileData {
-  reason?: 'eof' | 'stop' | 'quit' | 'error' | 'redirect' | 'unknown';
-  errorCode?: number;
-  errorMessage?: string | null;
+interface MpvLogData {
+  prefix: string;
+  level: string;
+  text: string;
 }
 
 function formatMpvEndFileError(endFile: EndFileData): string {
@@ -34,6 +32,53 @@ function formatMpvEndFileError(endFile: EndFileData): string {
   return endFile.errorCode === undefined
     ? 'mpv ended the stream with an unknown playback error.'
     : `mpv ended the stream with error code ${endFile.errorCode}.`;
+}
+
+function formatResolverPlaybackError(log: MpvLogData): string | null {
+  if (log.prefix !== 'ytdl_hook' || (log.level !== 'error' && log.level !== 'fatal')) return null;
+  const message = log.text.trim();
+  if (!message || message === '[media location omitted]'
+    || /^youtube-dl failed: unexpected error occurred\.?$/i.test(message)) return null;
+  if (/the channel is not currently live/i.test(message)) {
+    return 'This channel is not currently live.';
+  }
+  return message.replace(/^ERROR:\s*/i, '');
+}
+
+function parseResolverStatus(data: unknown): ResolverStatusEventData | null {
+  if (!data || typeof data !== 'object') return null;
+  const value = data as Record<string, unknown>;
+  if (value.provider !== 'twitch'
+    || !['starting', 'ready', 'ad-break', 'failed'].includes(String(value.phase))) return null;
+  const expectedDurationSeconds = typeof value.expectedDurationSeconds === 'number'
+    && Number.isFinite(value.expectedDurationSeconds)
+    ? Math.max(1, Math.min(180, Math.round(value.expectedDurationSeconds)))
+    : undefined;
+  return {
+    provider: 'twitch',
+    phase: value.phase as ResolverStatusEventData['phase'],
+    ...(expectedDurationSeconds === undefined ? {} : { expectedDurationSeconds }),
+    ...(typeof value.code === 'string' ? { code: value.code } : {}),
+  };
+}
+
+function formatTwitchResolverError(code: string | undefined): string {
+  switch (code) {
+    case 'resolver-unavailable':
+      return 'The bundled Twitch resolver is unavailable.';
+    case 'resolver-startup-timeout':
+      return 'The Twitch resolver did not become ready in time.';
+    case 'channel-offline':
+      return 'This Twitch channel is not currently live.';
+    case 'no-streams':
+      return 'Twitch did not provide a playable live stream.';
+    case 'client-integrity-unavailable':
+      return 'Twitch requires a browser integrity check, but no compatible Chromium browser was available.';
+    case 'malformed-loopback-response':
+      return 'The Twitch resolver returned an invalid local playback address.';
+    default:
+      return 'The Twitch stream resolver stopped unexpectedly.';
+  }
 }
 
 interface MpvSessionState {
@@ -59,6 +104,9 @@ const STALL_TIMEOUT_MS = 20_000;
  * dead falls through to the manual "Reconnect" screen instead of retrying
  * forever in silence. */
 const MAX_AUTO_STALL_RECOVERIES = 3;
+const MAX_TWITCH_AD_BREAK_MS = 210_000;
+const TWITCH_AD_BREAK_GRACE_MS = 30_000;
+const MAX_TWITCH_AD_BREAK_RECOVERIES = 1;
 
 /** Owns exactly one native mpv session while a stream is active. Stream
  * changes are serialized by `mpv_start`; only session exit calls `mpv_stop`. */
@@ -77,13 +125,18 @@ export function useMpvSession(): MpvSessionState {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [restartNonce, setRestartNonce] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
-  const listenerReadyRef = useRef<Promise<UnlistenFn> | null>(null);
+  const listenerReadyRef = useRef<Promise<() => void> | null>(null);
   const stallTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fallbackRef = useRef<() => boolean>(() => false);
   const autoRecoveryCountRef = useRef(0);
   const fallbackAttemptsRef = useRef(0);
   const playbackErrorsRef = useRef<string[]>([]);
+  const resolverErrorRef = useRef<string | null>(null);
+  const twitchBreakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const twitchBreakRecoveryCountRef = useRef(0);
+  const twitchBreakStartPositionRef = useRef(0);
+  const twitchBreakSawBufferingRef = useRef(false);
   const hasActiveStream = Boolean(activeStream);
 
   const recordPlaybackError = useCallback((message: string) => {
@@ -97,6 +150,7 @@ export function useMpvSession(): MpvSessionState {
     if (!current || !streamFailoverEnabled || !current.fallbacks?.length
       || fallbackAttemptsRef.current >= maxStreamFailovers) return false;
     const [fallback, ...remaining] = current.fallbacks;
+    if (!fallback) return false;
     fallbackAttemptsRef.current += 1;
     debugLog.warn('player', 'Trying stream fallback', { remaining: remaining.length });
     state.playStream({
@@ -112,14 +166,28 @@ export function useMpvSession(): MpvSessionState {
   fallbackRef.current = tryFallback;
 
   useEffect(() => {
-    if (!isTauri()) return;
-    const listener = listen<MpvEvent>('mpv-event', ({ payload }) => {
+    if (!desktopApi.isDesktop()) return;
+    const listener = desktopApi.onMpvEvent((payload) => {
       const currentSessionId = usePlayerStore.getState().sessionId;
       if (payload.sessionId && payload.sessionId !== currentSessionId) return;
       if (payload.type === 'property-change' && payload.name) {
         if (payload.name === 'vo-configured' && payload.data === true && startupTimerRef.current !== null) {
           clearTimeout(startupTimerRef.current);
           startupTimerRef.current = null;
+        }
+        const playerState = usePlayerStore.getState();
+        if (payload.name === 'paused-for-cache' && payload.data === true
+          && playerState.resolverStatus?.phase === 'ad-break') {
+          twitchBreakSawBufferingRef.current = true;
+        }
+        if (payload.name === 'time-pos' && typeof payload.data === 'number'
+          && playerState.resolverStatus?.phase === 'ad-break'
+          && twitchBreakSawBufferingRef.current
+          && payload.data > twitchBreakStartPositionRef.current) {
+          playerState.setResolverStatus(null, payload.sessionId);
+          twitchBreakSawBufferingRef.current = false;
+        } else if (payload.name === 'time-pos' && playerState.resolverStatus?.phase === 'ready') {
+          playerState.setResolverStatus(null, payload.sessionId);
         }
         if (payload.name === 'track-list' && Array.isArray(payload.data)) {
           usePlayerStore.getState().setTrackList(payload.data, payload.sessionId);
@@ -134,13 +202,33 @@ export function useMpvSession(): MpvSessionState {
         } else if (payload.name === 'sub-visibility' && typeof payload.data === 'boolean') {
           settingsStore.updateSetting('subtitlesEnabled', payload.data);
         }
+      } else if (payload.type === 'resolver-status') {
+        const resolverStatus = parseResolverStatus(payload.data);
+        if (!resolverStatus) return;
+        if (resolverStatus.phase === 'ad-break') {
+          if (startupTimerRef.current !== null) {
+            clearTimeout(startupTimerRef.current);
+            startupTimerRef.current = null;
+          }
+          if (stallTimerRef.current !== null) {
+            clearTimeout(stallTimerRef.current);
+            stallTimerRef.current = null;
+          }
+          const playerState = usePlayerStore.getState();
+          twitchBreakStartPositionRef.current = playerState.currentTime;
+          twitchBreakSawBufferingRef.current = playerState.isBuffering;
+          resolverErrorRef.current = null;
+        } else if (resolverStatus.phase === 'failed') {
+          resolverErrorRef.current = formatTwitchResolverError(resolverStatus.code);
+        }
+        usePlayerStore.getState().setResolverStatus(resolverStatus, payload.sessionId);
       } else if (payload.type === 'end-file') {
         const endFile = payload.data && typeof payload.data === 'object'
           ? payload.data as EndFileData
           : null;
         debugLog.info('player', 'MPV end-file event received', endFile);
         if (endFile?.reason === 'error') {
-          const mpvError = formatMpvEndFileError(endFile);
+          const mpvError = resolverErrorRef.current ?? formatMpvEndFileError(endFile);
           const completeError = recordPlaybackError(mpvError);
           if (fallbackRef.current()) return;
           setIsRetrying(false);
@@ -151,8 +239,10 @@ export function useMpvSession(): MpvSessionState {
           });
         }
       } else if (payload.type === 'log-message') {
-        const logData = payload.data as { prefix: string; level: string; text: string } | null;
+        const logData = payload.data as MpvLogData | null;
         if (logData) {
+          const resolverError = formatResolverPlaybackError(logData);
+          if (resolverError) resolverErrorRef.current = resolverError;
           const level: LogLevel = logData.level === 'error' || logData.level === 'fatal'
             ? 'error'
             : logData.level === 'warn'
@@ -170,6 +260,10 @@ export function useMpvSession(): MpvSessionState {
       if (startupTimerRef.current !== null) {
         clearTimeout(startupTimerRef.current);
         startupTimerRef.current = null;
+      }
+      if (twitchBreakTimerRef.current !== null) {
+        clearTimeout(twitchBreakTimerRef.current);
+        twitchBreakTimerRef.current = null;
       }
       listenerReadyRef.current = null;
       void listener.then((stopListening) => stopListening());
@@ -202,7 +296,7 @@ export function useMpvSession(): MpvSessionState {
       clearPlaybackRecovery();
       void setPlayerFullscreen(false);
     };
-  }, [hasActiveStream]);
+  }, [activeStream, hasActiveStream]);
 
   useEffect(() => {
     document.body.classList.toggle('is-video-ready', hasActiveStream && isVideoReady);
@@ -211,16 +305,16 @@ export function useMpvSession(): MpvSessionState {
 
   useEffect(() => {
     if (!activeStream) return;
-    const commands: Array<[string, string]> = [
-      ['audio-delay', String(audioDelayMs / 1000)],
-      ['sub-font-size', String(subtitleFontSize)],
-      ['sub-font', subtitleFontFamily],
-      ['sub-color', `#FFFFFF${Math.round(subtitleOpacity * 2.55).toString(16).padStart(2, '0')}`],
-      ['sub-border-size', String(subtitleBorderSize)],
-      ['sub-shadow-offset', String(subtitleShadowOffset)],
+    const updates: MpvPropertyUpdate[] = [
+      { property: 'audio-delay', value: audioDelayMs / 1000 },
+      { property: 'sub-font-size', value: subtitleFontSize },
+      { property: 'sub-font', value: subtitleFontFamily },
+      { property: 'sub-color', value: `#FFFFFF${Math.round(subtitleOpacity * 2.55).toString(16).padStart(2, '0')}` },
+      { property: 'sub-border-size', value: subtitleBorderSize },
+      { property: 'sub-shadow-offset', value: subtitleShadowOffset },
     ];
-    for (const [property, value] of commands) {
-      void tauriApi.mpvCommand(['set', property, value]).catch(() => undefined);
+    for (const update of updates) {
+      void tauriApi.mpvSetProperty(update).catch(() => undefined);
     }
   }, [activeStream, audioDelayMs, subtitleBorderSize, subtitleFontFamily, subtitleFontSize, subtitleOpacity, subtitleShadowOffset]);
 
@@ -235,6 +329,7 @@ export function useMpvSession(): MpvSessionState {
     });
 
     const start = async () => {
+      resolverErrorRef.current = null;
       try {
         // Never start mpv until its event listener is active. In particular,
         // missing the first `vo-configured=true` would leave the guarded
@@ -275,8 +370,10 @@ export function useMpvSession(): MpvSessionState {
         if (!cancelled) {
           usePlayerStore.getState().markMpvStartCompleted();
           if (startupTimerRef.current !== null) clearTimeout(startupTimerRef.current);
-          const readyAfterStart = usePlayerStore.getState().isVideoReady || Boolean(activeStream.radio);
-          if (!readyAfterStart) {
+          const playerState = usePlayerStore.getState();
+          const readyAfterStart = playerState.isVideoReady || Boolean(activeStream.radio);
+          const waitingForTwitchAd = playerState.resolverStatus?.phase === 'ad-break';
+          if (!readyAfterStart && !waitingForTwitchAd) {
             startupTimerRef.current = setTimeout(() => {
               const state = usePlayerStore.getState();
               if (state.sessionId !== playbackSessionId || state.isVideoReady || activeStream.radio || cancelled) return;
@@ -331,6 +428,8 @@ export function useMpvSession(): MpvSessionState {
 
   const retryPlayback = useCallback(() => {
     playbackErrorsRef.current = [];
+    twitchBreakRecoveryCountRef.current = 0;
+    twitchBreakSawBufferingRef.current = false;
     setErrorMessage(null);
     setIsRetrying(true);
     if (!tryFallback()) {
@@ -342,9 +441,66 @@ export function useMpvSession(): MpvSessionState {
   // A new stream gets a fresh budget of automatic stall recoveries.
   useEffect(() => {
     autoRecoveryCountRef.current = 0;
+    twitchBreakRecoveryCountRef.current = 0;
+    twitchBreakSawBufferingRef.current = false;
     fallbackAttemptsRef.current = 0;
     playbackErrorsRef.current = [];
   }, [activeStream?.id]);
+
+  // Twitch's ad media is intentionally removed by the native resolver, so
+  // the local HTTP response pauses until Twitch publishes the next real
+  // segment. Give that bounded gap its own recovery budget instead of letting
+  // the generic 20-second cache watchdog repeatedly restart it.
+  useEffect(() => {
+    const clearTwitchBreakTimer = () => {
+      if (twitchBreakTimerRef.current !== null) {
+        clearTimeout(twitchBreakTimerRef.current);
+        twitchBreakTimerRef.current = null;
+      }
+    };
+    if (!hasActiveStream) {
+      clearTwitchBreakTimer();
+      return;
+    }
+
+    const armForStatus = (status: ReturnType<typeof usePlayerStore.getState>['resolverStatus']) => {
+      clearTwitchBreakTimer();
+      if (status?.phase !== 'ad-break') return;
+      const timeoutMs = status.expectedDurationSeconds === undefined
+        ? MAX_TWITCH_AD_BREAK_MS
+        : Math.min(
+            status.expectedDurationSeconds * 1000 + TWITCH_AD_BREAK_GRACE_MS,
+            MAX_TWITCH_AD_BREAK_MS,
+          );
+      twitchBreakTimerRef.current = setTimeout(() => {
+        twitchBreakTimerRef.current = null;
+        if (usePlayerStore.getState().resolverStatus?.phase !== 'ad-break') return;
+        if (twitchBreakRecoveryCountRef.current >= MAX_TWITCH_AD_BREAK_RECOVERIES) {
+          const message = 'Twitch did not resume the live stream after the filtered commercial break.';
+          resolverErrorRef.current = message;
+          setIsRetrying(false);
+          setErrorMessage(recordPlaybackError(message));
+          debugLog.warn('player', 'Twitch ad-break recovery budget spent');
+          return;
+        }
+        twitchBreakRecoveryCountRef.current += 1;
+        debugLog.warn('player', 'Twitch did not resume after a filtered ad break; restarting once');
+        usePlayerStore.getState().startPlaybackSession();
+        setIsRetrying(true);
+        setRestartNonce((value) => value + 1);
+      }, timeoutMs);
+    };
+
+    armForStatus(usePlayerStore.getState().resolverStatus);
+    const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
+      if (state.resolverStatus === previousState.resolverStatus) return;
+      armForStatus(state.resolverStatus);
+    });
+    return () => {
+      clearTwitchBreakTimer();
+      unsubscribe();
+    };
+  }, [hasActiveStream, recordPlaybackError]);
 
   // Stall watchdog: recover on its own from a `paused-for-cache` that never
   // clears, since nothing else here would (see STALL_TIMEOUT_MS above).
@@ -362,7 +518,13 @@ export function useMpvSession(): MpvSessionState {
     }
 
     const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
-      if (state.isBuffering === previousState.isBuffering) return;
+      if (state.isBuffering === previousState.isBuffering
+        && state.resolverStatus === previousState.resolverStatus) return;
+
+      if (state.resolverStatus?.phase === 'ad-break') {
+        clearStallTimer();
+        return;
+      }
 
       if (!state.isBuffering) {
         clearStallTimer();

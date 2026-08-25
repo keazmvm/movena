@@ -306,7 +306,9 @@
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   text-align: left;
-  transition: all var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
   white-space: nowrap;
 }
 

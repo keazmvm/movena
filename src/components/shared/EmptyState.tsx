@@ -7,9 +7,10 @@ interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  detail?: string | null;
-  actionLabel?: string;
-  onAction?: () => void;
+  detail?: string | null | undefined;
+  actionLabel?: string | undefined;
+  actionIcon?: LucideIcon | undefined;
+  onAction?: (() => void) | undefined;
 }
 
 export function EmptyState({
@@ -18,6 +19,7 @@ export function EmptyState({
   description,
   detail,
   actionLabel,
+  actionIcon: ActionIcon,
   onAction,
 }: EmptyStateProps) {
   const { t } = useI18n();
@@ -32,7 +34,8 @@ export function EmptyState({
       {detail && <p className={styles.detail}>{detail}</p>}
 
       {actionLabel && onAction && (
-        <Button className={styles.actionBtn} onClick={onAction}>
+        <Button variant="primary" className={styles.actionBtn} onClick={onAction}>
+          {ActionIcon && <ActionIcon size={16} aria-hidden="true" />}
           {t(actionLabel)}
         </Button>
       )}

@@ -4,10 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { gzipSync } from 'node:zlib';
 import {
   fetchXmltvGuide,
+  hydrateXmltvGuide,
   lookupXmltvChannel,
   mergeXmltvGuides,
   parseXmltv,
   parseXmltvTime,
+  settleWithConcurrency,
 } from '../src/api/xmltv';
 
 const XML = `<?xml version="1.0"?>
@@ -71,9 +73,9 @@ describe('XMLTV parsing', () => {
 
     expect(merged.channelCount).toBe(2);
     expect(merged.programmeCount).toBe(4);
-    expect(lookupXmltvChannel(merged, 'channel.de', 'Example TV', 'm3u-one')?.[0].id)
+    expect(lookupXmltvChannel(merged, 'channel.de', 'Example TV', 'm3u-one')?.[0]!.id)
       .toMatch(/^m3u-one::/);
-    expect(lookupXmltvChannel(merged, 'missing', 'Example TV', 'm3u-two')?.[0].id)
+    expect(lookupXmltvChannel(merged, 'missing', 'Example TV', 'm3u-two')?.[0]!.id)
       .toMatch(/^m3u-two::/);
   });
 
@@ -95,5 +97,48 @@ describe('XMLTV parsing', () => {
 
     await expect(fetchXmltvGuide('https://guide.test/guide.xml.gz'))
       .resolves.toMatchObject({ programmeCount: 2 });
+  });
+
+  it('hydrates normalized native payloads with first-name matching and sorted IDs', () => {
+    const guide = hydrateXmltvGuide({
+      channels: [
+        { id: 'one', names: ['Shared', 'One'] },
+        { id: 'two', names: ['Shared', 'Two'] },
+      ],
+      programmeGroups: [{
+        channelId: 'one',
+        programmes: [
+          { start: 20, end: 30, title: 'Later', description: '' },
+          { start: 10, end: 20, title: 'Earlier', description: '' },
+        ],
+      }],
+    });
+    expect(guide.idByName.get('shared')).toBe('one');
+    expect(guide.byChannel.get('one')?.map((programme) => programme.title)).toEqual(['Earlier', 'Later']);
+    expect(guide.byChannel.get('one')?.[0]!.id).toBe('one-10');
+  });
+
+  it('bounds multi-source work to two active requests and stops queued work on abort', async () => {
+    const signal = new AbortController().signal;
+    let active = 0;
+    let maximum = 0;
+    const settled = await settleWithConcurrency([1, 2, 3, 4], 2, signal, async (value) => {
+      active += 1;
+      maximum = Math.max(maximum, active);
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      active -= 1;
+      return value * 2;
+    });
+    expect(maximum).toBe(2);
+    expect(settled).toEqual([2, 4, 6, 8].map((value) => ({ status: 'fulfilled', value })));
+
+    const controller = new AbortController();
+    const started: number[] = [];
+    await expect(settleWithConcurrency([1, 2, 3], 2, controller.signal, async (value) => {
+      started.push(value);
+      controller.abort();
+      return value;
+    })).rejects.toThrow();
+    expect(started).toEqual([1]);
   });
 });

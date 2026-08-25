@@ -105,6 +105,31 @@ export function relativeLuminance(hex: string): number | null {
   );
 }
 
+export function contrastRatio(foreground: string, background: string): number | null {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  if (foregroundLuminance === null || backgroundLuminance === null) return null;
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Retains the selected accent hue while lifting a dark custom value enough to
+ * remain legible as small text on Movena's deepest elevated surface. The 5.5
+ * target leaves headroom for the accent-tinted selection surface.
+ */
+export function accessibleAccentForeground(hex: string): string {
+  const hsl = hexToHsl(hex);
+  if (!hsl) return DEFAULT_ACCENT_COLOR;
+  const background = '#1b222d';
+  for (let lightness = hsl.l; lightness <= 96; lightness += 1) {
+    const candidate = hslToHex({ ...hsl, l: lightness });
+    if ((contrastRatio(candidate, background) ?? 0) >= 5.5) return candidate;
+  }
+  return LIGHT_CONTRAST_TEXT;
+}
+
 export function isLightColor(hex: string): boolean {
   const luminance = relativeLuminance(hex);
   const darkLuminance = relativeLuminance(DARK_CONTRAST_TEXT);

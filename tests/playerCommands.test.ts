@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mpvCommand, playerSetFullscreen } = vi.hoisted(() => ({
-  mpvCommand: vi.fn(),
+const { mpvSetProperty, playerSetFullscreen } = vi.hoisted(() => ({
+  mpvSetProperty: vi.fn(),
   playerSetFullscreen: vi.fn(),
 }));
 
 vi.mock('../src/api/ipc', () => ({
-  tauriApi: { mpvCommand, playerSetFullscreen },
+  tauriApi: { mpvSetProperty, playerSetFullscreen },
 }));
 
 import { applyAspectRatio, applySbsTo2d } from '../src/components/player/aspect';
@@ -14,7 +14,7 @@ import { setPlayerFullscreen, toggleWindowFullscreen } from '../src/components/p
 import { usePlayerStore } from '../src/store/usePlayerStore';
 
 beforeEach(() => {
-  mpvCommand.mockResolvedValue(undefined);
+  mpvSetProperty.mockReset().mockResolvedValue(undefined);
   playerSetFullscreen.mockResolvedValue(true);
   usePlayerStore.getState().closePlayer();
   usePlayerStore.getState().setIsFullscreen(false);
@@ -24,34 +24,34 @@ describe('native player command helpers', () => {
   it('always sends the complete aspect property set', async () => {
     await applyAspectRatio('zoom');
 
-    expect(mpvCommand.mock.calls).toEqual([
-      [['set', 'video-aspect-override', '-2']],
-      [['set', 'keepaspect', 'yes']],
-      [['set', 'panscan', '1']],
-      [['set', 'video-unscaled', 'no']],
+    expect(mpvSetProperty.mock.calls).toEqual([
+      [{ property: 'video-aspect-override', value: '-2' }],
+      [{ property: 'keepaspect', value: 'yes' }],
+      [{ property: 'panscan', value: '1' }],
+      [{ property: 'video-unscaled', value: 'no' }],
     ]);
   });
 
   it('continues applying independent aspect properties after one rejection', async () => {
-    mpvCommand.mockRejectedValueOnce(new Error('not running')).mockResolvedValue(undefined);
+    mpvSetProperty.mockRejectedValueOnce(new Error('not running')).mockResolvedValue(undefined);
     await expect(applyAspectRatio('auto')).resolves.toBeUndefined();
-    expect(mpvCommand).toHaveBeenCalledTimes(4);
+    expect(mpvSetProperty).toHaveBeenCalledTimes(4);
   });
 
   it('preserves the native aspect command error for active-player callers', async () => {
-    mpvCommand.mockRejectedValueOnce(new Error('mpv rejected panscan'));
+    mpvSetProperty.mockRejectedValueOnce(new Error('mpv rejected panscan'));
     await expect(applyAspectRatio('auto', true)).rejects.toThrow('mpv rejected panscan');
   });
 
   it('applies the SBS crop before the complete normal 16:9 framing', async () => {
     await applySbsTo2d(true, 'auto');
 
-    expect(mpvCommand.mock.calls).toEqual([
-      [['set', 'video-crop', '50%x100%+0+0']],
-      [['set', 'video-aspect-override', '16:9']],
-      [['set', 'keepaspect', 'yes']],
-      [['set', 'panscan', '0']],
-      [['set', 'video-unscaled', 'no']],
+    expect(mpvSetProperty.mock.calls).toEqual([
+      [{ property: 'video-crop', value: '50%x100%+0+0' }],
+      [{ property: 'video-aspect-override', value: '16:9' }],
+      [{ property: 'keepaspect', value: 'yes' }],
+      [{ property: 'panscan', value: '0' }],
+      [{ property: 'video-unscaled', value: 'no' }],
     ]);
   });
 

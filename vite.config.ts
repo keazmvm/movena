@@ -22,8 +22,15 @@ export default defineConfig({
     strictPort: true,
     watch: {
       // Cargo's build output is huge and its files get locked mid-compile;
-      // watching it can crash Vite with EBUSY on Windows.
-      ignored: ['**/src-tauri/target/**'],
+      // watching it can crash Vite with EBUSY on Windows. Generated reports
+      // also change rapidly during QA and must not trigger client reloads.
+      ignored: [
+        '**/src-tauri/target/**',
+        '**/coverage/**',
+        '**/test-results/**',
+        '**/playwright-report/**',
+        '**/dist/**',
+      ],
     },
   },
   envPrefix: ['VITE_', 'TAURI_'],

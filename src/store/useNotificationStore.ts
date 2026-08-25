@@ -13,11 +13,11 @@ export interface NotificationAction {
 export interface NotificationItem {
   id: string;
   type: NotificationType;
-  category?: NotificationCategory;
+  category?: NotificationCategory | undefined;
   title: string;
-  message?: string;
-  duration?: number; // duration in ms, default from settings
-  action?: NotificationAction;
+  message?: string | undefined;
+  duration?: number | undefined; // duration in ms, default from settings
+  action?: NotificationAction | undefined;
   timestamp: number;
 }
 
@@ -33,7 +33,7 @@ let sharedAudioCtx: AudioContext | null = null;
 function getSharedAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   const AudioCtx = window.AudioContext || (window as Window & {
-    webkitAudioContext?: typeof AudioContext;
+    webkitAudioContext?: typeof AudioContext | undefined;
   }).webkitAudioContext;
   if (!AudioCtx) return null;
   if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {

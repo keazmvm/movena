@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { isTauri } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
+import { desktopApi } from '../../api/desktop';
 import { FolderOpen, RotateCcw } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { notify } from '../../store/useNotificationStore';
@@ -25,12 +24,12 @@ export function StorageSettingsSection() {
   }, [settings.autoStartDownloads, settings.maxConcurrentDownloads]);
 
   const chooseDownloadDirectory = async () => {
-    if (!isTauri()) {
+    if (!desktopApi.isDesktop()) {
       notify.info('Download Folder', 'Choose a destination from the desktop app.');
       return;
     }
     try {
-      const selection = await open({ directory: true, multiple: false });
+      const selection = await desktopApi.openPath({ directory: true, multiple: false });
       if (selection && !Array.isArray(selection)) settings.updateSetting('downloadDirectory', selection);
     } catch (error: unknown) {
       notify.error('Folder Could Not Be Selected', getUserFacingErrorMessage(error, 'Movena could not open the folder picker.'));

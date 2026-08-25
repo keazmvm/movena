@@ -1,4 +1,4 @@
-import { tauriApi } from '../../api/ipc';
+import { tauriApi, type MpvPropertyUpdate } from '../../api/ipc';
 
 export interface ImageAdjustments {
   imageSharpness: number;  // 0-100, 0 = off
@@ -35,23 +35,23 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
  * instead of a dedicated sharpen amount. Kept mild (down to -0.9) since the
  * manual also warns that low values introduce ringing.
  */
-function mpvPropertiesFor(key: keyof ImageAdjustments, values: ImageAdjustments): Array<[string, string]> {
+function mpvPropertiesFor(key: keyof ImageAdjustments, values: ImageAdjustments): MpvPropertyUpdate[] {
   switch (key) {
     case 'imageBrightness':
-      return [['brightness', String(Math.round(clamp(values.imageBrightness - 100, -100, 100)))]];
+      return [{ property: 'brightness', value: Math.round(clamp(values.imageBrightness - 100, -100, 100)) }];
     case 'imageContrast':
-      return [['contrast', String(Math.round(clamp(values.imageContrast, -100, 100)))]];
+      return [{ property: 'contrast', value: Math.round(clamp(values.imageContrast, -100, 100)) }];
     case 'imageSaturation':
-      return [['saturation', String(Math.round(clamp(values.imageSaturation, -100, 100)))]];
+      return [{ property: 'saturation', value: Math.round(clamp(values.imageSaturation, -100, 100)) }];
     case 'imageHue':
-      return [['hue', String(Math.round(clamp(values.imageHue, -100, 100)))]];
+      return [{ property: 'hue', value: Math.round(clamp(values.imageHue, -100, 100)) }];
     case 'imageGamma':
-      return [['gamma', String(Math.round(clamp(values.imageGamma, -100, 100)))]];
+      return [{ property: 'gamma', value: Math.round(clamp(values.imageGamma, -100, 100)) }];
     case 'imageSharpness': {
       const scaleBlur = (clamp(values.imageSharpness, 0, 100) / 100) * -0.9;
       return [
-        ['scale-blur', scaleBlur.toFixed(3)],
-        ['cscale-blur', scaleBlur.toFixed(3)],
+        { property: 'scale-blur', value: Number(scaleBlur.toFixed(3)) },
+        { property: 'cscale-blur', value: Number(scaleBlur.toFixed(3)) },
       ];
     }
   }
@@ -71,9 +71,9 @@ export async function applyImageAdjustment(
   values: ImageAdjustments,
   throwOnError = false,
 ): Promise<void> {
-  for (const [property, value] of mpvPropertiesFor(key, values)) {
+  for (const update of mpvPropertiesFor(key, values)) {
     try {
-      await tauriApi.mpvCommand(['set', property, value]);
+      await tauriApi.mpvSetProperty(update);
     } catch (error: unknown) {
       if (throwOnError) throw error;
       /* Settings may change with no player running; the next session reapplies them. */

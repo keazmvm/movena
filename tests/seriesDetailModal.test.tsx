@@ -230,7 +230,7 @@ https://media.test/northern/s01e01.mkv
 #EXTINF:-1 group-title="Series",Northern Lights S02E01 - Return
 https://media.test/northern/s02e01.mkv
 `, { sourceId: 'm3u-series-source' });
-    const series = mapM3uCatalog(playlist, 'series')[0];
+    const series = mapM3uCatalog(playlist, 'series')[0]!;
     useSourceStore.setState({
       runtimes: {
         'm3u-series-source': {
@@ -271,8 +271,8 @@ https://media.test/northern/s01e01.mkv
 #EXTINF:-1 group-title="Series",Northern Lights S02E01 - Return
 https://media.test/northern/s02e01.mkv
 `, { sourceId: 'm3u-resume-source' });
-    const series = mapM3uCatalog(playlist, 'series')[0];
-    const savedEpisode = playlist.entries[1];
+    const series = mapM3uCatalog(playlist, 'series')[0]!;
+    const savedEpisode = playlist.entries[1]!;
     const playStream = vi.fn();
     useSourceStore.setState({
       runtimes: {

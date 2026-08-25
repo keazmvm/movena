@@ -113,7 +113,7 @@ https://media.test/live/token/10.ts
         },
       },
     });
-    const savedItem = { ...mapM3uCatalog(playlist, 'live')[0], streamUrl: undefined, httpHeaders: undefined };
+    const savedItem = { ...mapM3uCatalog(playlist, 'live')[0]!, streamUrl: undefined, httpHeaders: undefined };
 
     expect(playableFromMediaItem(savedItem, null)).toMatchObject({
       streamUrl: 'https://media.test/live/token/10.ts',
@@ -131,7 +131,7 @@ https://media.test/live
 `, { sourceId: 'm3u-source-c' });
 
     expect(playlist.entries).toHaveLength(2);
-    expect(playlist.entries[0].id).not.toBe(playlist.entries[1].id);
+    expect(playlist.entries[0]!.id).not.toBe(playlist.entries[1]!.id);
     expect(playlist.warnings).toContain('The final playlist entry has no media URL');
   });
 
@@ -154,7 +154,7 @@ https://media.test/show/s01e02.mkv
 
     const groups = getM3uSeriesGroups(playlist);
     expect(groups.size).toBe(1);
-    const episodes = Array.from(groups.values())[0];
+    const episodes = Array.from(groups.values())[0]!;
     expect(episodes).toHaveLength(3);
     expect(episodes.map((ep) => ep.episode?.episodeNumber)).toEqual([1, 2, 3]);
   });
@@ -192,10 +192,10 @@ https://stream.test/vod/action.mp4
     expect(roundtrip.name).toBe('Living Room');
     expect(roundtrip.epgUrls).toEqual(['https://epg.test/guide.xml']);
     expect(roundtrip.entries).toHaveLength(2);
-    expect(roundtrip.entries[0].title).toBe('CNN HD');
-    expect(roundtrip.entries[0].tvgId).toBe('cnn.us');
-    expect(roundtrip.entries[0].radio).toBe(true);
-    expect(roundtrip.entries[1].type).toBe('vod');
+    expect(roundtrip.entries[0]!.title).toBe('CNN HD');
+    expect(roundtrip.entries[0]!.tvgId).toBe('cnn.us');
+    expect(roundtrip.entries[0]!.radio).toBe(true);
+    expect(roundtrip.entries[1]!.type).toBe('vod');
   });
 
   it('roundtrips editor metadata, custom headers, unknown attributes, and directives', () => {
@@ -206,18 +206,18 @@ https://stream.test/vod/action.mp4
 #EXTHTTP:{"Origin":"https://portal.test","Cookie":"session=redacted"}
 https://stream.test/morning.m3u8
 `, { sourceId: 'editor-roundtrip' });
-    parsed.entries[0].type = 'vod';
+    parsed.entries[0]!.type = 'vod';
     const generated = generateM3u(parsed);
     const roundtrip = parseM3u(generated, { sourceId: 'editor-roundtrip-2' });
 
     expect(roundtrip.extraHeaderAttributes).toEqual({ provider: 'demo' });
     expect(roundtrip.extraDirectives).toContain('# provider-comment');
-    expect(roundtrip.entries[0].description).toBe('Morning news');
-    expect(roundtrip.entries[0].catchupSource).toBe('https://archive.test/{utc}');
-    expect(roundtrip.entries[0].extraAttributes).toEqual({ 'vendor-id': '42' });
-    expect(roundtrip.entries[0].extraDirectives).toContain('#VENDOROPT:keep-me');
-    expect(roundtrip.entries[0].headers).toMatchObject({ Origin: 'https://portal.test', Cookie: 'session=redacted' });
-    expect(roundtrip.entries[0].type).toBe('vod');
+    expect(roundtrip.entries[0]!.description).toBe('Morning news');
+    expect(roundtrip.entries[0]!.catchupSource).toBe('https://archive.test/{utc}');
+    expect(roundtrip.entries[0]!.extraAttributes).toEqual({ 'vendor-id': '42' });
+    expect(roundtrip.entries[0]!.extraDirectives).toContain('#VENDOROPT:keep-me');
+    expect(roundtrip.entries[0]!.headers).toMatchObject({ Origin: 'https://portal.test', Cookie: 'session=redacted' });
+    expect(roundtrip.entries[0]!.type).toBe('vod');
   });
 
   it('removes unknown header and entry metadata when preservation is disabled', () => {
@@ -247,7 +247,7 @@ https://stream.test/live.m3u8
       headers: { Authorization: 'Bearer secret', Referer: 'https://portal.test/private' },
     });
 
-    expect(parsed.entries[0].headers).toMatchObject({ Authorization: 'Bearer secret' });
+    expect(parsed.entries[0]!.headers).toMatchObject({ Authorization: 'Bearer secret' });
     const generated = generateM3u(parsed);
     expect(generated).not.toContain('Authorization');
     expect(generated).not.toContain('Bearer secret');

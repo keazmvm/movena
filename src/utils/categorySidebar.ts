@@ -1,6 +1,6 @@
 export interface CategoryVisibilityRow {
   id: string;
-  categoryIds?: string[];
+  categoryIds?: string[] | undefined;
   country: string | null;
 }
 
@@ -10,7 +10,7 @@ export interface MergedCategoryRow extends CategoryVisibilityRow {
   label: string;
   country: string | null;
   count: number;
-  tags?: string[];
+  tags?: string[] | undefined;
 }
 
 export function categoryCountryKey(row: CategoryVisibilityRow): string {

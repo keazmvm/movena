@@ -33,7 +33,7 @@ describe('UpcomingCalendar', () => {
     render(<UpcomingCalendar groups={groups} now={now} onOpen={onOpen} />);
 
     expect(screen.getAllByText('Aired yesterday').length).toBeGreaterThan(0);
-    await user.click(screen.getAllByRole('button', { name: 'Open Example Show' })[0]);
+    await user.click(screen.getAllByRole('button', { name: 'Open Example Show' })[0]!);
     expect(onOpen).toHaveBeenCalledWith(favorite, { seasonNumber: 2, episodeNumber: 4 });
   });
 });

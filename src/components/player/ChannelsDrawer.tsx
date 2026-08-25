@@ -26,7 +26,7 @@ import { useLogoAspect } from '../../hooks/useLogoAspect';
  */
 const ROW_HEIGHT = 46;
 
-function DrawerChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string; channelKey: string; sourceId?: string }) {
+function DrawerChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string | undefined; channelKey: string; sourceId?: string | undefined }) {
   const logoAspect = useLogoAspect(posterUrl, channelKey, sourceId);
   const aspectClass = logoAspect === '16:9' ? styles.logoUnsquish169 : (logoAspect === '4:3' ? styles.logoUnsquish43 : '');
 
@@ -224,6 +224,7 @@ export function ChannelsDrawer() {
               <div style={{ position: 'relative', height: rowVirtualizer.getTotalSize(), width: '100%' }}>
                 {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                   const channel = channels[virtualRow.index];
+                  if (!channel) return null;
                   const isActive = (channel.sourceItemId || channel.id).toString() === activeKey;
                   const parsed = parseLiveChannelTitle(channel.title, customRules);
                   const badges = getPrimaryMediaTags(
@@ -257,7 +258,7 @@ export function ChannelsDrawer() {
                       />
                       <span className={drawerStyles.rowTitle}>{parsed.cleanTitle || channel.title}</span>
                       {badges.length > 0 && (
-                        <span className={styles.channelBadge} data-tag-type={getTagColorType(badges[0])}>
+                        <span className={styles.channelBadge} data-tag-type={getTagColorType(badges[0]!)}>
                           {badges[0]}
                         </span>
                       )}

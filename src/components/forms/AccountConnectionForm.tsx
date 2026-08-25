@@ -10,19 +10,19 @@ import styles from './AccountConnectionForm.module.css';
 import { useI18n } from '../../i18n';
 
 interface AccountConnectionFormProps {
-  title?: string;
-  submitLabel?: string;
-  onSuccess?: () => void;
-  onCancel?: () => void;
-  compact?: boolean;
-  sourceId?: string;
+  title?: string | undefined;
+  submitLabel?: string | undefined;
+  onSuccess?: (() => void) | undefined;
+  onCancel?: (() => void) | undefined;
+  compact?: boolean | undefined;
+  sourceId?: string | undefined;
 }
 
 interface ServerLatencyState {
   [urlIndex: number]: {
     status: 'testing' | 'success' | 'error';
-    latencyMs?: number;
-    errorMsg?: string;
+    latencyMs?: number | undefined;
+    errorMsg?: string | undefined;
   };
 }
 
@@ -156,6 +156,7 @@ export function AccountConnectionForm({
 
     if (fastestIndex > 0) {
       const fastestUrl = allUrls[fastestIndex];
+      if (!fastestUrl) return;
       const remainingUrls = allUrls.filter((_, i) => i !== fastestIndex);
       setPrimaryUrl(fastestUrl);
       setAlternativeUrls(remainingUrls);
@@ -282,7 +283,7 @@ export function AccountConnectionForm({
                 type="text"
                 id={primaryUrlId}
                 className={`${styles.input} uiField`}
-                placeholder="https://line.myprovider.tv:443"
+                placeholder="https://line.provider.example:443"
                 value={primaryUrl}
                 onChange={(e) => setPrimaryUrl(e.target.value)}
                 disabled={isLoading}
@@ -325,7 +326,7 @@ export function AccountConnectionForm({
                     type="text"
                     id={`${fieldId}-alternate-url-${idx}`}
                     className={`${styles.inputHasRemove} uiField`}
-                    placeholder={`https://line${idx + 2}.myprovider.tv:443`}
+                    placeholder={`https://line${idx + 2}.provider.example:443`}
                     value={altUrl}
                     onChange={(e) => handleAlternativeUrlChange(idx, e.target.value)}
                     disabled={isLoading}

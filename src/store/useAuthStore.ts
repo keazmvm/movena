@@ -15,19 +15,19 @@ import { getErrorMessage } from '../utils/error';
 
 export interface XCCredentials {
   /** Runtime source identity; stored only inside that source's vault record. */
-  sourceId?: string;
+  sourceId?: string | undefined;
   url: string;
-  alternativeUrls?: string[];
-  displayName?: string;
+  alternativeUrls?: string[] | undefined;
+  displayName?: string | undefined;
   /** Optional source-specific XMLTV override, kept with the secure connection record. */
-  epgUrl?: string;
+  epgUrl?: string | undefined;
   username: string;
   password: string;
 }
 
 export interface XCUserInfo {
   username: string;
-  password?: string;
+  password?: string | undefined;
   message: string;
   auth: number;
   status: string;
@@ -78,14 +78,14 @@ interface StoredAuthProfile {
 
 interface LegacyPersistedAuth {
   state?: {
-    credentials?: XCCredentials | null;
-    userInfo?: XCUserInfo | null;
-    serverInfo?: XCServerInfo | null;
-  };
+    credentials?: XCCredentials | null | undefined;
+    userInfo?: XCUserInfo | null | undefined;
+    serverInfo?: XCServerInfo | null | undefined;
+  } | undefined;
 }
 
 export interface SaveXtreamSourceInput extends XCCredentials {
-  name?: string;
+  name?: string | undefined;
 }
 
 interface AuthState {
@@ -502,6 +502,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const profile = get().profiles.find((candidate) => get().runtimes[candidate.id]?.credentials);
     if (!profile) return;
     const runtime = get().runtimes[profile.id];
+    if (!runtime) return;
     const credentials = runtime.credentials;
     if (!credentials || credentials.url === url) return;
     const promoted = promoteServerCredentials(credentials, profile.id, url);

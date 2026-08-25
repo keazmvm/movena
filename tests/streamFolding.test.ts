@@ -10,8 +10,8 @@ describe('stream folding', () => {
     ];
     const result = foldLiveChannels(items);
     expect(result).toHaveLength(2);
-    expect(result[0].id).toBe('1');
-    expect(result[1].id).toBe('2');
+    expect(result[0]!.id).toBe('1');
+    expect(result[1]!.id).toBe('2');
   });
 
   it('folds duplicate resolution streams of the same live channel into a single item with fallbacks', () => {
@@ -23,7 +23,7 @@ describe('stream folding', () => {
         type: 'live',
         categoryId: 'sports',
         country: 'DE',
-        streamUrl: 'http://server.com/live/hd.ts',
+        streamUrl: 'https://stream.example.test/live/hd.ts',
       },
       {
         id: '4k',
@@ -32,7 +32,7 @@ describe('stream folding', () => {
         type: 'live',
         categoryId: 'sports',
         country: 'DE',
-        streamUrl: 'http://server.com/live/4k.ts',
+        streamUrl: 'https://stream.example.test/live/4k.ts',
       },
       {
         id: 'fhd',
@@ -41,20 +41,20 @@ describe('stream folding', () => {
         type: 'live',
         categoryId: 'sports',
         country: 'DE',
-        streamUrl: 'http://server.com/live/fhd.ts',
+        streamUrl: 'https://stream.example.test/live/fhd.ts',
       },
     ];
 
     const result = foldLiveChannels(items);
     expect(result).toHaveLength(1);
-    const folded = result[0];
+    const folded = result[0]!;
     // Highest quality (4K/UHD) should be primary
     expect(folded.id).toBe('4k');
-    expect(folded.streamUrl).toBe('http://server.com/live/4k.ts');
+    expect(folded.streamUrl).toBe('https://stream.example.test/live/4k.ts');
     expect(folded.tags).toEqual(['4K', 'FHD', 'HD']);
     expect(folded.fallbacks).toEqual([
-      { streamUrl: 'http://server.com/live/fhd.ts', httpHeaders: undefined },
-      { streamUrl: 'http://server.com/live/hd.ts', httpHeaders: undefined },
+      { streamUrl: 'https://stream.example.test/live/fhd.ts', httpHeaders: undefined },
+      { streamUrl: 'https://stream.example.test/live/hd.ts', httpHeaders: undefined },
     ]);
   });
 
@@ -73,7 +73,7 @@ describe('stream folding', () => {
       { id: '4k', title: 'News 4K', posterUrl: '', type: 'live', categoryId: 'news', streamUrl: 'https://stream/4k', fallbacks: [{ streamUrl: 'https://stream/hd' }, { streamUrl: 'https://stream/4k' }] },
       { id: 'hd', title: 'News HD', posterUrl: '', type: 'live', categoryId: 'news', streamUrl: 'https://stream/hd', fallbacks: [{ streamUrl: 'https://stream/sd' }] },
     ]);
-    expect(result[0].fallbacks?.map((fallback) => fallback.streamUrl)).toEqual([
+    expect(result[0]!.fallbacks?.map((fallback) => fallback.streamUrl)).toEqual([
       'https://stream/hd',
       'https://stream/sd',
     ]);

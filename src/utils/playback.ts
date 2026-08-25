@@ -61,7 +61,7 @@ export function playableFromMediaItem(
 export function resolveEpisodePlayback(
   episode: XCEpisode,
   credentials: XCCredentials | null,
-): { streamUrl: string; httpHeaders?: Record<string, string>; sourceId?: string } | null {
+): { streamUrl: string; httpHeaders?: Record<string, string> | undefined; sourceId?: string | undefined } | null {
   const cached = cachedM3uTransport(episode.id, episode.source_id);
   const resolvedCredentials = episode.source_id
     ? (episode.source_id.startsWith('xtream-') ? getXtreamCredentials(episode.source_id) : null)

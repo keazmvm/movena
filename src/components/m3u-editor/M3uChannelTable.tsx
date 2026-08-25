@@ -602,8 +602,14 @@ export function M3uChannelTable({
         onSave={handleSaveEntry}
         hasPrevious={editingIndex > 0}
         hasNext={editingIndex >= 0 && editingIndex < filteredEntries.length - 1}
-        onPrevious={() => editingIndex > 0 && setEditingEntryId(filteredEntries[editingIndex - 1].id)}
-        onNext={() => editingIndex < filteredEntries.length - 1 && setEditingEntryId(filteredEntries[editingIndex + 1].id)}
+        onPrevious={() => {
+          const previous = filteredEntries[editingIndex - 1];
+          if (previous) setEditingEntryId(previous.id);
+        }}
+        onNext={() => {
+          const next = filteredEntries[editingIndex + 1];
+          if (next) setEditingEntryId(next.id);
+        }}
       />
 
       {/* Batch Tools Modal */}

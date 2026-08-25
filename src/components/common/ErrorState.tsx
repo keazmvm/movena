@@ -11,18 +11,18 @@ interface ErrorStateProps {
    * shown as-is beneath the localized description. Status codes and network
    * reasons are conventionally left untranslated, so this bypasses `t()`.
    */
-  detail?: string | null;
-  icon?: LucideIcon;
-  actionIcon?: LucideIcon | null;
-  actionLabel?: string;
-  onAction?: () => void;
-  secondaryActionLabel?: string;
-  onSecondaryAction?: () => void;
-  isRetrying?: boolean;
-  compact?: boolean;
-  modal?: boolean;
-  player?: boolean;
-  className?: string;
+  detail?: string | null | undefined;
+  icon?: LucideIcon | undefined;
+  actionIcon?: LucideIcon | null | undefined;
+  actionLabel?: string | undefined;
+  onAction?: (() => void) | undefined;
+  secondaryActionLabel?: string | undefined;
+  onSecondaryAction?: (() => void) | undefined;
+  isRetrying?: boolean | undefined;
+  compact?: boolean | undefined;
+  modal?: boolean | undefined;
+  player?: boolean | undefined;
+  className?: string | undefined;
 }
 
 /** Shared, actionable error treatment for pages, sidebars, dialogs and player chrome. */

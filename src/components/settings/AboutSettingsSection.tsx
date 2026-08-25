@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getVersion } from '@tauri-apps/api/app';
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { desktopApi } from '../../api/desktop';
 import { RefreshCw, Bug, ExternalLink, Download } from 'lucide-react';
 import { notify } from '../../store/useNotificationStore';
 import { clearAllAppData } from '../../services/appDataReset';
@@ -34,7 +33,7 @@ export function AboutSettingsSection() {
   const dismissUpdate = useUpdateStore((state) => state.dismiss);
 
   useEffect(() => {
-    getVersion().then(setAppVersion).catch(() => {});
+    desktopApi.getVersion().then(setAppVersion).catch(() => {});
   }, []);
 
   const handleCheckUpdates = async () => {
@@ -110,10 +109,10 @@ export function AboutSettingsSection() {
             >
               <RefreshCw size={15} className={updatePhase === 'checking' ? 'animate-spin' : undefined} /> {t('Check for Updates')}
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena')}>
               <ExternalLink size={15} /> {t('View on GitHub')}
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/issues/new')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/issues/new')}>
               <Bug size={15} /> {t('Report an Issue')}
             </SettingsButton>
           </div>
@@ -163,19 +162,18 @@ export function AboutSettingsSection() {
       </SettingsGroup>
 
       <SettingsGroup
-        title="Metadata & schedule sources"
+        title="Metadata & Schedule Sources"
         description="This product uses the TMDB API but is not endorsed or certified by TMDB. Release dates, artwork, and ratings are provided by TMDB. TVmaze data is licensed under CC BY-SA 4.0 and provides exact TV air times."
       >
         <div className={styles.aboutBody}>
-          <img className={styles.tmdbLogo} src="/tmdb-logo.svg" alt="TMDB" />
           <div className={styles.aboutLinks}>
-            <SettingsButton onClick={() => openUrl('https://www.themoviedb.org')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://www.themoviedb.org')}>
               <ExternalLink size={15} /> TMDB
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://www.tvmaze.com')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://www.tvmaze.com')}>
               <ExternalLink size={15} /> TVmaze
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://creativecommons.org/licenses/by-sa/4.0/')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://creativecommons.org/licenses/by-sa/4.0/')}>
               <ExternalLink size={15} /> CC BY-SA 4.0
             </SettingsButton>
           </div>
@@ -183,19 +181,19 @@ export function AboutSettingsSection() {
       </SettingsGroup>
 
       <SettingsGroup
-        title="Open source & lawful use"
+        title="Open Source & Lawful Use"
         description="Movena is free software licensed under GPL-3.0-or-later. It provides no channels, subscriptions, playlists, or media and is not affiliated with or endorsed by Xtream Codes or any content provider."
       >
         <div className={styles.aboutBody}>
           <p className={styles.aboutTagline}>Configure only sources you are authorized to access. Record or download media only when you have the necessary rights. Movena does not bypass DRM.</p>
           <div className={styles.aboutLinks}>
-            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/LICENSE')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/LICENSE')}>
               <ExternalLink size={15} /> GPL-3.0-or-later
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/docs/PRIVACY.md')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/docs/PRIVACY.md')}>
               <ExternalLink size={15} /> Privacy
             </SettingsButton>
-            <SettingsButton onClick={() => openUrl('https://github.com/movena-app/movena/blob/main/docs/THIRD_PARTY_NOTICES.md')}>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/docs/THIRD_PARTY_NOTICES.md')}>
               <ExternalLink size={15} /> Third-party notices
             </SettingsButton>
           </div>

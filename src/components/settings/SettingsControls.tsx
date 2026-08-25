@@ -9,9 +9,9 @@ export function SettingsPageContent({ children }: { children: ReactNode }) {
 
 interface SettingsGroupProps {
   title: string;
-  description?: string;
+  description?: string | undefined;
   children: ReactNode;
-  danger?: boolean;
+  danger?: boolean | undefined;
 }
 
 export function SettingsGroup({ title, description, children, danger = false }: SettingsGroupProps) {
@@ -29,11 +29,11 @@ export function SettingsGroup({ title, description, children, danger = false }: 
 
 interface SettingsRowProps {
   title: string;
-  description?: ReactNode;
+  description?: ReactNode | undefined;
   children: ReactNode;
-  disabled?: boolean;
-  alignStart?: boolean;
-  wideControl?: boolean;
+  disabled?: boolean | undefined;
+  alignStart?: boolean | undefined;
+  wideControl?: boolean | undefined;
 }
 
 export function SettingsRow({
@@ -60,7 +60,7 @@ interface SettingsToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export function SettingsToggle({ checked, onChange, label, disabled = false }: SettingsToggleProps) {
@@ -86,8 +86,8 @@ export function SettingsToggle({ checked, onChange, label, disabled = false }: S
 type SettingsButtonVariant = 'default' | 'primary' | 'danger';
 
 interface SettingsButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: SettingsButtonVariant;
-  iconOnly?: boolean;
+  variant?: SettingsButtonVariant | undefined;
+  iconOnly?: boolean | undefined;
 }
 
 export function SettingsButton({
@@ -125,7 +125,7 @@ export function SettingsInput({ className = '', ...props }: InputHTMLAttributes<
 }
 
 interface SettingsRangeProps extends InputHTMLAttributes<HTMLInputElement> {
-  formatValue?: (value: number) => string;
+  formatValue?: ((value: number) => string) | undefined;
 }
 
 export function SettingsRange({ formatValue = (value) => String(value), className = '', ...props }: SettingsRangeProps) {

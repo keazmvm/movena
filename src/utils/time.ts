@@ -20,9 +20,9 @@ export function formatDurationLabel(duration?: string, durationSeconds?: number)
   if ((!totalSeconds || !isFinite(totalSeconds)) && duration) {
     const parts = duration.trim().split(':').map(Number);
     if (parts.length === 3 && parts.every(Number.isFinite)) {
-      totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+      totalSeconds = parts[0]! * 3600 + parts[1]! * 60 + parts[2]!;
     } else if (parts.length === 2 && parts.every(Number.isFinite)) {
-      totalSeconds = parts[0] * 60 + parts[1];
+      totalSeconds = parts[0]! * 60 + parts[1]!;
     } else {
       return duration.trim() || null;
     }

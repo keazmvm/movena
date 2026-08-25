@@ -14,11 +14,11 @@ function positiveNumber(value: string | number | undefined): number | undefined 
 }
 
 export interface MediaDetailModalsProps {
-  selectedMovie?: MediaItem | null;
-  selectedSeries?: MediaItem | null;
-  onCloseMovie?: () => void;
-  onCloseSeries?: () => void;
-  onCloseAll?: () => void;
+  selectedMovie?: MediaItem | null | undefined;
+  selectedSeries?: MediaItem | null | undefined;
+  onCloseMovie?: (() => void) | undefined;
+  onCloseSeries?: (() => void) | undefined;
+  onCloseAll?: (() => void) | undefined;
 }
 
 export function MediaDetailModals({

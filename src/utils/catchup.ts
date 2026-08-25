@@ -8,17 +8,17 @@ export type CatchupTime = number | string | Date;
 export type M3uCatchupMode = 'none' | 'shift' | 'default' | 'append' | 'flussonic' | 'xc' | 'source';
 
 export interface CatchupProgramme {
-  start?: CatchupTime;
-  end?: CatchupTime;
-  startTimestamp?: CatchupTime;
-  stopTimestamp?: CatchupTime;
-  endTimestamp?: CatchupTime;
+  start?: CatchupTime | undefined;
+  end?: CatchupTime | undefined;
+  startTimestamp?: CatchupTime | undefined;
+  stopTimestamp?: CatchupTime | undefined;
+  endTimestamp?: CatchupTime | undefined;
 }
 
 export interface CatchupWindowOptions {
-  now?: CatchupTime;
+  now?: CatchupTime | undefined;
   /** When true, a programme must have an end time in the past. */
-  requireEnded?: boolean;
+  requireEnded?: boolean | undefined;
 }
 
 export interface CatchupWindow {
@@ -31,9 +31,9 @@ export interface CatchupWindow {
 }
 
 export interface XtreamCatchupOptions {
-  extension?: string;
-  now?: CatchupTime;
-  requireEnded?: boolean;
+  extension?: string | undefined;
+  now?: CatchupTime | undefined;
+  requireEnded?: boolean | undefined;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -255,7 +255,7 @@ function utcParts(seconds: number): Record<string, string> {
 function formatTemplateTimestamp(seconds: number, format?: string): string {
   if (!format) return String(seconds);
   const parts = utcParts(seconds);
-  return format.replace(/[YmdHMS]/g, (token) => parts[token]);
+  return format.replace(/[YmdHMS]/g, (token) => parts[token] ?? token);
 }
 
 function substituteTemplate(template: string, values: TemplateValues): string {
@@ -268,9 +268,9 @@ function substituteTemplate(template: string, values: TemplateValues): string {
   };
   return template.replace(/\$?\{(start|end|utc|utcend|lutc|timestamp|duration|offset|catchup-id|catchupid)(?::([^}]+))?\}|\{([YmdHMS])\}/gi,
     (_match: string, token: string, format: string | undefined, dateToken: string | undefined) => {
-      if (dateToken) return parts[dateToken];
-      const key = token.toLowerCase().replace('-', '');
-      return formatTemplateTimestamp(Number(startTokens[key]), format);
+      if (dateToken) return parts[dateToken] ?? dateToken;
+      const key = (token ?? '').toLowerCase().replace('-', '');
+      return formatTemplateTimestamp(Number(startTokens[key] ?? values.start), format);
     });
 }
 

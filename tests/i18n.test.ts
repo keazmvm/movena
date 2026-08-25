@@ -40,7 +40,7 @@ describe('UI localization', () => {
       expect(translatedKeys, `${language} catalogue keys`).toEqual(sourceKeys);
       for (const key of sourceKeys) {
         const sourcePlaceholders = [...key.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
-        const translatedPlaceholders = [...catalogue[key].matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
+        const translatedPlaceholders = [...catalogue[key]!.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
         expect(translatedPlaceholders, `${language}: ${key}`).toEqual(sourcePlaceholders);
       }
     }

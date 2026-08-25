@@ -17,10 +17,10 @@ interface M3uChannelDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (entry: M3uEntry) => void;
-  onPrevious?: () => void;
-  onNext?: () => void;
-  hasPrevious?: boolean;
-  hasNext?: boolean;
+  onPrevious?: (() => void) | undefined;
+  onNext?: (() => void) | undefined;
+  hasPrevious?: boolean | undefined;
+  hasNext?: boolean | undefined;
 }
 
 export function M3uChannelDetailDrawer({

@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "bundle": {
     "resources": {
-      "lib/mpv-dev/libmpv-2.dll": "libmpv-2.dll"
+      "lib/twitch-resolver/": "twitch-resolver/"
     }
   }
 }

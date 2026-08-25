@@ -11,10 +11,14 @@ export interface GroupedUpcomingRelease {
   summarySubtitle: string;
   releases: UpcomingRelease[];
   /** Later dated groups for the same favorite, used by compact Discover cards. */
-  followingReleaseCount?: number;
+  followingReleaseCount?: number | undefined;
 }
 
 export type UpcomingKindFilter = 'all' | 'episode' | 'movie';
+
+export function episodeScheduleKey(seasonNumber: number | string, episodeNumber: number | string): string {
+  return `${Number(seasonNumber)}:${Number(episodeNumber)}`;
+}
 
 export function filterUpcomingByKind(
   groups: readonly GroupedUpcomingRelease[],
@@ -38,6 +42,7 @@ export function groupUpcomingReleases(releases: readonly UpcomingRelease[]): Gro
   const result: GroupedUpcomingRelease[] = [];
   for (const items of groups.values()) {
     const primary = items[0];
+    if (!primary) continue;
     const episodeCount = items.length;
 
     if (episodeCount === 1 || primary.kind === 'movie') {

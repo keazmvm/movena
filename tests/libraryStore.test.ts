@@ -96,6 +96,6 @@ describe('library store', () => {
     }
 
     expect(useLibraryStore.getState().history).toHaveLength(200);
-    expect(useLibraryStore.getState().history[0].id).toBe('movie-249');
+    expect(useLibraryStore.getState().history[0]!.id).toBe('movie-249');
   });
 });

@@ -2,12 +2,12 @@
 export interface SeriesEpisode {
   id: string | number;
   episode_num: string | number;
-  title?: string;
-  container_extension?: string;
-  info?: { movie_image?: string };
-  stream_url?: string;
-  http_headers?: Record<string, string>;
-  source_id?: string;
+  title?: string | undefined;
+  container_extension?: string | undefined;
+  info?: { movie_image?: string | undefined } | undefined;
+  stream_url?: string | undefined;
+  http_headers?: Record<string, string> | undefined;
+  source_id?: string | undefined;
 }
 
 export type SeriesEpisodesBySeason = Record<string, SeriesEpisode[]>;
@@ -32,6 +32,7 @@ export function findNextEpisode(
 
   const seasonsList = Object.keys(episodesBySeason);
   const currentSeason = currentSeasonNum?.toString() || seasonsList[0];
+  if (!currentSeason) return null;
   const episodeList = episodesBySeason[currentSeason] || [];
 
   const currentIndex = episodeList.findIndex(
@@ -39,15 +40,16 @@ export function findNextEpisode(
   );
 
   if (currentIndex !== -1 && currentIndex + 1 < episodeList.length) {
-    return { episode: episodeList[currentIndex + 1], seasonNum: currentSeason };
+    return { episode: episodeList[currentIndex + 1]!, seasonNum: currentSeason };
   }
 
   const seasonIndex = seasonsList.indexOf(currentSeason);
   if (seasonIndex !== -1 && seasonIndex + 1 < seasonsList.length) {
     const nextSeason = seasonsList[seasonIndex + 1];
+    if (!nextSeason) return null;
     const nextSeasonEpisodes = episodesBySeason[nextSeason] || [];
     if (nextSeasonEpisodes.length > 0) {
-      return { episode: nextSeasonEpisodes[0], seasonNum: nextSeason };
+      return { episode: nextSeasonEpisodes[0]!, seasonNum: nextSeason };
     }
   }
 

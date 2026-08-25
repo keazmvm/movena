@@ -51,4 +51,9 @@ describe('diagnostic redaction', () => {
     expect(redactDiagnosticText('Opening C:\\Users\\viewer\\Videos\\movie.mkv')).toBe('Opening [PATH]');
     expect(redactDiagnosticText('Opening /home/viewer/Videos/movie.mkv')).toBe('Opening [PATH]');
   });
+
+  it('preserves bare protocol examples while redacting complete URLs', () => {
+    expect(redactDiagnosticText('Use http:// or https://.')).toBe('Use http:// or https://.');
+    expect(redactDiagnosticText('Try file:///home/viewer/private.m3u.')).toBe('Try [URL]');
+  });
 });

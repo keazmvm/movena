@@ -28,17 +28,18 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useI18n } from '../../i18n';
 import { uiLanguageDefinition } from '../../i18nConfig';
 import { useNavigate } from 'react-router-dom';
-import { episodeScheduleKey, SeriesUpcomingEpisodes } from '../upcoming/SeriesUpcomingEpisodes';
+import { SeriesUpcomingEpisodes } from '../upcoming/SeriesUpcomingEpisodes';
+import { episodeScheduleKey } from '../../utils/upcoming';
 import { notify } from '../../store/useNotificationStore';
 
 interface SeriesDetailModalProps {
   seriesId: string;
   seriesTitle: string;
   seriesPoster: string;
-  sourceId?: string;
-  sourceItemId?: string;
-  initialSeasonNumber?: number;
-  initialEpisodeNumber?: number;
+  sourceId?: string | undefined;
+  sourceItemId?: string | undefined;
+  initialSeasonNumber?: number | undefined;
+  initialEpisodeNumber?: number | undefined;
   onClose: () => void;
 }
 
@@ -209,7 +210,7 @@ function XtreamSeriesDetailModal({
         } else if (savedSeasonStr && availableSeasons.includes(savedSeasonStr)) {
           setSelectedSeason(savedSeasonStr);
         } else {
-          setSelectedSeason([...availableSeasons].sort((left, right) => Number(left) - Number(right))[0]);
+          setSelectedSeason([...availableSeasons].sort((left, right) => Number(left) - Number(right))[0] ?? '');
         }
       }
     }
@@ -376,7 +377,10 @@ function XtreamSeriesDetailModal({
                   <button 
                     type="button"
                     className={styles.playBtn}
-                    onClick={() => handlePlayEpisode(currentEpisodes[0])}
+                    onClick={() => {
+                      const firstEpisode = currentEpisodes[0];
+                      if (firstEpisode) handlePlayEpisode(firstEpisode);
+                    }}
                     data-modal-primary
                   >
                     <Play size={20} fill="currentColor" />

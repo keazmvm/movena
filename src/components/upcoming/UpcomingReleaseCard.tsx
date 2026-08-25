@@ -23,13 +23,13 @@ import { getErrorMessage } from '../../utils/error';
 
 interface UpcomingReleaseCardProps {
   onOpen: (item: MediaItem, context?: MediaOpenContext) => void;
-  onViewAll?: () => void;
-  showEmpty?: boolean;
-  variant?: 'discover' | 'schedule';
-  limit?: number;
-  releases?: readonly GroupedUpcomingRelease[];
+  onViewAll?: (() => void) | undefined;
+  showEmpty?: boolean | undefined;
+  variant?: 'discover' | 'schedule' | undefined;
+  limit?: number | undefined;
+  releases?: readonly GroupedUpcomingRelease[] | undefined;
   /** A page-level clock avoids one timer and render per schedule section. */
-  now?: Date;
+  now?: Date | undefined;
 }
 
 function releaseTitle(release: UpcomingRelease): string {
@@ -225,15 +225,15 @@ export function UpcomingReleaseCard({
     return () => window.clearInterval(timer);
   }, [countdownEnabled, providedNow]);
 
-  const rawReleases = schedule.data ?? [];
   const groupedReleases = useMemo(() => {
+    const rawReleases = schedule.data ?? [];
     const grouped = customReleases ?? groupUpcomingReleases(rawReleases);
     if (customReleases) return grouped;
     const horizons = groupReleasesByHorizon(grouped, now, historyDays);
     return variant === 'discover'
       ? nextReleasePerFavorite([...horizons.today, ...horizons.thisWeek, ...horizons.nextWeek, ...horizons.later], now)
       : [...horizons.recentlyReleased, ...horizons.today, ...horizons.thisWeek, ...horizons.nextWeek, ...horizons.later];
-  }, [customReleases, historyDays, now, rawReleases, variant]);
+  }, [customReleases, historyDays, now, schedule.data, variant]);
   const displayedReleases = limit && limit > 0 ? groupedReleases.slice(0, limit) : groupedReleases;
   const hasReleases = displayedReleases.length > 0;
 

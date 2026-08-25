@@ -8,7 +8,7 @@ import { useI18n } from '../../i18n';
 interface SubmenuItemProps {
   item: ContextMenuItem;
   onClose: () => void;
-  parentSubmenuDirection?: 'left' | 'right';
+  parentSubmenuDirection?: 'left' | 'right' | undefined;
 }
 
 function SubmenuItem({ item, onClose }: SubmenuItemProps) {
@@ -237,7 +237,7 @@ export const ContextMenu: React.FC = () => {
             : (currentIndex < 0
                 ? buttons.length - 1
                 : (currentIndex - 1 + buttons.length) % buttons.length);
-      buttons[nextIndex].focus();
+      buttons[nextIndex]?.focus();
     };
 
     const handleMouseDown = (e: MouseEvent) => {

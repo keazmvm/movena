@@ -93,7 +93,7 @@ describe('import and export settings page', () => {
     await user.click(screen.getByRole('button', { name: 'Copy to Clipboard' }));
 
     expect(localWriteMock).toHaveBeenCalled();
-    const clipboardContent = JSON.parse(localWriteMock.mock.calls[0][0]);
+    const clipboardContent = JSON.parse(localWriteMock.mock.calls[0]![0]);
     expect(clipboardContent.format).toBe('movena.settings');
     expect(clipboardContent.version).toBe(1);
     expect(clipboardContent.settings).toBeDefined();

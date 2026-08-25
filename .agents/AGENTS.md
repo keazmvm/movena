@@ -26,8 +26,10 @@ behavior instead of relying on documentation or assumptions.
 
 ## Architecture boundaries
 
-- Playback is native libmpv through `src-tauri/src/native_player.rs`. Never add
-  an HTML `<video>` fallback or a browser-only player.
+- Playback is native libmpv through `src-tauri/src/native_player.rs`; supported
+  Twitch live pages are resolved by `src-tauri/src/twitch_resolver.rs` before
+  libmpv loads the loopback stream. Never add an HTML `<video>` fallback or a
+  browser-only player.
 - Frontend native calls go through the typed wrappers in `src/api/ipc.ts`.
 - Player commands that start, stop, or reconfigure mpv use
   `#[tauri::command(async)]`; playback state comes from mpv events.
@@ -58,11 +60,17 @@ behavior instead of relying on documentation or assumptions.
   space.
 - Do not claim automated tests validate native compositing, window ordering, or
   teardown; list those manual checks explicitly.
+- The Twitch resolver is owned by the active native-player session. Replacement,
+  close, app-data deletion, and shutdown must terminate its complete process
+  group and loopback listener before resolver cache removal.
+- Keep resolver configuration and plugin sideloading disabled, bind only to a
+  random `127.0.0.1` port, and redact resolver URLs, tokens, and raw output.
 
 ## Local verification
 
 ```bash
 npm run design:check
+npm run setup:twitch
 npm run format:rust:check
 npm run typecheck
 npm run typecheck:test
@@ -79,6 +87,11 @@ quality and compliance checks aligned with the local `npm run check` gate.
 When a change affects native compositing, transparency, fullscreen, cursor
 recovery, or teardown, automated checks are necessary but insufficient; name
 the exact manual desktop scenario in the handoff.
+
+Twitch-path changes additionally require a public live-channel startup,
+pre-roll/mid-roll wait and recovery, stream replacement, close, process-group
+teardown, and loopback-listener teardown scenario. Do not use a real account or
+OAuth token in fixtures or diagnostics.
 
 ## Project skills
 

@@ -44,32 +44,32 @@
 }
 
 .logBadge {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
 }
 
 .debugOverlayWindow {
   position: fixed;
-  bottom: var(--space-4);
-  left: var(--space-4);
   z-index: var(--z-debug);
-  width: 680px;
-  min-width: 480px;
-  max-width: calc(100vw - var(--space-6));
-  height: 520px;
-  min-height: 360px;
-  max-height: calc(100vh - var(--space-6));
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  resize: both;
   border: 1px solid rgba(var(--neutral-white-rgb), var(--alpha-12));
   border-radius: var(--radius-lg);
   background: var(--surface-debug);
   box-shadow: var(--shadow-xl);
   color: var(--text-primary);
   font-family: var(--font-family);
-  touch-action: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.debugOverlayWindow:focus-within {
+  border-color: var(--border-strong);
+}
+
+.debugOverlayWindow[data-pointer-operation] {
+  user-select: none;
 }
 
 .header {
@@ -82,6 +82,7 @@
   border-bottom: 1px solid var(--border-subtle);
   background: var(--surface-subtle);
   cursor: grab;
+  touch-action: none;
   user-select: none;
 }
 
@@ -105,7 +106,7 @@
 
 .phaseText {
   overflow: hidden;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-medium);
   text-overflow: ellipsis;
@@ -113,6 +114,7 @@
 }
 
 .headerActions {
+  flex: 0 0 auto;
   gap: var(--space-1);
 }
 
@@ -138,14 +140,30 @@
   color: var(--text-primary);
 }
 
+.iconBtn:focus-visible,
+.toolbarBtn:focus-visible,
+.signalList button:focus-visible,
+.logSummaryButton:focus-visible,
+.resizeHandle:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
+
 .successIcon {
   color: var(--color-success);
 }
 
 .tabsBar {
   flex: 0 0 auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
   border-bottom: 1px solid var(--border-subtle);
   background: rgba(var(--neutral-black-rgb), var(--alpha-20));
+}
+
+.tabsBar::-webkit-scrollbar {
+  display: none;
 }
 
 .tabContent {
@@ -193,10 +211,11 @@
 .metricCard strong {
   color: var(--text-primary);
   font-size: var(--font-size-body);
+  font-variant-numeric: tabular-nums;
 }
 
 .metricCard span:last-child {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
 }
 
@@ -224,7 +243,7 @@
 
 .sectionMeta,
 .resultSummary {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
 }
@@ -305,7 +324,7 @@
 
 .definitionGrid dt,
 .playerDetails dt {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-caption);
 }
 
@@ -316,6 +335,7 @@
   color: var(--text-primary);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -361,7 +381,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
 }
 
@@ -397,7 +417,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
 }
 
@@ -515,7 +535,7 @@
 }
 
 .logCategory {
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .logLevel {
@@ -577,7 +597,7 @@
   align-items: center;
   gap: var(--space-2);
   margin-bottom: var(--space-1);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-micro);
 }
 
@@ -591,7 +611,7 @@
 
 .emptyState {
   padding: var(--space-5);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-caption);
   text-align: center;
 }
@@ -604,11 +624,44 @@
   color: var(--color-success);
 }
 
-@media (max-width: 760px) {
-  .debugOverlayWindow {
-    width: calc(100vw - var(--space-6));
-    min-width: 0;
-  }
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm) 0 var(--radius-lg) 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: nwse-resize;
+  touch-action: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.resizeHandle::after {
+  content: '';
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+
+.resizeHandle:hover,
+.resizeHandle:focus-visible,
+.debugOverlayWindow[data-pointer-operation='resize'] .resizeHandle {
+  background: var(--surface-control-hover);
+  color: var(--accent-color);
+}
+
+@container (max-width: 560px) {
 
   .metricGrid,
   .signalList,
@@ -621,6 +674,16 @@
   .signalList > :nth-child(2),
   .definitionGrid > :nth-child(2) {
     border-right: 0;
+  }
+
+  .signalList button,
+  .definitionGrid div {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .signalList button:nth-last-child(-n + 2),
+  .definitionGrid div:nth-last-child(-n + 2) {
+    border-bottom: 0;
   }
 
   .filterRow {

@@ -1,6 +1,6 @@
 import { getChannelEPG, getLiveStreams } from './xc';
 import type { XCCredentials } from '../store/useAuthStore';
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from './desktop';
 import { tauriApi } from './ipc';
 
 /**
@@ -21,7 +21,7 @@ export interface EpgDetection {
   /** Shown to the user as-is. */
   message: string;
   /** Present when an XMLTV file was found; ready to be saved as the source. */
-  url?: string;
+  url?: string | undefined;
 }
 
 /** How many channels to sample before concluding the provider has no guide. */
@@ -42,7 +42,8 @@ export async function detectEpgSource(credentials: XCCredentials): Promise<EpgDe
   // top of a channel list is often filler that carries no listings even when
   // the rest of the account does.
   const step = Math.max(1, Math.floor(channels.length / SAMPLE_SIZE));
-  const sample = Array.from({ length: SAMPLE_SIZE }, (_, i) => channels[i * step]).filter(Boolean);
+  const sample = Array.from({ length: SAMPLE_SIZE }, (_, i) => channels[i * step])
+    .filter((channel): channel is (typeof channels)[number] => channel !== undefined);
 
   const results = await Promise.all(
     sample.map(async (channel) => {
@@ -95,7 +96,7 @@ export function xtreamXmltvUrl(credentials: XCCredentials): string {
  */
 export async function looksLikeXmltv(url: string): Promise<boolean> {
   try {
-    if (isTauri()) return tauriApi.xmltvProbe({ url });
+    if (desktopApi.isDesktop()) return tauriApi.xmltvProbe({ url });
     const response = await fetch(url);
     if (!response.ok) return false;
 

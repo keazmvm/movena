@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ChevronDown,
   ChevronsDownUp,
@@ -30,10 +30,10 @@ import { useContextMenuStore, type ContextMenuItem } from '../../store/useContex
 import { CategorySkeleton } from '../shared/Skeleton';
 import { useCatalogByType } from '../../api/useCatalog';
 import { useCategories, useHiddenCategoryIds } from '../../api/useCategories';
-import { countryName, isCountryOnlyLabel, parseCategoryName } from '../../utils/categoryName';
+import { countryName, hasCountryFlag, isCountryOnlyLabel, parseCategoryName } from '../../utils/categoryName';
 import { countHiddenCategories, isCategoryHidden } from '../../utils/categorySidebar';
 import { getPrimaryMediaTags, getTagColorType, mergeMediaTags } from '../../utils/mediaTags';
-import { CountryFlag, hasFlag } from '../shared/CountryFlag';
+import { CountryFlag } from '../shared/CountryFlag';
 import { WorkspaceSidebar, WorkspaceSidebarSearch } from '../common/WorkspaceSidebar';
 import { StateIcon, type StateIconPair } from '../common/StateIcon';
 import styles from './CategorySidebar.module.css';
@@ -62,7 +62,7 @@ interface Row {
   label: string;
   country: string | null;
   count: number;
-  tags?: string[];
+  tags?: string[] | undefined;
 }
 
 interface CountryGroup {
@@ -105,11 +105,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
   const storedWidth = useSettingsStore((s) => s.sidebarWidth) ?? 260;
   const updateSetting = useSettingsStore((s) => s.updateSetting);
 
-  const pinned = categoryPrefs?.pinned?.[type] ?? [];
-  const hidden = categoryPrefs?.hidden?.[type] ?? [];
-  const collapsed = categoryPrefs?.collapsed?.[type] ?? [];
-  const pinnedCountries = categoryPrefs?.pinnedCountries?.[type] ?? [];
-  const hiddenCountries = categoryPrefs?.hiddenCountries?.[type] ?? [];
+  const pinned = useMemo(() => categoryPrefs?.pinned?.[type] ?? [], [categoryPrefs, type]);
+  const hidden = useMemo(() => categoryPrefs?.hidden?.[type] ?? [], [categoryPrefs, type]);
+  const collapsed = useMemo(() => categoryPrefs?.collapsed?.[type] ?? [], [categoryPrefs, type]);
+  const pinnedCountries = useMemo(() => categoryPrefs?.pinnedCountries?.[type] ?? [], [categoryPrefs, type]);
+  const hiddenCountries = useMemo(() => categoryPrefs?.hiddenCountries?.[type] ?? [], [categoryPrefs, type]);
   const pinnedSet = useMemo(() => new Set(pinned), [pinned]);
   const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
   const hiddenCountrySet = useMemo(() => new Set(hiddenCountries), [hiddenCountries]);
@@ -255,8 +255,9 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
   const isRowActive = (row: Row) =>
     activeCategoryId === row.id || row.categoryIds.includes(activeCategoryId || '');
 
-  const isCategoryRowPinned = (row: Row) =>
-    pinnedSet.has(row.id) || row.categoryIds.some((id) => pinnedSet.has(id));
+  const isCategoryRowPinned = useCallback((row: Row) => (
+    pinnedSet.has(row.id) || row.categoryIds.some((id) => pinnedSet.has(id))
+  ), [pinnedSet]);
 
   const isCategoryRowDirectlyHidden = (row: Row) =>
     hiddenSet.has(row.id) || row.categoryIds.some((id) => hiddenSet.has(id));
@@ -319,7 +320,7 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
     const pinnedRanks = new Map(pinnedCountries.map((key, index) => [key, index]));
     const rank = (key: string) => pinnedRanks.get(key) ?? Number.MAX_SAFE_INTEGER;
     return all.sort((a, b) => rank(a.key) - rank(b.key));
-  }, [filteredRows, hiddenCountrySet, hiddenSet, pinnedSet, showHidden, pinnedCountries]);
+  }, [filteredRows, hiddenCountrySet, hiddenSet, isCategoryRowPinned, showHidden, pinnedCountries]);
 
   const collapsibleGroups = useMemo(
     () => groups.filter((group) => countryChildRows(group).length > 0),
@@ -458,7 +459,7 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
 
   const renderRow = (
     row: Row,
-    options: { nested?: boolean; showCountry?: boolean } = {},
+    options: { nested?: boolean | undefined; showCountry?: boolean | undefined } = {},
   ) => {
     const { nested = false, showCountry = false } = options;
     const isHidden = isCategoryHidden(row, hiddenSet, hiddenCountrySet);
@@ -484,7 +485,7 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
           aria-pressed={isActive}
         >
           {showCountry && row.country && (
-            hasFlag(row.country)
+            hasCountryFlag(row.country)
               ? <CountryFlag code={row.country} className={styles.rowFlag} />
               : <span className={styles.countryCode}>{row.country}</span>
           )}
@@ -676,7 +677,7 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                     aria-pressed={isActive}
                     aria-label={`${countryName(group.country, language)}, ${itemCountLabel(group.total)}${isPinnedCountry ? `, ${t('pinned')}` : ''}`}
                   >
-                    {group.country && hasFlag(group.country) ? (
+                    {group.country && hasCountryFlag(group.country) ? (
                       <CountryFlag code={group.country} className={styles.flag} />
                     ) : (
                       group.country && <span className={styles.countryCode}>{group.country}</span>

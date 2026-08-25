@@ -24,11 +24,11 @@ interface M3uStreamHealthCheckerProps {
   healthStatuses: M3uHealthStatuses;
   onUpdateHealthStatuses: (statuses: M3uHealthStatuses) => void;
   onUpdateEntries: (entries: M3uEntry[]) => void;
-  parserWarnings?: string[];
-  guide?: XmltvGuide;
-  guideLoading?: boolean;
-  guideError?: unknown;
-  sourceId?: string;
+  parserWarnings?: string[] | undefined;
+  guide?: XmltvGuide | undefined;
+  guideLoading?: boolean | undefined;
+  guideError?: unknown | undefined;
+  sourceId?: string | undefined;
 }
 
 export function M3uStreamHealthChecker({ entries, healthStatuses, onUpdateHealthStatuses, onUpdateEntries, parserWarnings = [], guide, guideLoading = false, guideError = null, sourceId }: M3uStreamHealthCheckerProps) {
@@ -282,12 +282,12 @@ export function M3uStreamHealthChecker({ entries, healthStatuses, onUpdateHealth
             return (
             <div key={clusterKey} className={styles.duplicateReviewRow}>
               <div className={styles.duplicateSummary}>
-                <strong>{cluster.entries[0].title}</strong>
+                <strong>{cluster.entries[0]?.title ?? t('Untitled stream')}</strong>
                 <span>{cluster.signals.map((signal) => t(signal === 'url' ? 'Same URL' : signal === 'epg' ? 'Same EPG ID' : signal === 'logo' ? 'Same logo' : 'Normalized name')).join(' · ')}</span>
               </div>
               <div className={styles.duplicateChoices}>
                 {cluster.entries.map((entry) => (
-                  <label key={entry.id}><input type="radio" name={clusterKey} checked={(duplicatePrimaries[clusterKey] || cluster.entries[0].id) === entry.id} onChange={() => setDuplicatePrimaries((values) => ({ ...values, [clusterKey]: entry.id }))} /> <span>{entry.title}<small>{entry.tvgId || entry.url}</small></span></label>
+                  <label key={entry.id}><input type="radio" name={clusterKey} checked={(duplicatePrimaries[clusterKey] || cluster.entries[0]?.id) === entry.id} onChange={() => setDuplicatePrimaries((values) => ({ ...values, [clusterKey]: entry.id }))} /> <span>{entry.title}<small>{entry.tvgId || entry.url}</small></span></label>
                 ))}
               </div>
               <Button variant="primary" size="sm" type="button" onClick={() => mergeCluster(clusterKey, cluster.entries)}><Merge size={14} /> {t('Merge Metadata')}</Button>

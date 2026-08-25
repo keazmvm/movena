@@ -3,8 +3,8 @@ import { ErrorState } from './ErrorState';
 
 interface Props {
   children: ReactNode;
-  fallbackTitle?: string;
-  fallbackDescription?: string;
+  fallbackTitle?: string | undefined;
+  fallbackDescription?: string | undefined;
 }
 
 interface State {

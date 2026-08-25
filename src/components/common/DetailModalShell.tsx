@@ -11,10 +11,10 @@ import { useI18n } from '../../i18n';
 interface DetailModalShellProps {
   onClose: () => void;
   children: ReactNode;
-  modalClassName?: string;
-  labelledBy?: string;
-  ariaLabel?: string;
-  stateLayout?: boolean;
+  modalClassName?: string | undefined;
+  labelledBy?: string | undefined;
+  ariaLabel?: string | undefined;
+  stateLayout?: boolean | undefined;
 }
 
 /**

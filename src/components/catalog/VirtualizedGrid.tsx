@@ -27,12 +27,12 @@ const TRANSFORM_ORIGIN_STYLES: Record<string, CSSProperties> = {
 
 interface VirtualizedGridProps {
   items: MediaItem[];
-  onItemClick?: (item: MediaItem) => void;
-  onViewDetails?: (item: MediaItem) => void;
-  currentCollectionId?: string;
-  gap?: number;
-  isLiveTv?: boolean;
-  showTypeInList?: boolean;
+  onItemClick?: ((item: MediaItem) => void) | undefined;
+  onViewDetails?: ((item: MediaItem) => void) | undefined;
+  currentCollectionId?: string | undefined;
+  gap?: number | undefined;
+  isLiveTv?: boolean | undefined;
+  showTypeInList?: boolean | undefined;
 }
 
 export function VirtualizedGrid({ 
@@ -148,7 +148,11 @@ export function VirtualizedGrid({
 
           return (
             <div
-              key={virtualRow.key}
+              // The virtualizer's key deliberately changes when row geometry
+              // changes so its size cache is rebuilt. It must not also be the
+              // React key: doing that remounts every visible card on each
+              // resize frame, making images re-decode and placeholders flash.
+              key={virtualRow.index}
               className={`${styles.rowWrapper} ${isListMode ? styles.listRow : ''} ${isListMode && virtualRow.index === rowCount - 1 ? styles.listRowLast : ''}`}
               style={{
                 transform: `translateY(${virtualRow.start}px)`,

@@ -25,7 +25,7 @@ describe('persisted-state migrations', () => {
 
     expect(migrated.favorites[0]).not.toHaveProperty('streamUrl');
     expect(migrated.favorites[0]).not.toHaveProperty('httpHeaders');
-    expect(migrated.collections[0].items[0]).not.toHaveProperty('streamUrl');
+    expect(migrated.collections[0]!.items[0]).not.toHaveProperty('streamUrl');
     expect(migrated.history[0]).not.toHaveProperty('streamUrl');
   });
 

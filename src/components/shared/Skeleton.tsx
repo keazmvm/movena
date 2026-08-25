@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import styles from './Skeleton.module.css';
 import { useI18n } from '../../i18n';
 
-function SkeletonBlock({ className = '', style }: { className?: string; style?: CSSProperties }) {
+function SkeletonBlock({ className = '', style }: { className?: string | undefined; style?: CSSProperties | undefined }) {
   return <div className={`${styles.skeleton} ${className}`} style={style} />;
 }
 
@@ -10,8 +10,8 @@ export function MediaCardSkeleton({
   viewMode = 'grid', 
   isLiveTv = false 
 }: { 
-  viewMode?: 'grid' | 'list'; 
-  isLiveTv?: boolean;
+  viewMode?: 'grid' | 'list' | undefined;
+  isLiveTv?: boolean | undefined;
 }) {
   if (viewMode === 'list') {
     return (
@@ -40,7 +40,7 @@ export function MediaCardSkeleton({
   );
 }
 
-export function TextLineSkeleton({ width = 180 }: { width?: number }) {
+export function TextLineSkeleton({ width = 180 }: { width?: number | undefined }) {
   return <SkeletonBlock className={styles.textLine} style={{ width }} />;
 }
 
@@ -49,9 +49,9 @@ export function GridSkeleton({
   viewMode = 'grid',
   isLiveTv = false
 }: { 
-  count?: number; 
-  viewMode?: 'grid' | 'list';
-  isLiveTv?: boolean;
+  count?: number | undefined;
+  viewMode?: 'grid' | 'list' | undefined;
+  isLiveTv?: boolean | undefined;
 }) {
   return (
     <div className={viewMode === 'list' ? styles.listGrid : (isLiveTv ? styles.gridLiveTv : styles.grid)}>
@@ -68,8 +68,8 @@ export function CarouselSkeleton({
   isLiveTv = false,
 }: {
   title: string;
-  count?: number;
-  isLiveTv?: boolean;
+  count?: number | undefined;
+  isLiveTv?: boolean | undefined;
 }) {
   const { t } = useI18n();
   return (

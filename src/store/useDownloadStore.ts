@@ -14,7 +14,7 @@ import {
 
 interface DownloadState {
   jobs: DownloadJob[];
-  enqueue: (input: { id: string; sourceUrl: string; headers?: Record<string, string>; fileName?: string; totalBytes?: number }) => void;
+  enqueue: (input: { id: string; sourceUrl: string; headers?: Record<string, string> | undefined; fileName?: string | undefined; totalBytes?: number | undefined }) => void;
   start: (id: string) => void;
   pause: (id: string) => void;
   resume: (id: string) => void;

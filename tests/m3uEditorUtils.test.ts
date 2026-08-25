@@ -65,39 +65,39 @@ describe('M3U Editor Utilities', () => {
   describe('detectDuplicates', () => {
     it('detects duplicate stream URLs', () => {
       const entries: M3uEntry[] = [
-        createEntry({ id: '1', title: 'Channel A', url: 'https://test.com/stream.m3u8' }),
-        createEntry({ id: '2', title: 'Channel B', url: 'https://test.com/stream.m3u8' }),
-        createEntry({ id: '3', title: 'Channel C', url: 'https://test.com/unique.m3u8' }),
+        createEntry({ id: '1', title: 'Channel A', url: 'https://stream.example.test/stream.m3u8' }),
+        createEntry({ id: '2', title: 'Channel B', url: 'https://stream.example.test/stream.m3u8' }),
+        createEntry({ id: '3', title: 'Channel C', url: 'https://stream.example.test/unique.m3u8' }),
       ];
 
       const duplicates = detectDuplicates(entries);
       expect(duplicates).toHaveLength(1);
-      expect(duplicates[0].type).toBe('url');
-      expect(duplicates[0].entries).toHaveLength(2);
-      expect(duplicates[0].entries.map((e) => e.id)).toEqual(['1', '2']);
+      expect(duplicates[0]!.type).toBe('url');
+      expect(duplicates[0]!.entries).toHaveLength(2);
+      expect(duplicates[0]!.entries.map((e) => e.id)).toEqual(['1', '2']);
     });
 
     it('detects duplicate channel names in the same group', () => {
       const entries: M3uEntry[] = [
-        createEntry({ id: '1', title: 'BBC One', groupTitle: 'UK', url: 'https://test.com/1.m3u8' }),
-        createEntry({ id: '2', title: 'BBC One', groupTitle: 'UK', url: 'https://test.com/2.m3u8' }),
-        createEntry({ id: '3', title: 'BBC One', groupTitle: 'USA', url: 'https://test.com/3.m3u8' }),
+        createEntry({ id: '1', title: 'BBC One', groupTitle: 'UK', url: 'https://stream.example.test/1.m3u8' }),
+        createEntry({ id: '2', title: 'BBC One', groupTitle: 'UK', url: 'https://stream.example.test/2.m3u8' }),
+        createEntry({ id: '3', title: 'BBC One', groupTitle: 'USA', url: 'https://stream.example.test/3.m3u8' }),
       ];
 
       const duplicates = detectDuplicates(entries);
       expect(duplicates).toHaveLength(1);
-      expect(duplicates[0].type).toBe('name');
-      expect(duplicates[0].entries).toHaveLength(2);
-      expect(duplicates[0].entries.map((e) => e.id)).toEqual(['1', '2']);
+      expect(duplicates[0]!.type).toBe('name');
+      expect(duplicates[0]!.entries).toHaveLength(2);
+      expect(duplicates[0]!.entries.map((e) => e.id)).toEqual(['1', '2']);
     });
   });
 
   describe('findAndReplace', () => {
     it('finds and replaces text across stream titles or URLs', () => {
       const entries: M3uEntry[] = [
-        createEntry({ id: '1', title: 'OldServer Sports', url: 'http://old.domain.com:8080/live/1' }),
-        createEntry({ id: '2', title: 'OldServer Movies', url: 'http://old.domain.com:8080/live/2' }),
-        createEntry({ id: '3', title: 'Other Stream', url: 'http://new.domain.com/live/3' }),
+        createEntry({ id: '1', title: 'OldServer Sports', url: 'http://old.example.test:8080/live/1' }),
+        createEntry({ id: '2', title: 'OldServer Movies', url: 'http://old.example.test:8080/live/2' }),
+        createEntry({ id: '3', title: 'Other Stream', url: 'http://new.example.test/live/3' }),
       ];
 
       const titleResult = findAndReplace(entries, {
@@ -106,15 +106,15 @@ describe('M3U Editor Utilities', () => {
         replaceText: 'NewServer',
       });
       expect(titleResult.count).toBe(2);
-      expect(titleResult.entries[0].title).toBe('NewServer Sports');
+      expect(titleResult.entries[0]!.title).toBe('NewServer Sports');
 
       const urlResult = findAndReplace(entries, {
         field: 'url',
-        findText: 'http://old.domain.com:8080',
+        findText: 'http://old.example.test:8080',
         replaceText: 'https://cdn.example.com',
       });
       expect(urlResult.count).toBe(2);
-      expect(urlResult.entries[0].url).toBe('https://cdn.example.com/live/1');
+      expect(urlResult.entries[0]!.url).toBe('https://cdn.example.com/live/1');
     });
   });
 
@@ -141,8 +141,8 @@ describe('M3U Editor Utilities', () => {
         createEntry({ id: '2', title: 'BBC One', tvgId: 'bbc.one' }),
       ], guide, 'src-1');
       expect(suggestions[0]).toEqual(expect.objectContaining({ status: 'suggested', suggestedTvgId: 'bbc.one' }));
-      expect(suggestions[0].confidence).toBeGreaterThan(0.85);
-      expect(suggestions[1].status).toBe('matched');
+      expect(suggestions[0]!.confidence).toBeGreaterThan(0.85);
+      expect(suggestions[1]!.status).toBe('matched');
     });
 
     it('merges complementary duplicate metadata into the chosen primary', () => {
@@ -158,7 +158,7 @@ describe('M3U Editor Utilities', () => {
         cleanOptions: { removeResolutionTags: true },
       });
       expect(result.count).toBe(1);
-      expect(result.entries[0].title).toBe('BBC One');
+      expect(result.entries[0]!.title).toBe('BBC One');
     });
   });
 
@@ -171,9 +171,9 @@ describe('M3U Editor Utilities', () => {
       ];
 
       const renumbered = renumberChannels(entries, 100);
-      expect(renumbered[0].channelNumber).toBe('100');
-      expect(renumbered[1].channelNumber).toBe('101');
-      expect(renumbered[2].channelNumber).toBe('102');
+      expect(renumbered[0]!.channelNumber).toBe('100');
+      expect(renumbered[1]!.channelNumber).toBe('101');
+      expect(renumbered[2]!.channelNumber).toBe('102');
     });
   });
 

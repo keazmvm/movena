@@ -90,10 +90,9 @@ export function useHiddenCategoryIds(type: CatalogType): Set<string> {
   const { data: categories = [] } = useCategories(type);
   const categoryPrefs = useSettingsStore((s) => s.categoryPrefs);
 
-  const hidden = categoryPrefs?.hidden?.[type] ?? [];
-  const hiddenCountries = categoryPrefs?.hiddenCountries?.[type] ?? [];
-
   return useMemo(() => {
+    const hidden = categoryPrefs?.hidden?.[type] ?? [];
+    const hiddenCountries = categoryPrefs?.hiddenCountries?.[type] ?? [];
     const ids = new Set(hidden);
     if (hiddenCountries.length > 0) {
       for (const cat of categories) {
@@ -104,7 +103,7 @@ export function useHiddenCategoryIds(type: CatalogType): Set<string> {
       }
     }
     return ids;
-  }, [categories, hidden, hiddenCountries]);
+  }, [categories, categoryPrefs, type]);
 }
 
 /**

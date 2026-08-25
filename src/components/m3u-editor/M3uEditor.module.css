@@ -1080,9 +1080,8 @@
 }
 
 .rawLineNumbers {
+  position: relative;
   min-width: 48px;
-  margin: 0;
-  padding: var(--space-4) var(--space-2);
   overflow: hidden;
   color: var(--text-muted);
   background: var(--surface-control);
@@ -1092,6 +1091,18 @@
   line-height: var(--line-height-relaxed);
   text-align: right;
   user-select: none;
+}
+
+.rawLineNumberViewport {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-2);
+  left: var(--space-2);
+  will-change: transform;
+}
+
+.rawLineNumberViewport > span {
+  display: block;
 }
 
 .rawWarningLineNumber {
@@ -1125,9 +1136,10 @@
 .rawHighlight {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  overflow: visible;
   color: var(--text-primary);
   pointer-events: none;
+  will-change: transform;
 }
 
 .rawHighlightLine {

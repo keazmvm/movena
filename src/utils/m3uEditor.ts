@@ -1,14 +1,14 @@
 import type { M3uEntry } from '../api/m3u';
 import type { XmltvGuide } from '../api/xmltv';
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../api/desktop';
 import { tauriApi, type M3uProbeResult, type M3uProbeStatus } from '../api/ipc';
 import { getErrorMessage } from './error';
 
 export interface TitleCleanOptions {
-  removeResolutionTags?: boolean;
-  removeCountryPrefixes?: boolean;
-  removeProviderNoise?: boolean;
-  normalizeSpacing?: boolean;
+  removeResolutionTags?: boolean | undefined;
+  removeCountryPrefixes?: boolean | undefined;
+  removeProviderNoise?: boolean | undefined;
+  normalizeSpacing?: boolean | undefined;
 }
 
 const RESOLUTION_PATTERNS = [
@@ -139,7 +139,7 @@ export function mergeDuplicateEntries(primary: M3uEntry, duplicates: M3uEntry[])
     .sort((a, b) => b.length - a.length)[0];
   const extraDirectives = [...new Set(candidates.flatMap((entry) => entry.extraDirectives ?? []))];
   const inheritedHeaderNames = candidates.length > 0
-    ? (candidates[0].inheritedHeaderNames ?? []).filter((name) => candidates.every((entry) => (
+    ? (candidates[0]!.inheritedHeaderNames ?? []).filter((name) => candidates.every((entry) => (
         (entry.inheritedHeaderNames ?? []).some((candidate) => candidate.toLowerCase() === name.toLowerCase())
       )))
     : [];
@@ -171,8 +171,8 @@ export interface M3uValidationIssue {
   code: string;
   severity: M3uValidationSeverity;
   message: string;
-  entryId?: string;
-  entryTitle?: string;
+  entryId?: string | undefined;
+  entryTitle?: string | undefined;
 }
 
 const STREAM_SCHEMES = new Set(['http:', 'https:', 'rtsp:', 'rtmp:', 'rtp:', 'udp:', 'mms:']);
@@ -259,9 +259,9 @@ export function validateM3uEntries(entries: M3uEntry[], parserWarnings: string[]
 export interface EpgMatchSuggestion {
   entryId: string;
   entryTitle: string;
-  currentTvgId?: string;
-  suggestedTvgId?: string;
-  guideName?: string;
+  currentTvgId?: string | undefined;
+  suggestedTvgId?: string | undefined;
+  guideName?: string | undefined;
   confidence: number;
   status: 'matched' | 'suggested' | 'unmatched';
 }
@@ -279,15 +279,15 @@ function levenshteinSimilarity(left: string, right: string): number {
   if (!left || !right) return 0;
   const previous = Array.from({ length: right.length + 1 }, (_, index) => index);
   for (let i = 1; i <= left.length; i += 1) {
-    let diagonal = previous[0];
+    let diagonal = previous[0] ?? 0;
     previous[0] = i;
     for (let j = 1; j <= right.length; j += 1) {
-      const above = previous[j];
-      previous[j] = Math.min(previous[j] + 1, previous[j - 1] + 1, diagonal + (left[i - 1] === right[j - 1] ? 0 : 1));
+      const above = previous[j] ?? 0;
+      previous[j] = Math.min((previous[j] ?? 0) + 1, (previous[j - 1] ?? 0) + 1, diagonal + (left[i - 1] === right[j - 1] ? 0 : 1));
       diagonal = above;
     }
   }
-  return 1 - previous[right.length] / Math.max(left.length, right.length);
+  return 1 - (previous[right.length] ?? 0) / Math.max(left.length, right.length);
 }
 
 export function buildEpgMatchSuggestions(entries: M3uEntry[], guide: XmltvGuide | undefined, sourceId?: string): EpgMatchSuggestion[] {
@@ -331,8 +331,8 @@ export interface M3uTransformPreset {
   id: string;
   name: string;
   kind: 'clean' | 'replace';
-  cleanOptions?: TitleCleanOptions;
-  replaceOptions?: FindReplaceOptions;
+  cleanOptions?: TitleCleanOptions | undefined;
+  replaceOptions?: FindReplaceOptions | undefined;
   createdAt: number;
 }
 
@@ -370,8 +370,8 @@ export interface FindReplaceOptions {
   field: 'title' | 'url' | 'groupTitle' | 'tvgId';
   findText: string;
   replaceText: string;
-  matchCase?: boolean;
-  useRegex?: boolean;
+  matchCase?: boolean | undefined;
+  useRegex?: boolean | undefined;
 }
 
 export function findAndReplace(entries: M3uEntry[], options: FindReplaceOptions): { entries: M3uEntry[]; count: number } {
@@ -432,7 +432,7 @@ export async function probeStreamHealth(
   timeoutMs = 6000,
 ): Promise<M3uProbeResult> {
   const started = performance.now();
-  if (isTauri()) {
+  if (desktopApi.isDesktop()) {
     try {
       return await tauriApi.m3uProbeStream({ url, headers, timeoutMs });
     } catch (error: unknown) {

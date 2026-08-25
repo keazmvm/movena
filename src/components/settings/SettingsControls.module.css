@@ -43,7 +43,7 @@
 
 .groupDescription {
   margin: var(--space-0-75) 0 0;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: var(--font-size-small);
   line-height: var(--line-height-normal);
 }
@@ -202,6 +202,7 @@
 
 .range {
   width: min(180px, 24vw);
+  min-height: var(--control-height-sm);
   accent-color: var(--accent-color);
 }
 

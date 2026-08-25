@@ -2,7 +2,7 @@ import { CatalogPageHeader } from '../components/common/CatalogPageHeader';
 import { EmptyState } from '../components/shared/EmptyState';
 import { Download, FileVideo, RefreshCw, Trash2, X } from 'lucide-react';
 import { Pause, Play, Ban, FolderOpen } from 'lucide-react';
-import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { desktopApi } from '../api/desktop';
 import { useDownloadStore } from '../store/useDownloadStore';
 import { startMediaDownload } from '../services/mediaDownload';
 import type { DownloadJob } from '../utils/downloads';
@@ -56,7 +56,7 @@ function DownloadRow({ job }: { job: DownloadJob }) {
 
   const handleOpen = () => {
     if (!job.filePath) return;
-    void revealItemInDir(job.filePath).catch((error: unknown) => {
+    void desktopApi.revealItemInDir(job.filePath).catch((error: unknown) => {
       notify.error('File Could Not Be Opened', getUserFacingErrorMessage(error, 'Movena could not reveal the downloaded file.'), undefined, undefined, 'downloads');
     });
   };

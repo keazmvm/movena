@@ -45,9 +45,9 @@ const SUGGESTION_DEBOUNCE_MS = 120;
 const MIN_SUGGESTION_QUERY_LENGTH = 2;
 
 interface HeaderSearchProps {
-  onItemClick?: (item: MediaItem) => void;
-  placeholder?: string;
-  ariaLabel?: string;
+  onItemClick?: ((item: MediaItem) => void) | undefined;
+  placeholder?: string | undefined;
+  ariaLabel?: string | undefined;
 }
 
 export function HeaderSearch({

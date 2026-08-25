@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getErrorPresentation, shouldRetryQuery } from '../src/utils/error';
 
 describe('user-facing error handling', () => {
-  it('classifies transport failures while retaining their raw message', () => {
+  it('classifies transport failures while redacting their private detail', () => {
     const result = getErrorPresentation(
       new Error('Failed to fetch https://provider.test/player_api.php?username=user&password=secret'),
       'movies',
@@ -12,7 +12,7 @@ describe('user-facing error handling', () => {
     expect(result.title).toBe('Can’t reach movies');
     expect(result.description).not.toContain('secret');
     expect(result.description).not.toContain('provider.test');
-    expect(result.detail).toBe('Failed to fetch https://provider.test/player_api.php?username=user&password=secret');
+    expect(result.detail).toBe('Failed to fetch [URL]');
   });
 
   it('distinguishes timeouts and account failures', () => {

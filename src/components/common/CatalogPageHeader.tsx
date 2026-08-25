@@ -4,9 +4,9 @@ import styles from '../../App.module.css';
 
 interface CatalogPageHeaderProps {
   title: string;
-  meta?: ReactNode;
-  titleActions?: ReactNode;
-  actions?: ReactNode;
+  meta?: ReactNode | undefined;
+  titleActions?: ReactNode | undefined;
+  actions?: ReactNode | undefined;
 }
 
 export function CatalogPageHeader({ title, meta, titleActions, actions }: CatalogPageHeaderProps) {

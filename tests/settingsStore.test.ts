@@ -166,14 +166,14 @@ describe('settings store', () => {
     store.addCustomTitleRule('TEST_PATTERN', true);
     const rules = useSettingsStore.getState().customTitleRules;
     expect(rules).toHaveLength(1);
-    expect(rules[0].pattern).toBe('TEST_PATTERN');
-    expect(rules[0].isRegex).toBe(true);
-    expect(rules[0].enabled).toBe(true);
+    expect(rules[0]!.pattern).toBe('TEST_PATTERN');
+    expect(rules[0]!.isRegex).toBe(true);
+    expect(rules[0]!.enabled).toBe(true);
 
-    store.toggleCustomTitleRule(rules[0].id);
-    expect(useSettingsStore.getState().customTitleRules[0].enabled).toBe(false);
+    store.toggleCustomTitleRule(rules[0]!.id);
+    expect(useSettingsStore.getState().customTitleRules[0]!.enabled).toBe(false);
 
-    store.removeCustomTitleRule(rules[0].id);
+    store.removeCustomTitleRule(rules[0]!.id);
     expect(useSettingsStore.getState().customTitleRules).toHaveLength(0);
 
     store.setBadgeVisibility('edition', false);
@@ -245,5 +245,6 @@ describe('settings store', () => {
     const { SETTINGS_SNAPSHOT_KEYS } = await import('../src/store/useSettingsStore');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('onboardingDismissed');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('sidebarCollapsed');
+    expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('epgXmltvUrl');
   });
 });

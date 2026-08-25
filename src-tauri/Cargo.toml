@@ -33,9 +33,13 @@ raw-window-handle = "0.6"
 keyring = { version = "4.1.5", features = ["v1"] }
 encoding_rs = "0.8"
 flate2 = "1"
-reqwest = { version = "0.13", default-features = false, features = ["brotli", "deflate", "gzip", "rustls"] }
+quick-xml = { version = "0.41", features = ["encoding"] }
+chrono = "0.4"
+reqwest = { version = "0.13", default-features = false, features = ["brotli", "deflate", "gzip", "rustls", "stream"] }
 tokio = { version = "1", features = ["time", "macros"] }
 url = "2"
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2-app-kit = { version = "0.3.2", features = ["objc2-quartz-core"] }
 objc2-foundation = "0.3.2"
@@ -45,6 +49,9 @@ objc2-quartz-core = "0.3.2"
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
     "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Shell",
     "Win32_System_Com",

@@ -9,10 +9,10 @@ interface HorizontalCarouselProps {
   title: string;
   items: MediaItem[];
   onItemClick: (item: MediaItem) => void;
-  onSeeAll?: () => void;
-  seeAllLabel?: string;
+  onSeeAll?: (() => void) | undefined;
+  seeAllLabel?: string | undefined;
   /** Square, compact cards instead of movie-poster proportions — channel logos are small and square, not tall portraits. */
-  isLiveTv?: boolean;
+  isLiveTv?: boolean | undefined;
 }
 
 export function HorizontalCarousel({

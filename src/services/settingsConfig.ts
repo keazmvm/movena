@@ -1,5 +1,4 @@
-import { isTauri } from '@tauri-apps/api/core';
-import { open, save } from '@tauri-apps/plugin-dialog';
+import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 import { UI_LANGUAGES, UI_LOCALES } from '../i18nConfig';
 import {
@@ -110,7 +109,6 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     imageHue: numberOr(source.imageHue, migrated.imageHue, -100, 100),
     imageGamma: numberOr(source.imageGamma, migrated.imageGamma, -100, 100),
     epgSource: oneOf(source.epgSource, ['provider', 'xmltv'] as const, 'provider'),
-    epgXmltvUrl: stringOr(source.epgXmltvUrl, '', 4096),
     m3uEditorDensity: oneOf(source.m3uEditorDensity, ['compact', 'comfortable'] as const, 'comfortable'),
     m3uEditorAutosaveDrafts: booleanOr(source.m3uEditorAutosaveDrafts, true),
     m3uEditorConfirmDestructive: booleanOr(source.m3uEditorConfirmDestructive, true),
@@ -229,8 +227,8 @@ function backupFileName(date = new Date()): string {
 export async function saveSettingsConfig(state: SettingsState): Promise<string | null> {
   const content = serializeSettingsConfig(state);
   const fileName = backupFileName();
-  if (isTauri()) {
-    const path = await save({
+  if (desktopApi.isDesktop()) {
+    const path = await desktopApi.savePath({
       defaultPath: fileName,
       filters: [{ name: 'Movena settings', extensions: ['json'] }],
     });
@@ -266,8 +264,8 @@ async function selectBrowserFile(): Promise<{ fileName: string; content: string 
 
 export async function selectSettingsConfig(): Promise<SelectedSettingsConfig | null> {
   let selected: { fileName: string; content: string } | null;
-  if (isTauri()) {
-    const path = await open({
+  if (desktopApi.isDesktop()) {
+    const path = await desktopApi.openPath({
       multiple: false,
       filters: [{ name: 'Movena settings', extensions: ['json'] }],
     });

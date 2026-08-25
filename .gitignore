@@ -24,6 +24,9 @@ target/
 src-tauri/target/
 src-tauri/gen/
 src-tauri/lib/mpv-dev/
+src-tauri/lib/yt-dlp/
+src-tauri/lib/twitch-resolver/
+src-tauri/.twitch-resolver-build/
 src-tauri/lib/*.dll
 src-tauri/lib/*.lib
 src-tauri/lib/*.exp
@@ -68,10 +71,32 @@ desktop.ini
 .env.*.local
 !.env.example
 
+# Local authentication and signing material
+.npmrc
+.pypirc
+.netrc
+_netrc
+id_rsa*
+id_ed25519*
+*.pem
+*.key
+*.pfx
+*.p12
+credentials.json
+secrets.json
+secrets.yaml
+secrets.yml
+secrets.toml
+!.npmrc.example
+!credentials.example.json
+!secrets.example.json
+
 # Cache & Temporary files
 .cache/
 coverage/
 coverage-*/
+playwright-report/
+test-results/
 
 # Local/private IPTV playlists and provider exports must never enter source control.
 *.m3u

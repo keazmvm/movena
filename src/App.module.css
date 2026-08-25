@@ -563,52 +563,6 @@
   font-size: var(--font-size-body);
 }
 
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-  flex-wrap: wrap;
-}
-
-.filterPills,
-.viewTabs {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1-5);
-}
-
-.filterPill,
-.viewTab {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1-5);
-  padding: var(--space-1-5) var(--space-3);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  background: var(--surface-control);
-  color: var(--text-secondary);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.filterPill:hover,
-.viewTab:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-  background: var(--surface-control-hover);
-}
-
-.filterPillActive,
-.viewTabActive {
-  border-color: rgba(var(--accent-color-rgb), var(--alpha-40));
-font-size: var(--font-size-control);
-  line-height: var(--line-height-normal);
-}
-
 .placeholderShelf,
 .placeholderShelfCompact {
   display: flex;
@@ -759,7 +713,10 @@ font-size: var(--font-size-control);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
 .filterPill:hover,

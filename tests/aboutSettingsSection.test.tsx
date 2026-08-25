@@ -62,12 +62,14 @@ describe('all-data deletion settings control', () => {
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
-  it('renders metadata attribution links inside a padded aboutBody container', () => {
+  it('presents metadata sources as equal attribution links without privileging one logo', () => {
     render(<AboutSettingsSection />);
     const tmdbButton = screen.getByRole('button', { name: 'TMDB' });
 
-    // Ensure link container has the aboutBody wrapper class applied for padding
     expect(tmdbButton.closest('[class*="aboutBody"]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'TVmaze' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'CC BY-SA 4.0' })).toBeTruthy();
+    expect(screen.queryByRole('img', { name: 'TMDB' })).toBeNull();
   });
 
   it('groups destructive actions under a single unified Danger Zone section', () => {

@@ -107,9 +107,9 @@ describe('TMDB normalization', () => {
       profileUrl: 'https://image.tmdb.org/t/p/w185/actor.jpg',
       roles: ['Neo', 'Thomas Anderson'],
     });
-    expect(credits.cast[1].roles).toEqual(['One']);
+    expect(credits.cast[1]!.roles).toEqual(['One']);
     expect(credits.crew).toHaveLength(1);
-    expect(credits.crew[0].jobs).toEqual(['Writer', 'Director']);
+    expect(credits.crew[0]!.jobs).toEqual(['Writer', 'Director']);
   });
 
   it('normalizes people and search results while dropping malformed entries', () => {
@@ -136,7 +136,7 @@ describe('TMDB normalization', () => {
     expect(person).toMatchObject({ name: 'Brad Pitt', biography: 'Actor', birthday: '1963-12-18' });
     expect(person?.credits.cast).toHaveLength(1);
     expect(search.results.map((result) => result.mediaType)).toEqual(['movie', 'tv', 'person']);
-    expect(search.results[0].posterUrl).toBe('https://image.tmdb.org/t/p/w500/p.jpg');
+    expect(search.results[0]!.posterUrl).toBe('https://image.tmdb.org/t/p/w500/p.jpg');
     expect(search.totalResults).toBe(3);
   });
 

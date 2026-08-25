@@ -137,7 +137,7 @@ describe('M3U source state and secret boundary', () => {
 
     await expect(useSourceStore.getState().refreshSource(profile.id)).rejects.toThrow('offline');
     expect(useSourceStore.getState().runtimes[profile.id]).toMatchObject({ status: 'ready', error: 'offline' });
-    expect(useSourceStore.getState().runtimes[profile.id].playlist?.entries).toHaveLength(1);
+    expect(useSourceStore.getState().runtimes[profile.id]!.playlist?.entries).toHaveLength(1);
   });
 
   it('edits a remote playlist in place so saved source identities remain stable', async () => {
@@ -156,7 +156,7 @@ describe('M3U source state and secret boundary', () => {
       epgUrl: 'https://guide.test/new.xml',
       headers: { 'User-Agent': 'Movena Test' },
     });
-    expect(useSourceStore.getState().runtimes[profile.id].revision).toBe(2);
+    expect(useSourceStore.getState().runtimes[profile.id]!.revision).toBe(2);
   });
 
   it('edits local playlist metadata without discarding its validated cache', async () => {
@@ -165,7 +165,7 @@ describe('M3U source state and secret boundary', () => {
       fileName: 'channels.m3u',
       content: document.content,
     });
-    const playlist = useSourceStore.getState().runtimes[profile.id].playlist;
+    const playlist = useSourceStore.getState().runtimes[profile.id]!.playlist;
 
     const updated = await useSourceStore.getState().updateLocalSource(profile.id, {
       name: 'Local After',
@@ -173,7 +173,7 @@ describe('M3U source state and secret boundary', () => {
     });
 
     expect(updated).toMatchObject({ id: profile.id, name: 'Local After', hasEpg: true });
-    expect(useSourceStore.getState().runtimes[profile.id].playlist).toBe(playlist);
+    expect(useSourceStore.getState().runtimes[profile.id]!.playlist).toBe(playlist);
     expect(repository.storeM3uConnection).toHaveBeenLastCalledWith(profile.id, {
       location: 'channels.m3u',
       epgUrl: 'https://guide.test/local.xml',
@@ -198,9 +198,9 @@ describe('M3U source state and secret boundary', () => {
     expect(repository.storeM3uCache).toHaveBeenCalledWith(profile.id, expect.objectContaining({
       content: newContent,
     }));
-    const runtime = useSourceStore.getState().runtimes[profile.id];
+    const runtime = useSourceStore.getState().runtimes[profile.id]!;
     expect(runtime.playlist?.entries).toHaveLength(2);
-    expect(runtime.playlist?.entries[0].title).toBe('Live Sports');
+    expect(runtime.playlist?.entries[0]!.title).toBe('Live Sports');
     await expect(useSourceStore.getState().refreshSource(profile.id)).rejects.toThrow('edited channels');
     useSourceStore.getState().setEditorRefreshPolicy(profile.id, 'replace-edits');
     expect(useSourceStore.getState().profiles.find((candidate) => candidate.id === profile.id)?.editorRefreshPolicy).toBe('replace-edits');

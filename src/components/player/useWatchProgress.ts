@@ -29,7 +29,7 @@ export function useWatchProgress() {
 
     let nextEpisode: WatchProgress['nextEpisode'];
     if (stream.type === 'series' && stream.seriesId) {
-      const seriesData = queryClient.getQueryData<{ episodes?: SeriesEpisodesBySeason }>(
+      const seriesData = queryClient.getQueryData<{ episodes?: SeriesEpisodesBySeason | undefined }>(
         detailQueryKeys.series(stream.seriesSourceItemId || stream.seriesId, authScope)
       );
       const next = findNextEpisode(seriesData?.episodes, stream.sourceItemId || stream.id, stream.seasonNum);

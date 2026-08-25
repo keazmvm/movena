@@ -1,10 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from './desktop';
 import { useSettingsStore } from '../store/useSettingsStore';
 import type { EpgProgramme } from './useEpg';
 import { useEnabledSources } from '../hooks/useEnabledSources';
 import { getUrlQueryScope } from './queryKeys';
 import { tauriApi } from './ipc';
+import { hydrateXmltvGuide, parseXmltvTime, type XmltvGuide } from './xmltvNormalizer';
+
+export { hydrateXmltvGuide, parseXmltvTime } from './xmltvNormalizer';
+export type { XmltvGuide } from './xmltvNormalizer';
 
 /**
  * XMLTV as a guide source, for providers whose own listings are empty.
@@ -16,51 +20,6 @@ import { tauriApi } from './ipc';
  * Worth it when there is nothing else, wasteful when there is.
  */
 
-export interface XmltvGuide {
-  /** Programmes per XMLTV channel id, each list sorted by start time. */
-  byChannel: Map<string, EpgProgramme[]>;
-  /** Display name (lower-cased) to channel id, for matching by name. */
-  idByName: Map<string, string>;
-  /** Preferred display name by channel id, used by editor matching tools. */
-  nameById: Map<string, string>;
-  channelCount: number;
-  programmeCount: number;
-}
-
-/** `20260808203000 +0200`, with the offset optional per the XMLTV spec. */
-const XMLTV_TIME = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?\s*([+-]\d{4})?$/;
-
-export function parseXmltvTime(value: string | null | undefined): number {
-  if (!value) return 0;
-  const match = XMLTV_TIME.exec(value.trim());
-  if (!match) return 0;
-
-  const [, year, month, day, hour, minute, second, offset] = match;
-  const parts = [+year, +month - 1, +day, +hour, +minute, +(second ?? 0)] as const;
-
-  const monthNumber = parts[1] + 1;
-  const dayNumber = parts[2];
-  const hourNumber = parts[3];
-  const minuteNumber = parts[4];
-  const secondNumber = parts[5];
-  if (monthNumber < 1 || monthNumber > 12 || hourNumber > 23 || minuteNumber > 59 || secondNumber > 59) {
-    return 0;
-  }
-  const daysInMonth = new Date(Date.UTC(parts[0], monthNumber, 0)).getUTCDate();
-  if (dayNumber < 1 || dayNumber > daysInMonth) return 0;
-
-  if (!offset) {
-    // No offset means local time, which is what the Date constructor assumes.
-    return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]).getTime();
-  }
-
-  const sign = offset.startsWith('-') ? -1 : 1;
-  const offsetHours = +offset.slice(1, 3);
-  const offsetMinutesPart = +offset.slice(3, 5);
-  if (offsetHours > 23 || offsetMinutesPart > 59) return 0;
-  const offsetMinutes = sign * (offsetHours * 60 + offsetMinutesPart);
-  return Date.UTC(...parts) - offsetMinutes * 60_000;
-}
 
 /**
  * Read the body as text, transparently handling a gzipped file.
@@ -136,17 +95,42 @@ export async function fetchXmltvGuide(
   signal?: AbortSignal,
   headers?: Record<string, string>,
 ): Promise<XmltvGuide> {
-  if (isTauri()) {
-    const document = await tauriApi.xmltvFetch({ url, headers });
-    const guide = parseXmltv(document.content);
-    if (document.cacheKey) {
-      await tauriApi.xmltvCacheCommit(document.cacheKey).catch(() => {});
-    }
-    return guide;
+  if (desktopApi.isDesktop()) {
+    return hydrateXmltvGuide(await tauriApi.xmltvFetch({ url, headers }));
   }
-  const response = await fetch(url, { signal, headers });
+  const response = await fetch(url, {
+    ...(signal ? { signal } : {}),
+    ...(headers ? { headers } : {}),
+  });
   if (!response.ok) throw new Error(`The guide URL answered HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''}.`);
   return parseXmltv(await readGuideBody(response));
+}
+
+type Settled<T> = { status: 'fulfilled'; value: T } | { status: 'rejected'; reason: unknown };
+
+export async function settleWithConcurrency<T, R>(
+  values: T[],
+  concurrency: number,
+  signal: AbortSignal,
+  task: (value: T) => Promise<R>,
+): Promise<Array<Settled<R>>> {
+  const results: Array<Settled<R>> = new Array(values.length);
+  let nextIndex = 0;
+  const worker = async () => {
+    while (nextIndex < values.length) {
+      if (signal.aborted) break;
+      const index = nextIndex;
+      nextIndex += 1;
+      try {
+        results[index] = { status: 'fulfilled', value: await task(values[index]!) };
+      } catch (reason: unknown) {
+        results[index] = { status: 'rejected', reason };
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(Math.max(1, concurrency), values.length) }, worker));
+  if (signal.aborted) throw signal.reason ?? new DOMException('The operation was aborted.', 'AbortError');
+  return results;
 }
 
 export function mergeXmltvGuides(
@@ -211,7 +195,7 @@ export function useXmltvGuide(enabled = true) {
     queryFn: async ({ signal }) => {
       const requests = new Map<string, {
         url: string;
-        headers?: Record<string, string>;
+        headers?: Record<string, string> | undefined;
         sourceIds: string[];
       }>();
       for (const descriptor of descriptors) {
@@ -221,10 +205,15 @@ export function useXmltvGuide(enabled = true) {
         if (request) request.sourceIds.push(descriptor.sourceId);
         else requests.set(key, { url: descriptor.url, headers: descriptor.headers, sourceIds: [descriptor.sourceId] });
       }
-      const results = await Promise.allSettled([...requests.values()].map(async (request) => ({
-        request,
-        guide: await fetchXmltvGuide(request.url, signal, request.headers),
-      })));
+      const results = await settleWithConcurrency(
+        [...requests.values()],
+        2,
+        signal,
+        async (request) => ({
+          request,
+          guide: await fetchXmltvGuide(request.url, signal, request.headers),
+        }),
+      );
       const loaded = results.flatMap((result) => result.status === 'fulfilled'
         ? result.value.request.sourceIds.map((sourceId) => ({ sourceId, guide: result.value.guide }))
         : []);

@@ -1,13 +1,17 @@
 # Third-party notices
 
 Movena is licensed under GPL-3.0-or-later. It incorporates or interfaces with
-third-party components under compatible licenses. `package-lock.json` and
-`src-tauri/Cargo.lock` identify the exact JavaScript and Rust versions.
+third-party components under compatible licenses. `package-lock.json`,
+`src-tauri/Cargo.lock`, `scripts/twitch-resolver/requirements.lock`, and the
+pinned native setup scripts identify the JavaScript, Rust, Python, and native
+versions used by a release.
 
 Run `npm run licenses:generate` after changing dependencies. It creates
-`THIRD_PARTY_LICENSES.txt` from the installed package license files and Cargo
-metadata. Release source archives must include that generated file, this notice,
-both lockfiles, `LICENSE`, and `public/fonts/OFL.txt`.
+`THIRD_PARTY_LICENSES.txt` from installed JavaScript and Python license files,
+Cargo metadata, and checked-in native component notices. `npm run setup:twitch`
+regenerates the report before copying it into the bundled resolver. Release
+source archives must include the generated file, this notice, all dependency
+locks, `LICENSE`, and `public/fonts/OFL.txt`.
 
 Important components include:
 
@@ -22,10 +26,18 @@ Important components include:
   used by this project enables GPL and version-3 components, so a distribution
   containing that native runtime must comply with GPL-3.0-or-later and include
   complete corresponding native source.
+- Streamlink 8.5.0: BSD-2-Clause. The bundled resolver also contains Python
+  3.13, PyInstaller 6.16.0, and the exact Python packages in
+  `scripts/twitch-resolver/requirements.lock`; see the generated report for
+  their individual licenses and texts.
+- yt-dlp 2026.08.19: Unlicense. Its pinned Windows executable, source URL, and
+  checksum are recorded in `scripts/ensure-windows-mpv.mjs`.
 - Righteous font: SIL Open Font License 1.1; see `public/fonts/OFL.txt`.
-- Country Flag Icons: MIT; flag designs are derived from public-domain Unicode
-  regional indicator data.
+- `country-flag-icons`: MIT. Movena uses the package's 3:2 SVG flag artwork and
+  ISO 3166 country-code list; Unicode regional-indicator symbols are not used as
+  the artwork source.
 
 Movena does not bundle TMDB or TVmaze data. Runtime responses remain subject to
-their respective terms. TVmaze data is offered under CC BY-SA.
-
+their respective terms. TVmaze identifies its API data as
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and requires
+source attribution and ShareAlike compliance.

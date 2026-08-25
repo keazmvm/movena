@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -37,11 +37,12 @@ export function Settings() {
   const navigate = useNavigate();
   const [sourceEditor, setSourceEditor] = useState<
     | { kind: 'choose' }
-    | { kind: 'xtream'; sourceId?: string }
-    | { kind: 'm3u'; sourceId?: string }
+    | { kind: 'xtream'; sourceId?: string | undefined }
+    | { kind: 'm3u'; sourceId?: string | undefined }
     | null
   >(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const sectionScrollRef = useRef<HTMLDivElement>(null);
   const sectionParam = searchParams.get('section');
   const activeSection = resolveSettingsSectionId(sectionParam);
   const closeSourceEditor = useCallback(() => setSourceEditor(null), []);
@@ -58,6 +59,7 @@ export function Settings() {
   });
 
   const selectSection = (section: SettingsSectionId) => {
+    sectionScrollRef.current?.scrollTo({ top: 0 });
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('section', section);
     setSearchParams(nextParams, { replace: true });
@@ -110,14 +112,14 @@ export function Settings() {
           <SettingsNavigation activeSection={activeSection} onSelect={selectSection} />
 
           <div className={settingsStyles.rightColumn}>
-            <div className={`${settingsStyles.scrollContainer} subtle-scrollbar`}>
-              <AnimatePresence mode="sync" initial={false}>
+            <div ref={sectionScrollRef} className={`${settingsStyles.scrollContainer} subtle-scrollbar`}>
+              <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={activeSection}
                   className={settingsStyles.sectionTransition}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.standard }}
                 >
                   {renderSection()}

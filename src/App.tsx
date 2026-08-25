@@ -2,8 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from './api/desktop';
 import { Sidebar } from './components/layout/Sidebar';
 import { WindowChrome } from './components/layout/WindowChrome';
 import { PageTransition } from './components/layout/PageTransition';
@@ -18,7 +17,7 @@ const DebugOverlay = lazy(() => import('./components/shared/DebugOverlay').then(
 import { ContextMenu } from './components/common/ContextMenu';
 import { useContextMenu } from './hooks/useContextMenu';
 import styles from './App.module.css';
-import { accentHoverColor, contrastingTextColor, DEFAULT_ACCENT_COLOR, parseHex } from './utils/color';
+import { accessibleAccentForeground, accentHoverColor, contrastingTextColor, DEFAULT_ACCENT_COLOR, parseHex } from './utils/color';
 import { getCombinedErrorMessage, getErrorPresentation, getUserFacingErrorMessage } from './utils/error';
 import { queryClient } from './api/queryClient';
 import { ErrorState } from './components/common/ErrorState';
@@ -62,7 +61,7 @@ function NotFoundPage() {
           title="Page Not Found"
           description="That page is not part of this Movena workspace. Return to Discover to keep browsing."
           actionLabel="Back to Discover"
-          onAction={() => navigate('/')}
+          onAction={() => void navigate('/')}
         />
       </div>
     </PageTransition>
@@ -155,7 +154,8 @@ function AppShell() {
         event.preventDefault();
         const paths = ['/', '/live', '/epg', '/movies', '/series'];
         const index = parseInt(event.key, 10) - 1;
-        navigate(paths[index]);
+        const path = paths[index];
+        if (path) navigate(path);
       }
     };
 
@@ -204,8 +204,8 @@ function AppShell() {
 
   useEffect(() => {
     const windowWithIdle = window as Window & {
-      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
-      cancelIdleCallback?: (handle: number) => void;
+      requestIdleCallback?: ((callback: IdleRequestCallback, options?: IdleRequestOptions) => number) | undefined;
+      cancelIdleCallback?: ((handle: number) => void) | undefined;
     };
     const warmRoutes = () => void preloadPrimaryRouteModules();
     if (windowWithIdle.requestIdleCallback) {
@@ -270,6 +270,7 @@ function AppShell() {
   // Dynamic CSS Accent Color Theme Sync
   useEffect(() => {
     const color = accentColor || DEFAULT_ACCENT_COLOR;
+    document.documentElement.style.setProperty('--accent-foreground', accessibleAccentForeground(color));
     document.documentElement.style.setProperty('--accent-color', color);
     document.documentElement.style.setProperty('--text-on-accent', contrastingTextColor(color));
     
@@ -290,8 +291,8 @@ function AppShell() {
 
   // Sync always on top with Tauri
   useEffect(() => {
-    if (!isTauri()) return;
-    getCurrentWindow().setAlwaysOnTop(alwaysOnTop).catch((error) => {
+    if (!desktopApi.isDesktop()) return;
+    desktopApi.setAlwaysOnTop(alwaysOnTop).catch((error) => {
       notify.error(
         'Window Setting Failed',
         getUserFacingErrorMessage(error, 'The always-on-top window setting could not be changed.'),

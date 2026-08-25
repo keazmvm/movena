@@ -54,7 +54,7 @@ describe('detail query mapping', () => {
     const { wrapper } = wrapperFactory();
     const { result } = renderHook(() => useSeriesInfo(99, sourceId), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.episodes['1'].map((episode) => episode.source_id)).toEqual([sourceId, sourceId]);
+    expect(result.current.data?.episodes['1']!.map((episode) => episode.source_id)).toEqual([sourceId, sourceId]);
 
     const unavailable = renderHook(() => useVodInfo(undefined, sourceId), { wrapper });
     await new Promise((resolve) => setTimeout(resolve, 0));

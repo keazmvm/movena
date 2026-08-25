@@ -48,7 +48,7 @@ export interface PlaybackState {
 export interface PlaybackSessionStartedObservation {
   type: 'session-started';
   generation: number;
-  at?: number;
+  at?: number | undefined;
 }
 
 export type MpvPlaybackProperty =
@@ -64,7 +64,7 @@ export interface MpvPropertyObservation {
   generation: number;
   name: MpvPlaybackProperty;
   value: unknown;
-  at?: number;
+  at?: number | undefined;
 }
 
 export interface PlaybackEndObservation {
@@ -72,8 +72,8 @@ export interface PlaybackEndObservation {
   generation: number;
   /** `eof` is a normal end; other reasons are treated as playback failures. */
   reason: 'eof' | 'stop' | 'error' | 'unknown';
-  message?: string;
-  at?: number;
+  message?: string | undefined;
+  at?: number | undefined;
 }
 
 export interface PlaybackErrorObservation {
@@ -81,15 +81,15 @@ export interface PlaybackErrorObservation {
   generation: number;
   message: string;
   /** Startup errors use a distinct code for diagnostics and retry policy. */
-  phase?: 'startup' | 'playback';
-  at?: number;
+  phase?: 'startup' | 'playback' | undefined;
+  at?: number | undefined;
 }
 
 export interface StartupTimeoutObservation {
   type: 'startup-timeout';
   generation: number;
-  at?: number;
-  timeoutMs?: number;
+  at?: number | undefined;
+  timeoutMs?: number | undefined;
 }
 
 export type PlaybackObservation =
@@ -104,7 +104,7 @@ export type PlaybackTransitionRejection = 'stale-session';
 export interface PlaybackTransition {
   state: PlaybackState;
   accepted: boolean;
-  rejection?: PlaybackTransitionRejection;
+  rejection?: PlaybackTransitionRejection | undefined;
 }
 
 const DEFAULT_STARTUP_TIMEOUT_MS = 15_000;

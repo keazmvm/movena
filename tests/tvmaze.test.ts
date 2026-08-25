@@ -57,12 +57,12 @@ describe('TVmaze API boundary', () => {
     await expect(searchTvmazeShows('4K-DE - Example Show (2026)', controller.signal)).resolves.toMatchObject([
       { id: 7, name: 'Example Show' },
     ]);
-    const request = fetchMock.mock.calls[0];
-    const url = new URL(request[0].toString());
+    const request = fetchMock.mock.calls[0]!;
+    const url = new URL(request[0]!.toString());
     expect(url.origin).toBe('https://api.tvmaze.com');
     expect(url.pathname).toBe('/search/shows');
     expect(url.searchParams.get('q')).toBe('Example Show');
-    expect(request[1].signal).toBe(controller.signal);
+    expect(request[1]!.signal).toBe(controller.signal);
   });
 
   it('uses one ordinary-episodes request and returns every exact future timestamp', async () => {
@@ -77,7 +77,7 @@ describe('TVmaze API boundary', () => {
       { id: 5, name: 'Future', airstamp: '2026-08-13T20:00:00Z' },
       { id: 6, name: 'Later', airstamp: '2026-08-20T20:00:00Z' },
     ]);
-    const url = new URL(fetchMock.mock.calls[0][0].toString());
+    const url = new URL(fetchMock.mock.calls[0]![0].toString());
     expect(url.pathname).toBe('/shows/9/episodes');
     expect(url.searchParams.get('specials')).toBe('0');
   });

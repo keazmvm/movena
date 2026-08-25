@@ -22,8 +22,8 @@ export interface DownloadProgress {
 export interface DownloadJob {
   id: string;
   sourceUrl: string;
-  headers?: Record<string, string>;
-  filePath?: string;
+  headers?: Record<string, string> | undefined;
+  filePath?: string | undefined;
   fileName: string;
   state: DownloadJobState;
   progress: number | null;
@@ -31,7 +31,7 @@ export interface DownloadJob {
   totalBytes: number | null;
   attempts: number;
   maxAttempts: number;
-  error?: string;
+  error?: string | undefined;
   createdAt: number;
   updatedAt: number;
 }
@@ -39,35 +39,35 @@ export interface DownloadJob {
 export interface DownloadStatusEvent {
   id: unknown;
   state: unknown;
-  downloadedBytes?: unknown;
-  totalBytes?: unknown;
-  path?: unknown;
-  error?: unknown;
+  downloadedBytes?: unknown | undefined;
+  totalBytes?: unknown | undefined;
+  path?: unknown | undefined;
+  error?: unknown | undefined;
 }
 
 export type DownloadJobAction =
   | { type: 'start' }
   | { type: 'pause' }
   | { type: 'resume' }
-  | { type: 'progress'; downloadedBytes: unknown; totalBytes?: unknown }
-  | { type: 'complete'; totalBytes?: unknown }
+  | { type: 'progress'; downloadedBytes: unknown; totalBytes?: unknown | undefined }
+  | { type: 'complete'; totalBytes?: unknown | undefined }
   | { type: 'fail'; error: unknown }
   | { type: 'retry' }
-  | { type: 'cancel'; reason?: unknown };
+  | { type: 'cancel'; reason?: unknown | undefined };
 
 export interface CreateDownloadJobInput {
   id: unknown;
   sourceUrl: unknown;
-  headers?: unknown;
-  fileName?: unknown;
-  maxAttempts?: unknown;
-  totalBytes?: unknown;
-  now?: unknown;
+  headers?: unknown | undefined;
+  fileName?: unknown | undefined;
+  maxAttempts?: unknown | undefined;
+  totalBytes?: unknown | undefined;
+  now?: unknown | undefined;
 }
 
 export interface FilenameOptions {
-  fallback?: string;
-  maxLength?: number;
+  fallback?: string | undefined;
+  maxLength?: number | undefined;
 }
 
 const DEFAULT_FILE_NAME = 'download';
@@ -93,7 +93,7 @@ function safeHeaders(value: unknown): Record<string, string> | undefined {
 function isIterable(value: unknown): value is Iterable<unknown> {
   return value !== null
     && value !== undefined
-    && typeof (value as { [Symbol.iterator]?: unknown })[Symbol.iterator] === 'function';
+    && typeof (value as { [Symbol.iterator]?: unknown | undefined })[Symbol.iterator] === 'function';
 }
 
 function finiteNumber(value: unknown): number | null {

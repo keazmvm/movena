@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Update } from '@tauri-apps/plugin-updater';
+import type { DesktopUpdate } from '../api/desktop';
 import { checkForAppUpdates, installAppUpdate, type UpdateDownloadProgress, type UpdateInfo } from '../services/appUpdater';
 import { useSettingsStore } from './useSettingsStore';
 
@@ -11,7 +11,7 @@ interface UpdateState {
   progress: UpdateDownloadProgress | null;
   error: string | null;
   /** The live plugin resource behind `info` — never rendered, just held for install(). */
-  handle: Update | null;
+  handle: DesktopUpdate | null;
   /** Looks for an update. Resolves once idle/available/error is reached. */
   check: () => Promise<void>;
   /** Downloads and installs the update found by check(), then relaunches the app. */

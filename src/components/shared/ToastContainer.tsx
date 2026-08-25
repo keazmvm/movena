@@ -89,7 +89,7 @@ function ToastCard({ notification }: { notification: NotificationItem }) {
           ref={progressRef}
           className={styles.progressBar}
           initial={{ scaleX: 1 }}
-          animate={{ scaleX: isPaused ? undefined : 0 }}
+          animate={isPaused ? {} : { scaleX: 0 }}
           transition={{ duration: duration / 1000, ease: 'linear' }}
         />
       )}

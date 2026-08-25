@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type UIEvent } from 'react';
 import { Check, ChevronDown, ChevronUp, Copy, RefreshCw, Replace, Search, WandSparkles, X } from 'lucide-react';
 import { generateM3u, parseM3u } from '../../api/m3u';
+import { parseM3uAsync } from '../../services/m3uParser';
 import { Button } from '../common/Button';
 import { notify } from '../../store/useNotificationStore';
 import { getErrorMessage } from '../../utils/error';
@@ -16,16 +17,55 @@ export interface M3uRawEditorViewState {
 
 interface M3uRawCodeEditorProps {
   rawContent: string;
-  warnings?: string[];
+  knownEntryCount?: number | undefined;
+  warnings?: string[] | undefined;
   onApplyRawText: (newRawText: string) => void;
-  onRequestSave?: (newRawText: string) => boolean;
-  onDirtyChange?: (dirty: boolean) => void;
-  onSyncFromVisual?: () => void;
-  viewState?: M3uRawEditorViewState;
-  onViewStateChange?: (viewState: M3uRawEditorViewState) => void;
+  onRequestSave?: ((newRawText: string) => boolean) | undefined;
+  onDirtyChange?: ((dirty: boolean) => void) | undefined;
+  onSyncFromVisual?: (() => void) | undefined;
+  viewState?: M3uRawEditorViewState | undefined;
+  onViewStateChange?: ((viewState: M3uRawEditorViewState) => void) | undefined;
 }
 
 const attributePattern = /([\w-]+)(=)("[^"]*"|'[^']*'|[^\s,]+)/g;
+const DEFAULT_LINE_HEIGHT = 20.8;
+const DEFAULT_VIEWPORT_HEIGHT = 800;
+const VISIBLE_LINE_OVERSCAN = 8;
+const VIEW_STATE_SYNC_DELAY_MS = 120;
+
+interface RawDocumentIndex {
+  lines: string[];
+  lineStarts: number[];
+}
+
+interface RawEditorViewport {
+  height: number;
+  lineHeight: number;
+  scrollLeft: number;
+  scrollTop: number;
+}
+
+function indexRawDocument(text: string): RawDocumentIndex {
+  const lines = text.split('\n');
+  const lineStarts = new Array<number>(lines.length);
+  let offset = 0;
+  for (let index = 0; index < lines.length; index += 1) {
+    lineStarts[index] = offset;
+    offset += (lines[index]?.length ?? 0) + 1;
+  }
+  return { lines, lineStarts };
+}
+
+function lineIndexAtOffset(lineStarts: number[], offset: number): number {
+  let low = 0;
+  let high = lineStarts.length - 1;
+  while (low <= high) {
+    const middle = (low + high) >>> 1;
+    if ((lineStarts[middle] ?? 0) <= offset) low = middle + 1;
+    else high = middle - 1;
+  }
+  return Math.max(0, high);
+}
 
 function warningLine(warning: string, lineCount: number): number | null {
   const lineMatch = /line\s+(\d+)/i.exec(warning);
@@ -49,13 +89,26 @@ function renderAttributes(value: string): ReactNode[] {
   return nodes;
 }
 
-function M3uSyntaxHighlight({ text, scrollTop, scrollLeft }: { text: string; scrollTop: number; scrollLeft: number }) {
+const M3uSyntaxHighlight = memo(function M3uSyntaxHighlight({
+  endLine,
+  lines,
+  offsetTop,
+  scrollLeft,
+  startLine,
+}: {
+  endLine: number;
+  lines: string[];
+  offsetTop: number;
+  scrollLeft: number;
+  startLine: number;
+}) {
   return (
-    <pre className={styles.rawHighlight} style={{ transform: `translate(${-scrollLeft}px, ${-scrollTop}px)` }} aria-hidden="true">
-      {text.split('\n').map((line, index) => {
+    <pre className={styles.rawHighlight} style={{ transform: `translate(${-scrollLeft}px, ${offsetTop}px)` }} aria-hidden="true">
+      {lines.slice(startLine, endLine).map((line, visibleIndex) => {
+        const index = startLine + visibleIndex;
         const directive = /^(#[A-Z0-9-]+)(:?)(.*)$/i.exec(line);
         if (directive) {
-          return <span className={styles.rawHighlightLine} key={`${index}-${line}`}><span className={styles.rawDirective}>{directive[1]}</span><span className={styles.rawPunctuation}>{directive[2]}</span>{renderAttributes(directive[3])}{'\n'}</span>;
+          return <span className={styles.rawHighlightLine} key={`${index}-${line}`}><span className={styles.rawDirective}>{directive[1]}</span><span className={styles.rawPunctuation}>{directive[2]}</span>{renderAttributes(directive[3] ?? '')}{'\n'}</span>;
         }
         if (/^(?:https?|rtmp|rtsp|udp|file):/i.test(line)) {
           return <span className={styles.rawHighlightLine} key={`${index}-${line}`}><span className={styles.rawUrl}>{line}</span>{'\n'}</span>;
@@ -64,10 +117,32 @@ function M3uSyntaxHighlight({ text, scrollTop, scrollLeft }: { text: string; scr
       })}
     </pre>
   );
-}
+});
+
+const M3uVisibleLineNumbers = memo(function M3uVisibleLineNumbers({
+  endLine,
+  offsetTop,
+  startLine,
+  warningLines,
+}: {
+  endLine: number;
+  offsetTop: number;
+  startLine: number;
+  warningLines: Set<number>;
+}) {
+  return (
+    <div className={styles.rawLineNumberViewport} style={{ transform: `translateY(${offsetTop}px)` }}>
+      {Array.from({ length: endLine - startLine }, (_, visibleIndex) => {
+        const line = startLine + visibleIndex + 1;
+        return <span className={warningLines.has(line) ? styles.rawWarningLineNumber : undefined} data-raw-line-number key={line}>{line}</span>;
+      })}
+    </div>
+  );
+});
 
 export function M3uRawCodeEditor({
   rawContent,
+  knownEntryCount,
   warnings = [],
   onApplyRawText,
   onRequestSave,
@@ -81,22 +156,36 @@ export function M3uRawCodeEditor({
   const [copied, setCopied] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [liveWarnings, setLiveWarnings] = useState<string[]>([]);
-  const [parsedEntryCount, setParsedEntryCount] = useState<number | null>(null);
+  const [parsedEntryCount, setParsedEntryCount] = useState<number | null>(knownEntryCount ?? null);
   const [findOpen, setFindOpen] = useState(false);
   const [findQuery, setFindQuery] = useState('');
   const [replaceQuery, setReplaceQuery] = useState('');
   const [formatPreview, setFormatPreview] = useState<string | null>(null);
   const [cursor, setCursor] = useState({ line: 1, column: 1, selectionLength: 0 });
-  const [scrollOffset, setScrollOffset] = useState({ top: viewState?.scrollTop ?? 0, left: viewState?.scrollLeft ?? 0 });
+  const [viewport, setViewport] = useState<RawEditorViewport>({
+    height: DEFAULT_VIEWPORT_HEIGHT,
+    lineHeight: DEFAULT_LINE_HEIGHT,
+    scrollLeft: viewState?.scrollLeft ?? 0,
+    scrollTop: viewState?.scrollTop ?? 0,
+  });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const lineNumberRef = useRef<HTMLPreElement>(null);
   const findInputRef = useRef<HTMLInputElement>(null);
+  const latestViewStateRef = useRef<M3uRawEditorViewState>(viewState ?? { selectionStart: 0, selectionEnd: 0, scrollTop: 0, scrollLeft: 0 });
+  const onViewStateChangeRef = useRef(onViewStateChange);
+  const viewStateTimerRef = useRef<number | null>(null);
+  const viewportFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     setText(rawContent);
     setParseError(null);
     setFormatPreview(null);
-  }, [rawContent]);
+    setLiveWarnings([]);
+    setParsedEntryCount(knownEntryCount ?? null);
+  }, [knownEntryCount, rawContent]);
+
+  useEffect(() => {
+    onViewStateChangeRef.current = onViewStateChange;
+  }, [onViewStateChange]);
 
   useEffect(() => {
     const editor = textareaRef.current;
@@ -104,16 +193,45 @@ export function M3uRawCodeEditor({
     editor.setSelectionRange(viewState.selectionStart, viewState.selectionEnd);
     editor.scrollTop = viewState.scrollTop;
     editor.scrollLeft = viewState.scrollLeft;
-    setScrollOffset({ top: viewState.scrollTop, left: viewState.scrollLeft });
-    if (lineNumberRef.current) lineNumberRef.current.scrollTop = viewState.scrollTop;
+    latestViewStateRef.current = viewState;
+    setViewport((current) => ({ ...current, scrollTop: viewState.scrollTop, scrollLeft: viewState.scrollLeft }));
   }, [viewState]);
+
+  useEffect(() => {
+    const editor = textareaRef.current;
+    if (!editor) return;
+    const updateMeasurements = () => {
+      const measuredLineHeight = Number.parseFloat(window.getComputedStyle(editor).lineHeight);
+      setViewport((current) => ({
+        ...current,
+        height: editor.clientHeight || current.height,
+        lineHeight: Number.isFinite(measuredLineHeight) ? measuredLineHeight : current.lineHeight,
+      }));
+    };
+    updateMeasurements();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(updateMeasurements);
+    observer.observe(editor);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => () => {
+    if (viewStateTimerRef.current !== null) window.clearTimeout(viewStateTimerRef.current);
+    if (viewportFrameRef.current !== null) window.cancelAnimationFrame(viewportFrameRef.current);
+    onViewStateChangeRef.current?.(latestViewStateRef.current);
+  }, []);
 
   useEffect(() => {
     if (findOpen) findInputRef.current?.focus();
   }, [findOpen]);
 
   const isModified = text !== rawContent;
-  const lineCount = text ? text.split('\n').length : 0;
+  const documentIndex = useMemo(() => indexRawDocument(text), [text]);
+  const lineCount = text ? documentIndex.lines.length : 0;
+  const renderedLineCount = Math.max(1, documentIndex.lines.length);
+  const startLine = Math.max(0, Math.floor(viewport.scrollTop / viewport.lineHeight) - VISIBLE_LINE_OVERSCAN);
+  const endLine = Math.min(renderedLineCount, Math.ceil((viewport.scrollTop + viewport.height) / viewport.lineHeight) + VISIBLE_LINE_OVERSCAN);
+  const visibleOffsetTop = startLine * viewport.lineHeight - viewport.scrollTop;
   const allWarnings = useMemo(() => [...new Set([...warnings, ...liveWarnings])], [liveWarnings, warnings]);
   const warningLines = useMemo(() => new Set(allWarnings.map((warning) => warningLine(warning, lineCount)).filter((line): line is number => line !== null)), [allWarnings, lineCount]);
   const matches = useMemo(() => {
@@ -136,35 +254,78 @@ export function M3uRawCodeEditor({
   }, [isModified, onDirtyChange]);
 
   useEffect(() => {
+    if (!isModified && knownEntryCount !== undefined) {
+      setParseError(null);
+      setLiveWarnings([]);
+      setParsedEntryCount(knownEntryCount);
+      return;
+    }
+    let active = true;
     const timer = window.setTimeout(() => {
-      try {
-        const playlist = parseM3u(text);
+      void parseM3uAsync(text).then((playlist) => {
+        if (!active) return;
         setParseError(null);
         setLiveWarnings(playlist.warnings);
         setParsedEntryCount(playlist.entries.length);
-      } catch (error: unknown) {
+      }).catch((error: unknown) => {
+        if (!active) return;
         setParseError(getErrorMessage(error, t('Invalid M3U format')));
         setLiveWarnings([]);
         setParsedEntryCount(null);
-      }
-    }, isModified ? 400 : 0);
-    return () => window.clearTimeout(timer);
-  }, [isModified, t, text]);
+      });
+    }, isModified ? 500 : 100);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [isModified, knownEntryCount, t, text]);
+
+  const scheduleViewStateSync = () => {
+    if (viewStateTimerRef.current !== null) window.clearTimeout(viewStateTimerRef.current);
+    viewStateTimerRef.current = window.setTimeout(() => {
+      viewStateTimerRef.current = null;
+      onViewStateChangeRef.current?.(latestViewStateRef.current);
+    }, VIEW_STATE_SYNC_DELAY_MS);
+  };
 
   const syncViewState = () => {
     const editor = textareaRef.current;
     if (!editor) return;
-    const before = text.slice(0, editor.selectionStart);
+    const lineIndex = lineIndexAtOffset(documentIndex.lineStarts, editor.selectionStart);
     setCursor({
-      line: before.split('\n').length,
-      column: editor.selectionStart - before.lastIndexOf('\n'),
+      line: lineIndex + 1,
+      column: editor.selectionStart - (documentIndex.lineStarts[lineIndex] ?? 0) + 1,
       selectionLength: editor.selectionEnd - editor.selectionStart,
     });
-    onViewStateChange?.({
+    latestViewStateRef.current = {
       selectionStart: editor.selectionStart,
       selectionEnd: editor.selectionEnd,
       scrollTop: editor.scrollTop,
       scrollLeft: editor.scrollLeft,
+    };
+    scheduleViewStateSync();
+  };
+
+  const handleEditorScroll = (event: UIEvent<HTMLTextAreaElement>) => {
+    const editor = event.currentTarget;
+    latestViewStateRef.current = {
+      selectionStart: editor.selectionStart,
+      selectionEnd: editor.selectionEnd,
+      scrollTop: editor.scrollTop,
+      scrollLeft: editor.scrollLeft,
+    };
+    scheduleViewStateSync();
+    if (viewportFrameRef.current !== null) return;
+    viewportFrameRef.current = window.requestAnimationFrame(() => {
+      viewportFrameRef.current = null;
+      const currentEditor = textareaRef.current;
+      if (!currentEditor) return;
+      setViewport((current) => ({
+        ...current,
+        height: currentEditor.clientHeight || current.height,
+        scrollLeft: currentEditor.scrollLeft,
+        scrollTop: currentEditor.scrollTop,
+      }));
     });
   };
 
@@ -190,6 +351,7 @@ export function M3uRawCodeEditor({
     const match = direction === 1
       ? matches.find((value) => value > current) ?? matches[0]
       : [...matches].reverse().find((value) => value < current) ?? matches.at(-1)!;
+    if (match === undefined) return;
     editor?.focus();
     editor?.setSelectionRange(match, match + findQuery.trim().length);
     syncViewState();
@@ -238,12 +400,12 @@ export function M3uRawCodeEditor({
   const jumpToLine = (line: number) => {
     const editor = textareaRef.current;
     if (!editor) return;
-    const lines = text.split('\n');
-    const start = lines.slice(0, Math.max(0, line - 1)).reduce((total, value) => total + value.length + 1, 0);
+    const lineIndex = Math.max(0, Math.min(documentIndex.lines.length - 1, line - 1));
+    const start = documentIndex.lineStarts[lineIndex] ?? 0;
     editor.focus();
-    editor.setSelectionRange(start, start + (lines[line - 1]?.length ?? 0));
+    editor.setSelectionRange(start, start + (documentIndex.lines[lineIndex]?.length ?? 0));
     editor.scrollTop = Math.max(0, (editor.scrollHeight / Math.max(1, lineCount)) * Math.max(0, line - 3));
-    if (lineNumberRef.current) lineNumberRef.current.scrollTop = editor.scrollTop;
+    setViewport((current) => ({ ...current, scrollTop: editor.scrollTop }));
     syncViewState();
   };
 
@@ -305,10 +467,12 @@ export function M3uRawCodeEditor({
       {!parseError && allWarnings.length > 0 && <div className={styles.rawWarnings} role="status">{allWarnings.slice(0, 5).map((warning, index) => { const line = warningLine(warning, lineCount); return line ? <button className={styles.rawWarning} type="button" key={`${index}-${warning}`} onClick={() => jumpToLine(line)}>{warning}</button> : <span key={`${index}-${warning}`}>{warning}</span>; })}{allWarnings.length > 5 && <span>{t('+ {count} more warnings', { count: number(allWarnings.length - 5) })}</span>}</div>}
 
       <div className={styles.rawEditorSurface}>
-        <pre ref={lineNumberRef} className={styles.rawLineNumbers} aria-hidden="true">{Array.from({ length: Math.max(1, lineCount) }, (_, index) => <span className={warningLines.has(index + 1) ? styles.rawWarningLineNumber : undefined} key={index}>{index + 1}{'\n'}</span>)}</pre>
+        <div className={styles.rawLineNumbers} aria-hidden="true">
+          <M3uVisibleLineNumbers endLine={endLine} offsetTop={visibleOffsetTop} startLine={startLine} warningLines={warningLines} />
+        </div>
         <div className={styles.rawCodeStack}>
-          <M3uSyntaxHighlight text={text} scrollTop={scrollOffset.top} scrollLeft={scrollOffset.left} />
-          <textarea ref={textareaRef} className={styles.rawTextarea} value={text} onChange={(event) => setText(event.target.value)} onSelect={syncViewState} onKeyUp={syncViewState} onClick={syncViewState} onKeyDown={handleEditorKeyDown} onScroll={(event) => { if (lineNumberRef.current) lineNumberRef.current.scrollTop = event.currentTarget.scrollTop; setScrollOffset({ top: event.currentTarget.scrollTop, left: event.currentTarget.scrollLeft }); syncViewState(); }} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-label={t('Raw M3U Code')} />
+          <M3uSyntaxHighlight endLine={endLine} lines={documentIndex.lines} offsetTop={visibleOffsetTop} scrollLeft={viewport.scrollLeft} startLine={startLine} />
+          <textarea ref={textareaRef} className={`${styles.rawTextarea} subtle-scrollbar`} value={text} onChange={(event) => setText(event.target.value)} onSelect={syncViewState} onKeyUp={syncViewState} onClick={syncViewState} onKeyDown={handleEditorKeyDown} onScroll={handleEditorScroll} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-label={t('Raw M3U Code')} />
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 # Privacy
 
-Last updated: 23 August 2026
+Last updated: 25 August 2026
 
 Movena is a local desktop application. The Movena project does not operate an
 account service, analytics service, advertising service, telemetry endpoint, or
@@ -9,31 +9,44 @@ history, searches, recordings, or downloads.
 
 ## Data stored on your device
 
-Movena stores preferences, source descriptions, library state, searches,
-download records, and cached metadata locally. Passwords, access tokens, and the
+Movena stores preferences, source descriptions, library state, searches, and
+cached metadata locally. The active download queue is session-only; completed
+media remains wherever you chose to save it. Passwords, access tokens, and the
 optional TMDB API key are stored through the operating-system credential vault.
-Portable settings exports intentionally exclude credentials, source
-connections, library data, and caches.
+Portable settings exports intentionally exclude credentials, source and guide
+URLs, library data, and caches.
 
 ## Network connections
 
 Your device connects directly to sources you configure and may fetch metadata
 or artwork directly from those sources. When enabled, it also connects directly
-to TMDB and TVmaze. Those independent services receive the information normally
-included in an Internet request, such as your IP address, requested title or
-resource, and user agent, and process it under their own privacy terms.
+to TMDB and TVmaze. Automatic update checks are enabled by default and request
+release metadata from GitHub; they can be disabled in Settings > General, and an
+update is downloaded only after confirmation. These independent services
+receive the information normally included in an Internet request, such as your
+IP address, requested title or resource, and user agent, and process it under
+their own privacy terms.
 
-Movena permits an explicit, per-source exception for legacy HTTP services.
-HTTP is not encrypted and can expose credentials, requested media, and viewing
-activity to network observers. HTTPS is required by default.
+Opening a supported public Twitch live-channel page starts Movena's bundled
+Streamlink resolver. It connects directly to Twitch, exposes the resolved media
+only on a random loopback (`127.0.0.1`) port for libmpv, and stores resolver data
+in Movena's application cache. If Twitch requests a client-integrity token,
+Streamlink may run an installed Chromium-based browser in headless mode and
+cache that short-lived token. Movena does not ask for or store a Twitch account
+token.
+
+Movena accepts legacy HTTP source addresses when they are configured. HTTP is
+not encrypted and can expose credentials, requested media, and viewing
+activity to network observers. Prefer HTTPS wherever the source supports it.
 
 ## Deleting data
 
 Settings > About > Delete All App Data removes Movena-owned preferences,
-sources and credentials, history, favorites, collections, searches, download
-records, and caches. It does not remove original playlist files selected by the
-user or completed recordings/downloads stored outside Movena's application
-data. Those files must be deleted with the operating system.
+sources and credentials, history, favorites, collections, searches, the active
+download queue, and application caches, including the Twitch resolver cache. It
+does not remove original playlist files selected by the user or completed
+recordings/downloads stored outside Movena's application data. Those files must
+be deleted with the operating system.
 
 Uninstalling the application may not remove completed media files or every
 operating-system credential-vault record. Use Delete All App Data first when
@@ -45,4 +58,3 @@ GitHub and any project website are separate services with their own logs and
 privacy terms. This policy describes the desktop application only. Any future
 project-operated telemetry, crash reporting, accounts, or hosted service must
 be opt-in where required and documented here before release.
-

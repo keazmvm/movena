@@ -7,18 +7,18 @@ import { sanitizeDownloadFileName } from '../utils/downloads';
 
 export interface DownloadableMediaItem {
   title: string;
-  type?: 'live' | 'vod' | 'series';
-  streamUrl?: string;
-  httpHeaders?: Record<string, string>;
-  containerExtension?: string;
+  type?: 'live' | 'vod' | 'series' | undefined;
+  streamUrl?: string | undefined;
+  httpHeaders?: Record<string, string> | undefined;
+  containerExtension?: string | undefined;
 }
 
 export interface MediaDownloadRequest {
   url: string;
   fileName: string;
-  headers?: Record<string, string>;
-  id?: string;
-  force?: boolean;
+  headers?: Record<string, string> | undefined;
+  id?: string | undefined;
+  force?: boolean | undefined;
 }
 
 /** Builds the consistent file name and transport details for catalogue media. */

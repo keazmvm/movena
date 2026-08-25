@@ -3,7 +3,7 @@ import type { CatalogSortMode } from '../store/useSettingsStore';
 import { parseCategoryName } from './categoryName';
 
 export interface SmartCatalogItem extends MediaItem {
-  categoryId?: string;
+  categoryId?: string | undefined;
 }
 
 export interface CategoryLike {

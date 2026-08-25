@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "bundle": {
+    "resources": {
+      "lib/mpv-dev/libmpv-2.dll": "libmpv-2.dll",
+      "lib/yt-dlp/yt-dlp.exe": "yt-dlp.exe",
+      "lib/twitch-resolver/": "twitch-resolver/"
+    }
+  }
+}

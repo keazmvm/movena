@@ -16,22 +16,22 @@ import { notify } from '../store/useNotificationStore';
 import { getErrorMessage } from '../utils/error';
 
 export interface CatalogItem extends MediaItem {
-  categoryId?: string;
+  categoryId?: string | undefined;
   /** The source's guide id for a channel — how XMLTV listings are matched. */
-  epgChannelId?: string;
-  radio?: boolean;
+  epgChannelId?: string | undefined;
+  radio?: boolean | undefined;
   radioMetadata?: {
     title: string;
-    artist?: string;
-    album?: string;
-    genre?: string;
-    channelNumber?: string;
-    logoUrl?: string;
-  };
-  catchup?: string;
-  catchupSource?: string;
-  catchupDays?: number;
-  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> }>;
+    artist?: string | undefined;
+    album?: string | undefined;
+    genre?: string | undefined;
+    channelNumber?: string | undefined;
+    logoUrl?: string | undefined;
+  } | undefined;
+  catchup?: string | undefined;
+  catchupSource?: string | undefined;
+  catchupDays?: number | undefined;
+  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> | undefined;
 }
 
 const foldedLiveCatalogs = new WeakMap<CatalogItem[], CatalogItem[]>();
@@ -84,7 +84,7 @@ export function mapM3uCatalog(
     return playlist.entries.filter((entry) => entry.type === type).map((entry) => m3uEntryItem(entry, sourceName));
   }
   return [...getM3uSeriesGroups(playlist).entries()].map(([id, episodes]) => {
-    const first = episodes[0];
+    const first = episodes[0]!;
     const title = first.episode?.seriesTitle || first.title;
     const metadata = parseMediaTitle(title);
     return {
@@ -269,17 +269,17 @@ async function seriesFromXtream(source: EnabledXtreamSource, signal?: AbortSigna
   });
 }
 
-export function useLiveStreams(options?: { enabled?: boolean }) {
+export function useLiveStreams(options?: { enabled?: boolean | undefined }) {
   const sources = useEnabledSources();
   const streamFoldingEnabled = useSettingsStore((s) => s.streamFoldingEnabled);
   return useQuery({
     ...catalogQueryOptions('live', sources),
     enabled: sources.isAvailable && (options?.enabled ?? true),
-    select: streamFoldingEnabled ? selectFoldedLiveCatalog : undefined,
+    ...(streamFoldingEnabled ? { select: selectFoldedLiveCatalog } : {}),
   });
 }
 
-export function useVodStreams(options?: { enabled?: boolean }) {
+export function useVodStreams(options?: { enabled?: boolean | undefined }) {
   const sources = useEnabledSources();
   return useQuery({
     ...catalogQueryOptions('vod', sources),
@@ -287,7 +287,7 @@ export function useVodStreams(options?: { enabled?: boolean }) {
   });
 }
 
-export function useSeriesList(options?: { enabled?: boolean }) {
+export function useSeriesList(options?: { enabled?: boolean | undefined }) {
   const sources = useEnabledSources();
   return useQuery({
     ...catalogQueryOptions('series', sources),

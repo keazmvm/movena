@@ -29,7 +29,7 @@ import {
 import { useSourceStore } from '../src/store/useSourceStore';
 
 const userInfo: XCUserInfo = {
-  username: 'alice', password: 'must-not-persist', message: '', auth: 1, status: 'Active',
+  username: 'alice', password: 'not-persisted', message: '', auth: 1, status: 'Active',
   exp_date: '', is_trial: '0', active_cons: '0', created_at: '', max_connections: '1',
   allowed_output_formats: ['m3u8'],
 };
@@ -86,16 +86,16 @@ describe('multi-Xtream source state and credential boundary', () => {
     });
 
     useAuthStore.getState().promoteSourceServer(first.id, 'https://one-backup.test');
-    await vi.waitFor(() => expect(useAuthStore.getState().runtimes[first.id].credentials).toMatchObject({
+    await vi.waitFor(() => expect(useAuthStore.getState().runtimes[first.id]!.credentials).toMatchObject({
       url: 'https://one-backup.test', alternativeUrls: ['https://one.test'],
     }));
-    expect(useAuthStore.getState().runtimes[second.id].credentials?.url).toBe('https://two.test');
+    expect(useAuthStore.getState().runtimes[second.id]!.credentials?.url).toBe('https://two.test');
 
     await useAuthStore.getState().updateSource(second.id, {
       name: 'Two Edited', url: 'https://two-new.test', username: 'bob', password: 'new-two',
     });
     expect(useAuthStore.getState().profiles.find((profile) => profile.id === second.id)?.name).toBe('Two Edited');
-    expect(useAuthStore.getState().runtimes[first.id].credentials?.password).toBe('one');
+    expect(useAuthStore.getState().runtimes[first.id]!.credentials?.password).toBe('one');
   });
 
   it('stores a detected XMLTV override on only its owning Xtream source', async () => {
@@ -104,8 +104,8 @@ describe('multi-Xtream source state and credential boundary', () => {
 
     await useAuthStore.getState().setSourceEpgUrl(second.id, 'https://two.test/guide.xml');
 
-    expect(useAuthStore.getState().runtimes[first.id].credentials?.epgUrl).toBeUndefined();
-    expect(useAuthStore.getState().runtimes[second.id].credentials?.epgUrl).toBe('https://two.test/guide.xml');
+    expect(useAuthStore.getState().runtimes[first.id]!.credentials?.epgUrl).toBeUndefined();
+    expect(useAuthStore.getState().runtimes[second.id]!.credentials?.epgUrl).toBe('https://two.test/guide.xml');
     expect(repository.storeXtreamCredentials).toHaveBeenLastCalledWith(second.id, expect.objectContaining({
       epgUrl: 'https://two.test/guide.xml',
     }));
@@ -124,7 +124,7 @@ describe('multi-Xtream source state and credential boundary', () => {
 
     await useAuthStore.getState().initialize();
 
-    const profile = useAuthStore.getState().profiles[0];
+    const profile = useAuthStore.getState().profiles[0]!;
     expect(profile.id).toBe('xtream-legacy');
     expect(repository.storeXtreamCredentials).toHaveBeenCalledWith(profile.id, expect.objectContaining({ password: 'legacy-secret' }));
     expect(localStorage.getItem(XTREAM_PROFILES_STORAGE_KEY)).not.toContain('legacy-secret');
@@ -184,6 +184,6 @@ describe('multi-Xtream source state and credential boundary', () => {
 
     useAuthStore.getState().promoteSourceServer(source.id, 'https://backup.test');
     await vi.waitFor(() => expect(repository.storeXtreamCredentials).toHaveBeenCalledTimes(2));
-    await vi.waitFor(() => expect(useAuthStore.getState().runtimes[source.id].credentials?.url).toBe('https://one.test'));
+    await vi.waitFor(() => expect(useAuthStore.getState().runtimes[source.id]!.credentials?.url).toBe('https://one.test'));
   });
 });

@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const native = vi.hoisted(() => ({
   xmltvFetch: vi.fn(),
-  xmltvCacheCommit: vi.fn(),
 }));
 
 vi.mock('@tauri-apps/api/core', () => ({ isTauri: () => true }));
@@ -12,36 +11,33 @@ vi.mock('../src/api/ipc', () => ({ tauriApi: native }));
 
 import { fetchXmltvGuide } from '../src/api/xmltv';
 
-const VALID_XML = `<?xml version="1.0"?>
-<tv>
-  <channel id="one"><display-name>One</display-name></channel>
-  <programme channel="one" start="20260812120000 +0200" stop="20260812130000 +0200">
-    <title>News</title>
-  </programme>
-</tv>`;
-
 beforeEach(() => {
   vi.clearAllMocks();
-  native.xmltvCacheCommit.mockResolvedValue(undefined);
 });
 
-describe('validated XMLTV disk caching', () => {
-  it('commits a native download only after parsing succeeds', async () => {
-    native.xmltvFetch.mockResolvedValue({ content: VALID_XML, cacheKey: '0123456789abcdef' });
+describe('native XMLTV payload hydration', () => {
+  it('rebuilds frontend indexes from the normalized native payload', async () => {
+    native.xmltvFetch.mockResolvedValue({
+      channels: [{ id: 'one', names: ['One'] }],
+      programmeGroups: [{
+        channelId: 'one',
+        programmes: [{
+          start: 1_786_535_200_000,
+          end: 1_786_538_800_000,
+          title: 'News',
+          description: '',
+        }],
+      }],
+    });
 
     await expect(fetchXmltvGuide('https://guide.test/epg.xml')).resolves.toMatchObject({
       programmeCount: 1,
+      channelCount: 1,
     });
-    expect(native.xmltvCacheCommit).toHaveBeenCalledWith('0123456789abcdef');
   });
 
-  it('does not commit malformed guide data', async () => {
-    native.xmltvFetch.mockResolvedValue({
-      content: '<tv><programme></tv>',
-      cacheKey: '0123456789abcdef',
-    });
-
+  it('propagates native validation failures without a webview commit step', async () => {
+    native.xmltvFetch.mockRejectedValue(new Error('The guide is not valid XML.'));
     await expect(fetchXmltvGuide('https://guide.test/broken.xml')).rejects.toThrow('not valid XML');
-    expect(native.xmltvCacheCommit).not.toHaveBeenCalled();
   });
 });

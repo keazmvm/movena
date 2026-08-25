@@ -6,7 +6,7 @@ export interface M3uEpisodeIdentity {
   seriesTitle: string;
   seasonNumber: number;
   episodeNumber: number;
-  episodeTitle?: string;
+  episodeTitle?: string | undefined;
 }
 
 export interface M3uEntry {
@@ -18,49 +18,49 @@ export interface M3uEntry {
   duration: number;
   groupTitle: string;
   categoryId: string;
-  tvgId?: string;
-  tvgName?: string;
-  logo?: string;
-  channelNumber?: string;
-  description?: string;
-  year?: string;
-  rating?: number;
+  tvgId?: string | undefined;
+  tvgName?: string | undefined;
+  logo?: string | undefined;
+  channelNumber?: string | undefined;
+  description?: string | undefined;
+  year?: string | undefined;
+  rating?: number | undefined;
   headers: Record<string, string>;
   /** Effective source headers that are runtime-only and must never be exported. */
-  inheritedHeaderNames?: string[];
-  catchup?: string;
-  catchupSource?: string;
-  catchupDays?: number;
-  radio?: boolean;
-  radioMetadata?: ReturnType<typeof normalizeRadioDisplayMetadata>;
-  episode?: M3uEpisodeIdentity;
+  inheritedHeaderNames?: string[] | undefined;
+  catchup?: string | undefined;
+  catchupSource?: string | undefined;
+  catchupDays?: number | undefined;
+  radio?: boolean | undefined;
+  radioMetadata?: ReturnType<typeof normalizeRadioDisplayMetadata> | undefined;
+  episode?: M3uEpisodeIdentity | undefined;
   /** Vendor attributes that Movena does not interpret but must preserve. */
-  extraAttributes?: Record<string, string>;
+  extraAttributes?: Record<string, string> | undefined;
   /** Entry-scoped directives/comments that Movena does not interpret. */
-  extraDirectives?: string[];
+  extraDirectives?: string[] | undefined;
 }
 
 export interface M3uPlaylist {
-  name?: string;
+  name?: string | undefined;
   epgUrls: string[];
   entries: M3uEntry[];
   warnings: string[];
   /** Header attributes and top-level directives preserved for lossless editing. */
-  extraHeaderAttributes?: Record<string, string>;
-  extraDirectives?: string[];
+  extraHeaderAttributes?: Record<string, string> | undefined;
+  extraDirectives?: string[] | undefined;
 }
 
 export interface ParseM3uOptions {
   sourceId: string;
-  baseUrl?: string;
-  headers?: Record<string, string>;
+  baseUrl?: string | undefined;
+  headers?: Record<string, string> | undefined;
 }
 
 interface PendingEntry {
   duration: number;
   title: string;
   attributes: Record<string, string>;
-  groupTitle?: string;
+  groupTitle?: string | undefined;
   headers: Record<string, string>;
   directives: string[];
 }
@@ -97,7 +97,8 @@ function parseAttributes(value: string): Record<string, string> {
   ATTRIBUTE_PATTERN.lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = ATTRIBUTE_PATTERN.exec(value))) {
-    attributes[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? '';
+    const name = match[1];
+    if (name) attributes[name.toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? '';
   }
   return attributes;
 }
@@ -130,7 +131,7 @@ function canonicalHeaderName(value: string): string | null {
   if (key === 'origin' || key === 'http-origin') return 'Origin';
   if (key === 'cookie' || key === 'http-cookie') return 'Cookie';
   if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(key)) {
-    return key.split('-').map((part) => part ? `${part[0].toUpperCase()}${part.slice(1)}` : part).join('-');
+    return key.split('-').map((part) => part ? `${part[0]!.toUpperCase()}${part.slice(1)}` : part).join('-');
   }
   return null;
 }
@@ -173,7 +174,7 @@ function resolveEntryUrl(rawValue: string, baseUrl?: string): { url: string; hea
 }
 
 function titleFromUrl(value: string): string {
-  const withoutQuery = value.split(/[?#]/, 1)[0];
+  const withoutQuery = value.split(/[?#]/, 1)[0] ?? '';
   const finalPart = withoutQuery.split(/[\\/]/).filter(Boolean).at(-1) ?? 'Untitled stream';
   try {
     return decodeURIComponent(finalPart).replace(/\.[^.]+$/, '').replace(/[._]+/g, ' ').trim() || 'Untitled stream';
@@ -190,7 +191,7 @@ export function parseM3uEpisodeTitle(title: string): M3uEpisodeIdentity | undefi
   for (const pattern of patterns) {
     const match = pattern.exec(title.trim());
     if (!match) continue;
-    const seriesTitle = match[1].replace(/[._]+/g, ' ').replace(/[\s_-]+$/, '').trim();
+    const seriesTitle = (match[1] ?? '').replace(/[._]+/g, ' ').replace(/[\s_-]+$/, '').trim();
     if (!seriesTitle) return undefined;
     const episodeTitle = match[4]?.replace(/[._]+/g, ' ').replace(/^[\s_-]+/, '').trim();
     return {
@@ -329,7 +330,7 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
   const extraDirectives: string[] = [];
 
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-    const line = lines[lineIndex].trim();
+    const line = lines[lineIndex]?.trim();
     if (!line) continue;
 
     if (line.toUpperCase().startsWith('#PLAYLIST:')) {
@@ -339,7 +340,7 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
     if (line.toUpperCase().startsWith('#EXTINF:')) {
       if (pending) warnings.push(`Entry near line ${lineIndex + 1} has no media URL`);
       const split = splitExtinf(line.slice(line.indexOf(':') + 1));
-      const durationToken = split.metadata.trim().split(/\s+/, 1)[0];
+      const durationToken = split.metadata.trim().split(/\s+/, 1)[0] ?? '';
       const duration = Number.parseFloat(durationToken);
       pending = {
         duration: Number.isFinite(duration) ? duration : -1,
@@ -437,13 +438,13 @@ export function getM3uSeriesGroups(playlist: M3uPlaylist): Map<string, M3uEntry[
 }
 
 export interface GenerateM3uOptions {
-  name?: string;
-  epgUrls?: string[];
+  name?: string | undefined;
+  epgUrls?: string[] | undefined;
   entries: M3uEntry[];
-  extraHeaderAttributes?: Record<string, string>;
-  extraDirectives?: string[];
+  extraHeaderAttributes?: Record<string, string> | undefined;
+  extraDirectives?: string[] | undefined;
   /** Set false when exporting a normalized playlist without vendor metadata. */
-  preserveUnknownTags?: boolean;
+  preserveUnknownTags?: boolean | undefined;
 }
 
 function quotedAttribute(name: string, value: string): string {

@@ -6,8 +6,8 @@ import {
 
 interface ParseResponse {
   id: number;
-  playlist?: M3uPlaylist;
-  error?: string;
+  playlist?: M3uPlaylist | undefined;
+  error?: string | undefined;
 }
 
 interface PendingParse {
@@ -30,7 +30,7 @@ function rejectPending(error: Error): void {
 
 function getParserWorker(): Worker | null {
   if (parserWorker) return parserWorker;
-  if (typeof Worker === 'undefined' || import.meta.env.MODE === 'test') return null;
+  if (typeof Worker === 'undefined') return null;
 
   try {
     const worker = new Worker(new URL('../workers/m3uParser.worker.ts', import.meta.url), { type: 'module' });
@@ -51,6 +51,14 @@ function getParserWorker(): Worker | null {
   } catch {
     return null;
   }
+}
+
+/** Clears adapter state between isolated tests without exposing worker details to callers. */
+export function resetM3uParserWorkerForTests(): void {
+  parserWorker?.terminate();
+  parserWorker = null;
+  pendingParses.clear();
+  nextRequestId = 1;
 }
 
 /** Parses large provider playlists without blocking the React/webview event

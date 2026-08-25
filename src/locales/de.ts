@@ -80,6 +80,7 @@ export const DE_MESSAGES: Record<string, string> = {
   'Expand sidebar': 'Seitenleiste ausklappen',
   'Collapse sidebar': 'Seitenleiste einklappen',
   'Resize sidebar. Use left and right arrows; Home resets.': 'Größe der Seitenleiste ändern. Verwenden Sie die Pfeiltasten; Pos1 setzt sie zurück.',
+  'Resize Developer HUD. Use arrow keys; Home resets.': 'Entwickler-HUD skalieren. Verwenden Sie die Pfeiltasten; Pos1 setzt die Größe zurück.',
   'Close details': 'Details schließen',
   'Close Player': 'Player schließen',
   'Close shortcuts': 'Tastenkürzel schließen',
@@ -372,6 +373,8 @@ export const DE_MESSAGES: Record<string, string> = {
 
   // Player
   'Playback Interrupted': 'Wiedergabe unterbrochen',
+  'Twitch ad blocked': 'Twitch-Werbung blockiert',
+  'Live video resumes automatically.': 'Das Livevideo wird automatisch fortgesetzt.',
   'Reconnect': 'Neu verbinden',
   'Radio playback': 'Radiowiedergabe',
   'RADIO': 'RADIO',

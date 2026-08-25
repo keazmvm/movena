@@ -1,4 +1,4 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../api/desktop';
 import { deleteM3uCache, loadM3uCache, storeM3uCache } from './m3uRepository';
 
 const browserStorage = new Map<string, string>();
@@ -23,13 +23,13 @@ function storageKey(namespace: string, sourceId: string): string {
  */
 export async function loadM3uEditorState(namespace: string, sourceId: string): Promise<string | null> {
   const key = storageKey(namespace, sourceId);
-  if (!isTauri()) return browserStorage.get(key) ?? null;
+  if (!desktopApi.isDesktop()) return browserStorage.get(key) ?? null;
   return (await loadM3uCache(key))?.content ?? null;
 }
 
 export async function storeM3uEditorState(namespace: string, sourceId: string, content: string): Promise<void> {
   const key = storageKey(namespace, sourceId);
-  if (!isTauri()) {
+  if (!desktopApi.isDesktop()) {
     browserStorage.set(key, content);
     return;
   }
@@ -39,7 +39,7 @@ export async function storeM3uEditorState(namespace: string, sourceId: string, c
 export async function deleteM3uEditorState(namespace: string, sourceId: string): Promise<void> {
   const key = storageKey(namespace, sourceId);
   browserStorage.delete(key);
-  if (isTauri()) await deleteM3uCache(key);
+  if (desktopApi.isDesktop()) await deleteM3uCache(key);
 }
 
 export function resetM3uEditorStorageMemoryForTests(): void {

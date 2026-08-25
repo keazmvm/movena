@@ -16,7 +16,7 @@ interface SourcesSettingsSectionProps {
   onAddSource: () => void;
   onEditXtream: (sourceId: string) => void;
   onEditM3u: (sourceId: string) => void;
-  onOpenM3uEditor?: (sourceId?: string) => void;
+  onOpenM3uEditor?: ((sourceId?: string) => void) | undefined;
 }
 
 type RemoveTarget =

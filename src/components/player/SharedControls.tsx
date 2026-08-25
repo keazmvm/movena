@@ -112,7 +112,7 @@ export function AudioPopover() {
   const setAudioDelay = (value: number) => {
     const next = Number.isFinite(value) ? Math.max(-5000, Math.min(5000, value)) : 0;
     updateSetting('audioDelayMs', next);
-    void tauriApi.mpvCommand(['set', 'audio-delay', String(next / 1000)]).catch((error: unknown) => {
+    void tauriApi.mpvSetProperty({ property: 'audio-delay', value: next / 1000 }).catch((error: unknown) => {
       notify.error('Audio Sync Failed', getUserFacingErrorMessage(error, 'Could not change the audio delay.'));
     });
   };
@@ -230,15 +230,14 @@ export function SubtitlePopover() {
   };
 
   const setSubtitleStyle = (key: 'subtitleFontSize' | 'subtitleOpacity', value: number) => {
-    const limits = key === 'subtitleFontSize' ? [12, 96] : [0, 100];
+    const limits = key === 'subtitleFontSize' ? [12, 96] as const : [0, 100] as const;
     const next = Math.max(limits[0], Math.min(limits[1], value));
     updateSetting(key, next);
-    const property = key === 'subtitleFontSize' ? 'sub-font-size' : 'sub-color';
-    const nativeValue = key === 'subtitleFontSize'
-      ? String(next)
-      : `#FFFFFF${Math.round(next * 2.55).toString(16).padStart(2, '0')}`;
-    void tauriApi.mpvCommand(['set', property, nativeValue]).catch((error: unknown) => {
-      notify.error('Subtitle Style Failed', getUserFacingErrorMessage(error, `Could not set ${property} to ${nativeValue}.`));
+    const update = key === 'subtitleFontSize'
+      ? { property: 'sub-font-size' as const, value: next }
+      : { property: 'sub-color' as const, value: `#FFFFFF${Math.round(next * 2.55).toString(16).padStart(2, '0')}` };
+    void tauriApi.mpvSetProperty(update).catch((error: unknown) => {
+      notify.error('Subtitle Style Failed', getUserFacingErrorMessage(error, 'Could not update the subtitle style.'));
     });
   };
 

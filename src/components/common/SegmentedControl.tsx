@@ -1,28 +1,25 @@
-import type { ComponentType } from 'react';
+import type { ReactNode } from 'react';
 import { useI18n } from '../../i18n';
 import styles from './SegmentedControl.module.css';
 
-type SegmentedIcon = ComponentType<{
-  size?: number | string;
-  className?: string;
-}>;
+type SegmentedIcon = (props: { size: number | string; className: string }) => ReactNode;
 
 export interface SegmentedOption<T extends string | number> {
   value: T;
   label: string;
-  icon?: SegmentedIcon;
+  icon?: SegmentedIcon | undefined;
   /** Optional purpose-designed selected-state counterpart to `icon`. */
-  activeIcon?: SegmentedIcon;
+  activeIcon?: SegmentedIcon | undefined;
 }
 
 interface SegmentedControlProps<T extends string | number> {
   options: SegmentedOption<T>[];
   value: T;
   onChange: (value: T) => void;
-  disabled?: boolean;
-  size?: 'sm' | 'md';
-  className?: string;
-  ariaLabel?: string;
+  disabled?: boolean | undefined;
+  size?: 'sm' | 'md' | undefined;
+  className?: string | undefined;
+  ariaLabel?: string | undefined;
 }
 
 export function SegmentedControl<T extends string | number>({
@@ -41,14 +38,16 @@ export function SegmentedControl<T extends string | number>({
     const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
     const current = options.findIndex((option) => option.value === value);
     const next = (current + direction + options.length) % options.length;
-    onChange(options[next].value);
+    const nextOption = options[next];
+    if (!nextOption) return;
+    onChange(nextOption.value);
     const buttons = event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]');
     buttons[next]?.focus();
   };
 
   return (
     <div
-      className={`${styles.container} ${styles[size]} ${disabled ? styles.disabled : ''} ${className}`}
+      className={`${styles.container} ${styles[size] ?? ''} ${disabled ? styles.disabled : ''} ${className}`}
       role="radiogroup"
       aria-label={ariaLabel ? t(ariaLabel) : undefined}
       onKeyDown={handleKeyDown}
@@ -68,7 +67,7 @@ export function SegmentedControl<T extends string | number>({
             tabIndex={isActive ? 0 : -1}
           >
             {Icon && (
-              <Icon size={size === 'sm' ? 13 : 14} className={styles.icon} />
+              <Icon size={size === 'sm' ? 13 : 14} className={styles.icon ?? ''} />
             )}
             <span className={styles.label}>{t(opt.label)}</span>
           </button>

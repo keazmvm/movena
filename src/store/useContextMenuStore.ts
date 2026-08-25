@@ -5,15 +5,15 @@ export interface ContextMenuItem {
   id: string;
   label: string;
   /** False for provider- or user-authored labels that must remain verbatim. */
-  localize?: boolean;
-  icon?: ReactNode;
-  shortcut?: string;
-  danger?: boolean;
-  checked?: boolean;
-  disabled?: boolean;
-  isDivider?: boolean;
-  action?: () => void;
-  submenu?: ContextMenuItem[];
+  localize?: boolean | undefined;
+  icon?: ReactNode | undefined;
+  shortcut?: string | undefined;
+  danger?: boolean | undefined;
+  checked?: boolean | undefined;
+  disabled?: boolean | undefined;
+  isDivider?: boolean | undefined;
+  action?: (() => void) | undefined;
+  submenu?: ContextMenuItem[] | undefined;
 }
 
 interface ContextMenuStore {
@@ -26,7 +26,7 @@ interface ContextMenuStore {
     x: number,
     y: number,
     items: ContextMenuItem[],
-    options?: { focusOnOpen?: boolean },
+    options?: { focusOnOpen?: boolean | undefined },
   ) => void;
   closeContextMenu: () => void;
 }

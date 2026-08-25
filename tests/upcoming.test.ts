@@ -80,8 +80,8 @@ describe('upcoming release dates', () => {
 
     const grouped = groupUpcomingReleases(releases);
     expect(grouped).toHaveLength(1);
-    expect(grouped[0].episodeCount).toBe(3);
-    expect(grouped[0].summarySubtitle).toBe('S4 E1–E10 · 3 episodes');
+    expect(grouped[0]!.episodeCount).toBe(3);
+    expect(grouped[0]!.summarySubtitle).toBe('S4 E1–E10 · 3 episodes');
   });
 
   it('does not repeat the episode count when episode numbers are unavailable', () => {
@@ -90,7 +90,7 @@ describe('upcoming release dates', () => {
       { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'One', seasonNumber: null, episodeNumber: null, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const },
       { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'Two', seasonNumber: null, episodeNumber: null, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const },
     ]);
-    expect(grouped[0].summarySubtitle).toBe('2 episodes');
+    expect(grouped[0]!.summarySubtitle).toBe('2 episodes');
   });
 
   it('groups releases into chronological horizons', () => {

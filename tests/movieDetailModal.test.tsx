@@ -155,7 +155,7 @@ describe('<MovieDetailModal />', () => {
     await user.click(favBtn);
 
     expect(useLibraryStore.getState().favorites).toHaveLength(1);
-    expect(useLibraryStore.getState().favorites[0].id).toBe('movie-123');
+    expect(useLibraryStore.getState().favorites[0]!.id).toBe('movie-123');
   });
 
   it('renders error state and retries fetch on Try Again click', async () => {

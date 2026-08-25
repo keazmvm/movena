@@ -5,6 +5,7 @@ import { useI18n } from '../../i18n';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import {
   exactTimestampDate,
+  episodeScheduleKey,
   groupUpcomingReleases,
   localCalendarDate,
   releaseCountdown,
@@ -18,11 +19,7 @@ import styles from '../modals/SeriesDetailModal.module.css';
 interface SeriesUpcomingEpisodesProps {
   seriesId: string;
   availableEpisodeKeys: ReadonlySet<string>;
-  onViewSchedule?: () => void;
-}
-
-export function episodeScheduleKey(seasonNumber: number | string, episodeNumber: number | string): string {
-  return `${Number(seasonNumber)}:${Number(episodeNumber)}`;
+  onViewSchedule?: (() => void) | undefined;
 }
 
 export function SeriesUpcomingEpisodes({
@@ -79,7 +76,7 @@ export function SeriesUpcomingEpisodes({
               : releaseCountdown(group.airDate, now))
             : releaseStatusLabel(group, now);
           const episodeCode = group.episodeCount > 1
-            ? group.summarySubtitle.split(' · ')[0]
+            ? group.summarySubtitle.split(' · ')[0] ?? group.summarySubtitle
             : primary.seasonNumber !== null && primary.episodeNumber !== null
               ? `S${primary.seasonNumber} E${primary.episodeNumber}`
               : t('Next episode');

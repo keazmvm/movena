@@ -6,7 +6,7 @@ import { useSourceStore } from '../store/useSourceStore';
 import { playableFromMediaItem } from '../utils/playback';
 
 export interface UseMediaDetailStateOptions {
-  enableSourceOnOpen?: boolean;
+  enableSourceOnOpen?: boolean | undefined;
 }
 
 export function useMediaDetailState(options: UseMediaDetailStateOptions = {}) {

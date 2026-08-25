@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  accessibleAccentForeground,
   accentHoverColor,
+  contrastRatio,
   contrastingTextColor,
   DARK_CONTRAST_TEXT,
   isLightColor,
@@ -28,5 +30,12 @@ describe('color contrast helpers', () => {
     expect(relativeLuminance(accentHoverColor('#0672e5'))!).toBeGreaterThan(relativeLuminance('#0672e5')!);
     expect(relativeLuminance(accentHoverColor('#ffcc00'))!).toBeLessThan(relativeLuminance('#ffcc00')!);
     expect(accentHoverColor('not-a-color')).toBe('not-a-color');
+  });
+
+  it('lifts arbitrary dark accents into an accessible text foreground', () => {
+    for (const accent of ['#0672e5', '#31104a', '#000000', '#ff9500']) {
+      const foreground = accessibleAccentForeground(accent);
+      expect(contrastRatio(foreground, '#1b222d')).toBeGreaterThanOrEqual(5.5);
+    }
   });
 });

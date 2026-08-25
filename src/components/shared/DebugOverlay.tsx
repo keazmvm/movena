@@ -1,5 +1,14 @@
-import { useCallback, useMemo, useState, useSyncExternalStore } from 'react';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity,
   Check,
@@ -29,45 +38,81 @@ import styles from './DebugOverlay.module.css';
 import { MOTION_DURATION, MOTION_EASE } from '../../design/motion';
 import { getDisplayTitle } from '../../utils/titleParser';
 import { useI18n } from '../../i18n';
+import {
+  formatBitrate,
+  formatByteRate,
+  formatDebugTime as formatTime,
+  formatMilliseconds,
+  formatSignedMilliseconds,
+  playerPhase,
+  searchableDetails,
+  type DebugTab,
+} from './debugOverlayModel';
 
-type DebugTab = 'overview' | 'logs' | 'network' | 'player' | 'state';
+const HUD_DEFAULT_WIDTH = 680;
+const HUD_DEFAULT_HEIGHT = 520;
+const HUD_MIN_WIDTH = 480;
+const HUD_MIN_HEIGHT = 360;
+const HUD_VIEWPORT_MARGIN = 12;
+const HUD_KEYBOARD_STEP = 16;
 
-function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return '—';
-  const wholeSeconds = Math.floor(seconds);
-  const hours = Math.floor(wholeSeconds / 3600);
-  const minutes = Math.floor((wholeSeconds % 3600) / 60);
-  const remainingSeconds = wholeSeconds % 60;
-  return hours > 0
-    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
-    : `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+interface HudGeometry {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
-type NumberFormatter = (value: number, options?: Intl.NumberFormatOptions) => string;
-
-function formatMilliseconds(value: number | null | undefined, number: NumberFormatter): string {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-  return value >= 1000
-    ? `${number(value / 1000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s`
-    : `${number(Math.round(value))} ms`;
+interface HudPointerOperation {
+  kind: 'move' | 'resize';
+  pointerId: number;
+  clientX: number;
+  clientY: number;
+  geometry: HudGeometry;
 }
 
-function formatBitrate(bitsPerSecond: number | undefined, number: NumberFormatter): string {
-  if (typeof bitsPerSecond !== 'number' || !Number.isFinite(bitsPerSecond)) return '—';
-  if (bitsPerSecond >= 1_000_000) return `${number(bitsPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mbps`;
-  return `${number(Math.round(bitsPerSecond / 1000))} kbps`;
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(Math.max(value, minimum), maximum);
 }
 
-function formatByteRate(bytesPerSecond: number | undefined, number: NumberFormatter): string {
-  if (typeof bytesPerSecond !== 'number' || !Number.isFinite(bytesPerSecond)) return '—';
-  if (bytesPerSecond >= 1_000_000) return `${number(bytesPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB/s`;
-  return `${number(Math.round(bytesPerSecond / 1000))} kB/s`;
+function viewportSize(): { width: number; height: number } {
+  return {
+    width: document.documentElement.clientWidth || window.innerWidth,
+    height: document.documentElement.clientHeight || window.innerHeight,
+  };
 }
 
-function formatSignedMilliseconds(seconds: number | undefined, number: NumberFormatter): string {
-  if (typeof seconds !== 'number' || !Number.isFinite(seconds)) return '—';
-  const milliseconds = seconds * 1000;
-  return `${milliseconds > 0 ? '+' : ''}${number(milliseconds, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ms`;
+function fitHudGeometry(geometry: HudGeometry): HudGeometry {
+  const viewport = viewportSize();
+  const availableWidth = Math.max(1, viewport.width - HUD_VIEWPORT_MARGIN * 2);
+  const availableHeight = Math.max(1, viewport.height - HUD_VIEWPORT_MARGIN * 2);
+  const width = clamp(geometry.width, Math.min(HUD_MIN_WIDTH, availableWidth), availableWidth);
+  const height = clamp(geometry.height, Math.min(HUD_MIN_HEIGHT, availableHeight), availableHeight);
+
+  return {
+    width,
+    height,
+    x: clamp(
+      geometry.x,
+      HUD_VIEWPORT_MARGIN,
+      Math.max(HUD_VIEWPORT_MARGIN, viewport.width - width - HUD_VIEWPORT_MARGIN),
+    ),
+    y: clamp(
+      geometry.y,
+      HUD_VIEWPORT_MARGIN,
+      Math.max(HUD_VIEWPORT_MARGIN, viewport.height - height - HUD_VIEWPORT_MARGIN),
+    ),
+  };
+}
+
+function initialHudGeometry(): HudGeometry {
+  const viewport = viewportSize();
+  return fitHudGeometry({
+    width: HUD_DEFAULT_WIDTH,
+    height: HUD_DEFAULT_HEIGHT,
+    x: (viewport.width - HUD_DEFAULT_WIDTH) / 2,
+    y: (viewport.height - HUD_DEFAULT_HEIGHT) / 2,
+  });
 }
 
 function Sparkline({
@@ -112,19 +157,6 @@ function Sparkline({
   );
 }
 
-function playerPhase(player: ReturnType<typeof usePlayerStore.getState>): string {
-  if (!player.activeStream) return 'Idle';
-  if (player.eofReached) return 'Ended';
-  if (!player.isVideoReady) return 'Starting';
-  if (player.isBuffering) return 'Buffering';
-  return player.isPlaying ? 'Playing' : 'Paused';
-}
-
-function searchableDetails(log: LogEntry): string {
-  if (log.details === undefined || log.details === null) return '';
-  return typeof log.details === 'string' ? log.details : JSON.stringify(log.details);
-}
-
 export function DebugOverlay() {
   const { t, tn, number, time } = useI18n();
   const settings = useSettingsStore();
@@ -146,7 +178,15 @@ export function DebugOverlay() {
   const [expandedRequests, setExpandedRequests] = useState<Set<string>>(() => new Set());
   const [pausedLogs, setPausedLogs] = useState<LogEntry[] | null>(null);
   const [copiedReport, setCopiedReport] = useState(false);
-  const windowDragControls = useDragControls();
+  const [hudGeometry, setHudGeometry] = useState(initialHudGeometry);
+  const [pointerOperation, setPointerOperation] = useState<HudPointerOperation['kind'] | null>(null);
+  const pointerOperationRef = useRef<HudPointerOperation | null>(null);
+
+  useEffect(() => {
+    const handleViewportResize = () => setHudGeometry((current) => fitHudGeometry(current));
+    window.addEventListener('resize', handleViewportResize);
+    return () => window.removeEventListener('resize', handleViewportResize);
+  }, []);
 
   useGlobalDebugCapture(settings.debugMode);
 
@@ -339,6 +379,68 @@ export function DebugOverlay() {
     setPausedLogs((current) => (current ? null : [...logs]));
   };
 
+  const startPointerOperation = (
+    kind: HudPointerOperation['kind'],
+    event: PointerEvent<HTMLElement>,
+  ) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointerOperationRef.current = {
+      kind,
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      geometry: hudGeometry,
+    };
+    setPointerOperation(kind);
+  };
+
+  const handlePointerOperationMove = (event: PointerEvent<HTMLElement>) => {
+    const operation = pointerOperationRef.current;
+    if (!operation || operation.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    const deltaX = event.clientX - operation.clientX;
+    const deltaY = event.clientY - operation.clientY;
+
+    setHudGeometry(fitHudGeometry(operation.kind === 'move'
+      ? {
+          ...operation.geometry,
+          x: operation.geometry.x + deltaX,
+          y: operation.geometry.y + deltaY,
+        }
+      : {
+          ...operation.geometry,
+          width: operation.geometry.width + deltaX,
+          height: operation.geometry.height + deltaY,
+        }));
+  };
+
+  const endPointerOperation = (event: PointerEvent<HTMLElement>) => {
+    const operation = pointerOperationRef.current;
+    if (!operation || operation.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    pointerOperationRef.current = null;
+    setPointerOperation(null);
+  };
+
+  const handleResizeKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(event.key)) return;
+    event.preventDefault();
+    const step = event.shiftKey ? HUD_KEYBOARD_STEP * 2 : HUD_KEYBOARD_STEP;
+    setHudGeometry((current) => fitHudGeometry({
+      ...current,
+      width: event.key === 'Home'
+        ? HUD_DEFAULT_WIDTH
+        : current.width + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0),
+      height: event.key === 'Home'
+        ? HUD_DEFAULT_HEIGHT
+        : current.height + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0),
+    }));
+  };
+
   const categoryOptions = [
     { label: 'All Categories', value: 'all' },
     { label: 'API', value: 'api' },
@@ -387,18 +489,28 @@ export function DebugOverlay() {
   return (
     <AnimatePresence>
       <motion.div
-        drag
-        dragControls={windowDragControls}
-        dragListener={false}
-        dragMomentum={false}
         className={styles.debugOverlayWindow}
+        style={{
+          left: hudGeometry.x,
+          top: hudGeometry.y,
+          width: hudGeometry.width,
+          height: hudGeometry.height,
+        }}
+        data-pointer-operation={pointerOperation ?? undefined}
         initial={{ opacity: 0, y: 16, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.96 }}
         transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.standard }}
+        role="region"
         aria-label={t('Developer HUD')}
       >
-        <div className={styles.header} onPointerDown={(event) => windowDragControls.start(event)}>
+        <div
+          className={styles.header}
+          onPointerDown={(event) => startPointerOperation('move', event)}
+          onPointerMove={handlePointerOperationMove}
+          onPointerUp={endPointerOperation}
+          onPointerCancel={endPointerOperation}
+        >
           <div className={styles.headerTitle}>
             <Activity size={15} />
             <span>{t('Developer HUD')}</span>
@@ -769,6 +881,22 @@ export function DebugOverlay() {
             </pre>
           )}
         </div>
+
+        <button
+          type="button"
+          className={styles.resizeHandle}
+          onPointerDown={(event) => startPointerOperation('resize', event)}
+          onPointerMove={handlePointerOperationMove}
+          onPointerUp={endPointerOperation}
+          onPointerCancel={endPointerOperation}
+          onKeyDown={handleResizeKeyDown}
+          onDoubleClick={() => setHudGeometry((current) => fitHudGeometry({
+            ...current,
+            width: HUD_DEFAULT_WIDTH,
+            height: HUD_DEFAULT_HEIGHT,
+          }))}
+          aria-label={t('Resize Developer HUD. Use arrow keys; Home resets.')}
+        />
       </motion.div>
     </AnimatePresence>
   );

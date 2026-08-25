@@ -1,12 +1,14 @@
-/** Preserves the concrete failure reported by fetch, Tauri IPC, and plugins. */
-export function getErrorMessage(error: unknown, fallback: string): string {
+import { redactDiagnosticText, redactDiagnosticValue } from './redact';
+
+/** Extracts the concrete failure reported by fetch, Tauri IPC, and plugins. */
+function getRawErrorMessage(error: unknown, fallback: string): string {
   if (typeof error === 'string' && error.trim()) return error;
   if (error instanceof Error && error.message.trim()) return error.message;
 
   if (error && typeof error === 'object' && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
+    const message = (error as { message?: unknown | undefined }).message;
     if (typeof message === 'string' && message.trim()) {
-      const code = 'code' in error ? (error as { code?: unknown }).code : undefined;
+      const code = 'code' in error ? (error as { code?: unknown | undefined }).code : undefined;
       if ((typeof code === 'string' || typeof code === 'number') && !message.includes(String(code))) {
         return `${String(code)}: ${message}`;
       }
@@ -16,7 +18,9 @@ export function getErrorMessage(error: unknown, fallback: string): string {
 
   if (error !== null && error !== undefined && typeof error !== 'string') {
     try {
-      const serialized = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      const serialized = typeof error === 'object'
+        ? JSON.stringify(redactDiagnosticValue(error))
+        : String(error);
       if (serialized?.trim()) return serialized;
     } catch {
       const stringified = String(error);
@@ -27,8 +31,13 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+/** Returns useful failure detail without exposing URLs, paths, or credentials. */
+export function getErrorMessage(error: unknown, fallback: string): string {
+  return redactDiagnosticText(getRawErrorMessage(error, fallback));
+}
+
 /**
- * Returns the original error for visible form messages and notifications.
+ * Returns a privacy-safe error for visible form messages and notifications.
  * The fallback is used only when the failure did not provide any usable text.
  */
 export function getUserFacingErrorMessage(error: unknown, fallback: string): string {
@@ -49,15 +58,14 @@ export interface ErrorPresentation {
   description: string;
   kind: 'offline' | 'timeout' | 'authentication' | 'configuration' | 'server' | 'invalid-response' | 'unknown';
   /**
-   * Exact, untranslated error text shown alongside the friendly localized copy.
-   * This deliberately keeps provider, network, IPC, and URL details intact.
+   * Privacy-safe, untranslated error text shown alongside the friendly copy.
    */
   detail: string | null;
 }
 
 function titleSubject(subject: string): string {
   const trimmed = subject.trim();
-  return trimmed ? `${trimmed[0].toLocaleUpperCase()}${trimmed.slice(1)}` : 'Content';
+  return trimmed ? `${trimmed[0]!.toLocaleUpperCase()}${trimmed.slice(1)}` : 'Content';
 }
 
 function getHttpStatus(message: string): number | null {
@@ -69,12 +77,12 @@ function getHttpStatus(message: string): number | null {
 
 /** Adds friendly context without replacing the low-level failure. */
 export function getErrorPresentation(error: unknown, subject: string): ErrorPresentation {
-  const rawMessage = getErrorMessage(error, '');
+  const rawMessage = getRawErrorMessage(error, '');
   const message = rawMessage.toLowerCase();
   const httpStatus = getHttpStatus(rawMessage);
   const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
   const headingSubject = titleSubject(subject);
-  const detail = rawMessage || null;
+  const detail = rawMessage ? redactDiagnosticText(rawMessage) : null;
 
   if (offline || /failed to fetch|networkerror|network error|load failed|offline|connection refused|econnrefused|enotfound|dns|network unreachable|connection reset/.test(message)) {
     return {
@@ -142,7 +150,7 @@ export function getErrorPresentation(error: unknown, subject: string): ErrorPres
 /** React Query retry policy: retry transient transport/server failures, never cancellations or account failures. */
 export function shouldRetryQuery(failureCount: number, error: unknown): boolean {
   if (failureCount >= 2) return false;
-  const rawMessage = getErrorMessage(error, '');
+  const rawMessage = getRawErrorMessage(error, '');
   const message = rawMessage.toLowerCase();
   const httpStatus = getHttpStatus(rawMessage);
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;

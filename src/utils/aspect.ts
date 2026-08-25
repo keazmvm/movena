@@ -20,10 +20,10 @@ export type AspectMode =
  * - `video-unscaled`         yes shows the source at its native pixel size
  */
 export interface AspectSettings {
-  'video-aspect-override': string;
-  keepaspect: string;
-  panscan: string;
-  'video-unscaled': string;
+  'video-aspect-override': '-2' | '16:9' | '4:3' | '1:1' | '5:4';
+  keepaspect: 'yes' | 'no';
+  panscan: '0' | '1';
+  'video-unscaled': 'yes' | 'no';
 }
 
 interface AspectOption {
@@ -33,7 +33,7 @@ interface AspectOption {
   settings: AspectSettings;
 }
 
-const fit = (aspect: string): AspectSettings => ({
+const fit = (aspect: AspectSettings['video-aspect-override']): AspectSettings => ({
   'video-aspect-override': aspect,
   keepaspect: 'yes',
   panscan: '0',
@@ -78,9 +78,9 @@ export const ASPECT_OPTIONS: AspectOption[] = [
 ];
 
 export function aspectSettingsFor(mode: AspectMode): AspectSettings {
-  return (ASPECT_OPTIONS.find((option) => option.mode === mode) ?? ASPECT_OPTIONS[0]).settings;
+  return (ASPECT_OPTIONS.find((option) => option.mode === mode) ?? ASPECT_OPTIONS[0]!).settings;
 }
 
 export function aspectLabelFor(mode: AspectMode): string {
-  return (ASPECT_OPTIONS.find((option) => option.mode === mode) ?? ASPECT_OPTIONS[0]).label;
+  return (ASPECT_OPTIONS.find((option) => option.mode === mode) ?? ASPECT_OPTIONS[0]!).label;
 }

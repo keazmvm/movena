@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
-import { isTauri } from '@tauri-apps/api/core';
-import { open, save } from '@tauri-apps/plugin-dialog';
+import { desktopApi } from '../../api/desktop';
 import {
   ArrowLeft,
   Save,
@@ -37,34 +36,19 @@ import { deleteM3uDraft, loadM3uDraft, saveM3uDraft } from '../../services/m3uDr
 import styles from './M3uEditor.module.css';
 import { useI18n } from '../../i18n';
 import { getErrorMessage } from '../../utils/error';
+import {
+  emptyPlaylist,
+  emptyRawEditorViewState,
+  legacyDraftKey,
+  playlistSnapshot,
+  type EditorMode,
+  type PendingAction,
+  type PlaylistSnapshot,
+} from './m3uEditorController';
 
 interface M3uEditorProps {
-  initialSourceId?: string;
-  onClose?: () => void;
-}
-
-type EditorMode = 'channels' | 'groups' | 'diagnostics' | 'raw';
-type PlaylistSnapshot = Pick<M3uPlaylist, 'name' | 'epgUrls' | 'entries' | 'warnings' | 'extraHeaderAttributes' | 'extraDirectives'>;
-type PendingAction =
-  | { type: 'source'; sourceId: string }
-  | { type: 'close' }
-  | { type: 'mode'; mode: EditorMode }
-  | { type: 'open-file' }
-  | { type: 'load-url' };
-
-const emptyPlaylist = (): PlaylistSnapshot => ({ entries: [], epgUrls: [], warnings: [] });
-const emptyRawEditorViewState = (): M3uRawEditorViewState => ({ selectionStart: 0, selectionEnd: 0, scrollTop: 0, scrollLeft: 0 });
-const legacyDraftKey = (sourceId: string) => `movena-m3u-editor-draft-v1:${sourceId}`;
-
-function playlistSnapshot(playlist: M3uPlaylist): PlaylistSnapshot {
-  return {
-    name: playlist.name,
-    epgUrls: playlist.epgUrls || [],
-    entries: playlist.entries || [],
-    warnings: playlist.warnings || [],
-    extraHeaderAttributes: playlist.extraHeaderAttributes,
-    extraDirectives: playlist.extraDirectives,
-  };
+  initialSourceId?: string | undefined;
+  onClose?: (() => void) | undefined;
 }
 
 export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
@@ -140,7 +124,7 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
         let draft = await loadM3uDraft(sourceId);
         const legacy = localStorage.getItem(legacyDraftKey(sourceId));
         if (!draft && legacy) {
-          const parsed = JSON.parse(legacy) as { content?: unknown; savedAt?: unknown };
+          const parsed = JSON.parse(legacy) as { content?: unknown | undefined; savedAt?: unknown | undefined };
           if (typeof parsed.content === 'string') {
             draft = { content: parsed.content, savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now() };
             await saveM3uDraft(sourceId, draft);
@@ -363,8 +347,8 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
 
   const handleOpenFile = async () => {
     try {
-      if (isTauri()) {
-        const path = await open({ multiple: false, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }] });
+      if (desktopApi.isDesktop()) {
+        const path = await desktopApi.openPath({ multiple: false, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }] });
         if (!path) return;
         const document = await tauriApi.m3uReadFile(path);
         finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-file', document.fileName || 'Local file');
@@ -392,7 +376,7 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
     const url = remoteUrlInput.trim();
     if (!url) return;
     try {
-      const document = isTauri()
+      const document = desktopApi.isDesktop()
         ? await tauriApi.m3uFetch({ url })
         : { content: await (async () => {
             const response = await fetch(url);
@@ -410,8 +394,8 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
   const handleExportFile = async (content = currentM3uContent) => {
     const fileName = `${snapshot.name?.trim().replace(/[^a-z0-9-]+/gi, '-') || 'playlist'}-${new Date().toISOString().slice(0, 10)}.m3u`;
     try {
-      if (isTauri()) {
-        const path = await save({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
+      if (desktopApi.isDesktop()) {
+        const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
         if (!path) return;
         await tauriApi.m3uWriteFile(path, content);
       } else {
@@ -584,6 +568,7 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
         {activeMode === 'raw' && (
           <M3uRawCodeEditor
             rawContent={currentM3uContent}
+            knownEntryCount={snapshot.entries.length}
             warnings={snapshot.warnings}
             onApplyRawText={handleApplyRawText}
             onRequestSave={handleRequestSaveRawText}

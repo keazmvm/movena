@@ -130,7 +130,7 @@ describe('M3U Editor UI components', () => {
     );
 
     const editButtons = screen.getAllByLabelText(/Edit channel/);
-    fireEvent.click(editButtons[0]);
+    fireEvent.click(editButtons[0]!);
 
     expect(screen.getByRole('dialog', { name: 'Edit Channel' })).toBeTruthy();
     const titleInput = screen.getByLabelText('Channel Name');
@@ -151,7 +151,7 @@ describe('M3U Editor UI components', () => {
   it('supports undo after editing a channel', async () => {
     render(<M3uEditor initialSourceId={sampleProfile.id} />);
     await waitFor(() => expect(screen.getAllByLabelText(/Edit channel/).length).toBeGreaterThan(0));
-    fireEvent.click(screen.getAllByLabelText(/Edit channel/)[0]);
+    fireEvent.click(screen.getAllByLabelText(/Edit channel/)[0]!);
     fireEvent.change(screen.getByLabelText('Channel Name'), { target: { value: 'BBC One Edited' } });
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(screen.getByText('BBC One Edited')).toBeTruthy();
@@ -195,11 +195,11 @@ describe('M3U Editor UI components', () => {
     const grid = screen.getByRole('grid', { name: /Channels\. Use arrow keys/ });
     grid.focus();
     fireEvent.keyDown(grid, { key: ' ' });
-    expect((screen.getByLabelText(`Select channel ${sampleEntries[0].title}`) as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByLabelText(`Select channel ${sampleEntries[0]!.title}`) as HTMLInputElement).checked).toBe(true);
     fireEvent.keyDown(grid, { key: 'ArrowDown' });
     fireEvent.keyDown(grid, { key: 'Enter' });
     expect(screen.getByRole('dialog', { name: 'Edit Channel' })).toBeTruthy();
-    expect(screen.getByLabelText('Channel Name')).toHaveProperty('value', sampleEntries[1].title);
+    expect(screen.getByLabelText('Channel Name')).toHaveProperty('value', sampleEntries[1]!.title);
   });
 
   it('opens the editor command palette with Ctrl+K', () => {
@@ -222,7 +222,7 @@ describe('M3U Editor UI components', () => {
     expect(screen.getByText('Sports')).toBeTruthy();
 
     const renameButtons = screen.getAllByLabelText('Rename category');
-    fireEvent.click(renameButtons[0]);
+    fireEvent.click(renameButtons[0]!);
 
     const input = screen.getByDisplayValue('Movies');
     fireEvent.change(input, { target: { value: 'Cinema' } });
@@ -271,7 +271,7 @@ describe('M3U Editor UI components', () => {
       channelCount: 1,
       programmeCount: 0,
     };
-    const entries = [sampleEntries[0], { ...sampleEntries[1], title: 'BBC One [HD]', tvgId: undefined, url: 'invalid' }];
+    const entries = [sampleEntries[0]!, { ...sampleEntries[1]!, title: 'BBC One [HD]', tvgId: undefined, url: 'invalid' }];
     const onUpdateEntries = vi.fn();
     render(<M3uStreamHealthChecker entries={entries} healthStatuses={{}} onUpdateHealthStatuses={vi.fn()} onUpdateEntries={onUpdateEntries} guide={guide} sourceId="m3u-demo-1" />);
     expect(screen.getByText('Playlist Validation')).toBeTruthy();
@@ -286,7 +286,7 @@ describe('M3U Editor UI components', () => {
     const onUpdateHealthStatuses = vi.fn();
     render(
       <M3uStreamHealthChecker
-        entries={[sampleEntries[0]]}
+        entries={[sampleEntries[0]!]}
         healthStatuses={{}}
         onUpdateHealthStatuses={onUpdateHealthStatuses}
         onUpdateEntries={vi.fn()}
@@ -308,7 +308,7 @@ describe('M3U Editor UI components', () => {
       const [statuses, setStatuses] = useState({});
       return (
         <M3uStreamHealthChecker
-          entries={[sampleEntries[0]]}
+          entries={[sampleEntries[0]!]}
           healthStatuses={statuses}
           onUpdateHealthStatuses={(next) => { setStatuses(next); updates(next); }}
           onUpdateEntries={vi.fn()}
@@ -330,7 +330,7 @@ describe('M3U Editor UI components', () => {
     const onUpdateHealthStatuses = vi.fn();
     render(
       <M3uStreamHealthChecker
-        entries={[sampleEntries[0]]}
+        entries={[sampleEntries[0]!]}
         healthStatuses={{ removed: { status: 'offline', latencyMs: 20, checkedAt: 1 } }}
         onUpdateHealthStatuses={onUpdateHealthStatuses}
         onUpdateEntries={vi.fn()}
@@ -345,7 +345,7 @@ describe('M3U Editor UI components', () => {
     const user = userEvent.setup();
     render(
       <M3uRawCodeEditor
-        rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttp://test.com/stream\n"
+        rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttps://stream.example.test/stream\n"
         onApplyRawText={onApply}
         onSyncFromVisual={vi.fn()}
       />
@@ -353,7 +353,7 @@ describe('M3U Editor UI components', () => {
 
     const textarea = screen.getByLabelText('Raw M3U Code');
     await user.clear(textarea);
-    await user.type(textarea, '#EXTM3U\n#EXTINF:-1,Modified Channel\nhttp://test.com/mod\n');
+    await user.type(textarea, '#EXTM3U\n#EXTINF:-1,Modified Channel\nhttps://stream.example.test/mod\n');
 
     const applyButton = screen.getByRole('button', { name: 'Apply Changes' });
     await user.click(applyButton);
@@ -365,7 +365,7 @@ describe('M3U Editor UI components', () => {
     const user = userEvent.setup();
     render(
       <M3uRawCodeEditor
-        rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttp://test.com/stream\n"
+        rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttps://stream.example.test/stream\n"
         onApplyRawText={vi.fn()}
       />
     );
@@ -382,5 +382,26 @@ describe('M3U Editor UI components', () => {
     await user.click(screen.getByRole('button', { name: 'Replace All' }));
 
     expect((textarea as HTMLTextAreaElement).value).toContain('Updated Channel');
+  });
+
+  it('keeps large raw playlists virtualized and shows a scrollbar', async () => {
+    const rawContent = ['#EXTM3U', ...Array.from({ length: 6_100 }, (_, index) => `#EXTINF:-1,Channel ${index + 1}`)].join('\n');
+    const { container } = render(
+      <M3uRawCodeEditor
+        rawContent={rawContent}
+        knownEntryCount={3_050}
+        onApplyRawText={vi.fn()}
+      />
+    );
+
+    const textarea = screen.getByLabelText('Raw M3U Code');
+    expect(textarea.className).toContain('subtle-scrollbar');
+    expect(container.querySelectorAll('[data-raw-line-number]').length).toBeLessThan(100);
+    expect(container.querySelector('pre[aria-hidden="true"]')?.children.length).toBeLessThan(100);
+
+    (textarea as HTMLTextAreaElement).scrollTop = 100_000;
+    fireEvent.scroll(textarea);
+    await waitFor(() => expect(Number(container.querySelector('[data-raw-line-number]')?.textContent)).toBeGreaterThan(1_000));
+    expect(container.querySelectorAll('[data-raw-line-number]').length).toBeLessThan(100);
   });
 });

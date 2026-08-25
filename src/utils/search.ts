@@ -92,9 +92,9 @@ export const levenshteinDistance = (a: string, b: string): number => {
     for (let j = 0; j < lenA; j++) {
       const cost = a.charCodeAt(j) === b.charCodeAt(i) ? 0 : 1;
       row1[j + 1] = Math.min(
-        row0[j + 1] + 1,
-        row1[j] + 1,
-        row0[j] + cost
+        row0[j + 1]! + 1,
+        row1[j]! + 1,
+        row0[j]! + cost
       );
     }
 
@@ -103,7 +103,7 @@ export const levenshteinDistance = (a: string, b: string): number => {
     row1 = tmp;
   }
 
-  return row0[lenA];
+  return row0[lenA] ?? lenB;
 };
 
 /**
@@ -213,6 +213,7 @@ export const smartSearch = <T extends MediaItem>(items: T[], rawQuery: string): 
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
+    if (!item) continue;
     const score = calculatePreparedMatchScore(item, query, prepareItem(item));
     if (score > 0) {
       scoredItems.push({ item, score });

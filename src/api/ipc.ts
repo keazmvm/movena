@@ -2,66 +2,94 @@ import { invoke } from '@tauri-apps/api/core';
 
 export interface MpvStartOptions {
   /** Frontend-owned identity echoed by every native event for this session. */
-  sessionId?: string;
+  sessionId?: string | undefined;
   url: string;
   hwdec: string;
   hdr: boolean;
-  toneMapping?: string;
+  toneMapping?: string | undefined;
   cacheSecs: number;
   demuxerMaxBytes: string;
   initialVolume: number;
   initialSpeed: number;
   subtitlesVisible: boolean;
-  initialAudioDelayMs?: number;
-  subtitleFontSize?: number;
-  subtitleFontFamily?: string;
-  subtitleOpacity?: number;
-  subtitleBorderSize?: number;
-  subtitleShadowOffset?: number;
-  startPosition?: number;
-  httpHeaders?: Record<string, string>;
+  initialAudioDelayMs?: number | undefined;
+  subtitleFontSize?: number | undefined;
+  subtitleFontFamily?: string | undefined;
+  subtitleOpacity?: number | undefined;
+  subtitleBorderSize?: number | undefined;
+  subtitleShadowOffset?: number | undefined;
+  startPosition?: number | undefined;
+  httpHeaders?: Record<string, string> | undefined;
 }
 
 export interface M3uFetchOptions {
   url: string;
-  headers?: Record<string, string>;
+  headers?: Record<string, string> | undefined;
   /** Opaque source id used by native conditional-request caching. */
-  cacheKey?: string;
+  cacheKey?: string | undefined;
 }
 
 export interface M3uDocument {
   content: string;
   baseUrl: string;
-  fileName?: string;
+  fileName?: string | undefined;
 }
 
 export type M3uProbeStatus = 'online' | 'offline' | 'unauthorized' | 'timeout';
 
 export interface M3uProbeOptions {
   url: string;
-  headers?: Record<string, string>;
-  timeoutMs?: number;
+  headers?: Record<string, string> | undefined;
+  timeoutMs?: number | undefined;
 }
 
 export interface M3uProbeResult {
   status: M3uProbeStatus;
-  httpStatus?: number;
-  errorMessage?: string;
+  httpStatus?: number | undefined;
+  errorMessage?: string | undefined;
   latencyMs: number;
 }
 
-export interface TextDocument {
-  content: string;
-  cacheKey?: string;
+export interface XmltvChannelDto {
+  id: string;
+  names: string[];
+}
+
+export interface XmltvProgrammeDto {
+  title: string;
+  description: string;
+  start: number;
+  end: number;
+}
+
+export interface XmltvProgrammeGroupDto {
+  channelId: string;
+  programmes: XmltvProgrammeDto[];
+}
+
+export interface XmltvGuidePayload {
+  channels: XmltvChannelDto[];
+  programmeGroups: XmltvProgrammeGroupDto[];
 }
 
 export interface DownloadMediaOptions {
-  id?: string;
+  id?: string | undefined;
   url: string;
   fileName: string;
-  headers?: Record<string, string>;
-  directory?: string;
+  headers?: Record<string, string> | undefined;
+  directory?: string | undefined;
 }
+
+export type MpvPropertyUpdate =
+  | { property: 'video-aspect-override'; value: '-2' | '16:9' | '4:3' | '1:1' | '5:4' }
+  | { property: 'keepaspect' | 'video-unscaled'; value: 'yes' | 'no' }
+  | { property: 'panscan'; value: '0' | '1' }
+  | { property: 'video-crop'; value: '' | '50%x100%+0+0' }
+  | { property: 'brightness' | 'contrast' | 'saturation' | 'hue' | 'gamma'; value: number }
+  | { property: 'scale-blur' | 'cscale-blur'; value: number }
+  | { property: 'audio-delay'; value: number }
+  | { property: 'sub-font-size' | 'sub-border-size' | 'sub-shadow-offset'; value: number }
+  | { property: 'sub-font' | 'sub-color'; value: string };
 
 
 /**
@@ -98,8 +126,8 @@ export const tauriApi = {
   /** Start or stop stream recording dump to file path */
   mpvSetRecording: (path: string) => invoke<void>('mpv_set_recording', { path }),
 
-  /** Execute low-level mpv command array */
-  mpvCommand: (args: string[]) => invoke<void>('mpv_command', { args }),
+  /** Set one validated mpv property from Movena's finite public allowlist. */
+  mpvSetProperty: (update: MpvPropertyUpdate) => invoke<void>('mpv_set_property', { update }),
 
   /** Toggle native/borderless window fullscreen */
   playerSetFullscreen: (on: boolean) => invoke<boolean>('player_set_fullscreen', { on }),
@@ -134,8 +162,8 @@ export const tauriApi = {
   /** Probe a stream outside the webview CORS boundary with its source headers. */
   m3uProbeStream: (options: M3uProbeOptions) => invoke<M3uProbeResult>('m3u_probe_stream', { options }),
 
-  /** Download and decompress an XMLTV guide outside the webview's CORS boundary. */
-  xmltvFetch: (options: M3uFetchOptions) => invoke<TextDocument>('xmltv_fetch', { options }),
+  /** Download, decompress, and parse XMLTV outside the webview. */
+  xmltvFetch: (options: M3uFetchOptions) => invoke<XmltvGuidePayload>('xmltv_fetch', { options }),
 
   /** Inspect a small XMLTV response prefix outside the webview's CORS boundary. */
   xmltvProbe: (options: M3uFetchOptions) => invoke<boolean>('xmltv_probe', { options }),
@@ -145,9 +173,6 @@ export const tauriApi = {
   downloadMediaPause: (id: string) => invoke<void>('download_media_pause', { id }),
   downloadMediaResume: (id: string) => invoke<void>('download_media_resume', { id }),
   downloadMediaCancel: (id: string) => invoke<void>('download_media_cancel', { id }),
-
-  /** Promote a downloaded XMLTV body only after the webview parsed it successfully. */
-  xmltvCacheCommit: (cacheKey: string) => invoke<void>('xmltv_cache_commit', { cacheKey }),
 
   /** Read a user-selected local M3U and report its base directory URL. */
   m3uReadFile: (path: string) => invoke<M3uDocument>('m3u_read_file', { path }),

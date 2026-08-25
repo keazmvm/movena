@@ -44,7 +44,11 @@ function createDebouncedStorage<T>(): PersistStorage<T> {
       const raw = localStorage.getItem(name);
       if (raw === null) return null;
       try {
-        return JSON.parse(raw) as { state: T; version?: number };
+        const parsed = JSON.parse(raw) as { state: T; version?: number | undefined };
+        return {
+          state: parsed.state,
+          ...(parsed.version !== undefined ? { version: parsed.version } : {}),
+        };
       } catch {
         return null;
       }
@@ -76,36 +80,36 @@ import { getDisplayTitle } from '../utils/titleParser';
 export interface HistoryItem extends MediaItem {
   progressPercentage: number;
   lastWatchedAt: number;
-  currentTime?: number;
-  duration?: number;
-  seriesId?: string;
-  seriesSourceItemId?: string;
-  seasonNum?: string | number;
-  episodeNum?: string | number;
-  episodeId?: string;
-  episodeTitle?: string;
+  currentTime?: number | undefined;
+  duration?: number | undefined;
+  seriesId?: string | undefined;
+  seriesSourceItemId?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
+  episodeId?: string | undefined;
+  episodeTitle?: string | undefined;
 }
 
 /** A playback position reported by the player. */
 export interface WatchProgress {
   /** The thing being played: a movie id, or an episode id for series. */
   id: string;
-  seriesId?: string;
+  seriesId?: string | undefined;
   title: string;
   posterUrl: string;
   type: 'vod' | 'series';
   currentTime: number;
   duration: number;
-  tags?: string[];
-  country?: string | null;
-  streamUrl?: string;
-  httpHeaders?: Record<string, string>;
-  sourceId?: string;
-  sourceItemId?: string;
-  seriesSourceItemId?: string;
-  seasonNum?: string | number;
-  episodeNum?: string | number;
-  episodeTitle?: string;
+  tags?: string[] | undefined;
+  country?: string | null | undefined;
+  streamUrl?: string | undefined;
+  httpHeaders?: Record<string, string> | undefined;
+  sourceId?: string | undefined;
+  sourceItemId?: string | undefined;
+  seriesSourceItemId?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
+  episodeTitle?: string | undefined;
   /**
    * The episode after this one, if the caller already knows it (the player
    * has the series' episode list loaded while something is playing). When
@@ -116,11 +120,11 @@ export interface WatchProgress {
     id: string;
     seasonNum: string | number;
     episodeNum: string | number;
-    episodeTitle?: string;
-    streamUrl?: string;
-    httpHeaders?: Record<string, string>;
-    sourceId?: string;
-  };
+    episodeTitle?: string | undefined;
+    streamUrl?: string | undefined;
+    httpHeaders?: Record<string, string> | undefined;
+    sourceId?: string | undefined;
+  } | undefined;
 }
 
 /**
@@ -168,7 +172,9 @@ interface LibraryState {
 }
 
 function withoutPlaybackTransport<T extends MediaItem>(item: T): T {
-  const { streamUrl: _streamUrl, httpHeaders: _httpHeaders, ...safe } = item;
+  const safe: MediaItem = { ...item };
+  delete safe.streamUrl;
+  delete safe.httpHeaders;
   return safe as T;
 }
 
@@ -187,7 +193,7 @@ function sanitizedLibraryData(state: Pick<LibraryState, 'favorites' | 'collectio
 export function migrateLibraryState(persistedState: unknown): LibraryState {
   const state = (
     persistedState && typeof persistedState === 'object' ? persistedState : {}
-  ) as Partial<LibraryState> & { downloads?: unknown };
+  ) as Partial<LibraryState> & { downloads?: unknown | undefined };
   const nextState = { ...state };
   delete nextState.downloads;
 

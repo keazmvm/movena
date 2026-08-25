@@ -8,8 +8,8 @@ import styles from './M3uEditor.module.css';
 export interface M3uEditorCommand {
   id: string;
   label: string;
-  shortcut?: string;
-  disabled?: boolean;
+  shortcut?: string | undefined;
+  disabled?: boolean | undefined;
   run: () => void;
 }
 

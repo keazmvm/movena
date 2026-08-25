@@ -9,6 +9,11 @@ const ENCODED_URL_VALUE = /\b(?:https?|rtsp|rtmp|rtp|mms|file)%3a%2f%2f(?:(?!\s|
 const WINDOWS_PATH = /\b[a-z]:[\\/][^\r\n"'<>]*/gi;
 const UNIX_PRIVATE_PATH = /(^|\s)\/(?:Users|home|Volumes|tmp|var|private|mnt|media)\/[^\s"'<>]*/g;
 
+function redactUrlValue(match: string): string {
+  const payload = match.slice(match.indexOf('://') + 3).replace(/[.,;:!?]+$/u, '');
+  return payload ? '[URL]' : match;
+}
+
 /** Removes provider credentials from URLs, messages, and serialized errors. */
 export function redactSensitiveText(value: string): string {
   return value
@@ -21,7 +26,7 @@ export function redactSensitiveText(value: string): string {
 /** Diagnostics retain the error meaning but never retain a media URL or local path. */
 export function redactDiagnosticText(value: string): string {
   return redactSensitiveText(value)
-    .replace(URL_VALUE, '[URL]')
+    .replace(URL_VALUE, redactUrlValue)
     .replace(ENCODED_URL_VALUE, '[URL]')
     .replace(WINDOWS_PATH, '[PATH]')
     .replace(UNIX_PRIVATE_PATH, '$1[PATH]');

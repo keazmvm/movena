@@ -51,11 +51,11 @@ export function EpisodesDrawer() {
       const seasonsList = Object.keys(seriesData.episodes);
       if (seasonsList.length > 0) {
         const currentSeasonStr = activeStream?.seasonNum?.toString();
-        if (currentSeasonStr && seasonsList.includes(currentSeasonStr)) {
-          setSelectedSeason(currentSeasonStr);
-        } else if (!selectedSeason || !seasonsList.includes(selectedSeason)) {
-          setSelectedSeason(seasonsList[0]);
-        }
+        setSelectedSeason((selected) => {
+          if (selected && seasonsList.includes(selected)) return selected;
+          if (currentSeasonStr && seasonsList.includes(currentSeasonStr)) return currentSeasonStr;
+          return seasonsList[0] ?? '';
+        });
       }
     }
   }, [seriesData, activeStream?.seasonNum]);

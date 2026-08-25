@@ -19,79 +19,108 @@ import { useI18n } from '../../i18n';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { formatVerifiedResolution, useStreamVerificationStore } from '../../store/useStreamVerificationStore';
 import { useLogoAspect } from '../../hooks/useLogoAspect';
+import { streamProviderBrand, type StreamProviderBrand } from '../../utils/streamProvider';
 
 export interface MediaItem {
   id: string;
   title: string;
-  year?: string;
+  year?: string | undefined;
   posterUrl: string;
-  type?: 'live' | 'vod' | 'series';
-  quality?: string;
-  tags?: string[];
-  country?: string | null;
-  rating?: number;
-  progress?: number;
-  progressPercentage?: number;
-  isFavorite?: boolean;
-  isWatched?: boolean;
-  subtitle?: string;
-  seasonNum?: string | number;
-  episodeNum?: string | number;
-  channelNum?: string | number;
+  type?: 'live' | 'vod' | 'series' | undefined;
+  quality?: string | undefined;
+  tags?: string[] | undefined;
+  country?: string | null | undefined;
+  rating?: number | undefined;
+  progress?: number | undefined;
+  progressPercentage?: number | undefined;
+  isFavorite?: boolean | undefined;
+  isWatched?: boolean | undefined;
+  subtitle?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
+  channelNum?: string | number | undefined;
   /** Present when a source has already constructed a directly playable URL. */
-  streamUrl?: string;
+  streamUrl?: string | undefined;
   /** HTTP headers required by an extended M3U entry. Never surfaced in diagnostics. */
-  httpHeaders?: Record<string, string>;
+  httpHeaders?: Record<string, string> | undefined;
   /** Public source identity used to keep playlist items stable across refreshes. */
-  sourceId?: string;
+  sourceId?: string | undefined;
   /** The provider-local id, separate from the globally unique library/card id. */
-  sourceItemId?: string;
+  sourceItemId?: string | undefined;
   /** Original guide identity carried by M3U `tvg-id`. */
-  epgChannelId?: string;
-  categoryId?: string;
-  genre?: string;
-  genres?: string[];
-  description?: string;
-  containerExtension?: string;
+  epgChannelId?: string | undefined;
+  categoryId?: string | undefined;
+  genre?: string | undefined;
+  genres?: string[] | undefined;
+  description?: string | undefined;
+  containerExtension?: string | undefined;
   /** Provider sort timestamp, kept as a string because Xtream returns epoch text. */
-  added?: string;
-  radio?: boolean;
+  added?: string | undefined;
+  radio?: boolean | undefined;
   radioMetadata?: {
     title: string;
-    artist?: string;
-    album?: string;
-    genre?: string;
-    channelNumber?: string;
-    logoUrl?: string;
-  };
-  catchup?: string;
-  catchupSource?: string;
-  catchupDays?: number;
-  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> }>;
+    artist?: string | undefined;
+    album?: string | undefined;
+    genre?: string | undefined;
+    channelNumber?: string | undefined;
+    logoUrl?: string | undefined;
+  } | undefined;
+  catchup?: string | undefined;
+  catchupSource?: string | undefined;
+  catchupDays?: number | undefined;
+  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> | undefined;
 }
 
 /** Ephemeral navigation context used when a series is opened from an episode. */
 export interface MediaOpenContext {
-  seasonNumber?: number;
-  episodeNumber?: number;
+  seasonNumber?: number | undefined;
+  episodeNumber?: number | undefined;
 }
 
 interface MediaCardProps {
   item: MediaItem;
-  onClick?: (item: MediaItem) => void;
-  onViewDetails?: (item: MediaItem) => void;
-  currentCollectionId?: string;
-  style?: React.CSSProperties; // For virtualization
-  viewMode?: 'grid' | 'list';
-  isLiveTv?: boolean;
+  onClick?: ((item: MediaItem) => void) | undefined;
+  onViewDetails?: ((item: MediaItem) => void) | undefined;
+  currentCollectionId?: string | undefined;
+  style?: React.CSSProperties | undefined; // For virtualization
+  viewMode?: 'grid' | 'list' | undefined;
+  isLiveTv?: boolean | undefined;
   /** Show Movie/Series in mixed list contexts such as Favorites and Search. */
-  showTypeInList?: boolean;
+  showTypeInList?: boolean | undefined;
 }
 
 function formatChannelNumber(value: string | number | undefined): string {
   if (value === undefined || value === null || value === '') return '—';
   const text = String(value).replace(/^#/, '');
   return /^\d+$/.test(text) ? text.padStart(2, '0') : text;
+}
+
+function ProviderFallbackLogo({ provider }: { provider: StreamProviderBrand }) {
+  if (provider === 'youtube') {
+    return (
+      <svg
+        viewBox="0 0 28 20"
+        className={`${styles.providerLogo} ${styles.providerLogoYoutube}`}
+        role="img"
+        aria-label="YouTube"
+      >
+        <rect width="28" height="20" rx="5" fill="currentColor" />
+        <path d="M11 5.5 19 10l-8 4.5v-9Z" fill="var(--text-on-accent)" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`${styles.providerLogo} ${styles.providerLogoTwitch}`}
+      role="img"
+      aria-label="Twitch"
+    >
+      <path d="M3 1h20v14l-6 6h-5l-4 3v-3H1V5l2-4Z" fill="currentColor" />
+      <path d="M5 4v14h4v3l4-3h4l3-3V4H5Zm5 4h2v6h-2V8Zm5 0h2v6h-2V8Z" fill="var(--text-on-accent)" />
+    </svg>
+  );
 }
 
 function MediaCardComponent({ 
@@ -118,6 +147,7 @@ function MediaCardComponent({
   }, [item.id, item.posterUrl]);
 
   const showPlaceholder = !item.posterUrl || imgError;
+  const providerBrand = item.type === 'live' ? streamProviderBrand(item.streamUrl) : null;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,7 +165,11 @@ function MediaCardComponent({
   };
 
   const renderPlaceholderIcon = () => {
-    if (item.type === 'live') return <Radio size={36} className={styles.placeholderIcon} />;
+    if (item.type === 'live') {
+      return providerBrand
+        ? <ProviderFallbackLogo provider={providerBrand} />
+        : <Radio size={36} className={styles.placeholderIcon} />;
+    }
     if (item.type === 'series') return <Tv size={36} className={styles.placeholderIcon} />;
     return <Film size={36} className={styles.placeholderIcon} />;
   };
@@ -190,11 +224,22 @@ function MediaCardComponent({
     ? (logoAspect === '16:9' ? styles.posterUnsquish169 : (logoAspect === '4:3' ? styles.posterUnsquish43 : ''))
     : '';
 
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick || event.target !== event.currentTarget) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    onClick(item);
+  };
+
   return (
     <div 
       className={`${styles.cardContainer} ${viewMode === 'list' ? styles.listView : ''} ${isLiveTvGrid ? styles.cardContainerLiveTvGrid : ''}`} 
       style={style}
+      role="group"
+      aria-label={onClick ? t('Open {title}', { title: displayTitle }) : displayTitle}
+      tabIndex={onClick ? 0 : undefined}
       onClick={() => onClick?.(item)}
+      onKeyDown={handleCardKeyDown}
       onContextMenu={(e) => handleMediaCardContextMenu(e, item, { 
         onPlay: isLive ? (i) => onClick?.(i) : undefined,
         onViewDetails: onViewDetails || ((i) => onClick?.(i)),
@@ -218,7 +263,7 @@ function MediaCardComponent({
         ) : (
           <div className={styles.placeholder}>
             {renderPlaceholderIcon()}
-            <span className={styles.placeholderTitle}>{displayTitle}</span>
+            {!isLive && <span className={styles.placeholderTitle}>{displayTitle}</span>}
           </div>
         )}
         

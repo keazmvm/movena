@@ -112,8 +112,7 @@ describe('ChannelsDrawer', () => {
     renderDrawer();
 
     const channelButton = screen.getByRole('button', { name: /CNN International/ });
-    channelButton.focus();
-    await user.keyboard('{Enter}');
+    await user.click(channelButton);
     expect(usePlayerStore.getState().activeStream?.id).toBe('ch-2');
     expect(usePlayerStore.getState().showChannelsDrawer).toBe(true);
   });

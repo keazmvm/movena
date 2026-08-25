@@ -15,9 +15,9 @@ export interface ParsedCategory {
   /** The name with the country prefix and format tags removed. */
   label: string;
   /** Extracted format/quality tags (e.g. ['4K', 'HD', 'RAW']). */
-  tags?: string[];
+  tags?: string[] | undefined;
   /** Topic cluster classification (24/7, cinema, streaming, general) */
-  cluster?: CategoryCluster;
+  cluster?: CategoryCluster | undefined;
 }
 
 /** Stable product wording where `Intl.DisplayNames` varies between platforms. */
@@ -136,6 +136,12 @@ export const COUNTRY_ALIASES: Record<string, string> = {
 export function normalizeCountryCode(code: string | null): string | null {
   if (!code) return null;
   return COUNTRY_ALIASES[code] ?? code;
+}
+
+/** True when a normalized provider country can map to an ISO flag asset. */
+export function hasCountryFlag(code: string | null): boolean {
+  const normalized = normalizeCountryCode(code);
+  return Boolean(normalized && /^[A-Z]{2}$/.test(normalized));
 }
 
 const localizedCountryNames = new Map<string, Intl.DisplayNames>();
@@ -363,10 +369,10 @@ export function parseCategoryName(name: string): ParsedCategory {
 
   // 1. Try CODE_PREFIX e.g. "DE| SKY GO CINEMA VIP".
   const coded = trimmed.match(CODE_PREFIX);
-  const codedCountry = coded ? normalizeCountryCode(coded[1].toUpperCase()) : null;
+  const codedCountry = coded?.[1] ? normalizeCountryCode(coded[1].toUpperCase()) : null;
   if (coded && codedCountry && COUNTRY_NAMES[codedCountry]) {
     country = codedCountry;
-    label = coded[2].trim();
+    label = coded[2]?.trim() ?? label;
   } else {
     // 2. Resolve a complete country label, including provider aliases.
     const exactCountry = countryCodeForName(trimmed);
@@ -380,7 +386,7 @@ export function parseCategoryName(name: string): ParsedCategory {
         if (!upper.startsWith(prefix)) continue;
         const rest = trimmed.slice(prefix.length);
         if (rest && !/^[\s|\-:]/.test(rest)) continue;
-        country = PREFIX_NAME_TO_CODE[prefix];
+        country = PREFIX_NAME_TO_CODE[prefix] ?? null;
         label = rest.replace(/^[\s|\-:]+/, '').trim() || countryName(country);
         break;
       }

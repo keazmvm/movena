@@ -35,9 +35,9 @@ export function useMediaContextMenus() {
       e: React.MouseEvent,
       item: MediaItem,
       options?: {
-        onPlay?: (item: MediaItem) => void;
-        onViewDetails?: (item: MediaItem) => void;
-        currentCollectionId?: string;
+        onPlay?: ((item: MediaItem) => void) | undefined;
+        onViewDetails?: ((item: MediaItem) => void) | undefined;
+        currentCollectionId?: string | undefined;
       }
     ) => {
       e.preventDefault();

@@ -13,8 +13,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Verify release revision
+    uses: ./.github/workflows/compliance.yml
+
   build-source:
     name: Build source archives
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -44,6 +49,7 @@ jobs:
 
   build-windows:
     name: Build Windows installers & portable
+    needs: verify
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -51,17 +57,22 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
       - run: npm ci
       - name: Setup Windows mpv binaries
         run: npm run setup:mpv
+      - name: Build pinned Twitch resolver
+        run: npm run setup:twitch
       - name: Build frontend
         run: npm run build
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npx tauri build --config src-tauri/tauri.windows.conf.json
+        run: npx tauri build --config src-tauri/tauri.bundle.windows.conf.json
       - name: Package Windows artifacts
         shell: pwsh
         run: |
@@ -93,9 +104,19 @@ jobs:
           New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
           Copy-Item "src-tauri/target/release/movena.exe" "$portableDir/Movena.exe"
           Copy-Item "src-tauri/lib/mpv-dev/libmpv-2.dll" "$portableDir/libmpv-2.dll"
+          Copy-Item "src-tauri/lib/yt-dlp/yt-dlp.exe" "$portableDir/yt-dlp.exe"
+          Copy-Item "src-tauri/lib/twitch-resolver" "$portableDir/twitch-resolver" -Recurse
           Copy-Item "LICENSE" "$portableDir/LICENSE"
           Copy-Item "THIRD_PARTY_LICENSES.txt" "$portableDir/THIRD_PARTY_LICENSES.txt"
+          $resolver = "$portableDir/twitch-resolver/twitch-resolver.exe"
+          if (-not (Test-Path $resolver)) { throw "Portable Twitch resolver is missing" }
+          if (-not (Test-Path "$portableDir/twitch-resolver/THIRD_PARTY_NOTICES.txt")) { throw "Twitch resolver notices are missing" }
+          if ((& $resolver --version).Trim() -ne "8.5.0") { throw "Unexpected bundled Streamlink version" }
+          & $resolver --can-handle-url "https://www.twitch.tv/gleggmire"
+          if ($LASTEXITCODE -ne 0) { throw "Bundled Streamlink cannot handle Twitch channels" }
           Compress-Archive -Path "$portableDir/*" -DestinationPath "windows-artifacts/Movena-v${version}-windows-x64-portable.zip"
+          $resolverBytes = (Get-ChildItem "src-tauri/lib/twitch-resolver" -File -Recurse | Measure-Object Length -Sum).Sum
+          Write-Host "Bundled Twitch resolver: $([math]::Round($resolverBytes / 1MB, 1)) MiB"
       - uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
@@ -103,6 +124,7 @@ jobs:
 
   build-macos:
     name: Build macOS DMG & app
+    needs: verify
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
@@ -110,17 +132,31 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
       - name: Install mpv
         run: brew install mpv
       - run: npm ci
+      - name: Build pinned Twitch resolver
+        run: npm run setup:twitch
       - name: Build frontend
         run: npm run build
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npx tauri build
+        run: npx tauri build --config src-tauri/tauri.bundle.macos.conf.json
+      - name: Verify bundled Twitch resolver
+        shell: bash
+        run: |
+          resolver="src-tauri/target/release/bundle/macos/Movena.app/Contents/Resources/twitch-resolver/twitch-resolver"
+          test -x "$resolver"
+          test -f "$(dirname "$resolver")/THIRD_PARTY_NOTICES.txt"
+          test "$($resolver --version)" = "8.5.0"
+          "$resolver" --can-handle-url https://www.twitch.tv/gleggmire
+          codesign --verify --deep --strict src-tauri/target/release/bundle/macos/Movena.app
       - name: Package macOS artifacts
         shell: bash
         run: |
@@ -136,6 +172,7 @@ jobs:
             cp src-tauri/target/release/bundle/macos/*.tar.gz macos-artifacts/ 2>/dev/null || true
             cp src-tauri/target/release/bundle/macos/*.tar.gz.sig macos-artifacts/ 2>/dev/null || true
           fi
+          du -sh src-tauri/lib/twitch-resolver
       - uses: actions/upload-artifact@v4
         with:
           name: macos-artifacts
@@ -143,6 +180,7 @@ jobs:
 
   build-linux:
     name: Build Linux packages
+    needs: verify
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v5
@@ -150,6 +188,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
       - name: Install native build dependencies
         run: |
@@ -162,13 +203,24 @@ jobs:
             libmpv-dev \
             patchelf
       - run: npm ci
+      - name: Build pinned Twitch resolver
+        run: npm run setup:twitch
       - name: Build frontend
         run: npm run build
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npx tauri build
+        run: npx tauri build --config src-tauri/tauri.bundle.linux.conf.json
+      - name: Verify bundled Twitch resolver
+        shell: bash
+        run: |
+          resolver="$(find src-tauri/target/release/bundle -type f -name twitch-resolver -print -quit)"
+          test -n "$resolver"
+          test -x "$resolver"
+          test -f "$(dirname "$resolver")/THIRD_PARTY_NOTICES.txt"
+          test "$($resolver --version)" = "8.5.0"
+          "$resolver" --can-handle-url https://www.twitch.tv/gleggmire
       - name: Package Linux artifacts
         shell: bash
         run: |
@@ -181,6 +233,7 @@ jobs:
             cp src-tauri/target/release/bundle/appimage/*.AppImage linux-artifacts/ 2>/dev/null || true
             cp src-tauri/target/release/bundle/appimage/*.sig linux-artifacts/ 2>/dev/null || true
           fi
+          du -sh src-tauri/lib/twitch-resolver
       - uses: actions/upload-artifact@v4
         with:
           name: linux-artifacts

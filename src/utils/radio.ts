@@ -5,11 +5,11 @@ export type M3uLikeAttributes = Readonly<Record<string, M3uLikeAttributeValue>>;
 
 export interface RadioDisplayMetadata {
   title: string;
-  artist?: string;
-  album?: string;
-  genre?: string;
-  channelNumber?: string;
-  logoUrl?: string;
+  artist?: string | undefined;
+  album?: string | undefined;
+  genre?: string | undefined;
+  channelNumber?: string | undefined;
+  logoUrl?: string | undefined;
 }
 
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'y', 'on']);

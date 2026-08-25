@@ -14,7 +14,7 @@ interface M3uMovieDetailModalProps {
   movieTitle: string;
   moviePoster: string;
   sourceId: string;
-  sourceItemId?: string;
+  sourceItemId?: string | undefined;
   onClose: () => void;
 }
 

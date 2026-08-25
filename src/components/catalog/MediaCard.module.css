@@ -72,11 +72,30 @@
   transition: transform var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard), opacity var(--duration-normal) var(--ease-standard);
 }
 
+.providerLogo {
+  width: 42px;
+  height: 42px;
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+.providerLogoYoutube {
+  color: var(--brand-youtube);
+}
+
+.providerLogoTwitch {
+  color: var(--brand-twitch);
+}
+
 .cardContainer:hover .placeholderIcon,
 .cardContainer:focus-within .placeholderIcon {
   color: var(--accent-color);
   opacity: var(--alpha-90);
   transform: scale(1.1);
+}
+
+.cardContainer:hover .providerLogo,
+.cardContainer:focus-within .providerLogo {
+  transform: scale(1.08);
 }
 
 .placeholderTitle {

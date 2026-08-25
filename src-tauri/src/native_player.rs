@@ -14,6 +14,8 @@ use serde::Serialize;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager, State};
 
+use super::native_player_property::{validate_mpv_property, MpvPropertyUpdate};
+
 #[cfg(target_os = "macos")]
 use crate::macos_embed;
 
@@ -21,6 +23,7 @@ use crate::macos_embed;
 pub struct NativePlayerManager {
     handle: Mutex<Option<usize>>,
     session_id: Mutex<Option<String>>,
+    twitch_resolver: Mutex<Option<crate::twitch_resolver::TwitchResolverProcess>>,
     alive: Arc<AtomicBool>,
     thread_handle: Mutex<Option<thread::JoinHandle<()>>>,
     /// Held for the whole of start/stop. Those commands run on Tauri's thread
@@ -49,7 +52,9 @@ unsafe fn set_mpv_option(mpv: *mut mpv_handle, key: &str, value: &str) -> Result
     let c_value = CString::new(value).map_err(|e| e.to_string())?;
     let res = mpv_set_option_string(mpv, c_key.as_ptr(), c_value.as_ptr());
     if res < 0 {
-        Err(format!("Failed to set option {}={}: {}", key, value, res))
+        // Option values may contain media URLs, request headers, local paths,
+        // or credentials. Keep them out of errors surfaced to diagnostics/UI.
+        Err(format!("Failed to set mpv option '{key}' (error {res})"))
     } else {
         Ok(())
     }
@@ -277,6 +282,20 @@ fn stop_internal(app: &AppHandle, state: &NativePlayerManager) {
             mpv_terminate_destroy(mpv_usize as *mut mpv_handle);
         }
     }
+    drop(handle_opt);
+
+    // Disconnecting mpv closes Streamlink's only loopback HTTP client. Give
+    // the non-continuous resolver a moment to exit on its own, then its guard
+    // terminates the contained process group so no helper survives a stream
+    // replacement or application shutdown.
+    if let Some(mut resolver) = state
+        .twitch_resolver
+        .lock()
+        .unwrap_or_else(|error| error.into_inner())
+        .take()
+    {
+        resolver.stop();
+    }
 }
 
 // ── IPC Commands ──────────────────────────────────────────────
@@ -364,6 +383,44 @@ fn build_http_options(headers: HashMap<String, String>) -> Result<MpvHttpOptions
     Ok(result)
 }
 
+#[cfg(any(target_os = "windows", test))]
+fn first_existing_file(candidates: impl IntoIterator<Item = PathBuf>) -> Option<PathBuf> {
+    candidates.into_iter().find(|candidate| candidate.is_file())
+}
+
+#[cfg(target_os = "windows")]
+fn bundled_ytdlp_path(app: &AppHandle) -> Option<PathBuf> {
+    let mut candidates = Vec::new();
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        candidates.push(resource_dir.join("yt-dlp.exe"));
+    }
+    if let Ok(executable) = std::env::current_exe() {
+        if let Some(executable_dir) = executable.parent() {
+            candidates.push(executable_dir.join("yt-dlp.exe"));
+        }
+    }
+    first_existing_file(candidates)
+}
+
+#[cfg(any(target_os = "windows", test))]
+fn ytdlp_script_option(path: &Path) -> Result<String, String> {
+    let path = path
+        .to_str()
+        .filter(|value| !value.is_empty())
+        .ok_or("The bundled YouTube resolver path is invalid")?;
+    #[cfg(target_os = "windows")]
+    let path = path
+        .strip_prefix(r"\\?\")
+        .unwrap_or(path)
+        .replace('\\', "/");
+    #[cfg(not(target_os = "windows"))]
+    let path = path.to_string();
+
+    // script-opts is a comma-separated key/value list. mpv's fixed-length
+    // quoting keeps installation paths containing commas or spaces intact.
+    Ok(format!("ytdl_hook-ytdl_path=%{}%{path}", path.len()))
+}
+
 /// RAII guard that destroys the mpv handle if not explicitly defused.
 /// Prevents handle leaks when `mpv_start` returns early after `mpv_create`.
 struct MpvGuard {
@@ -424,11 +481,26 @@ pub fn mpv_start(
     } = options;
     let session_id =
         session_id.filter(|value| !value.is_empty() && value.len() <= 128 && value.is_ascii());
-    let http_options = build_http_options(http_headers)?;
+    let is_twitch_live = crate::twitch_resolver::is_twitch_live_url(&url);
+    let http_options = if is_twitch_live {
+        MpvHttpOptions::default()
+    } else {
+        build_http_options(http_headers)?
+    };
     let _lifecycle = state.lifecycle.lock().map_err(|e| e.to_string())?;
 
     // Stop any existing instance first
     stop_internal(&app, &state);
+
+    let mut twitch_resolver = None;
+    let playback_url = if is_twitch_live {
+        let (playback_url, resolver) =
+            crate::twitch_resolver::start(&app, &url, session_id.clone())?;
+        twitch_resolver = Some(resolver);
+        playback_url
+    } else {
+        url
+    };
 
     unsafe {
         let mpv = mpv_create();
@@ -567,6 +639,18 @@ pub fn mpv_start(
             set_mpv_option(mpv, "http-header-fields", header_fields)?;
         }
 
+        // A web page URL is not media by itself. mpv's built-in ytdl hook
+        // delegates supported sites (including YouTube channel /live URLs) to
+        // yt-dlp. Point it at Movena's bundled resolver instead of depending
+        // on a machine-wide installation or the user's PATH.
+        #[cfg(target_os = "windows")]
+        if !is_twitch_live {
+            if let Some(ytdlp_path) = bundled_ytdlp_path(&app) {
+                let script_option = ytdlp_script_option(&ytdlp_path)?;
+                set_mpv_option(mpv, "script-opts", &script_option)?;
+            }
+        }
+
         if let Some(start_pos) = start_position {
             if start_pos > 0.0 {
                 set_mpv_option(mpv, "start", &start_pos.to_string())?;
@@ -594,7 +678,7 @@ pub fn mpv_start(
         let log_level = CString::new("info").map_err(|e| e.to_string())?;
         mpv_request_log_messages(mpv, log_level.as_ptr());
 
-        mpv_cmd(mpv, &["loadfile", &url])?;
+        mpv_cmd(mpv, &["loadfile", &playback_url])?;
 
         // mpv builds its NSWindow lazily, once the first video frame is
         // configured — start watching for it now.
@@ -638,6 +722,10 @@ pub fn mpv_start(
         let mpv = guard.defuse();
         *state.handle.lock().unwrap_or_else(|e| e.into_inner()) = Some(mpv as usize);
         *state.session_id.lock().unwrap_or_else(|e| e.into_inner()) = session_id.clone();
+        *state
+            .twitch_resolver
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = twitch_resolver.take();
         state.alive.store(true, Ordering::SeqCst);
         let alive_flag = state.alive.clone();
         let mpv_ptr = mpv as usize;
@@ -1025,7 +1113,8 @@ fn resolve_recording_path(path: &str, downloads: &Path, _home: &Path) -> Result<
 #[cfg(test)]
 mod recording_path_tests {
     use super::{
-        build_diagnostic_sample, build_http_options, resolve_recording_path, sanitize_mpv_log_text,
+        build_diagnostic_sample, build_http_options, first_existing_file, resolve_recording_path,
+        sanitize_mpv_log_text, set_mpv_option, ytdlp_script_option, MpvGuard,
         DIAGNOSTIC_PROPERTIES,
     };
     use serde_json::json;
@@ -1159,17 +1248,72 @@ mod recording_path_tests {
         assert_eq!(error, "A media request header is invalid");
         assert!(!error.contains("secret"));
     }
+
+    #[test]
+    fn selects_the_first_existing_bundled_resolver() {
+        let base = std::env::temp_dir().join(format!("movena-ytdlp-test-{}", std::process::id()));
+        let missing = base.join("missing.exe");
+        let present = base.join("yt-dlp.exe");
+        std::fs::create_dir_all(&base).unwrap();
+        std::fs::write(&present, b"test resolver").unwrap();
+
+        assert_eq!(
+            first_existing_file([missing, present.clone()]),
+            Some(present.clone())
+        );
+
+        std::fs::remove_file(present).unwrap();
+        std::fs::remove_dir(base).unwrap();
+    }
+
+    #[test]
+    fn passes_the_bundled_resolver_path_to_mpv_without_shell_parsing() {
+        let option =
+            ytdlp_script_option(Path::new("C:/Program Files/Movena, Desktop/yt-dlp.exe")).unwrap();
+
+        assert_eq!(
+            option,
+            "ytdl_hook-ytdl_path=%43%C:/Program Files/Movena, Desktop/yt-dlp.exe"
+        );
+        assert!(ytdlp_script_option(Path::new("")).is_err());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn normalizes_windows_extended_paths_for_the_resolver() {
+        let option = ytdlp_script_option(Path::new(r"\\?\C:\Movena\yt-dlp.exe")).unwrap();
+
+        assert_eq!(option, "ytdl_hook-ytdl_path=%20%C:/Movena/yt-dlp.exe");
+    }
+
+    #[test]
+    fn libmpv_accepts_the_resolver_script_option() {
+        unsafe {
+            let mpv = libmpv_sys::mpv_create();
+            assert!(!mpv.is_null());
+            let _guard = MpvGuard::new(mpv);
+            let option =
+                ytdlp_script_option(Path::new("C:/Program Files/Movena, Desktop/yt-dlp.exe"))
+                    .unwrap();
+
+            assert_eq!(set_mpv_option(mpv, "script-opts", &option), Ok(()));
+            let error = set_mpv_option(mpv, "script-opt", &option).unwrap_err();
+            assert_eq!(error, "Failed to set mpv option 'script-opt' (error -5)");
+            assert!(!error.contains("Program Files"));
+        }
+    }
 }
 
 #[tauri::command(async)]
-pub fn mpv_command(state: State<'_, NativePlayerManager>, args: Vec<String>) -> Result<(), String> {
+pub fn mpv_set_property(
+    state: State<'_, NativePlayerManager>,
+    update: MpvPropertyUpdate,
+) -> Result<(), String> {
+    let (property, value) = validate_mpv_property(&update)?;
     if let Some(mpv_usize) = *state.handle.lock().unwrap_or_else(|e| e.into_inner()) {
-        let str_args: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
         unsafe {
-            mpv_cmd(mpv_usize as *mut mpv_handle, &str_args)?;
+            mpv_cmd(mpv_usize as *mut mpv_handle, &["set", property, &value])?;
         }
-        Ok(())
-    } else {
-        Err("MPV not running".to_string())
     }
+    Ok(())
 }

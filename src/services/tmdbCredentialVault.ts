@@ -1,4 +1,4 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { desktopApi } from '../api/desktop';
 import { tauriApi } from '../api/ipc';
 import { useSettingsStore } from '../store/useSettingsStore';
 
@@ -7,7 +7,7 @@ let browserSessionKey: string | null = null;
 
 export async function storeTmdbApiKey(apiKey: string): Promise<void> {
   const value = apiKey.trim();
-  if (isTauri()) {
+  if (desktopApi.isDesktop()) {
     if (value) await tauriApi.sourceSecretStore(TMDB_CREDENTIAL_ID, value);
     else await tauriApi.sourceSecretDelete(TMDB_CREDENTIAL_ID);
   } else {
@@ -16,13 +16,13 @@ export async function storeTmdbApiKey(apiKey: string): Promise<void> {
 }
 
 export async function loadTmdbApiKey(): Promise<string | null> {
-  return isTauri()
+  return desktopApi.isDesktop()
     ? tauriApi.sourceSecretLoad(TMDB_CREDENTIAL_ID)
     : browserSessionKey;
 }
 
 export async function deleteTmdbApiKey(): Promise<void> {
-  if (isTauri()) await tauriApi.sourceSecretDelete(TMDB_CREDENTIAL_ID);
+  if (desktopApi.isDesktop()) await tauriApi.sourceSecretDelete(TMDB_CREDENTIAL_ID);
   browserSessionKey = null;
   useSettingsStore.getState().updateSetting('tmdbApiKey', '');
 }
@@ -41,4 +41,3 @@ export async function initializeTmdbApiKey(): Promise<void> {
   }
   useSettingsStore.getState().updateSetting('tmdbApiKey', storedKey ?? '');
 }
-

@@ -60,4 +60,23 @@ describe('player error interaction boundary', () => {
     expect(session.retryPlayback).toHaveBeenCalledOnce();
     expect(actions.handleOverlayClick).not.toHaveBeenCalled();
   });
+
+  it('replaces the Twitch commercial interval with Movena status UI', () => {
+    session.useMpvSession.mockReturnValue({
+      errorMessage: null,
+      retryPlayback: session.retryPlayback,
+      isRetrying: false,
+    });
+    act(() => usePlayerStore.getState().setResolverStatus({
+      provider: 'twitch',
+      phase: 'ad-break',
+      expectedDurationSeconds: 30,
+    }, usePlayerStore.getState().sessionId ?? undefined));
+
+    render(<PlayerShell />);
+
+    expect(screen.getByText('Twitch ad blocked')).toBeTruthy();
+    expect(screen.getByText('Live video resumes automatically.')).toBeTruthy();
+    expect(screen.getByRole('status')).toBeTruthy();
+  });
 });

@@ -27,7 +27,7 @@ import { IconButton } from '../common/Button';
 
 interface MediaCardMenuProps {
   item: MediaItem;
-  currentCollectionId?: string;
+  currentCollectionId?: string | undefined;
   onPlay: () => void;
   onViewDetails: () => void;
 }
