@@ -61,9 +61,7 @@ jobs:
           path: store-artifacts/*.msix
           if-no-files-found: error
       - name: Publish to Microsoft Store
-        if: ${{ inputs.publish_to_store && env.HAS_STORE_SECRETS == 'true' }}
-        env:
-          HAS_STORE_SECRETS: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
+        if: ${{ inputs.publish_to_store && secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
         uses: microsoft/store-action@v1
         with:
           tenant-id: ${{ secrets.STORE_TENANT_ID }}

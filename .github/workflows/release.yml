@@ -288,9 +288,7 @@ jobs:
     name: Publish to Microsoft Store
     needs: [build-windows, publish]
     runs-on: windows-latest
-    if: ${{ env.HAS_STORE_SECRETS == 'true' }}
-    env:
-      HAS_STORE_SECRETS: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
+    if: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
     steps:
       - uses: actions/download-artifact@v8
         with:
