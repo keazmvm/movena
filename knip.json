@@ -12,5 +12,9 @@
     "tests-ui/**/*.{ts,tsx}",
     "scripts/**/*.mjs",
     "*.config.{js,mjs,ts}"
+  ],
+  "ignoreDependencies": [
+    "@emnapi/core",
+    "@emnapi/runtime"
   ]
 }
