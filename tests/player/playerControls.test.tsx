@@ -109,8 +109,71 @@ describe('player control variants', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Forward 10 seconds' }));
     expect(native.mpvSeekRelative).toHaveBeenCalledWith(10);
+    expect(usePlayerStore.getState().currentTime).toBe(30);
+    expect(usePlayerStore.getState().isBuffering).toBe(true);
+
     await userEvent.click(screen.getByRole('button', { name: 'Playback Speed' }));
     await userEvent.click(screen.getByRole('button', { name: '1.25×' }));
     expect(native.mpvSetSpeed).toHaveBeenCalledWith(1.25);
+  });
+
+  it('displays a hover tooltip with formatted time and dismisses on pointer leave', async () => {
+    usePlayerStore.setState({
+      activeStream: { id: 'vod-1', title: 'Film', type: 'vod', streamUrl: 'https://media.test/film.mp4' },
+      currentTime: 10,
+      duration: 200,
+    });
+    withQueryClient(<VodControls />);
+
+    const seekbar = screen.getByRole('slider', { name: 'Playback position' });
+    expect(screen.queryByTestId('timeline-tooltip')).toBeNull();
+
+    // Mock getBoundingClientRect on seekbar
+    vi.spyOn(seekbar, 'getBoundingClientRect').mockReturnValue({
+      left: 100,
+      right: 300,
+      width: 200,
+      top: 0,
+      bottom: 20,
+      height: 20,
+      x: 100,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    // Hover at 50% midpoint (clientX = 200 => offsetX = 100 => midpoint = 100s = 01:40)
+    fireEvent.pointerMove(seekbar, { clientX: 200 });
+    const tooltip = screen.getByTestId('timeline-tooltip');
+    expect(tooltip).toBeTruthy();
+    expect(tooltip.textContent).toBe('01:40');
+
+    // Move to left track bound (clientX = 108 => 0s = 00:00)
+    fireEvent.pointerMove(seekbar, { clientX: 108 });
+    expect(screen.getByTestId('timeline-tooltip').textContent).toBe('00:00');
+
+    // Move to right track bound (clientX = 292 => 200s = 03:20)
+    fireEvent.pointerMove(seekbar, { clientX: 292 });
+    expect(screen.getByTestId('timeline-tooltip').textContent).toBe('03:20');
+
+    // Pointer leave removes the tooltip
+    fireEvent.pointerLeave(seekbar);
+    expect(screen.queryByTestId('timeline-tooltip')).toBeNull();
+  });
+
+  it('optimistically updates timeline position and sets buffering when seeking', async () => {
+    usePlayerStore.setState({
+      activeStream: { id: 'vod-1', title: 'Film', type: 'vod', streamUrl: 'https://media.test/film.mp4' },
+      currentTime: 10,
+      duration: 100,
+      isBuffering: false,
+    });
+    withQueryClient(<VodControls />);
+
+    const seekbar = screen.getByRole('slider', { name: 'Playback position' });
+    fireEvent.change(seekbar, { target: { value: '65' } });
+
+    expect(native.mpvSeek).toHaveBeenCalledWith(65);
+    expect(usePlayerStore.getState().currentTime).toBe(65);
+    expect(usePlayerStore.getState().isBuffering).toBe(true);
   });
 });

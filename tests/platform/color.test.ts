@@ -26,9 +26,9 @@ describe('color contrast helpers', () => {
     expect(relativeLuminance('not-a-color')).toBeNull();
   });
 
-  it('moves dark and light accents in opposite directions for hover feedback', () => {
-    expect(relativeLuminance(accentHoverColor('#0672e5'))!).toBeGreaterThan(relativeLuminance('#0672e5')!);
-    expect(relativeLuminance(accentHoverColor('#ffcc00'))!).toBeLessThan(relativeLuminance('#ffcc00')!);
+  it('moves hover accents toward the active theme contrast direction', () => {
+    expect(relativeLuminance(accentHoverColor('#0672e5', 'dark'))!).toBeGreaterThan(relativeLuminance('#0672e5')!);
+    expect(relativeLuminance(accentHoverColor('#ffcc00', 'light'))!).toBeLessThan(relativeLuminance('#ffcc00')!);
     expect(accentHoverColor('not-a-color')).toBe('not-a-color');
   });
 
@@ -36,6 +36,13 @@ describe('color contrast helpers', () => {
     for (const accent of ['#0672e5', '#31104a', '#000000', '#ff9500']) {
       const foreground = accessibleAccentForeground(accent);
       expect(contrastRatio(foreground, '#1b222d')).toBeGreaterThanOrEqual(5.5);
+    }
+  });
+
+  it('darkens arbitrary bright accents for accessible light-theme text', () => {
+    for (const accent of ['#0672e5', '#64d2ff', '#ffcc00', '#ffffff']) {
+      const foreground = accessibleAccentForeground(accent, 'light');
+      expect(contrastRatio(foreground, '#ffffff')).toBeGreaterThanOrEqual(5.5);
     }
   });
 });

@@ -11,6 +11,14 @@ beforeEach(() => {
 });
 
 describe('settings store', () => {
+  it('defaults and resets the interface theme to dark', () => {
+    expect(useSettingsStore.getState().themePreference).toBe('dark');
+    useSettingsStore.getState().updateSetting('themePreference', 'light');
+    expect(useSettingsStore.getState().themePreference).toBe('light');
+    useSettingsStore.getState().resetSettings();
+    expect(useSettingsStore.getState().themePreference).toBe('dark');
+  });
+
   it('never persists the TMDB API key in localStorage', () => {
     useSettingsStore.getState().updateSetting('tmdbApiKey', 'super-secret-tmdb-key');
     expect(localStorage.getItem('iptv-settings-storage')).not.toContain('super-secret-tmdb-key');
@@ -207,12 +215,13 @@ describe('settings store', () => {
         Object.entries(current).filter(([, value]) => typeof value !== 'function'),
       ),
       accentColor: '#af52de',
+      themePreference: 'light',
       cacheSecs: 15,
     } as Parameters<typeof current.importSettings>[0];
 
     current.importSettings(snapshot);
 
-    expect(useSettingsStore.getState()).toMatchObject({ accentColor: '#af52de', cacheSecs: 15 });
+    expect(useSettingsStore.getState()).toMatchObject({ accentColor: '#af52de', themePreference: 'light', cacheSecs: 15 });
     expect(useSettingsStore.getState().resetSettings).toBeTypeOf('function');
   });
 
@@ -246,5 +255,6 @@ describe('settings store', () => {
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('onboardingDismissed');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('sidebarCollapsed');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('epgXmltvUrl');
+    expect(SETTINGS_SNAPSHOT_KEYS).toContain('themePreference');
   });
 });

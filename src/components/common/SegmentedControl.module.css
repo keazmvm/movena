@@ -71,5 +71,5 @@
 }
 
 .active .icon {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }

@@ -14,7 +14,7 @@
   padding: var(--space-0-5) 0;
   border: none;
   background: transparent;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
@@ -124,7 +124,7 @@
 }
 
 .smartHubRow.active .smartHubIcon {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .nestedRow {
@@ -154,7 +154,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   opacity: var(--alpha-75);
 }
 
@@ -439,7 +439,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font: inherit;
   cursor: pointer;
 }

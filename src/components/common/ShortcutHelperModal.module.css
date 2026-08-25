@@ -46,7 +46,7 @@
   margin: 0;
   font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }

@@ -99,7 +99,7 @@
 .toastItem.info .iconBadge {
   background: var(--surface-control);
   border: 1px solid var(--border-subtle);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .body {

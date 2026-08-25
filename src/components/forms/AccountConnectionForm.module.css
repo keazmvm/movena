@@ -144,7 +144,7 @@
 }
 
 .inputWrapper:focus-within .fieldIcon {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .input[type='number'] {

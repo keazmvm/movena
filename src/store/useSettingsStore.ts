@@ -18,6 +18,7 @@ import {
   type SettingsSnapshot,
   type SettingsState,
   type SmartLogoAspectMode,
+  type ThemePreference,
   type UpcomingHistoryDays,
 } from './settingsTypes';
 
@@ -32,6 +33,7 @@ export type {
   HdrMode,
   HwdecMode,
   MotionPreference,
+  ThemePreference,
   SelectedCategoryIds,
   SettingsSnapshot,
   SettingsState,
@@ -154,6 +156,9 @@ const DEFAULT_SETTINGS = {
   subtitlesEnabled: true,
   autoPlayNextEpisode: true,
   skipIntroEnabled: true,
+  skipRecapEnabled: true,
+  autoSkipIntro: false,
+  introDbEnabled: true,
   audioDelayMs: 0,
   subtitleFontSize: 38,
   subtitleFontFamily: 'sans-serif',
@@ -212,6 +217,7 @@ const DEFAULT_SETTINGS = {
   viewMode: 'grid' as const,
   alwaysOnTop: false,
   accentColor: DEFAULT_ACCENT_COLOR,
+  themePreference: 'dark' as ThemePreference,
   motionPreference: 'system' as const,
   onboardingDismissed: false,
   sidebarCollapsed: false,
@@ -320,6 +326,7 @@ export function migrateSettingsState(persistedState: unknown): SettingsState {
     motionPreference: state.motionPreference === 'reduced' || state.motionPreference === 'full'
       ? state.motionPreference
       : 'system',
+    themePreference: state.themePreference === 'light' ? 'light' : 'dark',
     rememberedVolume: typeof state.rememberedVolume === 'number' && Number.isFinite(state.rememberedVolume)
       ? Math.max(0, Math.min(100, state.rememberedVolume))
       : 100,
@@ -514,7 +521,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'iptv-settings-storage',
-      version: 13,
+      version: 14,
       migrate: migrateSettingsState,
       partialize: ({ tmdbApiKey: _tmdbApiKey, ...persistedState }) => persistedState,
     }

@@ -91,7 +91,7 @@
 
 .statusPanel svg {
   flex-shrink: 0;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .statusPanel > span {
@@ -237,7 +237,7 @@
   align-items: center;
   gap: var(--space-1-5);
   overflow: hidden;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-semibold);
   text-overflow: ellipsis;
@@ -395,7 +395,7 @@
 .releaseTileEyebrow {
   display: block;
   overflow: hidden;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.04em;
@@ -469,7 +469,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-weight: var(--font-weight-medium);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
@@ -484,7 +484,7 @@
 }
 
 .statusInline {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .releasedInline {

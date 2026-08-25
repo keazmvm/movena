@@ -2,7 +2,9 @@ import {
   normalizeTmdbMovie,
   normalizeTmdbSearch,
   normalizeTmdbTv,
+  normalizeTmdbExternalIds,
   sanitizeTmdbImageUrl,
+  type NormalizedTmdbExternalIds,
   type NormalizedTmdbMovie,
   type NormalizedTmdbSearchResponse,
   type NormalizedTmdbTv,
@@ -70,4 +72,13 @@ export async function getTmdbTv(
     ...tv,
     posterUrl: tv.posterUrl ? sanitizeTmdbImageUrl(tv.posterUrl, options.imageSize) : null,
   };
+}
+
+/** Fetch external identifiers (IMDB, TVDB, etc.) for a TV series. */
+export async function getTmdbTvExternalIds(
+  apiKey: string,
+  tvId: number,
+  signal?: AbortSignal,
+): Promise<NormalizedTmdbExternalIds> {
+  return normalizeTmdbExternalIds(await tmdbRequest(`/tv/${tvId}/external_ids`, apiKey, signal));
 }

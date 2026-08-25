@@ -48,11 +48,17 @@ describe('persisted-state migrations', () => {
   it('adds safe defaults for newly introduced application preferences', () => {
     const migrated = migrateSettingsState({ motionPreference: 'invalid' });
     expect(migrated.motionPreference).toBe('system');
+    expect(migrated.themePreference).toBe('dark');
     expect(migrated.rememberedVolume).toBe(100);
     expect(migrated.lastAudibleVolume).toBe(100);
     expect(migrated.rememberedPlaybackSpeed).toBe(1);
     expect(migrated.subtitlesEnabled).toBe(true);
     expect(migrated.language).toBe('en');
+  });
+
+  it('preserves only supported explicit themes', () => {
+    expect(migrateSettingsState({ themePreference: 'light' }).themePreference).toBe('light');
+    expect(migrateSettingsState({ themePreference: 'system' }).themePreference).toBe('dark');
   });
 
   it('preserves supported interface languages and rejects unknown locales', () => {

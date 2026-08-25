@@ -245,7 +245,7 @@
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   line-height: 1.2;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   white-space: nowrap;
 }
 
@@ -390,9 +390,9 @@
   border-radius: var(--radius-md);
   background: linear-gradient(
     90deg,
-    rgba(var(--neutral-white-rgb), var(--alpha-2)) 25%,
-    rgba(var(--neutral-white-rgb), var(--alpha-8)) 50%,
-    rgba(var(--neutral-white-rgb), var(--alpha-2)) 75%
+    transparent 25%,
+    var(--surface-shimmer) 50%,
+    transparent 75%
   );
   background-size: 200% 100%;
   animation: laneShimmer var(--duration-loop-slow) infinite;
@@ -692,7 +692,7 @@
 }
 
 .watchBtn svg {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .closeBtn {

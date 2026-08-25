@@ -126,7 +126,7 @@ export function PlayerShell() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: MOTION_DURATION.normal }}
-              className={styles.loadingOverlay}
+              className={`${styles.loadingOverlay} ${outputReady ? styles.loadingOverlayBuffering : ''}`}
               onClick={(event) => event.stopPropagation()}
             >
               <div className={styles.loadingContent} role={isTwitchAdBreak ? 'status' : undefined} aria-live={isTwitchAdBreak ? 'polite' : undefined}>

@@ -187,7 +187,7 @@
 
 .recentDeleteBtn:hover {
   color: var(--color-error);
-  background: rgba(var(--neutral-white-rgb), var(--alpha-15));
+  background: rgba(var(--color-error-rgb), var(--alpha-10));
 }
 
 .suggestionItem {
@@ -338,7 +338,7 @@
 }
 
 .suggestionWatchedActive {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   opacity: 1;
 }
 
@@ -366,7 +366,7 @@
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .suggestionYear,

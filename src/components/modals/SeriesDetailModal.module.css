@@ -27,7 +27,7 @@
      left a visible seam where the 260px backdrop band met the rest of the
      modal instead of blending into it. */
   background:
-    linear-gradient(to bottom, rgba(var(--neutral-black-rgb), var(--alpha-20)) 0%, var(--surface-elevated) 100%),
+    linear-gradient(to bottom, var(--surface-detail-scrim) 0%, var(--surface-elevated) 100%),
     linear-gradient(to right, rgba(var(--neutral-black-rgb), var(--alpha-50)) 0%, transparent 60%);
 }
 
@@ -196,7 +196,7 @@
 .activeFavoriteBtn:hover {
   border-color: rgba(var(--accent-color-rgb), var(--alpha-40));
   background: rgba(var(--accent-color-rgb), var(--alpha-12));
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .detailsArea {
@@ -224,7 +224,7 @@
   font-weight: var(--font-weight-bold);
   line-height: 1.12;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(var(--neutral-black-rgb), var(--alpha-50));
+  text-shadow: var(--shadow-detail-title);
 }
 
 .mediaFacts {
@@ -298,7 +298,7 @@
 }
 
 .detailsToggle:hover {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .episodeSection {
@@ -499,7 +499,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
 }
@@ -592,7 +592,7 @@
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-full);
   background: var(--surface-elevated);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   box-shadow: var(--shadow-card);
 }
 
@@ -611,7 +611,7 @@
 }
 
 .announcedTiming {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-variant-numeric: tabular-nums;
 }
 

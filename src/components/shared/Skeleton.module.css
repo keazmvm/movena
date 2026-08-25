@@ -11,7 +11,7 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(var(--neutral-white-rgb), var(--alpha-6)), transparent);
+  background: linear-gradient(90deg, transparent, var(--surface-shimmer), transparent);
   animation: shimmer var(--duration-loop-slow) infinite;
 }
 

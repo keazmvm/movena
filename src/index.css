@@ -60,11 +60,17 @@
   --surface-debug: #111722;
   --surface-input: #10151e;
   --surface-selection: rgba(var(--accent-color-rgb), var(--alpha-15));
+  --surface-media-control: rgba(4, 6, 10, 0.84);
+  --surface-media-control-hover: rgba(23, 28, 37, 0.96);
+  --surface-detail-scrim: rgba(0, 0, 0, 0.2);
+  --surface-shimmer: rgba(255, 255, 255, 0.06);
 
   /* Text and semantic colors. */
   --text-primary: #f3f6fb;
   --text-secondary: #aeb8c8;
   --text-muted: #78869a;
+  --text-media-primary: #ffffff;
+  --text-media-secondary: rgba(255, 255, 255, 0.75);
   --text-on-accent: #ffffff;
   --text-on-success: #07130d;
   --text-on-error: #1b0709;
@@ -100,6 +106,17 @@
   --tag-coral: #ff858f;
   --tag-silver: rgba(255, 255, 255, 0.75);
 
+  /* Artwork-backed tags always use the bright media palette. These remain
+     independent from the theme-aware metadata colors below because their
+     representative surface is the dark poster overlay, not the app canvas. */
+  --tag-media-gold: #f0bd5a;
+  --tag-media-cyan: #67d5f4;
+  --tag-media-purple: #c594ff;
+  --tag-media-blue: #79b6ff;
+  --tag-media-green: #6bd995;
+  --tag-media-coral: #ff858f;
+  --tag-media-silver: #d5dde8;
+
   /* Borders are quiet by default and become clearer on interaction. */
   --border-subtle: rgba(187, 204, 230, 0.12);
   --border-grid: rgba(187, 204, 230, 0.08);
@@ -118,6 +135,7 @@
   --shadow-lg: 0 20px 44px rgba(0, 0, 0, 0.46);
   --shadow-xl: 0 28px 64px rgba(0, 0, 0, 0.54);
   --shadow-detail-control: 0 12px 28px rgba(0, 0, 0, 0.42);
+  --shadow-detail-title: 0 2px 4px rgba(0, 0, 0, 0.5);
   --shadow-drawer: -18px 0 42px rgba(0, 0, 0, 0.46);
   --shadow-toast: 0 18px 42px rgba(0, 0, 0, 0.46);
   --shadow-toast-hover: 0 22px 52px rgba(0, 0, 0, 0.56);
@@ -228,14 +246,87 @@
   --scrollbar-thumb-active: rgba(187, 204, 230, 0.38);
 }
 
-/* One semantic mapping for every category, catalogue, detail, and player tag. */
-[data-tag-type='gold'] { --badge-accent: var(--tag-gold); }
-[data-tag-type='cyan'] { --badge-accent: var(--tag-cyan); }
-[data-tag-type='purple'] { --badge-accent: var(--tag-purple); }
-[data-tag-type='blue'] { --badge-accent: var(--tag-blue); }
-[data-tag-type='green'] { --badge-accent: var(--tag-green); }
-[data-tag-type='coral'] { --badge-accent: var(--tag-coral); }
-[data-tag-type='silver'] { --badge-accent: var(--tag-silver); }
+/* Light mode is a daylight counterpart to the graphite palette. Playback
+   removes this layer through .is-playing so every native-video surface and
+   portaled menu continues to use the canonical dark tokens above. */
+html[data-theme='light']:not(.is-playing) {
+  --bg-base: #f3f6fa;
+  --bg-sidebar: #eaf0f6;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f2f5f9;
+  --bg-active: rgba(var(--accent-color-rgb), var(--alpha-10));
+  --surface-subtle: rgba(23, 32, 51, 0.035);
+  --surface-control: #f7f9fc;
+  --surface-control-hover: #eef3f8;
+  --surface-control-active: #e2eaf3;
+  --surface-elevated: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.96);
+  --surface-overlay: rgba(23, 32, 51, 0.52);
+  --surface-debug: #f7f9fc;
+  --surface-input: #ffffff;
+  --surface-selection: rgba(var(--accent-color-rgb), var(--alpha-10));
+  --surface-detail-scrim: rgba(255, 255, 255, 0.56);
+  --surface-shimmer: rgba(23, 32, 51, 0.06);
+
+  --text-primary: #172033;
+  --text-secondary: #526176;
+  --text-muted: #748399;
+  --text-on-success: #ffffff;
+  --text-on-error: #ffffff;
+  --focus-color: #176dcc;
+  --focus-color-rgb: 23, 109, 204;
+  --color-success: #168a4b;
+  --color-success-rgb: 22, 138, 75;
+  --color-warning: #9a6500;
+  --color-warning-rgb: 154, 101, 0;
+  --color-error: #b12b3c;
+  --color-error-rgb: 177, 43, 60;
+  --color-info: #087fa5;
+  --color-favorite: #c83e5d;
+  --tag-gold: #8a6200;
+  --tag-cyan: #087d96;
+  --tag-purple: #7045b8;
+  --tag-blue: #236bb8;
+  --tag-green: #237a4b;
+  --tag-coral: #b84254;
+  --tag-silver: rgba(23, 32, 51, 0.72);
+
+  --border-subtle: rgba(30, 55, 85, 0.12);
+  --border-grid: rgba(30, 55, 85, 0.08);
+  --border-strong: rgba(30, 55, 85, 0.22);
+  --border-emphasis: rgba(30, 55, 85, 0.34);
+  --shadow-xs: 0 1px 2px rgba(30, 55, 85, 0.12);
+  --shadow-control: 0 2px 4px rgba(30, 55, 85, 0.1);
+  --shadow-card: 0 8px 20px rgba(30, 55, 85, 0.1);
+  --shadow-card-strong: 0 12px 28px rgba(30, 55, 85, 0.16);
+  --shadow-sm: 0 4px 12px rgba(30, 55, 85, 0.1);
+  --shadow-md: 0 10px 24px rgba(30, 55, 85, 0.12);
+  --shadow-popover: 0 16px 36px rgba(30, 55, 85, 0.16);
+  --shadow-popover-deep: 0 20px 44px rgba(30, 55, 85, 0.2);
+  --shadow-lg: 0 20px 44px rgba(30, 55, 85, 0.16);
+  --shadow-xl: 0 28px 64px rgba(30, 55, 85, 0.18);
+  --shadow-detail-control: 0 12px 28px rgba(30, 55, 85, 0.16);
+  --shadow-detail-title: 0 1px 2px rgba(255, 255, 255, 0.85);
+  --shadow-drawer: -18px 0 42px rgba(30, 55, 85, 0.16);
+  --shadow-toast: 0 18px 42px rgba(30, 55, 85, 0.16);
+  --shadow-toast-hover: 0 22px 52px rgba(30, 55, 85, 0.2);
+  --shadow-menu: 0 14px 30px rgba(30, 55, 85, 0.16);
+  --shadow-modal: 0 28px 68px rgba(30, 55, 85, 0.2);
+  --focus-ring: 0 0 0 3px rgba(var(--focus-color-rgb), 0.32);
+  --scrollbar-thumb: rgba(52, 72, 96, 0.18);
+  --scrollbar-thumb-hover: rgba(52, 72, 96, 0.3);
+  --scrollbar-thumb-active: rgba(52, 72, 96, 0.42);
+}
+
+/* One semantic mapping for every category, catalogue, detail, and player tag.
+   Media cards opt into the invariant accent when the tag sits over artwork. */
+[data-tag-type='gold'] { --badge-accent: var(--tag-gold); --media-badge-accent: var(--tag-media-gold); }
+[data-tag-type='cyan'] { --badge-accent: var(--tag-cyan); --media-badge-accent: var(--tag-media-cyan); }
+[data-tag-type='purple'] { --badge-accent: var(--tag-purple); --media-badge-accent: var(--tag-media-purple); }
+[data-tag-type='blue'] { --badge-accent: var(--tag-blue); --media-badge-accent: var(--tag-media-blue); }
+[data-tag-type='green'] { --badge-accent: var(--tag-green); --media-badge-accent: var(--tag-media-green); }
+[data-tag-type='coral'] { --badge-accent: var(--tag-coral); --media-badge-accent: var(--tag-media-coral); }
+[data-tag-type='silver'] { --badge-accent: var(--tag-silver); --media-badge-accent: var(--tag-media-silver); }
 
 
 
@@ -398,6 +489,18 @@ button,
   background: var(--surface-control);
 }
 
+html {
+  color-scheme: dark;
+}
+
+html[data-theme='light']:not(.is-playing) {
+  color-scheme: light;
+}
+
+html.is-playing {
+  color-scheme: dark !important;
+}
+
 .uiField[data-size='sm'] {
   height: var(--control-height-sm);
   padding-inline: var(--space-2);
@@ -476,7 +579,7 @@ body {
   line-height: var(--line-height-normal);
   background-color: var(--bg-base);
   color: var(--text-primary);
-  color-scheme: dark;
+  color-scheme: inherit;
   /* Smooth fonts on macOS */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -588,6 +691,17 @@ html[data-motion='reduced'] *::after {
     --surface-control-hover: rgba(255, 255, 255, 0.16);
     --surface-control-active: rgba(255, 255, 255, 0.24);
     --focus-ring: 0 0 0 4px rgba(var(--focus-color-rgb), 0.76);
+  }
+
+  html[data-theme='light']:not(.is-playing) {
+    --text-secondary: rgba(23, 32, 51, 0.92);
+    --text-muted: rgba(23, 32, 51, 0.76);
+    --border-subtle: rgba(30, 55, 85, 0.28);
+    --border-strong: rgba(30, 55, 85, 0.46);
+    --border-emphasis: rgba(30, 55, 85, 0.62);
+    --surface-control-hover: #e3eaf2;
+    --surface-control-active: #d5e0eb;
+    --focus-ring: 0 0 0 4px rgba(var(--focus-color-rgb), 0.58);
   }
 }
 

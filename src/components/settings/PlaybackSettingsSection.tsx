@@ -177,12 +177,45 @@ export function PlaybackSettingsSection() {
 
         <SettingsRow
           title="Skip Intro Action"
-          description="Show Skip Intro when the current file contains a matching chapter."
+          description="Show the Skip Intro button when the file has matching chapters or community timestamps."
         >
           <SettingsToggle
             label="Show Skip Intro action"
             checked={settings.skipIntroEnabled}
             onChange={(checked) => settings.updateSetting('skipIntroEnabled', checked)}
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          title="Skip Recap Action"
+          description="Show the Skip Recap button when a recap segment is detected."
+        >
+          <SettingsToggle
+            label="Show Skip Recap action"
+            checked={settings.skipRecapEnabled}
+            onChange={(checked) => settings.updateSetting('skipRecapEnabled', checked)}
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          title="Auto-Skip Intro & Recap"
+          description="Automatically seek past intros and recaps without needing to click the prompt."
+        >
+          <SettingsToggle
+            label="Automatically skip intros and recaps"
+            checked={settings.autoSkipIntro}
+            onChange={(checked) => settings.updateSetting('autoSkipIntro', checked)}
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          title="Community Timestamps (IntroDB)"
+          description="Look up crowdsourced intro and recap timestamps when files lack embedded chapters."
+        >
+          <SettingsToggle
+            label="Enable IntroDB community timestamps"
+            checked={settings.introDbEnabled}
+            onChange={(checked) => settings.updateSetting('introDbEnabled', checked)}
           />
         </SettingsRow>
       </SettingsGroup>

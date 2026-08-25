@@ -70,7 +70,7 @@
   align-items: center;
   gap: var(--space-1);
   min-width: 0;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
   font-variant-numeric: tabular-nums;
@@ -89,7 +89,7 @@
 .agendaCopy strong, .agendaCopy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agendaCopy strong { font-size: var(--font-size-control); }
 .agendaCopy span { margin-top: var(--space-1); color: var(--text-secondary); font-size: var(--font-size-caption); }
-.agendaTime { color: var(--accent-color); font-size: var(--font-size-small); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.agendaTime { color: var(--accent-foreground); font-size: var(--font-size-small); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 760px) {
   .calendar { padding: var(--space-3); }

@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid rgba(var(--neutral-white-rgb), var(--alpha-10));
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
   background: var(--surface-debug);
   box-shadow: var(--shadow-md);
@@ -30,7 +30,7 @@
 }
 
 .debugPill:hover {
-  border-color: rgba(var(--neutral-white-rgb), var(--alpha-20));
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-popover);
   color: var(--text-primary);
 }
@@ -55,7 +55,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(var(--neutral-white-rgb), var(--alpha-12));
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: var(--surface-debug);
   box-shadow: var(--shadow-xl);
@@ -160,6 +160,10 @@
   scrollbar-width: none;
   border-bottom: 1px solid var(--border-subtle);
   background: rgba(var(--neutral-black-rgb), var(--alpha-20));
+}
+
+:global(html[data-theme='light']:not(.is-playing)) .tabsBar {
+  background: var(--surface-control-active);
 }
 
 .tabsBar::-webkit-scrollbar {
@@ -373,7 +377,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   background: rgba(var(--neutral-black-rgb), var(--alpha-15));
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .sparklineHeading {
@@ -467,7 +471,7 @@
 
 .toolbarBtn:hover,
 .toolbarBtn[aria-pressed='true'] {
-  border-color: rgba(var(--neutral-white-rgb), var(--alpha-20));
+  border-color: var(--border-strong);
   background: var(--surface-control-hover);
   color: var(--text-primary);
 }
@@ -644,7 +648,7 @@
 .resizeHandle:focus-visible,
 .debugOverlayWindow[data-pointer-operation='resize'] .resizeHandle {
   background: var(--surface-control-hover);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 @container (max-width: 560px) {

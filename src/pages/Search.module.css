@@ -42,7 +42,7 @@
 
 .clearInputBtn:hover {
   color: var(--text-primary);
-  background: rgba(var(--neutral-white-rgb), var(--alpha-10));
+  background: var(--surface-control-hover);
 }
 
 .searchInput {

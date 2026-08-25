@@ -75,4 +75,7 @@ export const queryKeys = {
     ['tmdb_upcoming', favoriteScope, language, includeAdult, imageSize, exactTimes, historyDays, calendarDay] as const,
   tvmazeSearch: (title: string) => ['tvmaze_search', title.trim().toLocaleLowerCase()] as const,
   tvmazeEpisodes: (showId: number) => ['tvmaze_episodes_v3', showId] as const,
+  tmdbExternalIds: (tmdbId: number) => ['tmdb_external_ids', tmdbId] as const,
+  introDbSegments: (imdbId: string, season: number, episode: number) =>
+    ['introdb_segments', imdbId, season, episode] as const,
 };

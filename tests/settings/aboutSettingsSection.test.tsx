@@ -71,6 +71,7 @@ describe('all-data deletion settings control', () => {
 
     expect(tmdbButton.closest('[class*="aboutBody"]')).not.toBeNull();
     expect(screen.getByRole('button', { name: 'TVmaze' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'IntroDB' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'CC BY-SA 4.0' })).toBeTruthy();
     expect(screen.queryByRole('img', { name: 'TMDB' })).toBeNull();
   });

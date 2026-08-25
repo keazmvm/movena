@@ -119,15 +119,20 @@ export function contrastRatio(foreground: string, background: string): number | 
  * remain legible as small text on Movena's deepest elevated surface. The 5.5
  * target leaves headroom for the accent-tinted selection surface.
  */
-export function accessibleAccentForeground(hex: string): string {
+export function accessibleAccentForeground(
+  hex: string,
+  theme: 'dark' | 'light' = 'dark',
+): string {
   const hsl = hexToHsl(hex);
   if (!hsl) return DEFAULT_ACCENT_COLOR;
-  const background = '#1b222d';
-  for (let lightness = hsl.l; lightness <= 96; lightness += 1) {
+  const background = theme === 'light' ? '#ffffff' : '#1b222d';
+  const boundary = theme === 'light' ? 0 : 96;
+  const step = theme === 'light' ? -1 : 1;
+  for (let lightness = hsl.l; theme === 'light' ? lightness >= boundary : lightness <= boundary; lightness += step) {
     const candidate = hslToHex({ ...hsl, l: lightness });
     if ((contrastRatio(candidate, background) ?? 0) >= 5.5) return candidate;
   }
-  return LIGHT_CONTRAST_TEXT;
+  return theme === 'light' ? DARK_CONTRAST_TEXT : LIGHT_CONTRAST_TEXT;
 }
 
 export function isLightColor(hex: string): boolean {
@@ -147,12 +152,15 @@ export function contrastingTextColor(hex: string): string {
  * Produces a perceptible hover tone without assuming every custom accent is
  * dark. Bright accents move toward black; dark accents move toward white.
  */
-export function accentHoverColor(hex: string): string {
+export function accentHoverColor(
+  hex: string,
+  theme: 'dark' | 'light' = 'dark',
+): string {
   const hsl = hexToHsl(hex);
   if (!hsl) return hex;
 
   return hslToHex({
     ...hsl,
-    l: hsl.l + (isLightColor(hex) ? -8 : 8),
+    l: hsl.l + (theme === 'light' ? -8 : 8),
   });
 }

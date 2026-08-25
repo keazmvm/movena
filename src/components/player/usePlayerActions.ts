@@ -77,6 +77,9 @@ export function usePlayerActions(
 
   const seekRelative = useCallback(async (seconds: number) => {
     try {
+      const state = usePlayerStore.getState();
+      const target = Math.max(0, state.duration > 0 ? Math.min(state.duration, state.currentTime + seconds) : state.currentTime + seconds);
+      usePlayerStore.setState({ currentTime: target, isBuffering: true });
       await tauriApi.mpvSeekRelative(seconds);
     } catch (error) {
       notify.error('Seek Failed', getErrorMessage(error, 'mpv_seek_relative failed without an error message.'), undefined, undefined, 'playback');

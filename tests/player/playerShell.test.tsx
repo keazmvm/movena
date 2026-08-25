@@ -79,4 +79,23 @@ describe('player error interaction boundary', () => {
     expect(screen.getByText('Live video resumes automatically.')).toBeTruthy();
     expect(screen.getByRole('status')).toBeTruthy();
   });
+
+  it('renders a transparent buffering overlay during active playback without blocking video frames', () => {
+    session.useMpvSession.mockReturnValue({
+      errorMessage: null,
+      retryPlayback: session.retryPlayback,
+      isRetrying: false,
+    });
+    act(() => {
+      usePlayerStore.setState({
+        isVideoReady: true,
+        isBuffering: true,
+      });
+    });
+
+    const { container } = render(<PlayerShell />);
+    const overlay = container.querySelector('[class*="loadingOverlay"]');
+    expect(overlay).toBeTruthy();
+    expect(overlay?.className).toContain('loadingOverlayBuffering');
+  });
 });

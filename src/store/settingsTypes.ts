@@ -7,6 +7,7 @@ export type HwdecMode = 'auto' | 'auto-safe' | 'no';
 export type HdrMode = 'auto' | 'off';
 export type ToneMappingMode = 'auto' | 'hable' | 'reinhard' | 'mobius' | 'bt.2446a';
 export type MotionPreference = 'system' | 'reduced' | 'full';
+export type ThemePreference = 'dark' | 'light';
 type TmdbLanguage = 'auto' | UiLocale;
 type TmdbImageSize = 'w342' | 'w500' | 'w780';
 export type UpcomingHistoryDays = 3 | 7 | 14 | 30;
@@ -57,7 +58,10 @@ export interface SettingsState {
   rememberedPlaybackSpeed: number;
   subtitlesEnabled: boolean;
   autoPlayNextEpisode: boolean; // countdown-and-advance when a series episode ends
-  skipIntroEnabled: boolean;    // show a Skip Intro button when the file has a matching chapter
+  skipIntroEnabled: boolean;    // show Skip Intro action
+  skipRecapEnabled: boolean;    // show Skip Recap action
+  autoSkipIntro: boolean;       // automatically seek past intros/recaps without clicking
+  introDbEnabled: boolean;      // enable crowdsourced timestamps lookup from IntroDB
   audioDelayMs: number;
   subtitleFontSize: number;
   subtitleFontFamily: string;
@@ -122,6 +126,7 @@ export interface SettingsState {
   viewMode: 'grid' | 'list';
   alwaysOnTop: boolean;
   accentColor: string;
+  themePreference: ThemePreference;
   motionPreference: MotionPreference;
   onboardingDismissed: boolean;
   sidebarCollapsed: boolean;
@@ -184,7 +189,7 @@ export interface SettingsState {
 export const SETTINGS_SNAPSHOT_KEYS = [
   'hardwareAcceleration', 'hwdecMode', 'demuxerMaxBytes', 'cacheSecs', 'seekJumpSecs',
   'aspectRatio', 'rememberedVolume', 'lastAudibleVolume', 'rememberedPlaybackSpeed',
-  'subtitlesEnabled', 'autoPlayNextEpisode', 'skipIntroEnabled', 'audioDelayMs', 'subtitleFontSize',
+  'subtitlesEnabled', 'autoPlayNextEpisode', 'skipIntroEnabled', 'skipRecapEnabled', 'autoSkipIntro', 'introDbEnabled', 'audioDelayMs', 'subtitleFontSize',
   'subtitleFontFamily', 'subtitleOpacity', 'subtitleBorderSize', 'subtitleShadowOffset', 'startupTimeoutMs',
   'streamFailoverEnabled', 'maxStreamFailovers', 'language', 'hdrMode', 'toneMappingMode',
   'tmdbEnabled', 'tmdbLanguage', 'tmdbImageSize', 'tmdbIncludeAdult',
@@ -197,7 +202,7 @@ export const SETTINGS_SNAPSHOT_KEYS = [
   'm3uEditorConfirmDestructive', 'm3uEditorRememberFilters', 'm3uEditorSidebarWidth',
   'm3uEditorInspectorWidth', 'm3uHealthTimeoutMs', 'm3uHealthConcurrency', 'm3uPreserveUnknownTags',
   'sidebarWidth', 'viewMode', 'alwaysOnTop',
-  'accentColor', 'motionPreference', 'showCollapsedSidebarBadges', 'recordingPath', 'instantRecord',
+  'accentColor', 'themePreference', 'motionPreference', 'showCollapsedSidebarBadges', 'recordingPath', 'instantRecord',
   'downloadDirectory', 'maxConcurrentDownloads', 'autoStartDownloads',
   'enableNotifications', 'toastPosition', 'toastDurationSecs', 'dndDuringPlayback',
   'notifyPlaybackEvents', 'notifyConnectionStatus', 'notifyLibraryUpdates', 'notifyDownloadEvents', 'notifySound',

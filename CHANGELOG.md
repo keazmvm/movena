@@ -8,8 +8,38 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-08-26
+
+This release adds a complete light appearance, community-backed episode
+segment skipping, more responsive VOD seeking, and the first store-oriented
+Windows distribution path. It also folds the post-0.1.8 interface, project
+showcase, dependency, release, and quality-gate work into one tagged build.
+
+### Added
+
+- Added a persisted light theme with a first-frame-safe startup application,
+  theme-aware accent contrast, high-contrast and reduced-motion variants, and
+  a dark playback contract that temporarily overrides the saved app theme.
+- Added IntroDB intro, recap, and outro timestamp lookup, resolving series IMDb
+  identifiers through TMDB when configured and TVmaze as the public fallback.
+  Embedded media chapters remain preferred when both sources have data.
+- Added separate Skip Intro and Skip Recap controls, optional automatic
+  intro/recap skipping, IntroDB and auto-skip preferences, localized copy, and
+  IntroDB attribution in the About and third-party documentation.
+- Added seekbar hover timestamps, live scrubbing feedback, and immediate
+  optimistic timeline/buffering feedback for absolute and relative VOD seeks.
+- Added Microsoft Store MSIX build and optional submission automation, WinGet
+  manifests, distribution starting points for Homebrew, AUR, and Flathub, plus
+  store listing copy, screenshots, and generated artwork.
+- Added dark/light accessibility, minimum-window, 200%-zoom, translated-copy,
+  token-contract, and visual-regression coverage to the component QA harness,
+  including checked-in Windows light-theme baselines.
+
 ### Changed
 
+- Refreshed application surfaces, media overlays, semantic artwork colors,
+  selected-state accents, detail presentation, icons, screenshots, and project
+  showcase material so they remain legible and consistent in both themes.
 - Removed the unused XMLTV probe IPC contract and narrowed internal exports
   without changing persisted settings, source schemas, credentials, caches, or
   the 0.1.x migration chain.
@@ -23,6 +53,16 @@ for tagged releases.
 - Updated compatible dependencies and official GitHub Action majors, corrected
   user-facing copy, and expanded updater, menu, detail, build-output, and player
   control regression coverage.
+
+### Fixed
+
+- Kept seek loading feedback active until authoritative mpv playback events
+  report that seeking or buffering has completed.
+- Corrected release automation for Microsoft Store secret evaluation, macOS
+  runner selection, and cross-platform npm lockfile dependency alignment.
+- Corrected media-card, context-menu, modal, loading, skeleton, calendar,
+  settings, and overlay colors that could lose contrast under a light theme or
+  over artwork.
 
 ## [0.1.8] - 2026-08-25
 
@@ -330,6 +370,7 @@ public project considerably easier to evaluate.
   resolver teardown, accessibility, signing claims, checksums, licenses, and
   corresponding source.
 
-[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/movena-app/movena/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/movena-app/movena/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/movena-app/movena/compare/v0.1.6...v0.1.7

@@ -21,11 +21,13 @@ import {
   ListVideo,
   Maximize,
   Minimize,
+  Moon,
   Music2,
   Palette,
   Pause,
   Play,
   RadioTower,
+  Ratio,
   Rows3,
   Search,
   Server,
@@ -33,6 +35,7 @@ import {
   SkipForward,
   Sparkles,
   Star,
+  Sun,
   Terminal,
   Tv,
   Volume1,
@@ -51,8 +54,8 @@ import {
  */
 export type RemixiconComponentType = LucideIcon;
 
-export const RiAspectRatioFill = Maximize;
-export const RiAspectRatioLine = Maximize;
+export const RiAspectRatioFill = Ratio;
+export const RiAspectRatioLine = Ratio;
 export const RiCalendarScheduleFill = CalendarDays;
 export const RiCalendarScheduleLine = CalendarDays;
 export const RiClosedCaptioningFill = Captions;
@@ -89,6 +92,8 @@ export const RiMovie2Fill = Film;
 export const RiMovie2Line = Film;
 export const RiMusic2Fill = Music2;
 export const RiMusic2Line = Music2;
+export const RiMoonFill = Moon;
+export const RiMoonLine = Moon;
 export const RiNotification3Fill = Bell;
 export const RiNotification3Line = Bell;
 export const RiPaletteFill = Palette;
@@ -118,6 +123,8 @@ export const RiSpeedUpFill = Gauge;
 export const RiSpeedUpLine = Gauge;
 export const RiStarFill = Star;
 export const RiStarLine = Star;
+export const RiSunFill = Sun;
+export const RiSunLine = Sun;
 export const RiTerminalBoxFill = Terminal;
 export const RiTerminalBoxLine = Terminal;
 export const RiTimeFill = Clock3;
@@ -127,4 +134,3 @@ export const RiTv2Line = Tv;
 export const RiVolumeDownLine = Volume1;
 export const RiVolumeMuteFill = VolumeX;
 export const RiVolumeUpLine = Volume2;
-

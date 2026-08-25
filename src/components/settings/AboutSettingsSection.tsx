@@ -162,8 +162,8 @@ export function AboutSettingsSection() {
       </SettingsGroup>
 
       <SettingsGroup
-        title="Metadata & Schedule Sources"
-        description="This product uses the TMDB API but is not endorsed or certified by TMDB. Release dates, artwork, and ratings are provided by TMDB. TVmaze data is licensed under CC BY-SA 4.0 and provides exact TV air times."
+        title="Metadata & Community Sources"
+        description="This product uses the TMDB API but is not endorsed or certified by TMDB. Release dates, artwork, and ratings are provided by TMDB. TVmaze data is licensed under CC BY-SA 4.0 and provides exact TV air times. IntroDB provides crowdsourced intro, recap, and outro timestamps."
       >
         <div className={styles.aboutBody}>
           <div className={styles.aboutLinks}>
@@ -172,6 +172,9 @@ export function AboutSettingsSection() {
             </SettingsButton>
             <SettingsButton onClick={() => void desktopApi.openUrl('https://www.tvmaze.com')}>
               <ExternalLink size={15} /> TVmaze
+            </SettingsButton>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://introdb.app')}>
+              <ExternalLink size={15} /> IntroDB
             </SettingsButton>
             <SettingsButton onClick={() => void desktopApi.openUrl('https://creativecommons.org/licenses/by-sa/4.0/')}>
               <ExternalLink size={15} /> CC BY-SA 4.0

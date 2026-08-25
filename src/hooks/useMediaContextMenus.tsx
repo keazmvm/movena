@@ -137,7 +137,7 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove from Favorites' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-color)' : 'none'} color={isFav ? 'var(--accent-color)' : 'currentColor'} />,
+          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
           action: () => {
             if (isFav) {
               state.removeFavorite(item.id);
@@ -149,7 +149,7 @@ export function useMediaContextMenus() {
         {
           id: 'watched',
           label: t(isW ? 'Mark as Unwatched' : 'Mark as Watched'),
-          icon: isW ? <CheckCircle size={16} color="var(--accent-color)" /> : <Circle size={16} />,
+          icon: isW ? <CheckCircle size={16} color="var(--accent-foreground)" /> : <Circle size={16} />,
           action: () => state.toggleWatched(item.id),
         },
       );
@@ -271,13 +271,13 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove Favorite' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-color)' : 'none'} color={isFav ? 'var(--accent-color)' : 'currentColor'} />,
+          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
           action: () => (isFav ? state.removeFavorite(item.id) : state.addFavorite(item)),
         },
         {
           id: 'mark-finished',
           label: t('Mark as Finished'),
-          icon: <CheckCircle size={16} color="var(--accent-color)" />,
+          icon: <CheckCircle size={16} color="var(--accent-foreground)" />,
           action: () => {
             state.toggleWatched(item.id);
             state.removeFromHistory(item.id);
@@ -320,7 +320,7 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove Favorite' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-color)' : 'none'} color={isFav ? 'var(--accent-color)' : 'currentColor'} />,
+          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
           action: () => (isFav ? state.removeFavorite(channel.id) : state.addFavorite(channel)),
         },
         buildLogoAspectMenuItem(channel, t),

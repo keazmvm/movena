@@ -171,6 +171,10 @@
   flex-shrink: 0;
 }
 
+:global(html[data-theme='light']:not(.is-playing)) .rowDescription {
+  color: var(--text-secondary);
+}
+
 .buttonIconOnly {
   width: var(--control-height-md);
   flex: 0 0 var(--control-height-md);

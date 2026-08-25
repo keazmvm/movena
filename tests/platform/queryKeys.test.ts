@@ -67,5 +67,7 @@ describe('provider-scoped query keys', () => {
     expect(queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', true, 14, '2026-08-23'))
       .not.toEqual(queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', false, 14, '2026-08-23'));
     expect(queryKeys.tvmazeEpisodes(42)).toEqual(['tvmaze_episodes_v3', 42]);
+    expect(queryKeys.tmdbExternalIds(1399)).toEqual(['tmdb_external_ids', 1399]);
+    expect(queryKeys.introDbSegments('tt0944947', 1, 1)).toEqual(['introdb_segments', 'tt0944947', 1, 1]);
   });
 });

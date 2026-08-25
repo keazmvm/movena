@@ -143,7 +143,7 @@ export function MediaCardMenu({ item, currentCollectionId, onPlay, onViewDetails
               else store.addFavorite(item);
             })}
           >
-            <Heart size={14} fill={isFavorite ? 'var(--accent-color)' : 'none'} color={isFavorite ? 'var(--accent-color)' : 'currentColor'} />
+            <Heart size={14} fill={isFavorite ? 'var(--accent-foreground)' : 'none'} color={isFavorite ? 'var(--accent-foreground)' : 'currentColor'} />
             <span>{t(isFavorite ? 'Remove Favorite' : 'Add to Favorites')}</span>
           </button>
           <button type="button" className={styles.menuItem} onClick={(event) => run(event, () => useLibraryStore.getState().toggleWatched(item.id))}>

@@ -5,7 +5,10 @@ import App from './App.tsx'
 import { ensureUiMessages } from './i18n.ts'
 import { useSettingsStore } from './store/useSettingsStore.ts'
 import { initializeTmdbApiKey } from './services/tmdbCredentialVault.ts'
+import { applyAppearanceTheme } from './design/appearance.ts'
 
+const initialSettings = useSettingsStore.getState()
+applyAppearanceTheme(initialSettings.themePreference, initialSettings.accentColor)
 const root = createRoot(document.getElementById('root')!)
 
 async function renderApp() {

@@ -3,19 +3,23 @@ import { BrowserRouter } from 'react-router-dom';
 import { ensureUiMessages } from '../../src/i18n';
 import { isUiLanguage } from '../../src/i18nConfig';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { applyAppearanceTheme } from '../../src/design/appearance';
 import '../../src/index.css';
 import { ComponentHarness } from './ComponentHarness';
 import { README_SURFACES, ReadmeHarness, type ReadmeSurface } from './ReadmeHarness';
 
 async function renderHarness() {
-  const requestedLocale = new URLSearchParams(window.location.search).get('locale');
+  const searchParams = new URLSearchParams(window.location.search);
+  const requestedLocale = searchParams.get('locale');
   const language = isUiLanguage(requestedLocale) ? requestedLocale : 'en';
+  const theme = searchParams.get('theme') === 'light' ? 'light' : 'dark';
   await ensureUiMessages(language);
-  useSettingsStore.setState({ language });
+  useSettingsStore.setState({ language, themePreference: theme });
+  applyAppearanceTheme(theme, useSettingsStore.getState().accentColor);
   document.documentElement.lang = language;
   document.documentElement.dataset.motion = 'reduced';
 
-  const readmeSurface = new URLSearchParams(window.location.search).get('readme');
+  const readmeSurface = searchParams.get('readme');
   const isReadmeSurface = README_SURFACES.includes(readmeSurface as ReadmeSurface);
 
   createRoot(document.getElementById('root')!).render(isReadmeSurface ? (

@@ -75,7 +75,7 @@ enabled channels, catalogues, categories, and guides in one workspace.
   embedded ad intervals playback waits for the channel stream to resume.
 - Use hardware decoding, buffering controls, and automatic playback recovery.
 - Switch audio and subtitle tracks; adjust speed, aspect ratio, picture, and subtitle presentation.
-- Enter native fullscreen, skip chapter-marked intros, continue to the next episode, and record live streams.
+- Enter native fullscreen, skip chapter-marked or IntroDB-detected intros and recaps, continue to the next episode, and record live streams.
 
 **Library and offline use**
 

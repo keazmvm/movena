@@ -294,6 +294,7 @@ const SURFACE_COMPONENTS: Record<UiQaSurface, () => React.JSX.Element> = {
 
 export function ComponentHarness({ language }: { language: UiLanguage }) {
   const surface = surfaceFromPath();
+  const themePreference = useSettingsStore((state) => state.themePreference);
   const copy = language === 'de' ? COPY.de : COPY.en;
   const titleBySurface: Record<UiQaSurface, string> = {
     primitives: copy.primitives,
@@ -314,7 +315,7 @@ export function ComponentHarness({ language }: { language: UiLanguage }) {
         </div>
         <nav className={styles.navigation} aria-label="Component QA surfaces">
           {UI_QA_SURFACES.map((item) => (
-            <a key={item} href={`/${item}?locale=${language}`} aria-current={item === surface ? 'page' : undefined}>
+            <a key={item} href={`/${item}?locale=${language}&theme=${themePreference}`} aria-current={item === surface ? 'page' : undefined}>
               {item.replace('-', ' ')}
             </a>
           ))}

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../src/components/layout/Sidebar', () => ({
@@ -100,6 +100,20 @@ describe('application shell', () => {
     expect(await screen.findByText('Mock home')).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Mock sidebar' })).toBeTruthy();
     expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('synchronizes theme changes to the document immediately', async () => {
+    render(<App />);
+    await screen.findByText('Mock home');
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    act(() => useSettingsStore.getState().updateSetting('themePreference', 'light'));
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.theme).toBe('light');
+      expect(document.documentElement.style.colorScheme).toBe('light');
+    });
   });
 
   it('restores the main workspace and routes global keyboard shortcuts', async () => {

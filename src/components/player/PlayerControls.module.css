@@ -78,6 +78,32 @@
   width: 100%;
 }
 
+.seekbarWrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.timelineTooltip {
+  position: absolute;
+  bottom: calc(100% + var(--space-1-5));
+  transform: translateX(-50%);
+  background: var(--surface-player);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-player-controls);
+  user-select: none;
+}
+
 .timeText {
   color: var(--text-primary);
   font-size: var(--font-size-body);

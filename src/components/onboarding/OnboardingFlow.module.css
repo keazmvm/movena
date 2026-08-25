@@ -74,13 +74,13 @@
 .stepItemActive .stepNumber {
   border-color: var(--accent-color);
   background: var(--surface-selection);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .stepItemDone .stepNumber {
   border-color: rgba(var(--accent-color-rgb), var(--alpha-45));
   background: rgba(var(--accent-color-rgb), var(--alpha-15));
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .stepItemDone::after {
@@ -146,7 +146,7 @@
 .sourceChoice svg:first-child {
   flex: 0 0 auto;
   margin-top: var(--space-px);
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .sourceChoice > span {
@@ -201,7 +201,7 @@
 
 .destinationTile > svg {
   margin-bottom: auto;
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .destinationTile strong {

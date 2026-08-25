@@ -44,7 +44,7 @@
 }
 
 .seeAllBtn:hover {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
   background: rgba(var(--accent-color-rgb), var(--alpha-15));
 }
 

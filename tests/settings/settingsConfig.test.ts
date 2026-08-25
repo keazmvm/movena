@@ -20,6 +20,7 @@ beforeEach(() => {
 describe('portable settings configuration', () => {
   it('exports only portable preferences in a versioned document', () => {
     useSettingsStore.getState().updateSetting('accentColor', '#af52de');
+    useSettingsStore.getState().updateSetting('themePreference', 'light');
     useSettingsStore.getState().updateSetting('tmdbApiKey', 'local-secret');
     useSettingsStore.getState().updateSetting('tmdbLanguage', 'de-DE');
     useSettingsStore.getState().updateSetting('tmdbImageSize', 'w780');
@@ -37,12 +38,17 @@ describe('portable settings configuration', () => {
       exportedAt: '2026-08-10T12:00:00.000Z',
       settings: {
         accentColor: '#af52de',
+        themePreference: 'light',
         language: 'de',
         tmdbLanguage: 'de-DE',
         tmdbImageSize: 'w780',
         upcomingHomeEnabled: false,
         upcomingCalendarEnabled: false,
         upcomingHistoryDays: 14,
+        skipIntroEnabled: true,
+        skipRecapEnabled: true,
+        autoSkipIntro: false,
+        introDbEnabled: true,
       },
     });
     expect(document.settings).not.toHaveProperty('updateSetting');
@@ -62,6 +68,7 @@ describe('portable settings configuration', () => {
         cacheSecs: 999,
         seekJumpSecs: 30,
         accentColor: 'not-a-color',
+        themePreference: 'system',
         enableNotifications: 'yes',
         hardwareAcceleration: 'yes',
         hwdecMode: 'turbo',
@@ -76,6 +83,7 @@ describe('portable settings configuration', () => {
       cacheSecs: 30,
       seekJumpSecs: 30,
       accentColor: '#0672e5',
+      themePreference: 'dark',
       enableNotifications: true,
       hardwareAcceleration: true,
       hwdecMode: 'auto-safe',

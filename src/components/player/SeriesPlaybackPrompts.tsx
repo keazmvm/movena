@@ -6,8 +6,9 @@ import { usePlayerStore } from '../../store/usePlayerStore';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useSeriesInfo } from '../../api/useDetails';
+import { useIntroDbSegments } from '../../api/useIntroDb';
 import { findNextEpisode } from '../../utils/seriesNavigation';
-import { findIntroChapter, findOutroChapter } from '../../utils/chapters';
+import { resolvePlaybackPromptSegments } from '../../utils/chapters';
 import {
   formatEpisodePlaybackTitle,
   getSeriesBaseTitle,
@@ -23,10 +24,11 @@ import { useI18n } from '../../i18n';
 const AUTO_PLAY_COUNTDOWN_SECONDS = 8;
 
 /**
- * Everything about moving between episodes that isn't the seekbar: the Skip
- * Intro button, the Next Episode prompt that appears once the credits roll,
- * and the auto-play countdown once mpv reports the file has actually ended.
- * Renders nothing outside of series playback.
+ * Everything about moving between episodes and skipping segments: the Skip
+ * Intro button, the Skip Recap button, the Next Episode prompt that appears
+ * once the credits roll, and the auto-play countdown once mpv reports the file
+ * has actually ended. Supports both embedded chapter markers and crowdsourced
+ * timestamps via IntroDB, as well as automatic skipping.
  */
 export function SeriesPlaybackPrompts() {
   const { t, number } = useI18n();
@@ -40,15 +42,44 @@ export function SeriesPlaybackPrompts() {
   ));
   const autoPlayNextEpisode = useSettingsStore((s) => s.autoPlayNextEpisode);
   const skipIntroEnabled = useSettingsStore((s) => s.skipIntroEnabled);
+  const skipRecapEnabled = useSettingsStore((s) => s.skipRecapEnabled);
+  const autoSkipIntro = useSettingsStore((s) => s.autoSkipIntro);
+  const introDbEnabled = useSettingsStore((s) => s.introDbEnabled);
 
-  const isSeries = activeStream?.type === 'series';
+  // Extract structured season and episode identifiers even if the stream title only contains them
+  const parsedFromTitle = useMemo(() => {
+    if (!activeStream?.title) return null;
+    return parseEpisodeTitle(activeStream.title, {
+      seriesTitle: activeStream.seriesTitle,
+      seasonNum: activeStream.seasonNum,
+      episodeNum: activeStream.episodeNum,
+    });
+  }, [activeStream?.title, activeStream?.seriesTitle, activeStream?.seasonNum, activeStream?.episodeNum]);
+
+  const resolvedSeriesTitle = (
+    activeStream?.seriesTitle ||
+    parsedFromTitle?.seriesTitle ||
+    (activeStream?.title ? getSeriesBaseTitle(activeStream.title) : undefined)
+  );
+  const resolvedSeasonNum = activeStream?.seasonNum ?? parsedFromTitle?.seasonNum ?? null;
+  const resolvedEpisodeNum = activeStream?.episodeNum ?? parsedFromTitle?.episodeNum ?? null;
+
+  const isSeries = activeStream?.type === 'series' || Boolean(resolvedSeasonNum && resolvedEpisodeNum);
 
   // Shared with VodControls, so this is normally already in cache by the
   // time it's needed — no extra fetch on top of what the controls do.
   const { data: seriesData } = useSeriesInfo(
     activeStream?.seriesSourceItemId || activeStream?.seriesId,
     activeStream?.sourceId,
-    isSeries,
+    isSeries && Boolean(activeStream?.seriesSourceItemId || activeStream?.seriesId),
+  );
+
+  const anySkipActive = skipIntroEnabled || skipRecapEnabled || autoSkipIntro;
+  const { data: introDbSegments } = useIntroDbSegments(
+    resolvedSeriesTitle,
+    resolvedSeasonNum,
+    resolvedEpisodeNum,
+    anySkipActive && introDbEnabled && Boolean(resolvedSeasonNum && resolvedEpisodeNum),
   );
 
   const next = useMemo(() => {
@@ -69,11 +100,11 @@ export function SeriesPlaybackPrompts() {
     if (!next || !activeStream?.seriesId) return;
     const playback = resolveEpisodePlayback(next.episode, credentials);
     if (!playback) return;
-    const seriesTitle = getSeriesBaseTitle(
+    const baseTitle = getSeriesBaseTitle(
       seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
     ) || 'Series';
     const parsedEpisode = parseEpisodeTitle(next.episode.title, {
-      seriesTitle,
+      seriesTitle: baseTitle,
       seasonNum: next.seasonNum,
       episodeNum: next.episode.episode_num,
     });
@@ -83,7 +114,7 @@ export function SeriesPlaybackPrompts() {
         : next.episode.id,
       sourceItemId: next.episode.id.toString(),
       title: formatEpisodePlaybackTitle(
-        seriesTitle,
+        baseTitle,
         next.seasonNum,
         next.episode.episode_num,
         next.episode.title,
@@ -94,7 +125,7 @@ export function SeriesPlaybackPrompts() {
       seriesPosterUrl: activeStream.seriesPosterUrl,
       seriesId: activeStream.seriesId,
       seriesSourceItemId: activeStream.seriesSourceItemId,
-      seriesTitle,
+      seriesTitle: baseTitle,
       seasonNum: next.seasonNum,
       episodeNum: next.episode.episode_num,
       episodeTitle: parsedEpisode.cleanTitle,
@@ -103,30 +134,69 @@ export function SeriesPlaybackPrompts() {
     });
   }, [next, credentials, activeStream, seriesData, playStream]);
 
-  // ── Skip Intro ────────────────────────────────────────────────
+  // ── Prompt segments (Chapters preferred, IntroDB fallback) ──
 
-  const introChapter = useMemo(
-    () => (skipIntroEnabled ? findIntroChapter(chapters) : null),
-    [chapters, skipIntroEnabled]
+  const segments = useMemo(
+    () => (anySkipActive ? resolvePlaybackPromptSegments(chapters, introDbSegments) : { intro: null, recap: null, outro: null }),
+    [chapters, introDbSegments, anySkipActive]
   );
+
+  // ── Automatic Intro / Recap Skipping ──────────────────────────
+
+  const autoSkippedSegmentsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    autoSkippedSegmentsRef.current.clear();
+  }, [activeStream?.id]);
+
+  useEffect(() => {
+    if (!autoSkipIntro || !activeStream) return;
+
+    if (skipRecapEnabled && segments.recap) {
+      const recapKey = `recap:${segments.recap.start}:${segments.recap.skipTo}`;
+      if (!autoSkippedSegmentsRef.current.has(recapKey)) {
+        if (currentTime >= segments.recap.start && currentTime < segments.recap.skipTo - 0.5) {
+          autoSkippedSegmentsRef.current.add(recapKey);
+          void tauriApi.mpvSeek(segments.recap.skipTo);
+          return;
+        }
+      }
+    }
+
+    if (skipIntroEnabled && segments.intro) {
+      const introKey = `intro:${segments.intro.start}:${segments.intro.skipTo}`;
+      if (!autoSkippedSegmentsRef.current.has(introKey)) {
+        if (currentTime >= segments.intro.start && currentTime < segments.intro.skipTo - 0.5) {
+          autoSkippedSegmentsRef.current.add(introKey);
+          void tauriApi.mpvSeek(segments.intro.skipTo);
+          return;
+        }
+      }
+    }
+  }, [autoSkipIntro, activeStream, skipIntroEnabled, skipRecapEnabled, segments.intro, segments.recap, currentTime]);
+
+  // ── Manual Skip Buttons ───────────────────────────────────────
+
   const showSkipIntro =
-    !!introChapter && currentTime >= introChapter.start && currentTime < introChapter.skipTo - 0.5;
+    skipIntroEnabled && !autoSkipIntro && !!segments.intro && currentTime >= segments.intro.start && currentTime < segments.intro.skipTo - 0.5;
+
+  const showSkipRecap =
+    skipRecapEnabled && !autoSkipIntro && !!segments.recap && currentTime >= segments.recap.start && currentTime < segments.recap.skipTo - 0.5;
 
   const skipIntro = useCallback(() => {
-    if (!introChapter) return;
-    void tauriApi.mpvSeek(introChapter.skipTo);
-  }, [introChapter]);
+    if (!segments.intro) return;
+    void tauriApi.mpvSeek(segments.intro.skipTo);
+  }, [segments.intro]);
+
+  const skipRecap = useCallback(() => {
+    if (!segments.recap) return;
+    void tauriApi.mpvSeek(segments.recap.skipTo);
+  }, [segments.recap]);
 
   // ── Next Episode button once the credits start ─────────────────
-  //
-  // Only shown against a real outro/credits chapter — a fixed "last N
-  // seconds" fallback sounded reasonable but doesn't line up with when the
-  // credits actually start (that varies a lot per episode), so it just
-  // showed up too early. No chapter means no button, same as Skip Intro.
 
-  const outroChapter = useMemo(() => findOutroChapter(chapters), [chapters]);
   const showNextEpisodeButton =
-    isSeries && !!next && !!outroChapter && currentTime >= outroChapter.start && !eofReached;
+    isSeries && !!next && !!segments.outro && currentTime >= segments.outro.start && !eofReached;
 
   // ── Auto-play countdown once mpv reports the file actually ended ──
 
@@ -148,7 +218,6 @@ export function SeriesPlaybackPrompts() {
     setCountdown(null);
     clearCountdown();
   }, [activeStream?.id, clearCountdown]);
-
 
   useEffect(() => {
     if (!eofReached || !isSeries || !next || !autoPlayNextEpisode) return;
@@ -178,12 +247,28 @@ export function SeriesPlaybackPrompts() {
     setCountdown(null);
   }, [clearCountdown]);
 
-  if (!isSeries || !activeStream) return null;
+  if (!activeStream) return null;
 
   return (
     <>
+      {showSkipRecap && (
+        <button
+          type="button"
+          className={styles.skipRecapBtn}
+          onClick={skipRecap}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          {t('Skip Recap')}
+        </button>
+      )}
+
       {showSkipIntro && (
-        <button type="button" className={styles.skipIntroBtn} onClick={skipIntro} onDoubleClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className={styles.skipIntroBtn}
+          onClick={skipIntro}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
           {t('Skip Intro')}
         </button>
       )}
@@ -205,7 +290,8 @@ export function SeriesPlaybackPrompts() {
         </div>
       ) : (
         showNextEpisodeButton && (
-          <button type="button"
+          <button
+            type="button"
             className={styles.nextEpisodeSimpleBtn}
             onClick={(e) => {
               e.stopPropagation();

@@ -178,7 +178,7 @@
 }
 
 .modal .primaryAction svg {
-  color: var(--accent-color);
+  color: var(--accent-foreground);
 }
 
 .modal .primaryAction:hover:not(:disabled) {

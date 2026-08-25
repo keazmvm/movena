@@ -447,7 +447,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         return {
           playback: transition.state,
           isVideoReady: transition.state.videoReady,
-          isBuffering: transition.state.status === 'buffering' || transition.state.status === 'loading',
+          isBuffering: transition.state.status === 'buffering' || transition.state.status === 'loading' || transition.state.status === 'seeking',
           isPlaying: !transition.state.paused && transition.state.status === 'playing',
           eofReached: transition.state.status === 'ended',
         };
@@ -458,7 +458,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         if (typeof data === 'number') {
           set((state) => ({
             currentTime: data,
-            isBuffering: false,
+            isBuffering: state.playback.status === 'buffering' || state.playback.status === 'loading' || state.playback.status === 'seeking',
             diagnostics: state.diagnostics.firstPositionMs === null && state.diagnostics.sessionStartedAt !== null
               ? {
                   ...state.diagnostics,

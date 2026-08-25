@@ -37,7 +37,8 @@ Important components include:
   ISO 3166 country-code list; Unicode regional-indicator symbols are not used as
   the artwork source.
 
-Movena does not bundle TMDB or TVmaze data. Runtime responses remain subject to
-their respective terms. TVmaze identifies its API data as
+Movena does not bundle TMDB, TVmaze, or IntroDB data. Runtime responses remain
+subject to their respective terms. TVmaze identifies its API data as
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and requires
-source attribution and ShareAlike compliance.
+source attribution and ShareAlike compliance. IntroDB provides crowdsourced intro,
+recap, and outro timestamps via https://introdb.app.

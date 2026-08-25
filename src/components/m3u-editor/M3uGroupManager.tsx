@@ -110,7 +110,7 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
             <div key={group.name} className={styles.groupCard}>
               <div className={styles.groupCardHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minWidth: 0, flex: 1 }}>
-                  <Folder size={16} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
+                  <Folder size={16} style={{ color: 'var(--accent-foreground)', flexShrink: 0 }} />
                   {isEditing ? (
                     <div style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
                       <input

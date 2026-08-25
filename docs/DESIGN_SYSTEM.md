@@ -1,9 +1,10 @@
 # Movena design system
 
-Movena is a focused desktop media workspace: dark graphite surfaces, cool
-slate text, and a single user-selected accent. The interface should feel
-quiet while browsing and become clear only when something is selected,
-focused, loading, or actionable.
+Movena is a focused desktop media workspace with explicit dark and light
+themes, cool slate neutrals, and a single user-selected accent. Dark uses
+graphite depth; light uses a soft blue-gray canvas with white elevated
+surfaces. The interface should feel quiet while browsing and become clear only
+when something is selected, focused, loading, or actionable.
 
 `src/index.css` is the visual source of truth. It contains the finite token
 scales and the canonical `.uiButton`, `.uiIconButton`, and `.uiField`
@@ -20,6 +21,9 @@ second control language.
 - `--surface-player-elevated` is the opaque-enough player menu surface used
   over native video.
 - `--surface-selection` is the full-surface selected state.
+- `--surface-media-control`, `--text-media-primary`, and
+  `--text-media-secondary` stay dark/bright over posters and other imagery in
+  both application themes.
 - Shadows are reserved for cards, menus, dialogs, and other floating layers.
 
 Borders are quiet at rest. Hover uses `--border-strong`; keyboard focus uses
@@ -66,6 +70,9 @@ player, but normal app navigation should always retain the functional bar.
   type, and z-index tokens.
 - Keep literal colors in `src/index.css` only. Runtime accent changes update
   the accent tokens from the settings store.
+- Dark tokens are the root defaults. Light overrides belong under
+  `html[data-theme='light']:not(.is-playing)` so starting native playback also
+  keeps portaled menus and browser-native controls on the dark contract.
 - Use the finite alpha and duration scales. Do not introduce a one-off alpha,
   easing curve, shadow, or transition duration in a component stylesheet.
 - Enumerate animated properties. `transition: all` is forbidden because it
@@ -108,10 +115,19 @@ icons. Their implementations come from Lucide; active state belongs to the
 surrounding selected surface and accessible state rather than a separate icon
 library.
 
+Metadata on ordinary surfaces uses the theme-aware `--tag-*` palette. Tags
+over posters or hero artwork use the matching invariant `--tag-media-*`
+palette on an opaque dark media surface; artwork must never determine their
+contrast. Preserve the shared `data-tag-type` mapping instead of defining
+component-local category colors.
+
 Native video is rendered by libmpv behind a transparent webview. Over the
 player use flat translucent surfaces, never `backdrop-filter`, and use
 accessible labels instead of native `title` tooltips. Keep the root opaque
 until mpv reports `vo-configured=true`.
+
+Playback is always dark, independent of the saved application theme. Leaving
+playback restores the saved theme without a separate player preference.
 
 ## Verification
 

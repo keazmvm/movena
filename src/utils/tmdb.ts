@@ -600,4 +600,17 @@ export function normalizeTmdbPerson(payload: unknown): NormalizedTmdbPerson | nu
   };
 }
 
+export interface NormalizedTmdbExternalIds {
+  imdbId: string | null;
+}
+
+const VALID_IMDB_ID = /^tt\d{7,8}$/;
+
+/** Extract external identifiers from a TMDB `/tv/{id}/external_ids` response. */
+export function normalizeTmdbExternalIds(payload: unknown): NormalizedTmdbExternalIds {
+  const source = record(payload);
+  const raw = text(source?.imdb_id);
+  return { imdbId: raw && VALID_IMDB_ID.test(raw) ? raw : null };
+}
+
 // Explicit aliases make the payload-oriented API convenient for callers.

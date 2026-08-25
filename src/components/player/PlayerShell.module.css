@@ -100,12 +100,17 @@
 .loadingOverlay {
   position: absolute;
   inset: 0;
-  background-color: var(--neutral-black) !important;
+  background-color: var(--neutral-black);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: calc(var(--z-player) - 1);
   pointer-events: auto;
+}
+
+.loadingOverlayBuffering {
+  background-color: transparent !important;
+  pointer-events: none;
 }
 
 .loadingSpinner {
@@ -114,6 +119,7 @@
   border: 4px solid rgba(var(--neutral-white-rgb), var(--alpha-15));
   border-top-color: var(--accent-color);
   border-radius: 50%;
+  filter: drop-shadow(0 2px 8px rgba(var(--neutral-black-rgb), var(--alpha-60)));
 }
 
 .radioStage {
@@ -137,8 +143,6 @@
 
 .radioCopy { display: flex; flex-direction: column; gap: var(--space-2); max-width: 360px; color: var(--text-primary); }
 .radioCopy strong { font-size: var(--font-size-display); }
-.radioCopy span:last-child { color: var(--text-secondary); }
-.radioEyebrow { color: var(--accent-color); font-size: var(--font-size-micro); letter-spacing: .16em; }
 
 /* ============================
    Error overlay

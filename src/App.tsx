@@ -17,7 +17,7 @@ const DebugOverlay = lazy(() => import('./components/shared/DebugOverlay').then(
 import { ContextMenu } from './components/common/ContextMenu';
 import { useContextMenu } from './hooks/useContextMenu';
 import styles from './components/layout/AppLayout.module.css';
-import { accessibleAccentForeground, accentHoverColor, contrastingTextColor, DEFAULT_ACCENT_COLOR, parseHex } from './utils/color';
+import { applyAppearanceTheme } from './design/appearance';
 import { getCombinedErrorMessage, getErrorPresentation, getUserFacingErrorMessage } from './utils/error';
 import { queryClient } from './api/queryClient';
 import { ErrorState } from './components/common/ErrorState';
@@ -99,6 +99,7 @@ function AppShell() {
   const navigate = useNavigate();
   const alwaysOnTop = useSettingsStore((state) => state.alwaysOnTop);
   const accentColor = useSettingsStore((state) => state.accentColor);
+  const themePreference = useSettingsStore((state) => state.themePreference);
   const motionPreference = useSettingsStore((state) => state.motionPreference);
   const language = useSettingsStore((state) => state.language);
   const debugMode = useSettingsStore((state) => state.debugMode);
@@ -252,27 +253,10 @@ function AppShell() {
     document.documentElement.dir = definition.direction;
   }, [language]);
 
-  // Dynamic CSS Accent Color Theme Sync
+  // Keep theme and its derived accent tokens on one synchronous DOM contract.
   useEffect(() => {
-    const color = accentColor || DEFAULT_ACCENT_COLOR;
-    document.documentElement.style.setProperty('--accent-foreground', accessibleAccentForeground(color));
-    document.documentElement.style.setProperty('--accent-color', color);
-    document.documentElement.style.setProperty('--text-on-accent', contrastingTextColor(color));
-    
-    try {
-      const rgb = parseHex(color);
-      if (rgb) {
-        const { r, g, b } = rgb;
-        
-        // Set RGB token for alpha transparency (e.g., rgba(var(--accent-color-rgb), 0.2))
-        document.documentElement.style.setProperty('--accent-color-rgb', `${r}, ${g}, ${b}`);
-
-        document.documentElement.style.setProperty('--accent-hover', accentHoverColor(color));
-      } else document.documentElement.style.setProperty('--accent-hover', color);
-    } catch {
-      document.documentElement.style.setProperty('--accent-hover', color);
-    }
-  }, [accentColor]);
+    applyAppearanceTheme(themePreference, accentColor);
+  }, [themePreference, accentColor]);
 
   // Sync always on top with Tauri
   useEffect(() => {

@@ -70,29 +70,83 @@ function VodTimeline() {
   const { t } = useI18n();
   const currentTime = usePlayerStore((s) => s.currentTime);
   const duration = usePlayerStore((s) => s.duration);
+  const [scrubTime, setScrubTime] = useState<number | null>(null);
+  const [hoverData, setHoverData] = useState<{ time: number; percent: number } | null>(null);
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = Number(e.target.value);
-    void tauriApi.mpvSeek(time).catch((error: unknown) => {
+  const displayTime = scrubTime !== null ? scrubTime : currentTime;
+  const progressPercent = duration > 0 ? Math.max(0, Math.min(100, (displayTime / duration) * 100)) : 0;
+
+  const performSeek = useCallback((targetTime: number) => {
+    setScrubTime(null);
+    usePlayerStore.setState({ currentTime: targetTime, isBuffering: true });
+    void tauriApi.mpvSeek(targetTime).catch((error: unknown) => {
       notify.error('Seek Failed', getUserFacingErrorMessage(error, 'Could not seek to that position.'));
     });
+  }, []);
+
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    performSeek(time);
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const time = Number((e.target as HTMLInputElement).value);
+    setScrubTime(time);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLInputElement>) => {
+    if (!duration || duration <= 0) {
+      setHoverData(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const thumbWidth = 16;
+    const thumbRadius = thumbWidth / 2;
+    const effectiveWidth = Math.max(1, rect.width - thumbWidth);
+    const offsetX = Math.max(0, Math.min(effectiveWidth, (e.clientX - rect.left) - thumbRadius));
+    const ratio = offsetX / effectiveWidth;
+    const time = ratio * duration;
+    const thumbCenterPx = thumbRadius + ratio * effectiveWidth;
+    const percent = (thumbCenterPx / rect.width) * 100;
+    setHoverData({ time, percent });
+  };
+
+  const handlePointerLeave = () => {
+    setHoverData(null);
   };
 
   return (
     <div className={styles.timelineContainer}>
-      <span className={styles.timeText}>{formatTime(currentTime)}</span>
-      <input
-        type="range"
-        className={styles.seekbar}
-        min={0}
-        max={duration || 100}
-        value={currentTime}
-        onChange={handleSeek}
-        aria-label={t('Playback position')}
-        style={
-          { '--progress': `${duration > 0 ? (currentTime / duration) * 100 : 0}%` } as React.CSSProperties
-        }
-      />
+      <span className={styles.timeText}>{formatTime(displayTime)}</span>
+      <div className={styles.seekbarWrapper}>
+        {hoverData !== null && (
+          <div
+            className={styles.timelineTooltip}
+            style={{
+              left: `clamp(24px, ${hoverData.percent}%, calc(100% - 24px))`,
+            }}
+            data-testid="timeline-tooltip"
+          >
+            {formatTime(hoverData.time)}
+          </div>
+        )}
+        <input
+          type="range"
+          className={styles.seekbar}
+          min={0}
+          max={duration || 100}
+          value={displayTime}
+          onInput={handleInput}
+          onChange={handleSeekChange}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+          aria-label={t('Playback position')}
+          style={
+            { '--progress': `${progressPercent}%` } as React.CSSProperties
+          }
+        />
+      </div>
       <span className={styles.timeText}>{formatTime(duration)}</span>
     </div>
   );
@@ -217,6 +271,16 @@ export function VodControls() {
     if (next) playEpisode(next.episode, next.seasonNum);
   }, [seriesData, activeStream, playEpisode]);
 
+  const seekRelative = useCallback((seconds: number) => {
+    const cur = usePlayerStore.getState().currentTime;
+    const dur = usePlayerStore.getState().duration;
+    const target = Math.max(0, dur > 0 ? Math.min(dur, cur + seconds) : cur + seconds);
+    usePlayerStore.setState({ currentTime: target, isBuffering: true });
+    void tauriApi.mpvSeekRelative(seconds).catch((error: unknown) => {
+      reportControlError(error, seconds < 0 ? 'Could not seek backward.' : 'Could not seek forward.');
+    });
+  }, [reportControlError]);
+
   const setSpeed = (speed: number) => {
     void tauriApi.mpvSetSpeed(speed).catch((error: unknown) => {
       notify.error('Speed Change Failed', getUserFacingErrorMessage(error, 'Could not change playback speed.'));
@@ -262,9 +326,7 @@ export function VodControls() {
           {/* Skip back 10s */}
           <button type="button"
             className={styles.iconBtn}
-            onClick={() => void tauriApi.mpvSeekRelative(-seekJumpSecs).catch((error: unknown) => {
-              reportControlError(error, 'Could not seek backward.');
-            })}
+            onClick={() => seekRelative(-seekJumpSecs)}
             aria-label={t('Rewind {seconds} seconds', { seconds: seekJumpSecs })}
           >
             <RotateCcw seconds={seekJumpSecs} />
@@ -273,9 +335,7 @@ export function VodControls() {
           {/* Skip forward 10s */}
           <button type="button"
             className={styles.iconBtn}
-            onClick={() => void tauriApi.mpvSeekRelative(seekJumpSecs).catch((error: unknown) => {
-              reportControlError(error, 'Could not seek forward.');
-            })}
+            onClick={() => seekRelative(seekJumpSecs)}
             aria-label={t('Forward {seconds} seconds', { seconds: seekJumpSecs })}
           >
             <RotateCw seconds={seekJumpSecs} />
