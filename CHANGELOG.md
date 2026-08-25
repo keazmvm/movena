@@ -8,6 +8,22 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-08-25
+
+### Fixed
+
+- Kept UI quality evidence separate from published release downloads so the
+  immutable release contains only installers, updater metadata, checksums, and
+  source archives.
+- Made the Windows Twitch-resolver build honor the pinned Python interpreter
+  selected on `PATH` instead of allowing the Python launcher to choose a newer
+  incompatible runtime.
+- Added the bundled libmpv directory to the Windows native-test loader path so
+  release compliance can execute the compiled Rust test binary on clean CI
+  runners.
+- Added the missing Windows Developer HUD visual baseline used by the release
+  UI quality gate.
+
 ## [0.1.7] - 2026-08-25
 
 This is a broad product, security, architecture, quality, packaging, and
@@ -298,5 +314,6 @@ public project considerably easier to evaluate.
   resolver teardown, accessibility, signing claims, checksums, licenses, and
   corresponding source.
 
-[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/movena-app/movena/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/movena-app/movena/compare/v0.1.6...v0.1.7
