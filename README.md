@@ -34,11 +34,6 @@
 
 ![Movena Discover view showing real movie and series metadata with TMDB artwork](.github/assets/readme/hero.webp)
 
-<p align="center">
-  <a href="https://www.themoviedb.org/"><img src="public/tmdb-logo.svg" alt="TMDB" width="72" /></a><br>
-  <sub>Movie and series metadata and artwork are provided by TMDB. This product uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</sub>
-</p>
-
 ## Get started
 
 1. [Download the latest Movena release](https://github.com/movena-app/movena/releases/latest) for your desktop platform.
