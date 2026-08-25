@@ -50,19 +50,19 @@ export interface M3uProbeResult {
   latencyMs: number;
 }
 
-export interface XmltvChannelDto {
+interface XmltvChannelDto {
   id: string;
   names: string[];
 }
 
-export interface XmltvProgrammeDto {
+interface XmltvProgrammeDto {
   title: string;
   description: string;
   start: number;
   end: number;
 }
 
-export interface XmltvProgrammeGroupDto {
+interface XmltvProgrammeGroupDto {
   channelId: string;
   programmes: XmltvProgrammeDto[];
 }
@@ -164,9 +164,6 @@ export const tauriApi = {
 
   /** Download, decompress, and parse XMLTV outside the webview. */
   xmltvFetch: (options: M3uFetchOptions) => invoke<XmltvGuidePayload>('xmltv_fetch', { options }),
-
-  /** Inspect a small XMLTV response prefix outside the webview's CORS boundary. */
-  xmltvProbe: (options: M3uFetchOptions) => invoke<boolean>('xmltv_probe', { options }),
 
   /** Start a managed media download; progress and lifecycle arrive on download-event. */
   downloadMediaStart: (options: DownloadMediaOptions & { id: string }) => invoke<void>('download_media_start', { options }),

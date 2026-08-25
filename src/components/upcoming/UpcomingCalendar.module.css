@@ -78,7 +78,6 @@
 
 .eventSchedule svg { flex: 0 0 auto; }
 .eventSchedule span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.empty { padding: var(--space-5); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md); color: var(--text-secondary); text-align: center; }
 .agenda { display: none; }
 .agendaEmpty { padding: var(--space-5); color: var(--text-secondary); text-align: center; }
 .agendaItem { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); width: 100%; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--text-primary); text-align: left; cursor: pointer; }

@@ -121,13 +121,6 @@
   box-sizing: border-box;
 }
 
-.modalBodyText {
-  font-size: var(--font-size-body);
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: var(--line-height-normal);
-}
-
 .modalFooter {
   display: flex;
   align-items: center;

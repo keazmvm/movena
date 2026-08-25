@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.9.0.schema.json
+# Generated for Movena v0.1.8. Validate with: winget validate --manifest .
+PackageIdentifier: movena-app.Movena
+PackageVersion: 0.1.8
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.9.0

@@ -190,13 +190,6 @@
   background: var(--accent-color);
 }
 
-.metadata {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-0-75);
-  padding: 0 var(--space-0-5);
-}
-
 .posterFooter {
   position: absolute;
   right: 0;
@@ -259,14 +252,6 @@
   color: var(--text-muted);
 }
 
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-  width: 100%;
-}
-
 .countryMeta {
   display: inline-flex;
   align-items: center;
@@ -307,18 +292,6 @@
   font-weight: var(--font-weight-medium);
 }
 
-.title {
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
-}
-
 .badgeRow {
   display: flex;
   align-items: center;
@@ -338,33 +311,12 @@
   line-height: 1.25;
 }
 
-.channelNumBadge {
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  color: var(--accent-color);
-  font-variant-numeric: tabular-nums;
-}
-
 .categoryPrefix {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.subtitle {
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  line-height: var(--line-height-tight);
-}
-
-.dot {
-  font-size: var(--font-size-micro);
 }
 
 /* ============================

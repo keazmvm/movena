@@ -16,7 +16,7 @@ const loaders = {
   '/m3u-editor': () => import('../pages/M3uEditorPage'),
 } as const;
 
-export type PreloadableRoute = keyof typeof loaders;
+type PreloadableRoute = keyof typeof loaders;
 
 export function preloadRouteModule(path: string): Promise<unknown> | undefined {
   const route = path.startsWith('/m3u-editor') ? '/m3u-editor' : path;

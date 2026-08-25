@@ -20,9 +20,11 @@ The workflow:
    `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, and
    `src-tauri/tauri.conf.json`.
 2. Run `npm ci`, the platform's native setup (`npm run setup:mpv` on Windows
-   and `npm run setup:twitch` everywhere), `npm run licenses:check`, and
-   `npm run check`. `setup:twitch` regenerates the license report before it is
-   copied into the resolver bundle.
+   and `npm run setup:twitch` everywhere), `npm audit`,
+   `npm run licenses:check`, `npm run public-tree:check`, `npm run check`,
+   `npm run build`, and `npm run ui:qa:visual`. `setup:twitch` regenerates the
+   license report before it is copied into the resolver bundle. The build
+   cleans `dist/` first and rejects unexpected output extensions afterward.
 3. Run secret scanning and verify that no playlists, provider records,
    credentials, private URLs, diagnostics, recordings, downloads, or
    third-party media exist anywhere in the public history.
@@ -87,6 +89,11 @@ corresponding source for Movena and redistributed copyleft native components
 for as long as the binaries are offered. Record any target-country codec-patent
 distribution decision outside the automated build and have it reviewed before
 adding a new distribution target.
+
+Direct JavaScript packages and the Rust lockfile may be refreshed within their
+existing compatible major ranges during maintenance. Breaking library majors,
+including a future TypeScript major, require a dedicated migration and must not
+be folded into routine release cleanup.
 
 ## Public-history rule
 

@@ -18,6 +18,7 @@
 
 <p align="center">
   <strong><a href="https://github.com/movena-app/movena/releases/latest">Download</a></strong>
+  · <a href="https://apps.microsoft.com/detail/9P2T0QGGHQGQ">Microsoft Store</a>
   · <a href="https://movena.frtx.cc/">Website</a>
   · <a href="https://github.com/movena-app/movena/issues">Report an issue</a>
   · <a href="CONTRIBUTING.md">Contribute</a>
@@ -130,7 +131,7 @@ and updater signatures where applicable.
 
 | Platform | Published packages | Important notes |
 | --- | --- | --- |
-| Windows x64 | NSIS `.exe`, `.msi`, portable `.zip` | libmpv is bundled. Current builds are not Authenticode-signed, so Windows may show a SmartScreen warning. |
+| Windows x64 | [Microsoft Store](https://apps.microsoft.com/detail/9P2T0QGGHQGQ), WinGet, NSIS `.exe`, `.msi`, portable `.zip` | Microsoft Store / WinGet (`winget install Movena.movena`). Standalone NSIS and portable packages bundle libmpv. |
 | macOS Apple Silicon | `.dmg` | Install the current mpv runtime with `brew install mpv`. Current builds are ad-hoc signed rather than Developer ID notarized. |
 | Linux x64 | `.deb`, `.AppImage` | A compatible system libmpv and normal Tauri/WebKit desktop libraries are required. Install `mpv` through your distribution if necessary. |
 

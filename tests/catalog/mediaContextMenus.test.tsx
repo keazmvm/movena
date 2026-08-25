@@ -2,7 +2,7 @@
 
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useMediaContextMenus } from '../../src/hooks/useMediaContextMenus';
+import { buildLogoAspectMenuItem, useMediaContextMenus } from '../../src/hooks/useMediaContextMenus';
 import { useContextMenuStore } from '../../src/store/useContextMenuStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
@@ -20,6 +20,22 @@ beforeEach(() => {
 });
 
 describe('media download actions', () => {
+  it('builds source-scoped logo overrides while honoring a legacy fallback', () => {
+    const setOverride = vi.fn();
+    const menu = buildLogoAspectMenuItem(
+      { id: 'fallback-id', sourceId: 'source-a', sourceItemId: 'channel-7' },
+      (message) => message,
+      {
+        channelLogoAspectOverrides: { 'channel-7': '4:3' },
+        setChannelLogoAspectOverride: setOverride,
+      },
+    );
+
+    expect(menu.submenu?.find((item) => item.id === 'aspect-4-3')?.checked).toBe(true);
+    menu.submenu?.find((item) => item.id === 'aspect-original')?.action?.();
+    expect(setOverride).toHaveBeenCalledWith('source-a::channel-7', 'original');
+  });
+
   it('offers download for playable VOD and episode items', () => {
     const { result } = renderHook(() => useMediaContextMenus());
     const event = {

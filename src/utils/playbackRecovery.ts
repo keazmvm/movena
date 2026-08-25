@@ -9,7 +9,7 @@ export interface PlaybackRecoveryRecord {
   savedAt: number;
 }
 
-export const PLAYBACK_RECOVERY_KEY = 'movena-playback-recovery-v1';
+const PLAYBACK_RECOVERY_KEY = 'movena-playback-recovery-v1';
 const MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 export function readPlaybackRecovery(storage: Pick<Storage, 'getItem'> | null = typeof localStorage === 'undefined' ? null : localStorage, now = Date.now()): PlaybackRecoveryRecord | null {

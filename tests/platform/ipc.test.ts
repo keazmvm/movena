@@ -52,7 +52,6 @@ describe('typed Tauri IPC wrapper', () => {
     ['m3uFetch', [{ url: 'https://list.test/a.m3u' }], 'm3u_fetch', { options: { url: 'https://list.test/a.m3u' } }],
     ['m3uProbeStream', [{ url: 'https://stream.test/live', timeoutMs: 5000 }], 'm3u_probe_stream', { options: { url: 'https://stream.test/live', timeoutMs: 5000 } }],
     ['xmltvFetch', [{ url: 'https://guide.test/epg.xml.gz', headers: { Referer: 'https://portal.test' } }], 'xmltv_fetch', { options: { url: 'https://guide.test/epg.xml.gz', headers: { Referer: 'https://portal.test' } } }],
-    ['xmltvProbe', [{ url: 'https://guide.test/epg.xml.gz', headers: { Referer: 'https://portal.test' } }], 'xmltv_probe', { options: { url: 'https://guide.test/epg.xml.gz', headers: { Referer: 'https://portal.test' } } }],
     ['downloadMediaStart', [{ id: 'job-1', url: 'https://media.test/movie.mp4', fileName: 'movie.mp4' }], 'download_media_start', { options: { id: 'job-1', url: 'https://media.test/movie.mp4', fileName: 'movie.mp4' } }],
     ['downloadMediaPause', ['job-1'], 'download_media_pause', { id: 'job-1' }],
     ['downloadMediaResume', ['job-1'], 'download_media_resume', { id: 'job-1' }],

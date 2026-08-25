@@ -97,6 +97,18 @@ async function ensureWindowsMpv() {
     console.log('[ensure-windows-mpv] Windows libmpv engine dependencies are present.');
   }
 
+  // Ensure libmpv-2.dll is available to cargo test runners
+  const cargoTargetDirs = [
+    join(root, 'src-tauri', 'target', 'debug'),
+    join(root, 'src-tauri', 'target', 'debug', 'deps'),
+    join(root, 'src-tauri', 'target', 'release'),
+  ];
+  for (const dir of cargoTargetDirs) {
+    if (existsSync(dir) && existsSync(targetDllInLib)) {
+      try { copyFileSync(targetDllInLib, join(dir, 'libmpv-2.dll')); } catch {}
+    }
+  }
+
   if (existsSync(targetYtdlp)) {
     const existingSha256 = sha256(readFileSync(targetYtdlp));
     if (existingSha256 === YTDLP_ASSET_SHA256) {

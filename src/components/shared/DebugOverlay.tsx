@@ -115,6 +115,17 @@ function initialHudGeometry(): HudGeometry {
   });
 }
 
+function providerDiagnosticSummary(auth: ReturnType<typeof useAuthStore.getState>) {
+  return {
+    providerConfigured: auth.profiles.length > 0,
+    providerCount: auth.profiles.length,
+    serverCount: Object.values(auth.runtimes).reduce(
+      (total, runtime) => total + (runtime.credentials ? 1 + (runtime.credentials.alternativeUrls?.length ?? 0) : 0),
+      0,
+    ),
+  };
+}
+
 function Sparkline({
   label,
   values,
@@ -162,6 +173,7 @@ export function DebugOverlay() {
   const settings = useSettingsStore();
   const { logs, networkLogs, clearLogs, clearNetworkLogs, exportDebugReport } = useDebugStore();
   const authStore = useAuthStore();
+  const providerSummary = providerDiagnosticSummary(authStore);
   const sources = useEnabledSources();
   const sourceCount = useSourceStore((state) => state.profiles.length + authStore.profiles.length);
   const libraryStore = useLibraryStore();
@@ -291,12 +303,7 @@ export function DebugOverlay() {
         authenticated: authStore.isAuthenticated(),
         initializing: authStore.isInitializing,
         initializationError: authStore.initializationError,
-        providerConfigured: authStore.profiles.length > 0,
-        providerCount: authStore.profiles.length,
-        serverCount: Object.values(authStore.runtimes).reduce(
-          (total, runtime) => total + (runtime.credentials ? 1 + (runtime.credentials.alternativeUrls?.length ?? 0) : 0),
-          0,
-        ),
+        ...providerSummary,
       },
       source: sourceDiagnostics,
       player: {
@@ -844,12 +851,7 @@ export function DebugOverlay() {
                 auth: {
                   isAuthenticated: authStore.isAuthenticated(),
                   isInitializing: authStore.isInitializing,
-                  providerConfigured: authStore.profiles.length > 0,
-                  providerCount: authStore.profiles.length,
-                  serverCount: Object.values(authStore.runtimes).reduce(
-                    (total, runtime) => total + (runtime.credentials ? 1 + (runtime.credentials.alternativeUrls?.length ?? 0) : 0),
-                    0,
-                  ),
+                  ...providerSummary,
                 },
                 source: sourceDiagnostics,
                 player: {

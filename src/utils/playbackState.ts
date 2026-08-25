@@ -6,7 +6,7 @@
  * lifecycle: a paused, ready session is still the current playing session.
  */
 
-export type PlaybackStatus =
+type PlaybackStatus =
   | 'idle'
   | 'loading'
   | 'playing'
@@ -15,7 +15,7 @@ export type PlaybackStatus =
   | 'ended'
   | 'error';
 
-export type PlaybackErrorCode =
+type PlaybackErrorCode =
   | 'startup-timeout'
   | 'startup-failed'
   | 'playback-failed';
@@ -45,13 +45,13 @@ export interface PlaybackState {
   error: PlaybackError | null;
 }
 
-export interface PlaybackSessionStartedObservation {
+interface PlaybackSessionStartedObservation {
   type: 'session-started';
   generation: number;
   at?: number | undefined;
 }
 
-export type MpvPlaybackProperty =
+type MpvPlaybackProperty =
   | 'vo-configured'
   | 'pause'
   | 'paused-for-cache'
@@ -59,7 +59,7 @@ export type MpvPlaybackProperty =
   | 'time-pos'
   | 'eof-reached';
 
-export interface MpvPropertyObservation {
+interface MpvPropertyObservation {
   type: 'mpv-property';
   generation: number;
   name: MpvPlaybackProperty;
@@ -67,7 +67,7 @@ export interface MpvPropertyObservation {
   at?: number | undefined;
 }
 
-export interface PlaybackEndObservation {
+interface PlaybackEndObservation {
   type: 'end-file';
   generation: number;
   /** `eof` is a normal end; other reasons are treated as playback failures. */
@@ -76,7 +76,7 @@ export interface PlaybackEndObservation {
   at?: number | undefined;
 }
 
-export interface PlaybackErrorObservation {
+interface PlaybackErrorObservation {
   type: 'error';
   generation: number;
   message: string;
@@ -85,7 +85,7 @@ export interface PlaybackErrorObservation {
   at?: number | undefined;
 }
 
-export interface StartupTimeoutObservation {
+interface StartupTimeoutObservation {
   type: 'startup-timeout';
   generation: number;
   at?: number | undefined;
@@ -99,7 +99,7 @@ export type PlaybackObservation =
   | PlaybackErrorObservation
   | StartupTimeoutObservation;
 
-export type PlaybackTransitionRejection = 'stale-session';
+type PlaybackTransitionRejection = 'stale-session';
 
 export interface PlaybackTransition {
   state: PlaybackState;
@@ -284,5 +284,4 @@ export function reducePlaybackState(
 }
 
 /** Convenience alias for callers that prefer reducer terminology. */
-export const transitionPlaybackState = reducePlaybackState;
 

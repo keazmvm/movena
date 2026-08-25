@@ -156,7 +156,7 @@ for (const path of sourceFiles.filter((sourcePath) => ['.ts', '.tsx'].includes(e
     }
   }
 
-  if (sourcePath === 'components/CategorySidebar.tsx') {
+  if (sourcePath === 'components/layout/CategorySidebar.tsx') {
     for (const match of content.matchAll(/import\s*\{[\s\S]*?\bLayoutGrid\b[\s\S]*?\}\s*from\s*['"]lucide-react['"]/g)) {
       report(path, 'navigation icons must use Remix line/fill pairs', match);
     }
@@ -164,27 +164,84 @@ for (const path of sourceFiles.filter((sourcePath) => ['.ts', '.tsx'].includes(e
 }
 
 const referencedCssModules = new Set();
+const cssModuleUsages = new Map();
+const dynamicCssModuleAllowances = new Map([
+  ['components/common/SegmentedControl.module.css', new Set(['md', 'sm'])],
+  ['components/shared/DebugOverlay.module.css', new Set(['debug', 'error', 'info', 'warn'])],
+  ['components/shared/ToastContainer.module.css', new Set(['error', 'info', 'success', 'warning'])],
+  ['components/upcoming/UpcomingReleaseCard.module.css', new Set(['discover', 'schedule'])],
+  ['pages/Downloads.module.css', new Set([
+    'statuscompleted', 'statusdownloading', 'statusfailed', 'statuspaused', 'statusqueued',
+  ])],
+]);
 for (const path of sourceFiles.filter((sourcePath) => ['.ts', '.tsx'].includes(extname(sourcePath)))) {
   const content = readFileSync(path, 'utf8');
-  for (const match of content.matchAll(/['"]([^'"]+\.module\.css)['"]/g)) {
-    referencedCssModules.add(resolve(dirname(path), match[1]));
+  const sourceFile = ts.createSourceFile(path, content, ts.ScriptTarget.Latest, true, extname(path) === '.tsx' ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    if (!statement.moduleSpecifier.text.endsWith('.module.css')) continue;
+    const cssPath = resolve(dirname(path), statement.moduleSpecifier.text);
+    referencedCssModules.add(cssPath);
+    const localName = statement.importClause?.name?.text;
+    if (!localName) continue;
+    const usages = cssModuleUsages.get(cssPath) ?? new Set();
+    const visit = (node) => {
+      if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === localName) {
+        usages.add(node.name.text);
+      }
+      if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === localName) {
+        const argument = node.argumentExpression;
+        if (argument && (ts.isStringLiteral(argument) || ts.isNoSubstitutionTemplateLiteral(argument))) {
+          usages.add(argument.text);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+    cssModuleUsages.set(cssPath, usages);
   }
 }
 for (const path of cssFiles.filter((cssPath) => cssPath.endsWith('.module.css'))) {
   if (!referencedCssModules.has(resolve(path))) {
     report(path, 'orphan CSS module', { 0: relative(root, path), index: 0 });
+    continue;
+  }
+  const used = cssModuleUsages.get(resolve(path)) ?? new Set();
+  const relativeCssPath = relative(sourceRoot, path).replaceAll('\\', '/');
+  const allowed = dynamicCssModuleAllowances.get(relativeCssPath) ?? new Set();
+  const content = readFileSync(path, 'utf8');
+  const withoutGlobals = content
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/:global\([^)]*\)/g, '');
+  const seen = new Set();
+  for (const match of withoutGlobals.matchAll(/\.([_a-zA-Z][\w-]*)/g)) {
+    const className = match[1];
+    if (seen.has(className)) continue;
+    seen.add(className);
+    if (!used.has(className) && !allowed.has(className)) {
+      report(path, `unused CSS-module selector .${className}`, match);
+    }
   }
 }
 
 const definitions = new Set();
+const tokenDefinitionLocations = new Map();
 const usages = [];
 for (const path of sourceFiles) {
   const content = readFileSync(path, 'utf8');
   if (extname(path) === '.css') {
-    for (const match of content.matchAll(/(--[\w-]+)\s*:/g)) definitions.add(match[1]);
+    for (const match of content.matchAll(/(--[\w-]+)\s*:/g)) {
+      definitions.add(match[1]);
+      if (path === tokenSource && !tokenDefinitionLocations.has(match[1])) {
+        tokenDefinitionLocations.set(match[1], { path, index: match.index });
+      }
+    }
   }
   for (const match of content.matchAll(/['"](--[\w-]+)['"]\s*:/g)) definitions.add(match[1]);
   for (const match of content.matchAll(/var\(\s*(--[\w-]+)/g)) {
+    usages.push({ path, token: match[1], index: match.index });
+  }
+  for (const match of content.matchAll(/(?:getPropertyValue|setProperty)\(\s*['"](--[\w-]+)['"]/g)) {
     usages.push({ path, token: match[1], index: match.index });
   }
 }
@@ -203,6 +260,13 @@ if (violations.length > 0) {
   console.error(`Design-system check failed with ${violations.length} violation(s):`);
   for (const violation of violations) console.error(`- ${violation}`);
   process.exit(1);
+}
+
+const usedTokens = new Set(usages.map(({ token }) => token));
+for (const [token, location] of tokenDefinitionLocations) {
+  if (!usedTokens.has(token)) {
+    report(location.path, `unused design token ${token}`, { 0: token, index: location.index });
+  }
 }
 
 console.log(`Design-system check passed (${cssFiles.length} stylesheets, ${definitions.size} tokens).`);

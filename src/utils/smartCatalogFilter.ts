@@ -21,7 +21,7 @@ const decodeHtml = (html: string) => {
     .replace(/&#039;/g, "'");
 };
 
-export const COMMON_GENRES = [
+const COMMON_GENRES = [
   'Action',
   'Comedy',
   'Drama',
@@ -45,7 +45,7 @@ const GENRE_MATCHERS = new Map<KnownGenre, RegExp>(COMMON_GENRES.map((genre) => 
   new RegExp(`\\b(?:${genre === 'Sci-Fi' ? 'sci-?fi|science fiction' : genre.toLowerCase()})\\b`, 'i'),
 ]));
 
-export function matchItemGenre(
+function matchItemGenre(
   item: SmartCatalogItem,
   genre: string,
   categoryNameMap?: Map<string, string>

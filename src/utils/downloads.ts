@@ -9,9 +9,9 @@ export const DOWNLOAD_JOB_STATES = [
   'cancelled',
 ] as const;
 
-export type DownloadJobState = (typeof DOWNLOAD_JOB_STATES)[number];
+type DownloadJobState = (typeof DOWNLOAD_JOB_STATES)[number];
 
-export interface DownloadProgress {
+interface DownloadProgress {
   downloadedBytes: number;
   totalBytes: number | null;
   ratio: number | null;
@@ -45,7 +45,7 @@ export interface DownloadStatusEvent {
   error?: unknown | undefined;
 }
 
-export type DownloadJobAction =
+type DownloadJobAction =
   | { type: 'start' }
   | { type: 'pause' }
   | { type: 'resume' }
@@ -166,10 +166,7 @@ function comparableFileName(value: unknown): string {
   return sanitizeDownloadFileName(value).normalize('NFKC').toLocaleLowerCase();
 }
 
-/**
- * Returns a sanitized name that does not collide with any supplied name.
- * Existing names are compared case-insensitively for cross-platform safety.
- */
+/** Returns a sanitized filename that avoids case-insensitive collisions. */
 export function createCollisionSafeFileName(
   desiredName: unknown,
   existingNames: Iterable<unknown> | unknown = [],
@@ -182,13 +179,11 @@ export function createCollisionSafeFileName(
   }
 
   if (!occupied.has(comparableFileName(baseName))) return baseName;
-
   const { stem, extension } = splitFileName(baseName);
   for (let suffix = 1; suffix <= 100_000; suffix += 1) {
     const candidate = sanitizeDownloadFileName(`${stem} (${suffix})${extension}`, options);
     if (!occupied.has(comparableFileName(candidate))) return candidate;
   }
-
   return sanitizeDownloadFileName(`${stem}-${Date.now()}${extension}`, options);
 }
 

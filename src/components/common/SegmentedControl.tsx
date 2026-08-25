@@ -4,7 +4,7 @@ import styles from './SegmentedControl.module.css';
 
 type SegmentedIcon = (props: { size: number | string; className: string }) => ReactNode;
 
-export interface SegmentedOption<T extends string | number> {
+interface SegmentedOption<T extends string | number> {
   value: T;
   label: string;
   icon?: SegmentedIcon | undefined;

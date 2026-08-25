@@ -254,9 +254,9 @@ export function isCountryOnlyLabel(label: string, country: string | null): boole
 /** Longest first, so `UNITED KINGDOM` is not cut short by a shorter match. */
 const NAME_PREFIXES = Object.keys(PREFIX_NAME_TO_CODE).sort((a, b) => b.length - a.length);
 
-export type CategoryCluster = '247' | 'cinema' | 'streaming' | 'general';
+type CategoryCluster = '247' | 'cinema' | 'streaming' | 'general';
 
-export function getCategoryCluster(label: string, rawName?: string): CategoryCluster {
+function getCategoryCluster(label: string, rawName?: string): CategoryCluster {
   const upper = normalizeFancyUnicode(`${label} ${rawName || ''}`)
     .replace(/24\s*[/\\\\]\s*7/gi, '24/7')
     .toUpperCase();
@@ -286,7 +286,7 @@ export function getCategoryCluster(label: string, rawName?: string): CategoryClu
 /**
  * Format category label nicely: title-cases standard words while keeping acronyms uppercase.
  */
-export function formatCategoryLabel(label: string): string {
+function formatCategoryLabel(label: string): string {
   if (!label) return '';
 
   const normalized = label
@@ -316,14 +316,9 @@ export function formatCategoryLabel(label: string): string {
     .join('');
 }
 
-/** Whether a single standalone token (no surrounding text) is a recognised format/quality tag. */
-export function isKnownFormatTag(token: string): boolean {
-  return isKnownMediaTag(token);
-}
-
 const CATEGORY_PROMOTIONAL_FLUFF = /\b(?:INF\s*(?:&|\+)\s*(?:EVENTS|CHANNELS)?|INF\s*&|GOLD|SILVER|PLATINUM|VIP|PREMIUM|ULTRA|PRO|RAW)\b/gi;
 
-export function extractCategoryTags(label: string): { cleanLabel: string; tags: string[] } {
+function extractCategoryTags(label: string): { cleanLabel: string; tags: string[] } {
   if (!label) return { cleanLabel: '', tags: [] };
 
   const { cleanText, tags } = extractMediaTags(label);

@@ -142,9 +142,9 @@ export const SETTINGS_SECTIONS: readonly SettingsNavItem[] = SETTINGS_NAV_GROUPS
   (group) => [...group.items],
 );
 
-export const DEFAULT_SETTINGS_SECTION: SettingsSectionId = 'general';
+const DEFAULT_SETTINGS_SECTION: SettingsSectionId = 'general';
 
-export function isSettingsSectionId(value: string | null): value is SettingsSectionId {
+function isSettingsSectionId(value: string | null): value is SettingsSectionId {
   return SETTINGS_SECTIONS.some((section) => section.id === value);
 }
 
@@ -155,14 +155,6 @@ export function resolveSettingsSectionId(value: string | null): SettingsSectionI
   if (value === 'recording' || value === 'downloads') return 'storage';
   if (value === 'm3u-editor') return 'sources';
   return isSettingsSectionId(value) ? value : DEFAULT_SETTINGS_SECTION;
-}
-
-export function getSettingsSection(id: SettingsSectionId): SettingsNavItem {
-  return SETTINGS_SECTIONS.find((section) => section.id === id) ?? SETTINGS_SECTIONS[0]!;
-}
-
-export function getSettingsGroupLabel(id: SettingsSectionId): string {
-  return SETTINGS_NAV_GROUPS.find((group) => group.items.some((item) => item.id === id))?.label ?? 'Settings';
 }
 
 export function filterSettingsSections(

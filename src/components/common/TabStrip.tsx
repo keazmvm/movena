@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { useI18n } from '../../i18n';
 import styles from './TabStrip.module.css';
 
-export interface TabStripOption<T extends string | number> {
+interface TabStripOption<T extends string | number> {
   value: T;
   label: string;
 }

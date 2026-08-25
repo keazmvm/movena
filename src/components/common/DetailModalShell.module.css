@@ -41,10 +41,6 @@
 }
 
 @media (max-width: 760px), (max-height: 720px) {
-  .overlay {
-    padding: var(--space-3);
-  }
-
   .modal:not(.stateModal) {
     height: calc(100vh - 24px);
     max-height: none;

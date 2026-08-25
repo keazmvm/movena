@@ -152,7 +152,7 @@ export function normalizedRemoteUrl(value: string): string {
   return parsed.toString();
 }
 
-export function publicLocationLabel(locationType: M3uLocationType, location: string, fileName?: string): string {
+function publicLocationLabel(locationType: M3uLocationType, location: string, fileName?: string): string {
   if (locationType === 'local') return fileName || location.split(/[\\/]/).at(-1) || 'Local playlist';
   try {
     return new URL(location).host;

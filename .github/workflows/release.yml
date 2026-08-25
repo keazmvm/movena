@@ -22,7 +22,7 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Confirm project versions match
@@ -42,7 +42,7 @@ jobs:
           mkdir -p dist-source
           git archive --format=tar.gz --prefix="movena-${tag}/" --output="dist-source/movena-${tag}-source.tar.gz" HEAD
           git archive --format=zip --prefix="movena-${tag}/" --output="dist-source/movena-${tag}-source.zip" HEAD
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: source-artifacts
           path: dist-source/*
@@ -52,12 +52,12 @@ jobs:
     needs: verify
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
@@ -115,9 +115,11 @@ jobs:
           & $resolver --can-handle-url "https://www.twitch.tv/gleggmire"
           if ($LASTEXITCODE -ne 0) { throw "Bundled Streamlink cannot handle Twitch channels" }
           Compress-Archive -Path "$portableDir/*" -DestinationPath "windows-artifacts/Movena-v${version}-windows-x64-portable.zip"
+          # Build MSIX Package
+          & ./scripts/make-msix.ps1 -SkipBuild -OutputDirectory "windows-artifacts"
           $resolverBytes = (Get-ChildItem "src-tauri/lib/twitch-resolver" -File -Recurse | Measure-Object Length -Sum).Sum
           Write-Host "Bundled Twitch resolver: $([math]::Round($resolverBytes / 1MB, 1)) MiB"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-artifacts
           path: windows-artifacts/*
@@ -125,14 +127,13 @@ jobs:
   build-macos:
     name: Build macOS DMG & app
     needs: verify
-    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
@@ -173,7 +174,7 @@ jobs:
             cp src-tauri/target/release/bundle/macos/*.tar.gz.sig macos-artifacts/ 2>/dev/null || true
           fi
           du -sh src-tauri/lib/twitch-resolver
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-artifacts
           path: macos-artifacts/*
@@ -183,12 +184,12 @@ jobs:
     needs: verify
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13.11'
       - uses: dtolnay/rust-toolchain@stable
@@ -234,7 +235,7 @@ jobs:
             cp src-tauri/target/release/bundle/appimage/*.sig linux-artifacts/ 2>/dev/null || true
           fi
           du -sh src-tauri/lib/twitch-resolver
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-artifacts
           path: linux-artifacts/*
@@ -244,12 +245,12 @@ jobs:
     needs: [build-source, build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: '*-artifacts'
           path: release-downloads
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - name: Collect all assets
@@ -282,3 +283,25 @@ jobs:
               --title "Movena $tag" \
               --generate-notes
           fi
+
+  publish-store:
+    name: Publish to Microsoft Store
+    needs: [build-windows, publish]
+    runs-on: windows-latest
+    if: ${{ env.HAS_STORE_SECRETS == 'true' }}
+    env:
+      HAS_STORE_SECRETS: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: windows-artifacts
+          path: windows-artifacts
+      - name: Submit to Microsoft Store
+        uses: microsoft/store-action@v1
+        with:
+          tenant-id: ${{ secrets.STORE_TENANT_ID }}
+          client-id: ${{ secrets.STORE_CLIENT_ID }}
+          client-secret: ${{ secrets.STORE_CLIENT_SECRET }}
+          product-id: ${{ secrets.STORE_PRODUCT_ID || '9P2T0QGGHQGQ' }}
+          package-path: windows-artifacts/*.msix
+          skip-submitting: false

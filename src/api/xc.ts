@@ -376,7 +376,7 @@ export interface XCEpisode {
   source_id?: string | undefined;
 }
 
-export interface XCSeriesMetadata {
+interface XCSeriesMetadata {
   name?: string | undefined;
   cover?: string | undefined;
   plot?: string | undefined;
@@ -388,7 +388,7 @@ export interface XCSeriesMetadata {
   backdrop_path?: string[] | undefined;
 }
 
-export interface XCSeason {
+interface XCSeason {
   id?: string | number | undefined;
   name?: string | undefined;
   season_number?: number | undefined;

@@ -120,12 +120,6 @@ export function parseCatchupTimestamp(value: unknown): number | null {
   return parseXmltvTimestamp(trimmed) ?? parseIsoTimestamp(trimmed);
 }
 
-/** Parse a timestamp as Unix seconds, returning null for malformed input. */
-export function parseCatchupTimestampSeconds(value: unknown): number | null {
-  const milliseconds = parseCatchupTimestamp(value);
-  return milliseconds === null ? null : Math.floor(milliseconds / 1000);
-}
-
 function programmeStart(programme: CatchupProgramme | null | undefined): number | null {
   if (!programme) return null;
   return parseCatchupTimestamp(programme.startTimestamp ?? programme.start);
@@ -175,7 +169,7 @@ export function evaluateCatchupWindow(
   return { eligible: true, start, end, now, archiveDays: days, reason: 'eligible' };
 }
 
-export function isCatchupProgrammeEligible(
+function isCatchupProgrammeEligible(
   programme: CatchupProgramme | null | undefined,
   archiveDaysValue: number | string | null | undefined,
   options: CatchupWindowOptions = {},
@@ -209,7 +203,7 @@ function safeUrl(value: string, base?: string): URL | null {
   }
 }
 
-export function getM3uArchiveDays(entry: Pick<M3uEntry, 'catchupDays'> | null | undefined): number {
+function getM3uArchiveDays(entry: Pick<M3uEntry, 'catchupDays'> | null | undefined): number {
   return archiveDays(entry?.catchupDays) ?? 0;
 }
 
@@ -345,7 +339,7 @@ export function resolveM3uCatchupUrl(
   return mode === 'shift' || mode === 'append' ? appendCatchupParameters(resolvedSource.toString(), values) : resolvedSource.toString();
 }
 
-export function getXtreamArchiveDays(stream: Pick<XCLiveStream, 'tv_archive_duration'> | null | undefined): number {
+function getXtreamArchiveDays(stream: Pick<XCLiveStream, 'tv_archive_duration'> | null | undefined): number {
   return archiveDays(stream?.tv_archive_duration) ?? 0;
 }
 

@@ -1,4 +1,4 @@
-import { useId, useState, useMemo, useEffect } from 'react';
+import { useId, useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, Download, Film, Heart, Play, RotateCcw, Settings, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
@@ -13,15 +13,13 @@ import { countryName } from '../../utils/categoryName';
 import { MovieDetailSkeleton } from '../shared/Skeleton';
 import { DetailModalShell } from '../common/DetailModalShell';
 import { ErrorState } from '../common/ErrorState';
-import { getErrorMessage, getErrorPresentation } from '../../utils/error';
+import { getErrorPresentation } from '../../utils/error';
 import styles from './MovieDetailModal.module.css';
-import { searchTmdb, getTmdbMovie } from '../../api/tmdb';
-import { useSettingsStore } from '../../store/useSettingsStore';
 import { downloadMediaItem } from '../../services/mediaDownload';
 import { M3uMovieDetailModal } from './M3uMovieDetailModal';
 import { useI18n } from '../../i18n';
-import { uiLanguageDefinition } from '../../i18nConfig';
-import { notify } from '../../store/useNotificationStore';
+import { useTmdbDetailEnrichment } from '../../hooks/useTmdbDetailEnrichment';
+import { buildDetailPresentation } from './detailPresentation';
 
 interface MovieDetailModalProps {
   movieId: string;
@@ -47,12 +45,6 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
     return resolvedSourceId ? state.runtimes[resolvedSourceId]?.credentials ?? null : getXtreamCredentials();
   });
   const providerMovieId = sourceItemId || movieId;
-  const tmdbApiKey = useSettingsStore((state) => state.tmdbApiKey);
-  const tmdbEnabled = useSettingsStore((state) => state.tmdbEnabled);
-  const tmdbLanguage = useSettingsStore((state) => state.tmdbLanguage);
-  const tmdbImageSize = useSettingsStore((state) => state.tmdbImageSize);
-  const tmdbIncludeAdult = useSettingsStore((state) => state.tmdbIncludeAdult);
-  const appLanguage = useSettingsStore((state) => state.language);
   const playStream = usePlayerStore((state) => state.playStream);
   const [imageError, setImageError] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -63,34 +55,7 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
   const removeFavorite = useLibraryStore(state => state.removeFavorite);
 
   const { data, isLoading, error, isFetching, refetch } = useVodInfo(providerMovieId, sourceId);
-  const [enriched, setEnriched] = useState<Awaited<ReturnType<typeof getTmdbMovie>>>(null);
-  useEffect(() => {
-    if (!tmdbEnabled || !tmdbApiKey.trim() || !movieTitle.trim()) {
-      setEnriched(null);
-      return;
-    }
-    const language = tmdbLanguage === 'auto'
-      ? uiLanguageDefinition(appLanguage).locale
-      : tmdbLanguage;
-    const options = {
-      language,
-      includeAdult: tmdbIncludeAdult,
-      imageSize: tmdbImageSize,
-    } as const;
-    const controller = new AbortController();
-    void searchTmdb(tmdbApiKey, movieTitle, controller.signal, options)
-      .then((search) => {
-        const movie = search.results.find((result) => result.mediaType === 'movie');
-        return movie ? getTmdbMovie(tmdbApiKey, movie.id, controller.signal, options) : null;
-      })
-      .then((movie) => { if (!controller.signal.aborted) setEnriched(movie); })
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setEnriched(null);
-        notify.warning('TMDB Enrichment Failed', getErrorMessage(error, 'TMDB enrichment failed without an error message.'), undefined, undefined, 'connection');
-      });
-    return () => controller.abort();
-  }, [appLanguage, movieTitle, tmdbApiKey, tmdbEnabled, tmdbImageSize, tmdbIncludeAdult, tmdbLanguage]);
+  const enriched = useTmdbDetailEnrichment('movie', movieTitle);
   const toggleFavorite = () => {
     if (isFav) removeFavorite(movieId);
     else addFavorite({
@@ -132,24 +97,20 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
   const historyItem = useLibraryStore(state => state.history.find(h => h.id === movieId));
   const remainingLabel = formatRemaining(historyItem?.currentTime, historyItem?.duration, language);
 
-  const providerReleaseYear = data?.info.releaseDate
-    ? new Date(data.info.releaseDate).getFullYear()
-    : NaN;
-  const releaseYear = enriched?.releaseYear ?? providerReleaseYear;
+  const detailPresentation = buildDetailPresentation({
+    enriched,
+    providerReleaseDate: data?.info.releaseDate,
+    providerCast: data?.info.cast,
+    providerDirector: data?.info.director,
+    providerGenres: data?.info.genre,
+  });
+  const { releaseYear, castList, director, genres } = detailPresentation;
   const parsedTitle = parseMediaDisplayTitle(
     data?.info.name || movieTitle,
     Number.isFinite(releaseYear) ? String(releaseYear) : undefined,
   );
   const plot = enriched?.overview || data?.info.description || data?.info.plot || t('No description available.');
-  const castList = useMemo(() => {
-    const tmdbCast = enriched?.credits?.cast.map((credit) => credit.name).filter(Boolean) ?? [];
-    return tmdbCast.length > 0 ? tmdbCast : (data?.info.cast?.split(/\s*,\s*/).filter(Boolean) ?? []);
-  }, [data?.info.cast, enriched?.credits.cast]);
-  const director = enriched?.credits?.crew.find((credit) => (
-    credit.job === 'Director' || credit.jobs.includes('Director')
-  ))?.name || data?.info.director;
   const rating = enriched?.voteAverage ?? data?.info.rating;
-  const genres = enriched?.genres.map((genre) => genre.name).filter(Boolean).join(' / ') || data?.info.genre?.replace(/\s*,\s*/g, ' / ');
   const duration = enriched?.runtimeMinutes ? t('{count} min', { count: number(enriched.runtimeMinutes) }) : data?.info.duration;
   const displayCountry = parsedTitle.country ? countryName(parsedTitle.country, language) : null;
   const hasMoreDetails = plot.length > 280 || castList.length > 4;

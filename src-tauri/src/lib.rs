@@ -80,7 +80,6 @@ pub fn run() {
             remote_media::m3u_fetch,
             remote_media::m3u_probe_stream,
             xmltv::xmltv_fetch,
-            remote_media::xmltv_probe,
             downloads::download_media_start,
             downloads::download_media_pause,
             downloads::download_media_resume,
@@ -145,8 +144,8 @@ pub fn run() {
 #[cfg(test)]
 mod source_tests {
     use super::remote_media::{
-        apply_conditional_headers, decode_m3u, looks_like_xmltv_prefix, remote_cache_key,
-        validate_remote_url, HttpValidators, M3uFetchOptions,
+        apply_conditional_headers, decode_m3u, remote_cache_key, validate_remote_url,
+        HttpValidators, M3uFetchOptions,
     };
     use super::remove_cached_app_data;
     use std::collections::HashMap;
@@ -191,13 +190,6 @@ mod source_tests {
     #[test]
     fn decodes_legacy_playlists() {
         assert_eq!(decode_m3u(&[b'#', 0x80]), "#€");
-    }
-
-    #[test]
-    fn identifies_xmltv_probe_prefixes_without_downloading_the_full_guide() {
-        assert!(looks_like_xmltv_prefix(b"<?xml version=\"1.0\"?><tv></tv>"));
-        assert!(looks_like_xmltv_prefix(&[0x1f, 0x8b, 0x08]));
-        assert!(!looks_like_xmltv_prefix(b"#EXTM3U\n#EXTINF:-1,Channel"));
     }
 
     #[test]

@@ -44,7 +44,7 @@ export function Favorites() {
         {favorites.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="Your Favorites is Empty"
+            title="Your Favorites Are Empty"
             description="Save movies, series, or live channels to your personal library for quick access anytime."
           />
         ) : (

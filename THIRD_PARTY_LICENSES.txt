@@ -53,7 +53,7 @@ cargo:Apache-2.0 OR MIT
 - autocfg@1.5.1
 - bit-set@0.8.0
 - bit-vec@0.8.0
-- blocking@1.6.2
+- blocking@1.7.0
 - cargo_toml@0.22.3
 - concurrent-queue@2.5.0
 - ctor-proc-macro@0.0.7
@@ -74,6 +74,8 @@ cargo:Apache-2.0 OR MIT
 - parking@2.2.1
 - pin-project-lite@0.2.17
 - polling@3.11.0
+- portable-atomic-util@0.2.7
+- portable-atomic@1.15.0
 - rustc-hash@2.1.3
 - simd_cesu8@1.2.0
 - tauri-build@2.6.3
@@ -91,7 +93,7 @@ cargo:Apache-2.0 OR MIT
 - tauri-utils@2.9.3
 - tauri@2.11.5
 - utf8_iter@1.0.4
-- uuid@1.24.0
+- uuid@1.25.0
 - window-vibrancy@0.6.0
 - wry@0.55.1
 - zeroize@1.9.0
@@ -144,7 +146,7 @@ cargo:CDLA-Permissive-2.0
 cargo:ISC
 ---------
 - libloading@0.7.4
-- rustls-webpki@0.103.13
+- rustls-webpki@0.103.15
 - untrusted@0.9.0
 
 cargo:ISC AND (Apache-2.0 OR ISC)
@@ -200,7 +202,7 @@ cargo:MIT
 - gtk-sys@0.18.2
 - gtk@0.18.2
 - gtk3-macros@0.18.2
-- http-body-util@0.1.4
+- http-body-util@0.1.5
 - http-body@1.1.0
 - hyper-util@0.1.20
 - hyper@1.11.0
@@ -210,7 +212,7 @@ cargo:MIT
 - is-wsl@0.4.0
 - javascriptcore-rs-sys@1.1.1
 - javascriptcore-rs@1.1.2
-- libredox@0.1.19
+- libredox@0.1.20
 - memoffset@0.9.1
 - minisign-verify@0.2.5
 - mio@1.2.2
@@ -218,7 +220,7 @@ cargo:MIT
 - objc2-encode@4.1.0
 - objc2-foundation@0.3.2
 - objc2@0.6.4
-- open@5.4.1
+- open@5.4.2
 - pango-sys@0.18.0
 - pango@0.18.3
 - phf_codegen@0.13.1
@@ -272,14 +274,15 @@ cargo:MIT
 - winreg@0.55.0
 - x11-dl@2.21.0
 - x11@2.21.0
-- zbus_macros@5.18.0
+- zbus_macros@5.19.0
 - zbus_names@4.3.4
-- zbus@5.18.0
+- zbus@5.19.0
+- zcheapstr@1.1.0
 - zip@4.6.1
 - zmij@1.0.23
-- zvariant_derive@5.13.1
-- zvariant_utils@3.5.0
-- zvariant@5.13.1
+- zvariant_derive@5.15.0
+- zvariant_utils@4.2.0
+- zvariant@5.15.0
 
 cargo:MIT OR Apache-2.0
 -----------------------
@@ -303,7 +306,7 @@ cargo:MIT OR Apache-2.0
 - camino@1.2.5
 - cargo-platform@0.1.9
 - cbc@0.1.2
-- cc@1.4.0
+- cc@1.4.4
 - cfg-expr@0.15.8
 - cfg-if@1.0.4
 - chacha20@0.10.1
@@ -312,17 +315,20 @@ cargo:MIT OR Apache-2.0
 - cmake@0.1.58
 - compression-codecs@0.4.38
 - compression-core@0.4.32
-- cookie@0.18.1
+- cookie@0.18.2
 - core-foundation-sys@0.8.7
 - core-foundation@0.10.1
 - core-graphics-types@0.2.0
 - core-graphics@0.25.0
 - cpufeatures@0.2.17
 - cpufeatures@0.3.0
-- crc32fast@1.5.0
+- crc32fast@1.5.1
 - crossbeam-channel@0.5.16
 - crossbeam-utils@0.8.22
 - crypto-common@0.1.7
+- defmt-macros@1.1.1
+- defmt-parser@1.0.0
+- defmt@1.1.1
 - deranged@0.5.8
 - derive_arbitrary@1.4.2
 - digest@0.10.7
@@ -339,17 +345,17 @@ cargo:MIT OR Apache-2.0
 - errno@0.3.14
 - fdeflate@0.3.7
 - field-offset@0.3.6
-- find-msvc-tools@0.1.9
+- find-msvc-tools@0.1.11
 - flate2@1.1.9
 - form_urlencoded@1.2.2
-- futures-channel@0.3.33
-- futures-core@0.3.33
-- futures-executor@0.3.33
-- futures-io@0.3.33
-- futures-macro@0.3.33
-- futures-sink@0.3.33
-- futures-task@0.3.33
-- futures-util@0.3.33
+- futures-channel@0.3.34
+- futures-core@0.3.34
+- futures-executor@0.3.34
+- futures-io@0.3.34
+- futures-macro@0.3.34
+- futures-sink@0.3.34
+- futures-task@0.3.34
+- futures-util@0.3.34
 - getrandom@0.2.17
 - getrandom@0.3.4
 - getrandom@0.4.3
@@ -377,14 +383,14 @@ cargo:MIT OR Apache-2.0
 - jni-sys@0.4.1
 - jni@0.22.4
 - jobserver@0.1.35
-- js-sys@0.3.103
+- js-sys@0.3.104
 - jsonptr@0.6.3
 - keyboard-types@0.7.0
 - keyring-core@1.0.0
 - keyring@4.1.6
 - libc@0.2.189
 - lock_api@0.4.14
-- log@0.4.33
+- log@0.4.34
 - markup5ever@0.38.0
 - mime@0.3.17
 - ndk-sys@0.6.0+11769913
@@ -393,7 +399,7 @@ cargo:MIT OR Apache-2.0
 - num-bigint@0.4.8
 - num-complex@0.4.6
 - num-conv@0.2.2
-- num-integer@0.1.46
+- num-integer@0.1.47
 - num-iter@0.1.46
 - num-rational@0.4.2
 - num-traits@0.2.19
@@ -406,7 +412,7 @@ cargo:MIT OR Apache-2.0
 - parking_lot@0.12.5
 - percent-encoding@2.3.2
 - piper@0.2.5
-- pkg-config@0.3.33
+- pkg-config@0.3.34
 - png@0.17.16
 - png@0.18.1
 - powerfmt@0.2.0
@@ -416,15 +422,15 @@ cargo:MIT OR Apache-2.0
 - proc-macro-error-attr@1.0.4
 - proc-macro-error@1.0.4
 - proc-macro2@1.0.107
-- quinn-proto@0.11.16
+- quinn-proto@0.11.17
 - quinn-udp@0.5.15
 - quinn@0.11.11
 - quote@1.0.47
 - rand_core@0.10.1
 - rand_pcg@0.10.2
 - rand@0.10.2
-- ref-cast-impl@1.0.26
-- ref-cast@1.0.26
+- ref-cast-impl@1.0.27
+- ref-cast@1.0.27
 - regex-automata@0.4.18
 - regex-syntax@0.8.11
 - regex@1.13.1
@@ -446,8 +452,8 @@ cargo:MIT OR Apache-2.0
 - serde_repr@0.1.21
 - serde_spanned@0.6.9
 - serde_spanned@1.1.1
-- serde_with_macros@3.21.0
-- serde_with@3.21.0
+- serde_with_macros@3.22.0
+- serde_with@3.22.0
 - serde-untagged@0.1.9
 - serde@1.0.229
 - serialize-to-javascript-impl@0.1.2
@@ -463,19 +469,19 @@ cargo:MIT OR Apache-2.0
 - stable_deref_trait@1.2.1
 - string_cache_codegen@0.6.1
 - string_cache@0.9.0
-- swift-rs@1.0.7
+- swift-rs@1.0.8
 - syn@1.0.109
 - syn@2.0.119
-- syn@3.0.3
+- syn@3.0.4
 - system-deps@6.2.2
 - tao-macros@0.1.4
 - tar@0.4.46
 - tempfile@3.27.0
 - tendril@0.5.1
 - thiserror-impl@1.0.69
-- thiserror-impl@2.0.19
+- thiserror-impl@2.0.20
 - thiserror@1.0.69
-- thiserror@2.0.19
+- thiserror@2.0.20
 - time-core@0.1.9
 - time-macros@0.2.32
 - time@0.3.55
@@ -496,14 +502,14 @@ cargo:MIT OR Apache-2.0
 - typenum@1.20.1
 - unicode-segmentation@1.13.3
 - url@2.5.8
-- wasm-bindgen-futures@0.4.76
-- wasm-bindgen-macro-support@0.2.126
-- wasm-bindgen-macro@0.2.126
-- wasm-bindgen-shared@0.2.126
-- wasm-bindgen@0.2.126
+- wasm-bindgen-futures@0.4.77
+- wasm-bindgen-macro-support@0.2.127
+- wasm-bindgen-macro@0.2.127
+- wasm-bindgen-shared@0.2.127
+- wasm-bindgen@0.2.127
 - wasm-streams@0.5.0
-- web_atoms@0.2.5
-- web-sys@0.3.103
+- web_atoms@0.2.6
+- web-sys@0.3.104
 - web-time@1.1.0
 - windows_aarch64_gnullvm@0.42.2
 - windows_aarch64_gnullvm@0.52.6
@@ -554,7 +560,7 @@ cargo:MIT OR Apache-2.0
 - windows-version@0.1.7
 - windows@0.61.3
 - xattr@1.6.1
-- zbus-secret-service-keyring-store@1.0.0
+- zbus-secret-service-keyring-store@1.0.1
 
 cargo:MIT OR Apache-2.0 OR LGPL-2.1-or-later
 --------------------------------------------
@@ -603,29 +609,34 @@ cargo:MPL-2.0
 
 cargo:Unicode-3.0
 -----------------
-- icu_collections@2.2.0
-- icu_locale_core@2.2.0
-- icu_normalizer_data@2.2.0
-- icu_normalizer@2.2.0
-- icu_properties_data@2.2.0
-- icu_properties@2.2.0
-- icu_provider@2.2.0
-- litemap@0.8.2
-- potential_utf@0.1.5
-- tinystr@0.8.3
-- writeable@0.6.3
+- icu_collections@2.3.0
+- icu_locale_core@2.3.0
+- icu_normalizer_data@2.3.0
+- icu_normalizer@2.3.0
+- icu_properties_data@2.3.0
+- icu_properties@2.3.0
+- icu_provider@2.3.1
+- litemap@0.8.3
+- potential_utf@0.1.6
+- tinystr@0.8.4
+- writeable@0.6.4
 - yoke-derive@0.8.2
 - yoke@0.8.3
 - zerofrom-derive@0.1.7
 - zerofrom@0.1.8
-- zerotrie@0.2.4
-- zerovec-derive@0.11.3
-- zerovec@0.11.6
+- zerotrie@0.2.5
+- zerovec-derive@0.11.6
+- zerovec@0.11.8
 
 cargo:Unlicense OR MIT
 ----------------------
 - aho-corasick@1.1.5
 - byteorder@1.5.0
+- jiff-core@0.1.0
+- jiff-static@0.2.35
+- jiff-tzdb-platform@0.1.3
+- jiff-tzdb@0.1.8
+- jiff@0.2.35
 - memchr@2.8.3
 - winapi-util@0.1.11
 
@@ -718,26 +729,31 @@ npm:BSD-3-Clause
 - istanbul-lib-coverage@3.2.2
 - istanbul-lib-report@3.0.1
 - istanbul-reports@3.2.0
+- smol-toml@1.8.0
 - source-map-js@1.2.1
 
 npm:CC-BY-4.0
 -------------
-- caniuse-lite@1.0.30001809
+- caniuse-lite@1.0.30001810
 
 npm:ISC
 -------
-- electron-to-chromium@1.5.413
+- electron-to-chromium@1.5.414
 - flatted@3.4.4
 - glob-parent@6.0.2
 - isexe@2.0.0
+- knip@6.32.2
 - lru-cache@5.1.1
-- lucide-react@1.29.0
+- lucide-react@1.34.0
 - picocolors@1.1.1
 - semver@6.3.1
 - semver@7.8.5
 - siginfo@2.0.0
+- unbash@4.0.10
+- walk-up-path@4.0.0
 - which@2.0.2
 - yallist@3.1.1
+- yaml@2.9.0
 
 npm:MIT
 -------
@@ -762,23 +778,25 @@ npm:MIT
 - @epic-web/invariant@1.0.0
 - @eslint-community/eslint-utils@4.10.1
 - @eslint-community/regexpp@4.12.2
-- @eslint/js@10.0.1
 - @jridgewell/gen-mapping@0.3.13
 - @jridgewell/remapping@2.3.5
 - @jridgewell/resolve-uri@3.1.2
 - @jridgewell/sourcemap-codec@1.5.5
 - @jridgewell/trace-mapping@0.3.31
+- @oxc-parser/binding-win32-x64-msvc@0.143.0
 - @oxc-project/types@0.143.0
-- @rolldown/binding-win32-x64-msvc@1.2.3
+- @oxc-project/types@0.146.0
+- @oxc-resolver/binding-win32-x64-msvc@11.24.2
+- @rolldown/binding-win32-x64-msvc@1.2.5
 - @rolldown/pluginutils@1.0.1
 - @standard-schema/spec@1.1.0
-- @tanstack/query-core@5.101.4
-- @tanstack/react-query@5.101.4
-- @tanstack/react-virtual@3.14.9
-- @tanstack/virtual-core@3.17.7
+- @tanstack/query-core@5.102.3
+- @tanstack/react-query@5.102.3
+- @tanstack/react-virtual@3.14.10
+- @tanstack/virtual-core@3.17.8
 - @testing-library/dom@10.4.1
 - @testing-library/react@16.3.2
-- @testing-library/user-event@14.6.3
+- @testing-library/user-event@14.6.6
 - @types/aria-query@5.0.4
 - @types/chai@5.2.3
 - @types/deep-eql@4.0.2
@@ -786,7 +804,7 @@ npm:MIT
 - @types/estree@1.0.9
 - @types/json-schema@7.0.15
 - @types/node@24.13.3
-- @types/react-dom@19.2.4
+- @types/react-dom@19.2.5
 - @types/react@19.2.18
 - @types/whatwg-mimetype@3.0.2
 - @types/ws@8.18.1
@@ -800,15 +818,15 @@ npm:MIT
 - @typescript-eslint/typescript-estree@8.68.0
 - @typescript-eslint/utils@8.68.0
 - @typescript-eslint/visitor-keys@8.68.0
-- @vitejs/plugin-react@6.0.5
-- @vitest/coverage-v8@4.1.10
-- @vitest/expect@4.1.10
-- @vitest/mocker@4.1.10
-- @vitest/pretty-format@4.1.10
-- @vitest/runner@4.1.10
-- @vitest/snapshot@4.1.10
-- @vitest/spy@4.1.10
-- @vitest/utils@4.1.10
+- @vitejs/plugin-react@6.1.0
+- @vitest/coverage-v8@4.1.11
+- @vitest/expect@4.1.11
+- @vitest/mocker@4.1.11
+- @vitest/pretty-format@4.1.11
+- @vitest/runner@4.1.11
+- @vitest/snapshot@4.1.11
+- @vitest/spy@4.1.11
+- @vitest/utils@4.1.11
 - acorn-jsx@5.3.2
 - acorn@8.18.0
 - ajv@6.15.0
@@ -831,24 +849,27 @@ npm:MIT
 - deep-is@0.1.4
 - dequal@2.0.3
 - dom-accessibility-api@0.5.16
-- es-module-lexer@2.3.1
+- es-module-lexer@2.3.2
 - escalade@3.2.0
 - escape-string-regexp@4.0.0
 - eslint-plugin-react-hooks@7.1.1
 - eslint-plugin-react-refresh@0.5.4
-- eslint@10.9.0
+- eslint@10.9.1
 - estree-walker@3.0.3
 - fast-deep-equal@3.1.3
 - fast-json-stable-stringify@2.1.0
 - fast-levenshtein@2.0.6
+- fd-package-json@2.0.0
 - fdir@6.5.0
 - file-entry-cache@8.0.0
 - find-up@5.0.0
 - flat-cache@4.0.1
-- framer-motion@13.0.0
+- formatly@0.3.0
+- framer-motion@13.1.1
 - gensync@1.0.0-beta.2
+- get-tsconfig@4.14.1
 - globals@17.11.0
-- happy-dom@20.11.2
+- happy-dom@20.11.6
 - has-flag@4.0.0
 - hermes-estree@0.25.1
 - hermes-parser@0.25.1
@@ -858,6 +879,7 @@ npm:MIT
 - imurmurhash@0.1.4
 - is-extglob@2.1.1
 - is-glob@4.0.3
+- jiti@2.7.0
 - js-tokens@10.0.0
 - js-tokens@4.0.0
 - jsesc@3.1.0
@@ -872,7 +894,7 @@ npm:MIT
 - magic-string@0.30.21
 - magicast@0.5.4
 - make-dir@4.0.0
-- motion-dom@13.0.0
+- motion-dom@13.1.1
 - motion-utils@13.0.0
 - ms@2.1.3
 - nanoid@3.3.18
@@ -880,12 +902,14 @@ npm:MIT
 - node-releases@2.0.53
 - obug@2.1.4
 - optionator@0.9.4
+- oxc-parser@0.143.0
+- oxc-resolver@11.24.2
 - p-limit@3.1.0
 - p-locate@5.0.0
 - path-exists@4.0.0
 - path-key@3.1.1
 - pathe@2.0.3
-- picomatch@4.0.5
+- picomatch@4.0.7
 - postcss@8.5.26
 - prelude-ls@1.2.1
 - pretty-format@27.5.1
@@ -895,13 +919,15 @@ npm:MIT
 - react-router-dom@7.18.2
 - react-router@7.18.2
 - react@19.2.8
-- rolldown@1.2.3
+- resolve-pkg-maps@1.0.0
+- rolldown@1.2.5
 - scheduler@0.27.0
 - set-cookie-parser@2.7.2
 - shebang-command@2.0.0
 - shebang-regex@3.0.0
 - stackback@0.0.2
 - std-env@4.2.0
+- strip-json-comments@5.0.3
 - supports-color@7.2.0
 - tinybench@2.9.0
 - tinyexec@1.3.0
@@ -912,8 +938,8 @@ npm:MIT
 - typescript-eslint@8.68.0
 - undici-types@7.18.2
 - update-browserslist-db@1.3.1
-- vite@8.2.1
-- vitest@4.1.10
+- vite@8.2.2
+- vitest@4.1.11
 - whatwg-mimetype@3.0.0
 - why-is-node-running@2.3.0
 - word-wrap@1.2.5
@@ -921,7 +947,7 @@ npm:MIT
 - yocto-queue@0.1.0
 - zod-validation-error@4.0.2
 - zod@4.4.3
-- zustand@5.0.14
+- zustand@5.0.15
 
 npm:MIT OR Apache-2.0
 ---------------------
@@ -1043,6 +1069,37 @@ python:Python-2.0
 
 LICENSE AND NOTICE TEXTS
 ========================
+
+SHA-256: 036546fdfb340233d3ec541d2a6defd6a7457b9e7db6a1618984c9e77af8a221
+Used by:
+- npm:smol-toml@1.8.0 (LICENSE)
+
+Copyright (c) Squirrel Chat et al., All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+==============================================================================
 
 SHA-256: 04dc52136d82400b11df5f474949863a70a5d05d2278dec45b99c479494450a6
 Used by:
@@ -1502,6 +1559,7 @@ Used by:
 - npm:make-dir@4.0.0 (license)
 - npm:p-limit@3.1.0 (license)
 - npm:p-locate@5.0.0 (license)
+- npm:strip-json-comments@5.0.3 (license)
 - npm:yocto-queue@0.1.0 (license)
 
 MIT License
@@ -3045,10 +3103,10 @@ SOFTWARE.
 
 SHA-256: 277d2a8e459713d6c596bab89ef857cb8b2433223fa9edb49ccc403a6ceb08ee
 Used by:
-- npm:@tanstack/query-core@5.101.4 (LICENSE)
-- npm:@tanstack/react-query@5.101.4 (LICENSE)
-- npm:@tanstack/react-virtual@3.14.9 (LICENSE)
-- npm:@tanstack/virtual-core@3.17.7 (LICENSE)
+- npm:@tanstack/query-core@5.102.3 (LICENSE)
+- npm:@tanstack/react-query@5.102.3 (LICENSE)
+- npm:@tanstack/react-virtual@3.14.10 (LICENSE)
+- npm:@tanstack/virtual-core@3.17.8 (LICENSE)
 
 MIT License
 
@@ -3732,6 +3790,28 @@ Software.
 
 ==============================================================================
 
+SHA-256: 2feb8ed0e558ac1c8e1b7dabd50860bdaa664fd380e6a95e4d0fc855d2a22378
+Used by:
+- npm:unbash@4.0.10 (LICENSE)
+
+ISC License
+
+Copyright (c) Lars Kappert
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+==============================================================================
+
 SHA-256: 30158cc81738e8c8772149fd1348dfca17d097278678ea0fdc37ec3f3890fd7d
 Used by:
 - cargo:fs_extra@1.3.0 (LICENSE)
@@ -3762,7 +3842,7 @@ SOFTWARE.
 
 SHA-256: 30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652
 Used by:
-- cargo:zvariant_utils@3.5.0 (LICENSE)
+- cargo:zvariant_utils@4.2.0 (LICENSE)
 
 Permission is hereby granted, free of charge, to any
 person obtaining a copy of this software and associated
@@ -3899,6 +3979,38 @@ SOFTWARE.
 
 ==============================================================================
 
+SHA-256: 36c68b249eb6de0491d8162d9c886af98800bbfb5bc767b1e373390402c9888d
+Used by:
+- cargo:zcheapstr@1.1.0 (LICENSE)
+
+Copyright (c) 2026 Zeeshan Ali Khan & zcheapstr contributors
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+
 SHA-256: 3773506139d97ae1f1dcfb2a6da8aa2b3dcb335adec7c5d16475cd81cc571d4e
 Used by:
 - npm:gensync@1.0.0-beta.2 (LICENSE)
@@ -3942,7 +4054,7 @@ THE SOFTWARE.
 
 SHA-256: 384a8fa756d4ca7e5df8639719e5ee7e279b2b27d2ccecbbe4222733050d4423
 Used by:
-- npm:zustand@5.0.14 (LICENSE)
+- npm:zustand@5.0.15 (LICENSE)
 
 MIT License
 
@@ -3965,6 +4077,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+==============================================================================
+
+SHA-256: 39ecb097c2a883027731c0fe0baa79c78ab37086c52e7eec057ae15ef0868662
+Used by:
+- npm:walk-up-path@4.0.0 (LICENSE)
+
+The ISC License
+
+Copyright (c) 2020-2023 Isaac Z. Schlueter
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ==============================================================================
 
@@ -4026,7 +4160,7 @@ SOFTWARE.
 
 SHA-256: 3ac27594ed56fd079c95a71f8beabc498c5b997ec31e91f4a18e59a5974adb2a
 Used by:
-- cargo:rustls-webpki@0.103.13 (LICENSE)
+- cargo:rustls-webpki@0.103.15 (LICENSE)
 
 Except as otherwise noted, this project is licensed under the following
 (ISC-style) terms:
@@ -4299,8 +4433,7 @@ SOFTWARE.
 
 SHA-256: 46cde592c339ed706afebd8e9c10d5cbcb2bbe7e190710cb4f1251218c30516d
 Used by:
-- npm:@eslint/js@10.0.1 (LICENSE)
-- npm:eslint@10.9.0 (LICENSE)
+- npm:eslint@10.9.1 (LICENSE)
 
 Copyright OpenJS Foundation and other contributors, <www.openjsf.org>
 
@@ -5462,7 +5595,7 @@ SOFTWARE.
 
 SHA-256: 4b48a6b2bcf727a2f27e1bd4892fd047ffed8a0bc1b791b1afc9fe0fec75eba5
 Used by:
-- npm:es-module-lexer@2.3.1 (LICENSE)
+- npm:es-module-lexer@2.3.2 (LICENSE)
 
 MIT License
 -----------
@@ -6234,7 +6367,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 SHA-256: 57f841bc9767b5b843e0c0c471bd50a95ddb00f13b1f4a2c6d6f57a7dbfdc1f3
 Used by:
-- cargo:http-body-util@0.1.4 (LICENSE)
+- cargo:http-body-util@0.1.5 (LICENSE)
 - cargo:http-body@1.1.0 (LICENSE)
 
 Copyright (c) 2019-2026 Sean McArthur & Hyper Contributors
@@ -6360,6 +6493,9 @@ THE SOFTWARE.
 SHA-256: 5b0650b078309ba2772569bb419e40e6883874af64d21bd9c27b44cc1a8e46ff
 Used by:
 - npm:@oxc-project/types@0.143.0 (LICENSE)
+- npm:@oxc-project/types@0.146.0 (LICENSE)
+- npm:oxc-parser@0.143.0 (LICENSE)
+- npm:oxc-resolver@11.24.2 (LICENSE)
 
 MIT License
 
@@ -7122,6 +7258,11 @@ SHA-256: 65314a6c96683f76f7495709bb0ddecb4eaa6fa244b28f23c4812ef8e5524066
 Used by:
 - cargo:aho-corasick@1.1.5 (COPYING)
 - cargo:byteorder@1.5.0 (COPYING)
+- cargo:jiff-core@0.1.0 (COPYING)
+- cargo:jiff-static@0.2.35 (COPYING)
+- cargo:jiff-tzdb-platform@0.1.3 (COPYING)
+- cargo:jiff-tzdb@0.1.8 (COPYING)
+- cargo:jiff@0.2.35 (COPYING)
 - cargo:memchr@2.8.3 (COPYING)
 - cargo:same-file@1.0.6 (COPYING)
 - cargo:walkdir@2.5.0 (COPYING)
@@ -7993,7 +8134,7 @@ available under the Apache 2.0 license (https://github.com/puppeteer/puppeteer/b
 
 SHA-256: 7dbbefcddfaa1e0748935e84fe8f3ad29bb21b7556a02e423b47ac48706b5d02
 Used by:
-- cargo:libredox@0.1.19 (LICENSE)
+- cargo:libredox@0.1.20 (LICENSE)
 
 MIT License
 
@@ -9131,6 +9272,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ==============================================================================
 
+SHA-256: 8dded67841a9261a622c739fb61c81785e93765de852828ceeb9403d20a74581
+Used by:
+- npm:get-tsconfig@4.14.1 (LICENSE)
+- npm:resolve-pkg-maps@1.0.0 (LICENSE)
+
+MIT License
+
+Copyright (c) Hiroki Osame <hiroki.osame@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+
 SHA-256: 8e1c6bd583a7e67bed34af44dcd17bf4bc1a8c4a551ae16a59d2f6545044f901
 Used by:
 - cargo:uds_windows@1.2.1 (LICENSE)
@@ -9204,7 +9374,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 SHA-256: 8f48c4095e8a983dce50c97ded97bd1ea589b6154ee5fe5c8e330046636272bb
 Used by:
-- npm:happy-dom@20.11.2 (LICENSE)
+- npm:happy-dom@20.11.6 (LICENSE)
 
 MIT License
 
@@ -9329,7 +9499,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 SHA-256: 9219a3ebed1d1e1bc469cc605ca626c8433997a1a3013aba1338e03e381bbe11
 Used by:
-- npm:picomatch@4.0.5 (LICENSE)
+- npm:picomatch@4.0.7 (LICENSE)
 
 The MIT License (MIT)
 
@@ -9386,7 +9556,7 @@ SOFTWARE.
 
 SHA-256: 93a675c915fd5846a0d9956bfc10cea9b2deeacf59074abf398f0fdcce10a19b
 Used by:
-- npm:rolldown@1.2.3 (LICENSE)
+- npm:rolldown@1.2.5 (LICENSE)
 
 MIT License
 
@@ -9418,7 +9588,7 @@ The licenses of externally maintained libraries from which parts of the Software
 
 SHA-256: 94e2d6f90264f1e3efc695ab64d36f17c7616a7bae97ab0c51e7f895b842db4d
 Used by:
-- npm:electron-to-chromium@1.5.413 (LICENSE)
+- npm:electron-to-chromium@1.5.414 (LICENSE)
 
 Copyright 2018 Kilian Valkhof
 
@@ -9458,7 +9628,7 @@ SOFTWARE.
 
 SHA-256: 95df2e9564862e51d69683a899b6dcc8218d577057bdf67322880769ff85f29e
 Used by:
-- npm:caniuse-lite@1.0.30001809 (LICENSE)
+- npm:caniuse-lite@1.0.30001810 (LICENSE)
 
 Attribution 4.0 International
 
@@ -9994,11 +10164,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 SHA-256: a0e7d0739e030804991c24558d6630ab5c4d8782f91073e5b5f8d317b03568cd
 Used by:
-- cargo:zbus@5.18.0 (LICENSE)
-- cargo:zbus_macros@5.18.0 (LICENSE)
+- cargo:zbus@5.19.0 (LICENSE)
+- cargo:zbus_macros@5.19.0 (LICENSE)
 - cargo:zbus_names@4.3.4 (LICENSE)
-- cargo:zvariant@5.13.1 (LICENSE)
-- cargo:zvariant_derive@5.13.1 (LICENSE)
+- cargo:zvariant@5.15.0 (LICENSE)
+- cargo:zvariant_derive@5.15.0 (LICENSE)
 
 Copyright (c) 2024 Zeeshan Ali Khan & zbus contributors
 
@@ -10345,7 +10515,7 @@ software or this license, under any kind of legal claim._**
 
 SHA-256: aac842346e3368e0459dd620003c2c90e5caf48c8aeac28da6504f66b26b13be
 Used by:
-- npm:framer-motion@13.0.0 (LICENSE.md)
+- npm:framer-motion@13.1.1 (LICENSE.md)
 
 The MIT License (MIT)
 
@@ -11014,7 +11184,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 SHA-256: bb59eb35f694a158d8f9892e7ce188428bc5d1e719910c7a29444d7c0787e57d
 Used by:
-- npm:motion-dom@13.0.0 (LICENSE.md)
+- npm:motion-dom@13.1.1 (LICENSE.md)
 - npm:motion-utils@13.0.0 (LICENSE.md)
 
 The MIT License (MIT)
@@ -11088,7 +11258,7 @@ THIS SOFTWARE.
 
 SHA-256: bd6e425667753d399fc84200579b0254c27c9f23ef82e8fec611c694f997b394
 Used by:
-- npm:@testing-library/user-event@14.6.3 (LICENSE)
+- npm:@testing-library/user-event@14.6.6 (LICENSE)
 
 The MIT License (MIT)
 Copyright (c) 2020 Giorgio Polvara
@@ -11320,6 +11490,7 @@ SOFTWARE.
 
 SHA-256: c19039068c5910314540e7ab843e244d59c41931360930f4b841653454ce297f
 Used by:
+- npm:formatly@0.3.0 (LICENSE.md)
 - npm:ts-api-utils@2.5.0 (LICENSE.md)
 
 # MIT License
@@ -11381,7 +11552,7 @@ DEALINGS IN THE SOFTWARE.
 
 SHA-256: c3ca23514163a6fe592466d3a6c4dd28ba8998dc1f012916ebf64bdb7764c1d4
 Used by:
-- cargo:open@5.4.1 (LICENSE.md)
+- cargo:open@5.4.2 (LICENSE.md)
 
 The MIT License (MIT)
 =====================
@@ -12140,14 +12311,14 @@ THE SOFTWARE.
 
 SHA-256: c7d2b1c2fc0202ec4cf87374860210f4432634cc8a1fc1f1ade41798c59fc247
 Used by:
-- npm:@vitest/coverage-v8@4.1.10 (LICENSE)
-- npm:@vitest/expect@4.1.10 (LICENSE)
-- npm:@vitest/mocker@4.1.10 (LICENSE)
-- npm:@vitest/pretty-format@4.1.10 (LICENSE)
-- npm:@vitest/runner@4.1.10 (LICENSE)
-- npm:@vitest/snapshot@4.1.10 (LICENSE)
-- npm:@vitest/spy@4.1.10 (LICENSE)
-- npm:@vitest/utils@4.1.10 (LICENSE)
+- npm:@vitest/coverage-v8@4.1.11 (LICENSE)
+- npm:@vitest/expect@4.1.11 (LICENSE)
+- npm:@vitest/mocker@4.1.11 (LICENSE)
+- npm:@vitest/pretty-format@4.1.11 (LICENSE)
+- npm:@vitest/runner@4.1.11 (LICENSE)
+- npm:@vitest/snapshot@4.1.11 (LICENSE)
+- npm:@vitest/spy@4.1.11 (LICENSE)
+- npm:@vitest/utils@4.1.11 (LICENSE)
 
 MIT License
 
@@ -12283,24 +12454,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 SHA-256: cde87abe221f413fede55ded0f17985f37b8fdc23e5f6cba9a3955437facb3ae
 Used by:
-- cargo:icu_collections@2.2.0 (LICENSE)
-- cargo:icu_locale_core@2.2.0 (LICENSE)
-- cargo:icu_normalizer@2.2.0 (LICENSE)
-- cargo:icu_normalizer_data@2.2.0 (LICENSE)
-- cargo:icu_properties@2.2.0 (LICENSE)
-- cargo:icu_properties_data@2.2.0 (LICENSE)
-- cargo:icu_provider@2.2.0 (LICENSE)
-- cargo:litemap@0.8.2 (LICENSE)
-- cargo:potential_utf@0.1.5 (LICENSE)
-- cargo:tinystr@0.8.3 (LICENSE)
-- cargo:writeable@0.6.3 (LICENSE)
+- cargo:icu_collections@2.3.0 (LICENSE)
+- cargo:icu_locale_core@2.3.0 (LICENSE)
+- cargo:icu_normalizer@2.3.0 (LICENSE)
+- cargo:icu_normalizer_data@2.3.0 (LICENSE)
+- cargo:icu_properties@2.3.0 (LICENSE)
+- cargo:icu_properties_data@2.3.0 (LICENSE)
+- cargo:icu_provider@2.3.1 (LICENSE)
+- cargo:litemap@0.8.3 (LICENSE)
+- cargo:potential_utf@0.1.6 (LICENSE)
+- cargo:tinystr@0.8.4 (LICENSE)
+- cargo:writeable@0.6.4 (LICENSE)
 - cargo:yoke-derive@0.8.2 (LICENSE)
 - cargo:yoke@0.8.3 (LICENSE)
 - cargo:zerofrom-derive@0.1.7 (LICENSE)
 - cargo:zerofrom@0.1.8 (LICENSE)
-- cargo:zerotrie@0.2.4 (LICENSE)
-- cargo:zerovec-derive@0.11.3 (LICENSE)
-- cargo:zerovec@0.11.6 (LICENSE)
+- cargo:zerotrie@0.2.5 (LICENSE)
+- cargo:zerovec-derive@0.11.6 (LICENSE)
+- cargo:zerovec@0.11.8 (LICENSE)
 
 UNICODE LICENSE V3
 
@@ -12703,6 +12874,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+==============================================================================
+
+SHA-256: cf12d35c36bad4b21582e8549d43283d304574764c28fe0b93f25f475c5e832c
+Used by:
+- npm:yaml@2.9.0 (LICENSE)
+
+Copyright Eemeli Aro <eemeli@gmail.com>
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
 
 ==============================================================================
 
@@ -13173,6 +13364,28 @@ DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
 
+SHA-256: d87050364ee90a74ec093b9b0352ffcc2e4773a1ac935993bf6bb747f0c1ea0e
+Used by:
+- npm:knip@6.32.2 (LICENSE)
+
+ISC License (ISC)
+
+Copyright 2022-2026 Lars Kappert
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+==============================================================================
+
 SHA-256: d9ba37d9bbdf711b0de66cd3b200142b10b7038e573fb869d535a27ce41165ec
 Used by:
 - cargo:winreg@0.55.0 (LICENSE)
@@ -13352,7 +13565,7 @@ SOFTWARE.
 
 SHA-256: ddf26045289f089392d30ba7a05d85f458f43e7fc24c70407ed5c7c068e0cede
 Used by:
-- npm:vitest@4.1.10 (LICENSE.md)
+- npm:vitest@4.1.11 (LICENSE.md)
 
 # Vitest core license
 Vitest is released under the MIT license:
@@ -15228,7 +15441,7 @@ DEALINGS IN THE SOFTWARE.
 
 SHA-256: ee35498e6684b30c9efaae009415884772f4450b3f6a3ae49103cd550a2c8ceb
 Used by:
-- npm:lucide-react@1.29.0 (LICENSE)
+- npm:lucide-react@1.34.0 (LICENSE)
 
 ISC License
 
@@ -15485,6 +15698,34 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ==============================================================================
 
+SHA-256: efcb319bab082c2785232c5a5b8c9a5f447e06824f1ef58b9311e9152dd6defd
+Used by:
+- npm:fd-package-json@2.0.0 (LICENSE)
+
+MIT License
+
+Copyright (c) 2024 ES Community Tooling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+
 SHA-256: f0510d3b9d1223c45e8fdd2b49270ec8734fff491c7f7d1b948ee70162e1ceff
 Used by:
 - native:yt-dlp@2026.08.19 (UNLICENSE)
@@ -15604,6 +15845,7 @@ SOFTWARE.
 
 SHA-256: f7673e959327e93e07c08b1772835c239b565a14946d275ed1b5af1c5f7b4a94
 Used by:
+- npm:jiti@2.7.0 (LICENSE)
 - npm:std-env@4.2.0 (LICENCE)
 
 MIT License
@@ -15632,7 +15874,7 @@ SOFTWARE.
 
 SHA-256: f77a743a6b87e3bd1435953073f446de1b8d0da0ff24e17d1194e1b749333d27
 Used by:
-- npm:@vitejs/plugin-react@6.0.5 (LICENSE)
+- npm:@vitejs/plugin-react@6.1.0 (LICENSE)
 
 MIT License
 
@@ -15743,7 +15985,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMANGE.
 
 SHA-256: f9340566fc1a7502e86eada88bf17743df53432a2baefdcf6784c37b45e7eeaf
 Used by:
-- npm:vite@8.2.1 (LICENSE.md)
+- npm:vite@8.2.2 (LICENSE.md)
 
 # Vite core license
 Vite is released under the MIT license:
@@ -19103,7 +19345,7 @@ Used by:
 - npm:@types/estree@1.0.9 (LICENSE)
 - npm:@types/json-schema@7.0.15 (LICENSE)
 - npm:@types/node@24.13.3 (LICENSE)
-- npm:@types/react-dom@19.2.4 (LICENSE)
+- npm:@types/react-dom@19.2.5 (LICENSE)
 - npm:@types/react@19.2.18 (LICENSE)
 - npm:@types/whatwg-mimetype@3.0.2 (LICENSE)
 - npm:@types/ws@8.18.1 (LICENSE)

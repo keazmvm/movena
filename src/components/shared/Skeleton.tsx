@@ -6,10 +6,10 @@ function SkeletonBlock({ className = '', style }: { className?: string | undefin
   return <div className={`${styles.skeleton} ${className}`} style={style} />;
 }
 
-export function MediaCardSkeleton({ 
-  viewMode = 'grid', 
-  isLiveTv = false 
-}: { 
+function MediaCardSkeleton({
+  viewMode = 'grid',
+  isLiveTv = false
+}: {
   viewMode?: 'grid' | 'list' | undefined;
   isLiveTv?: boolean | undefined;
 }) {

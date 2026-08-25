@@ -5,7 +5,7 @@
  * and drops malformed records instead of throwing.
  */
 
-export interface NormalizedTvmazeExternals {
+interface NormalizedTvmazeExternals {
   imdb: string | null;
   thetvdb: number | null;
   tvrage: number | null;
@@ -87,7 +87,7 @@ export function normalizeTvmazeAirstamp(value: unknown): string | null {
   return Number.isFinite(Date.parse(airstamp)) ? airstamp : null;
 }
 
-export function normalizeTvmazeShow(payload: unknown): NormalizedTvmazeShow | null {
+function normalizeTvmazeShow(payload: unknown): NormalizedTvmazeShow | null {
   const source = record(payload);
   const id = integer(source?.id, 1);
   const name = text(source?.name);
@@ -119,7 +119,7 @@ export function normalizeTvmazeShowSearch(payload: unknown): NormalizedTvmazeSho
   return shows;
 }
 
-export function normalizeTvmazeEpisode(payload: unknown): NormalizedTvmazeEpisode | null {
+function normalizeTvmazeEpisode(payload: unknown): NormalizedTvmazeEpisode | null {
   const source = record(payload);
   if (!source) return null;
   const airstamp = normalizeTvmazeAirstamp(source.airstamp);
@@ -133,7 +133,7 @@ export function normalizeTvmazeEpisode(payload: unknown): NormalizedTvmazeEpisod
   };
 }
 
-export function normalizeTvmazeEpisodes(payload: unknown): NormalizedTvmazeEpisode[] {
+function normalizeTvmazeEpisodes(payload: unknown): NormalizedTvmazeEpisode[] {
   const episodes: NormalizedTvmazeEpisode[] = [];
   const seen = new Set<string>();
   for (const entry of array(payload)) {
@@ -145,14 +145,6 @@ export function normalizeTvmazeEpisodes(payload: unknown): NormalizedTvmazeEpiso
     episodes.push(episode);
   }
   return episodes;
-}
-
-/** Extract the lightweight `nextepisode` embed from a TVmaze show response. */
-export function normalizeTvmazeEmbeddedNextEpisode(payload: unknown, now: Date = new Date()): NormalizedTvmazeEpisode | null {
-  const source = record(payload);
-  const embedded = record(source?._embedded);
-  const episode = normalizeTvmazeEpisode(embedded?.nextepisode);
-  return episode && Date.parse(episode.airstamp) > now.getTime() ? episode : null;
 }
 
 /** Return every normalized episode ordered by its exact broadcast instant. */

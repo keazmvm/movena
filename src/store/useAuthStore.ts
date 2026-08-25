@@ -110,7 +110,7 @@ export interface AuthState {
 export const AUTH_PROFILE_STORAGE_KEY = 'movena-auth-profile-v2';
 export const LEGACY_AUTH_STORAGE_KEY = 'iptv-auth-storage';
 export const XTREAM_PROFILES_STORAGE_KEY = 'movena-xtream-source-profiles-v1';
-export const LEGACY_XTREAM_SOURCE_ID = 'xtream-legacy';
+const LEGACY_XTREAM_SOURCE_ID = 'xtream-legacy';
 
 function sourceId(): string {
   const uuid = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'

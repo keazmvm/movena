@@ -25,6 +25,41 @@ import { useI18n } from '../i18n';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { sourceScopedItemKey } from '../utils/sourceIdentity';
 
+type LogoAspectSettings = Pick<
+  ReturnType<typeof useSettingsStore.getState>,
+  'channelLogoAspectOverrides' | 'setChannelLogoAspectOverride'
+>;
+
+export function buildLogoAspectMenuItem(
+  channel: Pick<MediaItem, 'id' | 'sourceId' | 'sourceItemId'>,
+  translate: (message: string) => string,
+  settings: LogoAspectSettings = useSettingsStore.getState(),
+): ContextMenuItem {
+  const legacyChannelKey = (channel.sourceItemId || channel.id).toString();
+  const channelKey = sourceScopedItemKey(channel.sourceId, legacyChannelKey);
+  const currentOverride = settings.channelLogoAspectOverrides[channelKey]
+    ?? settings.channelLogoAspectOverrides[legacyChannelKey]
+    ?? 'auto';
+  const choices = [
+    ['aspect-auto', 'Smart Auto', 'auto'],
+    ['aspect-16-9', 'Widescreen (16:9)', '16:9'],
+    ['aspect-4-3', 'Standard (4:3)', '4:3'],
+    ['aspect-original', 'Original (1:1)', 'original'],
+  ] as const;
+
+  return {
+    id: 'logo-aspect-submenu',
+    label: translate('Logo Aspect Ratio'),
+    icon: <Tv size={16} />,
+    submenu: choices.map(([id, label, value]) => ({
+      id,
+      label: translate(label),
+      checked: currentOverride === value,
+      action: () => settings.setChannelLogoAspectOverride(channelKey, value),
+    })),
+  };
+}
+
 export function useMediaContextMenus() {
   const { t, language } = useI18n();
   const openContextMenu = useContextMenuStore((s) => s.openContextMenu);
@@ -140,44 +175,7 @@ export function useMediaContextMenus() {
       }
 
       if (item.type === 'live') {
-        const legacyChannelKey = (item.sourceItemId || item.id).toString();
-        const channelKey = sourceScopedItemKey(item.sourceId, legacyChannelKey);
-        const settingsStore = useSettingsStore.getState();
-        const currentOverride = settingsStore.channelLogoAspectOverrides[channelKey]
-          ?? settingsStore.channelLogoAspectOverrides[legacyChannelKey]
-          ?? 'auto';
-
-        items.push({
-          id: 'logo-aspect-submenu',
-          label: t('Logo Aspect Ratio'),
-          icon: <Tv size={16} />,
-          submenu: [
-            {
-              id: 'aspect-auto',
-              label: t('Smart Auto'),
-              checked: currentOverride === 'auto',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, 'auto'),
-            },
-            {
-              id: 'aspect-16-9',
-              label: t('Widescreen (16:9)'),
-              checked: currentOverride === '16:9',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, '16:9'),
-            },
-            {
-              id: 'aspect-4-3',
-              label: t('Standard (4:3)'),
-              checked: currentOverride === '4:3',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, '4:3'),
-            },
-            {
-              id: 'aspect-original',
-              label: t('Original (1:1)'),
-              checked: currentOverride === 'original',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, 'original'),
-            },
-          ],
-        });
+        items.push(buildLogoAspectMenuItem(item, t));
       }
 
       items.push(
@@ -312,13 +310,6 @@ export function useMediaContextMenus() {
 
       const state = useLibraryStore.getState();
       const isFav = state.favorites.some((f) => f.id === channel.id);
-      const legacyChannelKey = (channel.sourceItemId || channel.id).toString();
-      const channelKey = sourceScopedItemKey(channel.sourceId, legacyChannelKey);
-      const settingsStore = useSettingsStore.getState();
-      const currentOverride = settingsStore.channelLogoAspectOverrides[channelKey]
-        ?? settingsStore.channelLogoAspectOverrides[legacyChannelKey]
-        ?? 'auto';
-
       const items: ContextMenuItem[] = [
         {
           id: 'tune',
@@ -332,37 +323,7 @@ export function useMediaContextMenus() {
           icon: <Heart size={16} fill={isFav ? 'var(--accent-color)' : 'none'} color={isFav ? 'var(--accent-color)' : 'currentColor'} />,
           action: () => (isFav ? state.removeFavorite(channel.id) : state.addFavorite(channel)),
         },
-        {
-          id: 'logo-aspect-submenu',
-          label: t('Logo Aspect Ratio'),
-          icon: <Tv size={16} />,
-          submenu: [
-            {
-              id: 'aspect-auto',
-              label: t('Smart Auto'),
-              checked: currentOverride === 'auto',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, 'auto'),
-            },
-            {
-              id: 'aspect-16-9',
-              label: t('Widescreen (16:9)'),
-              checked: currentOverride === '16:9',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, '16:9'),
-            },
-            {
-              id: 'aspect-4-3',
-              label: t('Standard (4:3)'),
-              checked: currentOverride === '4:3',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, '4:3'),
-            },
-            {
-              id: 'aspect-original',
-              label: t('Original (1:1)'),
-              checked: currentOverride === 'original',
-              action: () => settingsStore.setChannelLogoAspectOverride(channelKey, 'original'),
-            },
-          ],
-        },
+        buildLogoAspectMenuItem(channel, t),
         {
           id: 'div-1',
           label: '',

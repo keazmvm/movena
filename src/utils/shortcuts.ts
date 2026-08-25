@@ -1,4 +1,4 @@
-export interface ShortcutItem {
+interface ShortcutItem {
   keys: string[];
   desc: string;
 }

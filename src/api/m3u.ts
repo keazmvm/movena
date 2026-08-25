@@ -411,7 +411,7 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
   };
 }
 
-export function getM3uSeriesId(sourceId: string, seriesTitle: string): string {
+function getM3uSeriesId(sourceId: string, seriesTitle: string): string {
   return `m3u-series-${fnv1a(`${sourceId}|${seriesTitle.trim().toLowerCase()}`)}`;
 }
 

@@ -8,7 +8,7 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import { check, type DownloadEvent } from '@tauri-apps/plugin-updater';
 import type { DownloadStatusEvent } from '../utils/downloads';
 
-export interface DesktopFileFilter {
+interface DesktopFileFilter {
   name: string;
   extensions: string[];
 }
@@ -38,7 +38,7 @@ export interface MpvEvent {
   sessionId?: string | undefined;
 }
 
-export interface DesktopUpdateProgress {
+interface DesktopUpdateProgress {
   downloaded: number;
   total: number | null;
 }

@@ -163,7 +163,7 @@ export function mergeDuplicateEntries(primary: M3uEntry, duplicates: M3uEntry[])
   };
 }
 
-export type M3uValidationSeverity = 'error' | 'warning' | 'info';
+type M3uValidationSeverity = 'error' | 'warning' | 'info';
 
 export interface M3uValidationIssue {
   id: string;

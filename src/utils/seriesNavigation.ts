@@ -1,5 +1,5 @@
 /** Minimal shape of an Xtream Codes series episode, as returned by getSeriesInfo. */
-export interface SeriesEpisode {
+interface SeriesEpisode {
   id: string | number;
   episode_num: string | number;
   title?: string | undefined;

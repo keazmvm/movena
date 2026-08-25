@@ -4,16 +4,7 @@ export interface CategoryVisibilityRow {
   country: string | null;
 }
 
-export interface MergedCategoryRow extends CategoryVisibilityRow {
-  id: string;
-  categoryIds: string[];
-  label: string;
-  country: string | null;
-  count: number;
-  tags?: string[] | undefined;
-}
-
-export function categoryCountryKey(row: CategoryVisibilityRow): string {
+function categoryCountryKey(row: CategoryVisibilityRow): string {
   return row.country ?? 'other';
 }
 

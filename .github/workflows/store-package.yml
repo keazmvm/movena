@@ -1,0 +1,74 @@
+name: Build Microsoft Store package
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Optional version override (for example 0.1.8)
+        required: false
+        type: string
+      identity_name:
+        description: Partner Center MSIX identity name
+        required: false
+        type: string
+      publisher:
+        description: Partner Center publisher, for example CN=...
+        required: false
+        type: string
+      publish_to_store:
+        description: Automatically upload to Microsoft Store via Submission API
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-package
+  cancel-in-progress: true
+
+jobs:
+  msix:
+    name: Build and package MSIX
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13.11'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install dependencies
+        run: npm ci
+      - name: Build MSIX
+        shell: pwsh
+        run: |
+          $params = @{
+            OutputDirectory = (Join-Path $PWD 'store-artifacts')
+          }
+          if ('${{ inputs.version }}') { $params.Version = '${{ inputs.version }}' }
+          if ('${{ inputs.identity_name }}') { $params.IdentityName = '${{ inputs.identity_name }}' }
+          if ('${{ inputs.publisher }}') { $params.Publisher = '${{ inputs.publisher }}' }
+          ./scripts/make-msix.ps1 @params
+      - name: Upload MSIX artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: movena-msix
+          path: store-artifacts/*.msix
+          if-no-files-found: error
+      - name: Publish to Microsoft Store
+        if: ${{ inputs.publish_to_store && env.HAS_STORE_SECRETS == 'true' }}
+        env:
+          HAS_STORE_SECRETS: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
+        uses: microsoft/store-action@v1
+        with:
+          tenant-id: ${{ secrets.STORE_TENANT_ID }}
+          client-id: ${{ secrets.STORE_CLIENT_ID }}
+          client-secret: ${{ secrets.STORE_CLIENT_SECRET }}
+          product-id: ${{ secrets.STORE_PRODUCT_ID || '9P2T0QGGHQGQ' }}
+          package-path: store-artifacts/*.msix
+          skip-submitting: false

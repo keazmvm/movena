@@ -97,6 +97,7 @@ coverage/
 coverage-*/
 playwright-report/
 test-results/
+src-tauri/lib/*.a
 
 # Local/private IPTV playlists and provider exports must never enter source control.
 *.m3u

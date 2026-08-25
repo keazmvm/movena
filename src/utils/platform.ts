@@ -12,7 +12,3 @@ export function isMacOS(): boolean {
   if (typeof navigator === 'undefined') return false;
   return /Mac/.test(navigator.userAgent);
 }
-
-export function isTauri(): boolean {
-  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-}

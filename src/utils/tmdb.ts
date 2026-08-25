@@ -5,15 +5,15 @@
  * unknown values and never throw for malformed or partial payloads.
  */
 
-export type TmdbMediaType = 'movie' | 'tv' | 'person';
+type TmdbMediaType = 'movie' | 'tv' | 'person';
 export type TmdbImageSize = 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original';
 
-export interface NormalizedTmdbGenre {
+interface NormalizedTmdbGenre {
   id: number | null;
   name: string;
 }
 
-export interface NormalizedTmdbCredit {
+interface NormalizedTmdbCredit {
   id: number | null;
   creditId: string | null;
   name: string;
@@ -31,7 +31,7 @@ export interface NormalizedTmdbCredits {
   crew: NormalizedTmdbCredit[];
 }
 
-export interface NormalizedTmdbVideo {
+interface NormalizedTmdbVideo {
   id: string | null;
   name: string;
   site: 'YouTube' | 'Vimeo';
@@ -60,7 +60,7 @@ export interface NormalizedTmdbMovie {
   videos: NormalizedTmdbVideo[];
 }
 
-export interface NormalizedTmdbSeason {
+interface NormalizedTmdbSeason {
   id: number | null;
   name: string;
   seasonNumber: number;
@@ -98,7 +98,7 @@ export interface NormalizedTmdbTv {
 
 /** A scheduled episode from a TV details response. Times are intentionally
  * omitted: TMDB normally supplies an air _date_, not a reliable local time. */
-export interface NormalizedTmdbEpisode {
+interface NormalizedTmdbEpisode {
   id: number | null;
   name: string;
   airDate: string | null;
@@ -124,7 +124,7 @@ export interface NormalizedTmdbPerson {
   knownFor: NormalizedTmdbSearchResult[];
 }
 
-export interface NormalizedTmdbSearchResult {
+interface NormalizedTmdbSearchResult {
   mediaType: TmdbMediaType;
   id: number;
   title: string;
@@ -601,7 +601,3 @@ export function normalizeTmdbPerson(payload: unknown): NormalizedTmdbPerson | nu
 }
 
 // Explicit aliases make the payload-oriented API convenient for callers.
-export const normalizeTmdbMoviePayload = normalizeTmdbMovie;
-export const normalizeTmdbTvPayload = normalizeTmdbTv;
-export const normalizeTmdbPersonPayload = normalizeTmdbPerson;
-export const normalizeTmdbSearchPayload = normalizeTmdbSearch;

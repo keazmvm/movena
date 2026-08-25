@@ -34,11 +34,8 @@ export type {
   MotionPreference,
   SelectedCategoryIds,
   SettingsSnapshot,
-  SettingsSnapshotKey,
   SettingsState,
   SmartLogoAspectMode,
-  TmdbImageSize,
-  TmdbLanguage,
   ToneMappingMode,
   UpcomingHistoryDays,
 } from './settingsTypes';

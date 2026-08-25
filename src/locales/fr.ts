@@ -148,7 +148,7 @@ export const FR_MESSAGES: Record<string, string> = {
   "No channels found.": "Aucune chaîne trouvée.",
   "No Downloads Yet": "Aucun téléchargement pour l'instant",
   "No Watch History": "Aucun historique de visionnage",
-  "Your Favorites is Empty": "Vos favoris sont vides",
+  "Your Favorites Are Empty": "Vos favoris sont vides",
   "No Collections Found": "Aucune collection trouvée",
   "Loading page": "Chargement de la page",
   "Loading movies": "Chargement de films",

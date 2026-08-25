@@ -40,16 +40,10 @@ export {
   ACTIVE_SOURCE_STORAGE_KEY,
   ENABLED_SOURCE_IDS_STORAGE_KEY,
   SOURCE_PROFILES_STORAGE_KEY,
-  XTREAM_SOURCE_ID,
 } from './sourceProfiles';
 export type {
-  AddLocalM3uInput,
-  AddRemoteM3uInput,
-  M3uEditorRefreshPolicy,
-  M3uLocationType,
   M3uSourceProfile,
   M3uSourceRuntime,
-  UpdateLocalM3uInput,
 } from './sourceProfiles';
 
 interface SourceState {
@@ -88,6 +82,75 @@ function parseDocument(id: string, document: M3uDocument, headers?: Record<strin
 
 function errorMessage(error: unknown): string {
   return getErrorMessage(error, 'Source operation failed without an error message.');
+}
+
+type SourceStateReader = () => SourceState;
+type SourceStateWriter = (
+  partial: Partial<SourceState> | ((state: SourceState) => Partial<SourceState>),
+) => void;
+
+async function commitNewSource(
+  get: SourceStateReader,
+  set: SourceStateWriter,
+  id: string,
+  profile: M3uSourceProfile,
+  connection: M3uConnectionSecret,
+  playlist: M3uPlaylist,
+  document: M3uDocument,
+): Promise<void> {
+  try {
+    await storeM3uConnection(id, connection);
+    await storeM3uCache(id, document);
+  } catch (error: unknown) {
+    await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
+    throw error;
+  }
+
+  const previousProfiles = get().profiles;
+  const previousEnabledSourceIds = get().enabledSourceIds;
+  const profiles = [...previousProfiles, profile];
+  const enabledSourceIds = [...new Set([...previousEnabledSourceIds, id])];
+  try {
+    writeProfiles(profiles);
+    writeEnabledSourceIds(enabledSourceIds);
+  } catch (error) {
+    try { writeProfiles(previousProfiles); } catch { /* best-effort local rollback */ }
+    try { writeEnabledSourceIds(previousEnabledSourceIds); } catch { /* best-effort local rollback */ }
+    await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
+    throw error;
+  }
+
+  set((state) => ({
+    profiles,
+    enabledSourceIds,
+    runtimes: {
+      ...state.runtimes,
+      [id]: { connection, playlist, baseUrl: document.baseUrl || undefined, status: 'ready', error: null, revision: 1 },
+    },
+  }));
+  void invalidateSourceQueries();
+}
+
+async function persistSourceUpdate(
+  id: string,
+  connection: M3uConnectionSecret,
+  document: M3uDocument | null,
+  previousConnection: M3uConnectionSecret,
+  previousCache: M3uDocument | null,
+  profiles: M3uSourceProfile[],
+): Promise<void> {
+  try {
+    await storeM3uConnection(id, connection);
+    if (document) await storeM3uCache(id, document);
+    writeProfiles(profiles);
+  } catch (error) {
+    await storeM3uConnection(id, previousConnection).catch(() => undefined);
+    if (document) {
+      if (previousCache) await storeM3uCache(id, previousCache).catch(() => undefined);
+      else await deleteM3uCache(id).catch(() => undefined);
+    }
+    throw error;
+  }
 }
 
 let initialization: Promise<void> | null = null;
@@ -214,35 +277,7 @@ export const useSourceStore = create<SourceState>((set, get) => ({
       input.refreshIntervalMinutes,
     );
 
-    try {
-      await storeM3uConnection(id, connection);
-      await storeM3uCache(id, document);
-    } catch (error: unknown) {
-      await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
-      throw error;
-    }
-    const previousProfiles = get().profiles;
-    const previousEnabledSourceIds = get().enabledSourceIds;
-    const profiles = [...previousProfiles, profile];
-    const enabledSourceIds = [...new Set([...previousEnabledSourceIds, id])];
-    try {
-      writeProfiles(profiles);
-      writeEnabledSourceIds(enabledSourceIds);
-    } catch (error) {
-      try { writeProfiles(previousProfiles); } catch { /* best-effort local rollback */ }
-      try { writeEnabledSourceIds(previousEnabledSourceIds); } catch { /* best-effort local rollback */ }
-      await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
-      throw error;
-    }
-    set((state) => ({
-      profiles,
-      enabledSourceIds,
-      runtimes: {
-        ...state.runtimes,
-        [id]: { connection, playlist, baseUrl: document.baseUrl || undefined, status: 'ready', error: null, revision: 1 },
-      },
-    }));
-    void invalidateSourceQueries();
+    await commitNewSource(get, set, id, profile, connection, playlist, document);
     return profile;
   },
 
@@ -268,35 +303,7 @@ export const useSourceStore = create<SourceState>((set, get) => ({
       10_080,
       input.fileName,
     );
-    try {
-      await storeM3uConnection(id, connection);
-      await storeM3uCache(id, document);
-    } catch (error: unknown) {
-      await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
-      throw error;
-    }
-    const previousProfiles = get().profiles;
-    const previousEnabledSourceIds = get().enabledSourceIds;
-    const profiles = [...previousProfiles, profile];
-    const enabledSourceIds = [...new Set([...previousEnabledSourceIds, id])];
-    try {
-      writeProfiles(profiles);
-      writeEnabledSourceIds(enabledSourceIds);
-    } catch (error) {
-      try { writeProfiles(previousProfiles); } catch { /* best-effort local rollback */ }
-      try { writeEnabledSourceIds(previousEnabledSourceIds); } catch { /* best-effort local rollback */ }
-      await Promise.allSettled([deleteM3uConnection(id), deleteM3uCache(id)]);
-      throw error;
-    }
-    set((state) => ({
-      profiles,
-      enabledSourceIds,
-      runtimes: {
-        ...state.runtimes,
-        [id]: { connection, playlist, baseUrl: document.baseUrl || undefined, status: 'ready', error: null, revision: 1 },
-      },
-    }));
-    void invalidateSourceQueries();
+    await commitNewSource(get, set, id, profile, connection, playlist, document);
     return profile;
   },
 
@@ -356,18 +363,7 @@ export const useSourceStore = create<SourceState>((set, get) => ({
         revision: (get().runtimes[id]?.revision ?? 0) + 1,
       },
     };
-    try {
-      await storeM3uConnection(id, connection);
-      if (document) await storeM3uCache(id, document);
-      writeProfiles(profiles);
-    } catch (error) {
-      await storeM3uConnection(id, previousRuntime.connection).catch(() => undefined);
-      if (document) {
-        if (previousCache) await storeM3uCache(id, previousCache).catch(() => undefined);
-        else await deleteM3uCache(id).catch(() => undefined);
-      }
-      throw error;
-    }
+    await persistSourceUpdate(id, connection, document, previousRuntime.connection, previousCache, profiles);
     set({ profiles, runtimes });
     void invalidateSourceQueries();
     return profile;
@@ -424,18 +420,7 @@ export const useSourceStore = create<SourceState>((set, get) => ({
         revision: (previousRuntime.revision ?? 0) + 1,
       },
     };
-    try {
-      await storeM3uConnection(id, connection);
-      if (document) await storeM3uCache(id, document);
-      writeProfiles(profiles);
-    } catch (error) {
-      await storeM3uConnection(id, previousRuntime.connection).catch(() => undefined);
-      if (document) {
-        if (previousCache) await storeM3uCache(id, previousCache).catch(() => undefined);
-        else await deleteM3uCache(id).catch(() => undefined);
-      }
-      throw error;
-    }
+    await persistSourceUpdate(id, connection, document, previousRuntime.connection, previousCache, profiles);
     set({ profiles, runtimes });
     void invalidateSourceQueries();
     return profile;

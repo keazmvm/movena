@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Button } from '../../src/components/common/Button';
 import {
   createI18n,
-  localizeUiText,
+  translateUiText,
   loadAllUiMessageCatalogs,
   UI_MESSAGE_CATALOGS,
   uiLocale,
@@ -24,9 +24,9 @@ beforeEach(() => {
 
 describe('UI localization', () => {
   it('translates app-owned labels without touching unknown content', () => {
-    expect(localizeUiText('Movies', 'de')).toBe('Filme');
-    expect(localizeUiText('Filme', 'en')).toBe('Filme');
-    expect(localizeUiText('A provider title', 'de')).toBe('A provider title');
+    expect(translateUiText('Movies', 'de')).toBe('Filme');
+    expect(translateUiText('Filme', 'en')).toBe('Filme');
+    expect(translateUiText('A provider title', 'de')).toBe('A provider title');
   });
 
   it('provides complete catalogue parity for every supported language', () => {
@@ -47,20 +47,20 @@ describe('UI localization', () => {
   });
 
   it('translates representative media labels across all eight languages', () => {
-    expect(localizeUiText('Movies', 'es')).toBe('Películas');
-    expect(localizeUiText('Movies', 'fr')).toBe('Films');
-    expect(localizeUiText('Movies', 'pt-BR')).toBe('Filmes');
-    expect(localizeUiText('Movies', 'it')).toBe('Film');
-    expect(localizeUiText('Movies', 'nl')).toBe('Films');
-    expect(localizeUiText('Movies', 'pl')).toBe('Filmy');
+    expect(translateUiText('Movies', 'es')).toBe('Películas');
+    expect(translateUiText('Movies', 'fr')).toBe('Films');
+    expect(translateUiText('Movies', 'pt-BR')).toBe('Filmes');
+    expect(translateUiText('Movies', 'it')).toBe('Film');
+    expect(translateUiText('Movies', 'nl')).toBe('Films');
+    expect(translateUiText('Movies', 'pl')).toBe('Filmy');
     expect(uiLocale('pt-BR')).toBe('pt-BR');
   });
 
   it('interpolates templates and localizes app-owned values captured from dynamic text', () => {
-    expect(localizeUiText('Season {number}', 'de', { number: 3 })).toBe('Staffel 3');
-    expect(localizeUiText('Collection "Weekend" ready.', 'de')).toBe('Sammlung „Weekend“ ist bereit.');
-    expect(localizeUiText('Can’t reach Movies', 'de')).toBe('Filme ist nicht erreichbar');
-    expect(localizeUiText('Can’t reach Movies', 'es')).toBe('No se puede acceder a Películas');
+    expect(translateUiText('Season {number}', 'de', { number: 3 })).toBe('Staffel 3');
+    expect(translateUiText('Collection "Weekend" ready.', 'de')).toBe('Sammlung „Weekend“ ist bereit.');
+    expect(translateUiText('Can’t reach Movies', 'de')).toBe('Filme ist nicht erreichbar');
+    expect(translateUiText('Can’t reach Movies', 'es')).toBe('No se puede acceder a Películas');
   });
 
   it('formats plurals, numbers, and dates with the selected locale', () => {

@@ -8,6 +8,22 @@ for tagged releases.
 
 ## [Unreleased]
 
+### Changed
+
+- Removed the unused XMLTV probe IPC contract and narrowed internal exports
+  without changing persisted settings, source schemas, credentials, caches, or
+  the 0.1.x migration chain.
+- Added Knip dead-code enforcement, unused CSS selector/token checks, ignored
+  publishable-tree inspection, and deterministic `dist/` cleaning and output
+  validation to the normal quality gates.
+- Consolidated source lifecycle transactions, media logo menus, detail
+  enrichment/presentation, and Developer HUD provider diagnostics.
+- Pruned mobile and unused Windows icon variants plus generated libmpv import
+  libraries; supported desktop bundle artwork remains unchanged.
+- Updated compatible dependencies and official GitHub Action majors, corrected
+  user-facing copy, and expanded updater, menu, detail, build-output, and player
+  control regression coverage.
+
 ## [0.1.8] - 2026-08-25
 
 ### Fixed
@@ -116,7 +132,7 @@ public project considerably easier to evaluate.
   and keyboard behavior coverage across shared controls, player surfaces,
   catalogue cards, settings, and editor tools.
 - Added deterministic screenshot fixtures that exercise Movena's production
-  React pages and components with fictional titles, reserved example data, and
+  React pages and components with documented real titles, reserved provider data, and
   project-owned geometric artwork.
 
 #### Project presentation and discoverability

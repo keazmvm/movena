@@ -7,8 +7,8 @@ export type HwdecMode = 'auto' | 'auto-safe' | 'no';
 export type HdrMode = 'auto' | 'off';
 export type ToneMappingMode = 'auto' | 'hable' | 'reinhard' | 'mobius' | 'bt.2446a';
 export type MotionPreference = 'system' | 'reduced' | 'full';
-export type TmdbLanguage = 'auto' | UiLocale;
-export type TmdbImageSize = 'w342' | 'w500' | 'w780';
+type TmdbLanguage = 'auto' | UiLocale;
+type TmdbImageSize = 'w342' | 'w500' | 'w780';
 export type UpcomingHistoryDays = 3 | 7 | 14 | 30;
 export type SmartLogoAspectMode = 'auto' | 'force-16:9' | 'off';
 export type ChannelLogoAspect = 'auto' | '16:9' | '4:3' | 'original';
@@ -204,5 +204,5 @@ export const SETTINGS_SNAPSHOT_KEYS = [
   'autoCheckUpdates',
 ] as const satisfies readonly (keyof SettingsState)[];
 
-export type SettingsSnapshotKey = typeof SETTINGS_SNAPSHOT_KEYS[number];
+type SettingsSnapshotKey = typeof SETTINGS_SNAPSHOT_KEYS[number];
 export type SettingsSnapshot = Pick<SettingsState, SettingsSnapshotKey>;

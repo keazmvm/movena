@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
   [string]$Version,
-  [string]$Publisher = 'CN=Movena',
+  [string]$IdentityName = 'Movena.movena',
+  [string]$Publisher = 'CN=835348BD-2CCC-485D-9650-265D1D9D4E15',
   [string]$CertificateThumbprint,
   [string]$OutputDirectory,
   [switch]$SkipBuild
@@ -65,7 +66,7 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) { throw 'The libmpv setup step failed.' }
     & npm.cmd run setup:twitch
     if ($LASTEXITCODE -ne 0) { throw 'The Twitch resolver setup step failed.' }
-    & npx.cmd tauri build --no-bundle
+    & npx.cmd tauri build --no-bundle --config src-tauri/tauri.bundle.windows.conf.json
     if ($LASTEXITCODE -ne 0) { throw 'The Tauri release build failed.' }
   }
   finally { Pop-Location }
@@ -89,14 +90,14 @@ Copy-Item -LiteralPath $twitchResolver -Destination $stagingDirectory -Recurse
 $assetsDirectory = Join-Path $stagingDirectory 'Assets'
 New-Item -ItemType Directory -Path $assetsDirectory -Force | Out-Null
 $assetNames = @(
-  'StoreLogo.png', 'Square44x44Logo.png', 'Square71x71Logo.png', 'Square150x150Logo.png',
-  'Square310x310Logo.png', 'Square142x142Logo.png', 'Square284x284Logo.png'
+  'StoreLogo.png', 'Square44x44Logo.png', 'Square150x150Logo.png'
 )
 foreach ($assetName in $assetNames) {
   Copy-Item -LiteralPath (Join-Path $tauriDirectory "icons\\$assetName") -Destination $assetsDirectory
 }
 $manifest = Get-Content -Raw $manifestTemplate
 $manifest = $manifest.Replace('{{VERSION}}', $msixVersion)
+$manifest = $manifest.Replace('{{IDENTITY_NAME}}', [System.Security.SecurityElement]::Escape($IdentityName))
 $manifest = $manifest.Replace('{{PUBLISHER}}', [System.Security.SecurityElement]::Escape($Publisher))
 [System.IO.File]::WriteAllText((Join-Path $stagingDirectory 'AppxManifest.xml'), $manifest, [System.Text.UTF8Encoding]::new($false))
 

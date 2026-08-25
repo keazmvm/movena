@@ -11,7 +11,6 @@ export const UI_LANGUAGE_DEFINITIONS = [
 
 export type UiLanguage = typeof UI_LANGUAGE_DEFINITIONS[number]['code'];
 export type UiLocale = typeof UI_LANGUAGE_DEFINITIONS[number]['locale'];
-export type UiDirection = typeof UI_LANGUAGE_DEFINITIONS[number]['direction'];
 
 export const UI_LANGUAGES = UI_LANGUAGE_DEFINITIONS.map(({ code }) => code) as readonly UiLanguage[];
 export const UI_LOCALES = UI_LANGUAGE_DEFINITIONS.map(({ locale }) => locale) as readonly UiLocale[];

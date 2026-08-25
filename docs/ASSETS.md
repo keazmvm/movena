@@ -2,16 +2,21 @@
 
 ## Project artwork
 
-The Movena favicon, application icons, mobile icon variants, Windows tiles, and
-DMG background stored in `public/` and `src-tauri/` are project artwork from
-this repository's contributors. They are distributed under GPL-3.0-or-later
-with the application source. The branding rules in `TRADEMARK.md` prevent
-misrepresentation but do not withdraw the copyright license.
+The Movena favicon, desktop application icons, required Windows tiles, and DMG
+background stored in `public/` and `src-tauri/` are project artwork from this
+repository's contributors. They are distributed under GPL-3.0-or-later with
+the application source. The branding rules in `TRADEMARK.md` prevent
+misrepresentation but do not withdraw the copyright license. Android and iOS
+icon trees are intentionally not shipped because Movena supports desktop
+bundles only.
 
 Files covered include:
 
 - `public/favicon.png` and `public/favicon.svg`
-- `src-tauri/icons/**`
+- `src-tauri/icons/32x32.png`, `128x128.png`, `128x128@2x.png`, `icon.png`,
+  `icon.icns`, and `icon.ico`
+- `src-tauri/icons/StoreLogo.png`, `Square44x44Logo.png`, and
+  `Square150x150Logo.png` for the desktop MSIX manifest
 - `src-tauri/dmg/background.png` and `src-tauri/dmg/background.svg`
 
 ## README showcase artwork

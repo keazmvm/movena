@@ -1,0 +1,14 @@
+pkgname=movena-bin
+pkgver=0.1.8
+pkgrel=1
+pkgdesc='Open-source IPTV and VOD player for Xtream Codes and M3U playlists'
+arch=('x86_64')
+url='https://movena.frtx.cc/'
+license=('GPL-3.0-or-later')
+depends=('libmpv' 'webkit2gtk-4.1')
+source=("https://github.com/movena-app/movena/releases/download/v${pkgver}/Movena_${pkgver}_amd64.deb")
+sha256sums=('4260e287b8db9a8c913543fc8b706c886a89df9e1f4d34f3be31244e9c0d19b7')
+
+package() {
+  bsdtar -xf "${srcdir}/Movena_${pkgver}_amd64.deb" -C "${pkgdir}"
+}

@@ -13,7 +13,7 @@ import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { getErrorMessage } from '../../utils/error';
 
-export interface TimedM3uProbeResult extends M3uProbeResult {
+interface TimedM3uProbeResult extends M3uProbeResult {
   checkedAt: number;
 }
 

@@ -148,7 +148,7 @@ export const NL_MESSAGES: Record<string, string> = {
   "No channels found.": "Geen kanalen gevonden.",
   "No Downloads Yet": "Nog geen downloads",
   "No Watch History": "Geen kijkgeschiedenis",
-  "Your Favorites is Empty": "Je favorieten zijn leeg",
+  "Your Favorites Are Empty": "Je favorieten zijn leeg",
   "No Collections Found": "Geen collecties gevonden",
   "Loading page": "Pagina laden",
   "Loading movies": "Films laden",

@@ -5,7 +5,7 @@ import styles from './WorkspaceSidebar.module.css';
 import { useI18n } from '../../i18n';
 
 export const WORKSPACE_SIDEBAR_DEFAULT_WIDTH = 260;
-export const WORKSPACE_SIDEBAR_MIN_WIDTH = 180;
+const WORKSPACE_SIDEBAR_MIN_WIDTH = 180;
 export const WORKSPACE_SIDEBAR_MAX_WIDTH = 520;
 
 interface WorkspaceSidebarProps {

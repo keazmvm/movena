@@ -7,6 +7,11 @@ const output = execFileSync('git', [
   'ls-files', '--cached', '--others', '--exclude-standard', '-z',
 ], { cwd: projectRoot, encoding: 'utf8' });
 const files = output.split('\0').filter(Boolean).filter((file) => existsSync(resolve(projectRoot, file)));
+const publishableRoots = ['public', 'docs', 'src-tauri/dmg', 'src-tauri/icons', 'src-tauri/msix'];
+const ignoredPublishableOutput = execFileSync('git', [
+  'ls-files', '--others', '--ignored', '--exclude-standard', '-z', '--', ...publishableRoots,
+], { cwd: projectRoot, encoding: 'utf8' });
+const ignoredPublishableFiles = ignoredPublishableOutput.split('\0').filter(Boolean);
 const failures = [];
 const playlistExtensions = new Set(['.m3u', '.m3u8', '.xspf', '.xmltv']);
 const binaryMediaExtensions = new Set(['.mp4', '.mkv', '.avi', '.mov', '.m4v', '.mp3', '.flac']);
@@ -120,10 +125,21 @@ for (const file of files) {
   }
 }
 
+for (const file of ignoredPublishableFiles) {
+  const normalized = file.replace(/\\/g, '/');
+  const extension = extname(normalized).toLowerCase();
+  if (playlistExtensions.has(extension)) {
+    failures.push(`${normalized}: ignored private playlist is inside a publishable source directory`);
+  }
+  if (binaryMediaExtensions.has(extension)) {
+    failures.push(`${normalized}: ignored audio/video is inside a publishable source directory`);
+  }
+}
+
 inspectLocalArtifacts(projectRoot);
 
 if (failures.length) {
   console.error('Public-tree compliance check failed:\n' + failures.map((item) => `- ${item}`).join('\n'));
   process.exit(1);
 }
-console.log(`Public-tree compliance check passed (${files.length} files).`);
+console.log(`Public-tree compliance check passed (${files.length} visible files; ${ignoredPublishableFiles.length} ignored publishable files inspected).`);

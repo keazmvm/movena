@@ -6,7 +6,7 @@ import {
   type UiLanguage,
 } from './i18nConfig';
 
-export { UI_LANGUAGES, UI_LANGUAGE_DEFINITIONS, type UiLanguage } from './i18nConfig';
+export type { UiLanguage } from './i18nConfig';
 export type TranslationValues = Record<string, string | number>;
 
 type MessageLanguage = Exclude<UiLanguage, 'en'>;
@@ -159,9 +159,6 @@ export function translateUiText(
   );
   return interpolate(catalog[dynamic.template] ?? dynamic.template, localizedValues);
 }
-
-/** Backwards-compatible name for callers outside React. */
-export const localizeUiText = translateUiText;
 
 export interface I18nApi {
   language: UiLanguage;

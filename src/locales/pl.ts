@@ -148,7 +148,7 @@ export const PL_MESSAGES: Record<string, string> = {
   "No channels found.": "Nie znaleziono kanałów.",
   "No Downloads Yet": "Nie ma jeszcze pobrań",
   "No Watch History": "Brak historii oglądania",
-  "Your Favorites is Empty": "Twoje ulubione są puste",
+  "Your Favorites Are Empty": "Twoje ulubione są puste",
   "No Collections Found": "Nie znaleziono kolekcji",
   "Loading page": "Ładowanie strony",
   "Loading movies": "Ładowanie filmów",

@@ -4,7 +4,7 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
-  <Identity Name="com.movena.desktop" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" />
+  <Identity Name="{{IDENTITY_NAME}}" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" />
   <Properties>
     <DisplayName>Movena</DisplayName>
     <PublisherDisplayName>Movena</PublisherDisplayName>

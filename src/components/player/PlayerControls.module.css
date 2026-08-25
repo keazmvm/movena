@@ -508,10 +508,6 @@
   z-index: var(--z-player-popover);
 }
 
-.feedbackInner {
-  pointer-events: none;
-}
-
 .feedbackCircle {
   width: 72px;
   height: 72px;
@@ -530,14 +526,4 @@
   color: var(--text-primary);
   margin-top: var(--space-px);
   font-variant-numeric: tabular-nums;
-}
-
-/* ── Screenshot flash ───────────────────────────────────── */
-
-.screenshotFlash {
-  position: absolute;
-  inset: 0;
-  background: var(--text-primary);
-  pointer-events: none;
-  z-index: var(--z-player-popover);
 }

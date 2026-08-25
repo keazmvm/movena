@@ -137,7 +137,7 @@ const AD_FLUFF_PATTERN = /(?:https?:\/\/|www\.)\S+|\[(?:t\.me|telegram|discord|b
 const BACKUP_SERVER_PATTERN = /\b(?:SERVER\s*\d+|FEED\s*\d+|BACKUP|ALT\s*\d*|VIP\+|MAIN|DIRECT)\b/gi;
 const PROMOTIONAL_TIER_PATTERN = /\b(?:GOLD|SILVER|PLATINUM|VIP|PREMIUM|ULTRA|PRO)\b/gi;
 
-export function cleanSeparators(value: string): string {
+function cleanSeparators(value: string): string {
   if (!value) return '';
   const normalized = normalizeFancyUnicode(value);
   return normalized

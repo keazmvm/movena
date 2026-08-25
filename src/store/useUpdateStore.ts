@@ -3,7 +3,7 @@ import type { DesktopUpdate } from '../api/desktop';
 import { checkForAppUpdates, installAppUpdate, type UpdateDownloadProgress, type UpdateInfo } from '../services/appUpdater';
 import { useSettingsStore } from './useSettingsStore';
 
-export type UpdatePhase = 'idle' | 'checking' | 'available' | 'downloading' | 'restarting';
+type UpdatePhase = 'idle' | 'checking' | 'available' | 'downloading' | 'restarting';
 
 interface UpdateState {
   phase: UpdatePhase;

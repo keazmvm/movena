@@ -8,7 +8,7 @@ import { useStreamVerificationStore } from './useStreamVerificationStore';
 
 // ─── Types ───────────────────────────────────────────────────
 
-export type StreamType = 'live' | 'vod' | 'series';
+type StreamType = 'live' | 'vod' | 'series';
 
 export interface PlayableStream {
   id: string | number;
@@ -127,7 +127,7 @@ export interface PlayerDiagnostics {
   samples: PlayerDiagnosticSample[];
 }
 
-export interface PlayerResolverStatus {
+interface PlayerResolverStatus {
   provider: 'twitch';
   phase: 'starting' | 'ready' | 'ad-break' | 'failed';
   expectedDurationSeconds?: number | undefined;

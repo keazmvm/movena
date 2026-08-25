@@ -95,7 +95,7 @@ are redacted.
 Fullscreen and pointer visibility use `player_set_fullscreen` and
 `player_set_cursor_hidden`. Source, settings, cache, and download commands are
 also exposed only through `src/api/ipc.ts`; keep their Rust names and camelCase
-payload mappings covered by `tests/ipc.test.ts`.
+payload mappings covered by `tests/platform/ipc.test.ts`.
 
 ## Sources and credentials
 
@@ -132,11 +132,23 @@ tests/               Frontend and Rust-adjacent regression tests
 tests-ui/            Playwright accessibility, geometry, locale, and visual QA
 ```
 
+`npm run dead-code:check` runs Knip across production modules, tests, UI
+harnesses, configuration, and JavaScript build scripts. `npm run design:check`
+also rejects orphaned or unused CSS-module selectors, undefined or unused
+design tokens, and forbidden style drift. Dynamic CSS-module variants have a
+small explicit allowlist in the checker.
+
+The normal frontend build removes only the repository-root `dist/` directory
+before Vite runs, then validates every emitted file against the release asset
+allowlist. Unexpected media or unrelated extensions fail the build instead of
+surviving from an earlier build.
+
 ## Verification
 
 ```bash
 npm run check
 npm run build
+npm run public-tree:check
 ```
 
 Push and pull-request CI run through `.github/workflows/compliance.yml`; release
