@@ -8,6 +8,8 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-25
+
 This is a broad product, security, architecture, quality, packaging, and
 documentation update built on the v0.1.6 release line. It keeps Movena local
 and bring-your-own-content while making playback and source handling more
@@ -296,4 +298,5 @@ public project considerably easier to evaluate.
   resolver teardown, accessibility, signing claims, checksums, licenses, and
   corresponding source.
 
-[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/movena-app/movena/compare/v0.1.6...v0.1.7
