@@ -82,7 +82,10 @@ jobs:
       - run: npm run setup:mpv
       - run: npm run setup:twitch
       - name: Run native tests on Windows
-        run: npm run test:rust
+        shell: pwsh
+        run: |
+          $env:PATH = "$(Resolve-Path 'src-tauri/lib/mpv-dev');$env:PATH"
+          npm run test:rust
       - run: npm audit --audit-level=high
       - run: npm run licenses:check
       - run: npm run public-tree:check
