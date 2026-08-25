@@ -288,13 +288,17 @@ jobs:
     name: Publish to Microsoft Store
     needs: [build-windows, publish]
     runs-on: windows-latest
-    if: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: windows-artifacts
           path: windows-artifacts
       - name: Submit to Microsoft Store
+        if: env.STORE_TENANT_ID != '' && env.STORE_CLIENT_ID != '' && env.STORE_CLIENT_SECRET != ''
+        env:
+          STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
+          STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}
+          STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}
         uses: microsoft/store-action@v1
         with:
           tenant-id: ${{ secrets.STORE_TENANT_ID }}
