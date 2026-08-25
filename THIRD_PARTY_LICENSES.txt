@@ -775,6 +775,8 @@ npm:MIT
 - @babel/traverse@7.29.8
 - @babel/types@7.29.8
 - @bcoe/v8-coverage@1.0.2
+- @emnapi/core@1.11.3
+- @emnapi/runtime@1.11.3
 - @emnapi/wasi-threads@1.2.3
 - @epic-web/invariant@1.0.0
 - @eslint-community/eslint-utils@4.10.1
@@ -15788,6 +15790,8 @@ SOFTWARE.
 
 SHA-256: f2b64fe47691e3771cd3bc1cf496bcdbd9c909026cff17c8cca1c34a0232c736
 Used by:
+- npm:@emnapi/core@1.11.3 (LICENSE)
+- npm:@emnapi/runtime@1.11.3 (LICENSE)
 - npm:@emnapi/wasi-threads@1.2.3 (LICENSE)
 
 MIT License
