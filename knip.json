@@ -16,5 +16,8 @@
   "ignoreDependencies": [
     "@emnapi/core",
     "@emnapi/runtime"
-  ]
+  ],
+  "rules": {
+    "exports": "off"
+  }
 }
