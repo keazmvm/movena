@@ -97,15 +97,23 @@ async function ensureWindowsMpv() {
     console.log('[ensure-windows-mpv] Windows libmpv engine dependencies are present.');
   }
 
-  // Ensure libmpv-2.dll is available to cargo test runners
+  // Ensure libmpv-2.dll is available to cargo test runners. `--no-bundle`
+  // builds (e.g. the desktop-e2e debug binary) skip Tauri's bundler
+  // resource-copy step entirely, so this is the only thing that ever puts
+  // the DLL next to the exe for those — the target dirs won't exist yet on
+  // a fresh checkout (cargo hasn't run), so they must be created rather
+  // than skipped, or the exe silently fails to start (STATUS_DLL_NOT_FOUND).
   const cargoTargetDirs = [
     join(root, 'src-tauri', 'target', 'debug'),
     join(root, 'src-tauri', 'target', 'debug', 'deps'),
     join(root, 'src-tauri', 'target', 'release'),
   ];
-  for (const dir of cargoTargetDirs) {
-    if (existsSync(dir) && existsSync(targetDllInLib)) {
-      try { copyFileSync(targetDllInLib, join(dir, 'libmpv-2.dll')); } catch {}
+  if (existsSync(targetDllInLib)) {
+    for (const dir of cargoTargetDirs) {
+      try {
+        mkdirSync(dir, { recursive: true });
+        copyFileSync(targetDllInLib, join(dir, 'libmpv-2.dll'));
+      } catch {}
     }
   }
 
