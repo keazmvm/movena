@@ -13,8 +13,8 @@
 use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
-use windows_sys::core::GUID;
-use windows_sys::Win32::Foundation::{GetLastError, SetLastError, BOOL, HWND};
+use windows_sys::core::{BOOL, GUID};
+use windows_sys::Win32::Foundation::{GetLastError, SetLastError, HWND};
 use windows_sys::Win32::Graphics::Gdi::{
     GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST,
 };
