@@ -58,11 +58,11 @@ describe('startMediaDownload', () => {
   });
 
   it('passes the configured download directory through to the native start call', async () => {
-    useSettingsStore.setState({ downloadDirectory: '/Users/me/Movies' });
+    useSettingsStore.setState({ downloadDirectory: '/data/movies' });
 
     await startMediaDownload({ url: 'https://cdn.test/movie.mp4', fileName: 'Movie.mp4' });
 
-    expect(downloadMediaStart).toHaveBeenCalledWith(expect.objectContaining({ directory: '/Users/me/Movies' }));
+    expect(downloadMediaStart).toHaveBeenCalledWith(expect.objectContaining({ directory: '/data/movies' }));
   });
 
   it('will not queue the same source and file name twice', async () => {
