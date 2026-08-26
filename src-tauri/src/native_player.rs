@@ -9,6 +9,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use libmpv_sys::*;
+#[cfg(not(target_os = "macos"))]
 use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 use serde::Serialize;
 use serde_json::Value;
