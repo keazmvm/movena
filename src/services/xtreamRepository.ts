@@ -10,9 +10,17 @@ export async function loadXtreamCredentials(sourceId: string): Promise<XCCredent
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<XCCredentials>;
-    if (!parsed.url || !parsed.username || typeof parsed.password !== 'string') return null;
+    if (
+      typeof parsed.url !== 'string'
+      || !parsed.url.trim()
+      || typeof parsed.username !== 'string'
+      || !parsed.username.trim()
+      || typeof parsed.password !== 'string'
+    ) return null;
     return {
-      sourceId: typeof parsed.sourceId === 'string' ? parsed.sourceId : sourceId,
+      // The vault key is the authority for source isolation. A stale or
+      // tampered payload must never redirect credentials into another source.
+      sourceId,
       url: parsed.url,
       alternativeUrls: Array.isArray(parsed.alternativeUrls)
         ? parsed.alternativeUrls.filter((url): url is string => typeof url === 'string')

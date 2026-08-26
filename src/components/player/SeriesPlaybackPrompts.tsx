@@ -133,6 +133,11 @@ export function SeriesPlaybackPrompts() {
       country: activeStream.country ?? parsedEpisode.country,
     });
   }, [next, credentials, activeStream, seriesData, playStream]);
+  const playNextRef = useRef(playNext);
+
+  useEffect(() => {
+    playNextRef.current = playNext;
+  }, [playNext]);
 
   // ── Prompt segments (Chapters preferred, IntroDB fallback) ──
 
@@ -202,6 +207,7 @@ export function SeriesPlaybackPrompts() {
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const countdownTimer = useRef<number | null>(null);
+  const hasNextEpisode = Boolean(next);
   // Guards against re-arming for the same episode — eof-reached can flip
   // back to false and true again if someone seeks around after it fires.
   const firedForRef = useRef<string | null>(null);
@@ -220,7 +226,7 @@ export function SeriesPlaybackPrompts() {
   }, [activeStream?.id, clearCountdown]);
 
   useEffect(() => {
-    if (!eofReached || !isSeries || !next || !autoPlayNextEpisode) return;
+    if (!eofReached || !isSeries || !hasNextEpisode || !autoPlayNextEpisode) return;
     const streamKey = activeStream?.id?.toString() ?? '';
     if (firedForRef.current === streamKey) return;
     firedForRef.current = streamKey;
@@ -232,15 +238,21 @@ export function SeriesPlaybackPrompts() {
       if (remaining <= 0) {
         clearCountdown();
         setCountdown(null);
-        playNext();
+        playNextRef.current();
       } else {
         setCountdown(remaining);
       }
     }, 1000);
 
     return clearCountdown;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eofReached, isSeries, !!next, autoPlayNextEpisode]);
+  }, [
+    activeStream?.id,
+    autoPlayNextEpisode,
+    clearCountdown,
+    eofReached,
+    hasNextEpisode,
+    isSeries,
+  ]);
 
   const cancelCountdown = useCallback(() => {
     clearCountdown();

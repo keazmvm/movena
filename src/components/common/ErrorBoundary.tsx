@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { ErrorState } from './ErrorState';
+import { debugLog } from '../../store/useDebugStore';
+import { CrashRecovery } from './CrashRecovery';
 
 interface Props {
   children: ReactNode;
@@ -10,6 +11,7 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  componentStack: string | null;
 }
 
 /**
@@ -19,36 +21,30 @@ interface State {
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, componentStack: null };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, componentStack: null };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[ErrorBoundary] Uncaught render error:', error, info.componentStack);
+    debugLog.error('system', 'Uncaught React render error', { error, componentStack: info.componentStack });
+    this.setState({ componentStack: info.componentStack ?? null });
   }
-
-  private handleReload = () => {
-    this.setState({ hasError: false, error: null });
-  };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%' }}>
-          <ErrorState
-            title={this.props.fallbackTitle ?? 'Something went wrong'}
-            description={
-              this.props.fallbackDescription ??
-              'An unexpected error occurred. Try reloading or restarting the application.'
-            }
-            detail={this.state.error?.stack || this.state.error?.message}
-            actionLabel="Try Again"
-            onAction={this.handleReload}
-          />
-        </div>
+        <CrashRecovery
+          title={this.props.fallbackTitle ?? 'Something went wrong'}
+          description={
+            this.props.fallbackDescription ??
+            'An unexpected error occurred. Try reloading or restarting the application.'
+          }
+          error={this.state.error ?? new Error('Unknown render failure')}
+          componentStack={this.state.componentStack}
+        />
       );
     }
     return this.props.children;

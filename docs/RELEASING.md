@@ -12,7 +12,8 @@ The workflow:
 3. Builds Windows installers (NSIS `.exe`, `.msi`) and portable archive (`.zip`).
 4. Builds macOS bundles (`.dmg` and `.app.tar.gz`).
 5. Builds Linux packages (`.deb` and `.AppImage`).
-6. Generates `SHA256SUMS.txt` for all release artifacts and publishes the GitHub release.
+6. Generates an SPDX SBOM and `SHA256SUMS.txt`, records GitHub build provenance
+   attestations, and publishes the GitHub release.
 
 ## Release checklist
 
@@ -20,7 +21,8 @@ The workflow:
    `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, and
    `src-tauri/tauri.conf.json`.
 2. Run `npm ci`, the platform's native setup (`npm run setup:mpv` on Windows
-   and `npm run setup:twitch` everywhere), `npm audit`,
+   and `npm run setup:twitch` everywhere),
+   `npm audit --omit=dev --audit-level=high`,
    `npm run licenses:check`, `npm run public-tree:check`, `npm run check`,
    `npm run build`, and `npm run ui:qa:visual`. `setup:twitch` regenerates the
    license report before it is copied into the resolver bundle. The build
@@ -89,6 +91,26 @@ corresponding source for Movena and redistributed copyleft native components
 for as long as the binaries are offered. Record any target-country codec-patent
 distribution decision outside the automated build and have it reviewed before
 adding a new distribution target.
+
+## Signing and provenance configuration
+
+The workflow signs only when project-held credentials are configured. Windows
+uses `WINDOWS_CERTIFICATE` (base64 PFX) and
+`WINDOWS_CERTIFICATE_PASSWORD`; the imported certificate thumbprint is passed
+to Tauri and every generated executable/installer must pass
+`Get-AuthenticodeSignature`. macOS uses Tauri's `APPLE_CERTIFICATE`,
+`APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`,
+`APPLE_PASSWORD`, and `APPLE_TEAM_ID` inputs. A signed macOS job must pass deep
+codesign verification, Gatekeeper assessment, and stapler validation.
+
+Missing signing credentials deliberately preserve the disclosed unsigned/ad-hoc
+status. Partial credentials fail rather than silently downgrade. Updater signing
+continues to use `TAURI_SIGNING_PRIVATE_KEY` and its password independently.
+
+Every published release includes `movena.spdx.json`, checksums that cover the
+SBOM, and GitHub artifact attestations for the complete `release-final` set.
+Consumers can verify provenance with `gh attestation verify <artifact>
+--repo movena-app/movena` and verify file bytes with `SHA256SUMS.txt`.
 
 Direct JavaScript packages and the Rust lockfile may be refreshed within their
 existing compatible major ranges during maintenance. Breaking library majors,

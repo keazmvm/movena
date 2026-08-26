@@ -12,6 +12,11 @@ applyAppearanceTheme(initialSettings.themePreference, initialSettings.accentColo
 const root = createRoot(document.getElementById('root')!)
 
 async function renderApp() {
+  // Loaded only by the feature-gated desktop E2E build. Production bundles do
+  // not include the WebDriver bridge or expose its invoke interception.
+  if (import.meta.env.MODE === 'desktop-e2e') {
+    await import('@wdio/tauri-plugin')
+  }
   await initializeTmdbApiKey().catch((error) => {
     console.warn('Could not initialize the TMDB credential vault', error)
   })

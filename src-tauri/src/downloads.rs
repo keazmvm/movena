@@ -344,3 +344,22 @@ pub(crate) async fn download_media_cancel(
     );
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::valid_download_id;
+
+    #[test]
+    fn accepts_opaque_download_ids_at_the_documented_boundary() {
+        assert!(valid_download_id("download-1724670000_ab.cd"));
+        assert!(valid_download_id(&"a".repeat(120)));
+    }
+
+    #[test]
+    fn rejects_empty_oversized_or_path_like_download_ids() {
+        for value in ["", "../private", "folder/name", "space id", "token?secret"] {
+            assert!(!valid_download_id(value), "accepted invalid id: {value}");
+        }
+        assert!(!valid_download_id(&"a".repeat(121)));
+    }
+}

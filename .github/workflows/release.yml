@@ -66,13 +66,48 @@ jobs:
         run: npm run setup:mpv
       - name: Build pinned Twitch resolver
         run: npm run setup:twitch
-      - name: Build frontend
-        run: npm run build
+      - name: Validate Windows signing configuration
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $hasCertificate = -not [string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE)
+          $hasPassword = -not [string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)
+          if ($hasCertificate -ne $hasPassword) {
+            throw 'WINDOWS_CERTIFICATE and WINDOWS_CERTIFICATE_PASSWORD must either both be configured or both be absent.'
+          }
+      - name: Import Authenticode certificate
+        if: env.WINDOWS_CERTIFICATE != ''
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: ./scripts/prepare-windows-signing.ps1 -CertificateBase64 $env:WINDOWS_CERTIFICATE -CertificatePassword $env:WINDOWS_CERTIFICATE_PASSWORD
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npx tauri build --config src-tauri/tauri.bundle.windows.conf.json
+        shell: pwsh
+        run: |
+          $arguments = @('tauri', 'build', '--config', 'src-tauri/tauri.bundle.windows.conf.json')
+          if ($env:WINDOWS_SIGNING_CONFIG) { $arguments += @('--config', $env:WINDOWS_SIGNING_CONFIG) }
+          & npx @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify Authenticode signatures
+        if: env.WINDOWS_CERTIFICATE_THUMBPRINT != ''
+        shell: pwsh
+        run: |
+          $artifacts = @(
+            Get-Item 'src-tauri/target/release/movena.exe' -ErrorAction Stop
+            Get-ChildItem 'src-tauri/target/release/bundle/nsis' -Filter '*.exe' -File -ErrorAction SilentlyContinue
+            Get-ChildItem 'src-tauri/target/release/bundle/msi' -Filter '*.msi' -File -ErrorAction SilentlyContinue
+          )
+          if ($artifacts.Count -eq 0) { throw 'No Windows artifacts were produced.' }
+          foreach ($artifact in $artifacts) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $artifact.FullName
+            if ($signature.Status -ne 'Valid') { throw "Invalid Authenticode signature: $($artifact.FullName) ($($signature.Status))" }
+          }
       - name: Package Windows artifacts
         shell: pwsh
         run: |
@@ -143,12 +178,42 @@ jobs:
       - run: npm ci
       - name: Build pinned Twitch resolver
         run: npm run setup:twitch
-      - name: Build frontend
-        run: npm run build
+      - name: Validate Apple signing configuration
+        shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          signing_values=(
+            "$APPLE_CERTIFICATE"
+            "$APPLE_CERTIFICATE_PASSWORD"
+            "$APPLE_SIGNING_IDENTITY"
+            "$APPLE_ID"
+            "$APPLE_PASSWORD"
+            "$APPLE_TEAM_ID"
+          )
+          configured=0
+          for value in "${signing_values[@]}"; do
+            if [ -n "$value" ]; then configured=$((configured + 1)); fi
+          done
+          if [ "$configured" -ne 0 ] && [ "$configured" -ne "${#signing_values[@]}" ]; then
+            echo 'Apple signing and notarization secrets must either all be configured or all be absent.' >&2
+            exit 1
+          fi
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx tauri build --config src-tauri/tauri.bundle.macos.conf.json
       - name: Verify bundled Twitch resolver
         shell: bash
@@ -159,6 +224,16 @@ jobs:
           test "$($resolver --version)" = "8.5.0"
           "$resolver" --can-handle-url https://www.twitch.tv/gleggmire
           codesign --verify --deep --strict src-tauri/target/release/bundle/macos/Movena.app
+      - name: Verify Developer ID, notarization, and stapling
+        if: env.APPLE_SIGNING_IDENTITY != ''
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        shell: bash
+        run: |
+          codesign --verify --deep --strict --verbose=2 src-tauri/target/release/bundle/macos/Movena.app
+          codesign -dv --verbose=4 src-tauri/target/release/bundle/macos/Movena.app 2>&1 | grep -F "Authority=Developer ID Application"
+          spctl --assess --type execute --verbose=4 src-tauri/target/release/bundle/macos/Movena.app
+          xcrun stapler validate src-tauri/target/release/bundle/macos/Movena.app
       - name: Package macOS artifacts
         shell: bash
         run: |
@@ -207,8 +282,6 @@ jobs:
       - run: npm ci
       - name: Build pinned Twitch resolver
         run: npm run setup:twitch
-      - name: Build frontend
-        run: npm run build
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -245,6 +318,10 @@ jobs:
     name: Publish Release with All Artifacts
     needs: [build-source, build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -263,11 +340,22 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: node scripts/generate-latest-json.mjs release-final
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: release-final/movena.spdx.json
+          upload-artifact: false
       - name: Checksum all assets
         shell: bash
         run: |
           cd release-final
           sha256sum * > SHA256SUMS.txt
+      - name: Attest release provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: release-final/*
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

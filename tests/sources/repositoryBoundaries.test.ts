@@ -99,6 +99,23 @@ describe('native credential and repository boundaries', () => {
     await expect(loadM3uConnection('m3u-bad')).resolves.toBeNull();
     native.sourceSecretLoad.mockResolvedValue(JSON.stringify({ username: 'alice', password: 'secret' }));
     await expect(loadXtreamCredentials('xtream-bad')).resolves.toBeNull();
+    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({ url: {}, username: 42, password: 'secret' }));
+    await expect(loadXtreamCredentials('xtream-bad')).resolves.toBeNull();
+  });
+
+  it('binds restored provider credentials to the requested vault source', async () => {
+    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({
+      sourceId: 'xtream-other',
+      url: 'https://provider.test',
+      username: 'alice',
+      password: 'secret',
+    }));
+
+    await expect(loadXtreamCredentials('xtream-requested')).resolves.toMatchObject({
+      sourceId: 'xtream-requested',
+      url: 'https://provider.test',
+      username: 'alice',
+    });
   });
 
   it('keeps the TMDB API key in the native source-secret vault', async () => {

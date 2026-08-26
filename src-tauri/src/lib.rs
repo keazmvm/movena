@@ -5,6 +5,8 @@ mod m3u_cache;
 #[cfg(target_os = "macos")]
 mod macos_embed;
 mod native_player;
+mod native_player_diagnostics;
+mod native_player_options;
 mod native_player_property;
 mod remote_media;
 mod source_secrets;
@@ -15,12 +17,15 @@ mod windows_window;
 mod xmltv;
 
 use std::path::Path;
-use tauri::Manager;
+use tauri::{Manager, State};
 
 const MAX_M3U_BYTES: usize = 64 * 1024 * 1024;
 const MAX_XMLTV_BYTES: usize = 128 * 1024 * 1024;
 const XMLTV_CACHE_FRESH_MS: u64 = 6 * 60 * 60 * 1000;
+#[cfg(not(feature = "desktop-e2e"))]
 const CREDENTIAL_SERVICE: &str = "com.movena.desktop";
+#[cfg(feature = "desktop-e2e")]
+const CREDENTIAL_SERVICE: &str = "com.movena.desktop.e2e";
 const CREDENTIAL_ACCOUNT: &str = "xtream-provider";
 
 fn remove_cached_app_data(app_data: &Path, app_cache: &Path) -> Result<(), String> {
@@ -39,7 +44,16 @@ fn remove_cached_app_data(app_data: &Path, app_cache: &Path) -> Result<(), Strin
 }
 
 #[tauri::command(async)]
-fn app_data_clear(app: tauri::AppHandle, source_ids: Vec<String>) -> Result<(), String> {
+fn app_data_clear(
+    app: tauri::AppHandle,
+    player: State<'_, native_player::NativePlayerManager>,
+    source_ids: Vec<String>,
+) -> Result<(), String> {
+    // Enforce resolver ownership at the native boundary too. The frontend
+    // normally stops playback first, but direct IPC must not remove the
+    // resolver cache while an active session still owns its process/listener.
+    player.stop(&app)?;
+
     for source_id in source_ids {
         match source_secrets::source_secret_entry(&source_id)?.delete_credential() {
             Ok(()) | Err(keyring::v1::Error::NoEntry) => {}
@@ -61,11 +75,20 @@ fn app_data_clear(app: tauri::AppHandle, source_ids: Vec<String>) -> Result<(), 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_process::init());
+
+    // Test-only WebDriver support is feature-gated so release builds cannot
+    // accidentally expose automation commands or a listening driver.
+    #[cfg(feature = "desktop-e2e")]
+    let builder = builder
+        .plugin(tauri_plugin_wdio::init())
+        .plugin(tauri_plugin_wdio_webdriver::init());
+
+    builder
         .manage(native_player::NativePlayerManager::default())
         .manage(downloads::DownloadManager::default())
         .invoke_handler(tauri::generate_handler![
@@ -122,14 +145,17 @@ pub fn run() {
                 }
             }
         })
-        .setup(|app| {
+        .setup(|_app| {
             // Claim the dock icon before any stream can start, and take native
             // fullscreen off the table — see macos_embed.
             #[cfg(target_os = "macos")]
-            macos_embed::prepare_main_window(app.handle());
+            macos_embed::prepare_main_window(_app.handle());
 
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
+            // The WebDriver plugin installs its own logger so it can forward
+            // backend output to the runner. Registering both panics at startup.
+            #[cfg(all(debug_assertions, not(feature = "desktop-e2e")))]
+            {
+                _app.handle().plugin(
                     tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
                         .build(),

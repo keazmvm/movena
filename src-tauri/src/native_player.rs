@@ -14,6 +14,18 @@ use serde::Serialize;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager, State};
 
+#[cfg(test)]
+use super::native_player_diagnostics::{build_diagnostic_sample, DIAGNOSTIC_PROPERTIES};
+use super::native_player_diagnostics::{
+    collect_diagnostic_sample, node_to_json, sanitize_mpv_log_text,
+};
+#[cfg(target_os = "windows")]
+use super::native_player_options::bundled_ytdlp_path;
+#[cfg(test)]
+use super::native_player_options::first_existing_file;
+#[cfg(any(target_os = "windows", test))]
+use super::native_player_options::ytdlp_script_option;
+use super::native_player_options::{build_http_options, MpvHttpOptions};
 use super::native_player_property::{validate_mpv_property, MpvPropertyUpdate};
 
 #[cfg(target_os = "macos")]
@@ -110,141 +122,6 @@ unsafe fn get_mpv_i64_property(mpv: *mut mpv_handle, property: &str) -> Option<i
     (result >= 0).then_some(value)
 }
 
-const DIAGNOSTIC_PROPERTIES: [&str; 13] = [
-    "hwdec-current",
-    "video-params",
-    "audio-params",
-    "demuxer-cache-duration",
-    "cache-buffering-state",
-    "cache-speed",
-    "video-bitrate",
-    "audio-bitrate",
-    "estimated-vf-fps",
-    "avsync",
-    "total-avsync-change",
-    "frame-drop-count",
-    "decoder-frame-drop-count",
-];
-
-fn build_diagnostic_sample(
-    properties: impl IntoIterator<Item = (&'static str, Option<Value>)>,
-) -> Value {
-    Value::Object(
-        properties
-            .into_iter()
-            .filter_map(|(name, value)| value.map(|value| (name.to_string(), value)))
-            .collect(),
-    )
-}
-
-fn sanitize_mpv_log_text(text: &str) -> String {
-    let trimmed = text.trim();
-    let contains_location = trimmed.contains("://")
-        || trimmed.to_ascii_lowercase().contains("file:")
-        || trimmed.contains("\\\\")
-        || trimmed.as_bytes().windows(3).any(|window| {
-            window[0].is_ascii_alphabetic()
-                && window[1] == b':'
-                && (window[2] == b'\\' || window[2] == b'/')
-        })
-        || trimmed.split_whitespace().any(|token| {
-            token
-                .trim_matches(|character: char| "()[]{}<>,;:'\"".contains(character))
-                .starts_with('/')
-        })
-        || ["authorization", "cookie", "http-header-fields"]
-            .iter()
-            .any(|secret| trimmed.to_ascii_lowercase().contains(secret));
-    if contains_location {
-        "[media location omitted]".to_string()
-    } else {
-        trimmed.chars().take(500).collect()
-    }
-}
-
-unsafe fn get_mpv_node_property(mpv: *mut mpv_handle, property: &str) -> Option<Value> {
-    let c_property = CString::new(property).ok()?;
-    let mut node: mpv_node = std::mem::zeroed();
-    let result = libmpv_sys::mpv_get_property(
-        mpv,
-        c_property.as_ptr(),
-        libmpv_sys::mpv_format_MPV_FORMAT_NODE,
-        (&mut node as *mut mpv_node).cast::<c_void>(),
-    );
-    if result < 0 {
-        return None;
-    }
-    let value = node_to_json(&node);
-    libmpv_sys::mpv_free_node_contents(&mut node);
-    Some(value)
-}
-
-unsafe fn collect_diagnostic_sample(mpv: *mut mpv_handle) -> Value {
-    build_diagnostic_sample(
-        DIAGNOSTIC_PROPERTIES
-            .iter()
-            .map(|property| (*property, get_mpv_node_property(mpv, property))),
-    )
-}
-
-unsafe fn node_to_json(node: *const mpv_node) -> Value {
-    if node.is_null() {
-        return Value::Null;
-    }
-    match (*node).format {
-        libmpv_sys::mpv_format_MPV_FORMAT_STRING => {
-            if (*node).u.string.is_null() {
-                Value::Null
-            } else {
-                let s = CStr::from_ptr((*node).u.string)
-                    .to_string_lossy()
-                    .into_owned();
-                Value::String(s)
-            }
-        }
-        libmpv_sys::mpv_format_MPV_FORMAT_FLAG => Value::Bool((*node).u.flag != 0),
-        libmpv_sys::mpv_format_MPV_FORMAT_INT64 => {
-            Value::Number(serde_json::Number::from((*node).u.int64))
-        }
-        libmpv_sys::mpv_format_MPV_FORMAT_DOUBLE => {
-            if let Some(n) = serde_json::Number::from_f64((*node).u.double_) {
-                Value::Number(n)
-            } else {
-                Value::Null
-            }
-        }
-        libmpv_sys::mpv_format_MPV_FORMAT_NODE_ARRAY => {
-            let list = (*node).u.list;
-            if list.is_null() {
-                return Value::Array(vec![]);
-            }
-            let mut arr = Vec::new();
-            for i in 0..(*list).num {
-                let elem = (*list).values.add(i as usize);
-                arr.push(node_to_json(elem));
-            }
-            Value::Array(arr)
-        }
-        libmpv_sys::mpv_format_MPV_FORMAT_NODE_MAP => {
-            let list = (*node).u.list;
-            if list.is_null() || (*list).keys.is_null() || (*list).values.is_null() {
-                return Value::Object(serde_json::Map::new());
-            }
-            let mut map = serde_json::Map::new();
-            for i in 0..(*list).num {
-                let key_ptr = *((*list).keys.add(i as usize));
-                if !key_ptr.is_null() {
-                    let key = CStr::from_ptr(key_ptr).to_string_lossy().into_owned();
-                    let val = node_to_json((*list).values.add(i as usize));
-                    map.insert(key, val);
-                }
-            }
-            Value::Object(map)
-        }
-        _ => Value::Null,
-    }
-}
-
 // ── Internal helper to stop mpv safely ───────────────────────
 
 fn stop_internal(app: &AppHandle, state: &NativePlayerManager) {
@@ -298,6 +175,14 @@ fn stop_internal(app: &AppHandle, state: &NativePlayerManager) {
     }
 }
 
+impl NativePlayerManager {
+    pub(crate) fn stop(&self, app: &AppHandle) -> Result<(), String> {
+        let _lifecycle = self.lifecycle.lock().map_err(|error| error.to_string())?;
+        stop_internal(app, self);
+        Ok(())
+    }
+}
+
 // ── IPC Commands ──────────────────────────────────────────────
 //
 // Every command below is `(async)` so Tauri runs it on the thread pool instead
@@ -335,90 +220,6 @@ pub struct MpvStartOptions {
     start_position: Option<f64>,
     #[serde(default)]
     http_headers: HashMap<String, String>,
-}
-
-#[derive(Default, Debug, PartialEq)]
-struct MpvHttpOptions {
-    user_agent: Option<String>,
-    referrer: Option<String>,
-    header_fields: Option<String>,
-}
-
-fn build_http_options(headers: HashMap<String, String>) -> Result<MpvHttpOptions, String> {
-    if headers.len() > 16 {
-        return Err("Too many media request headers".to_string());
-    }
-    let mut entries = headers.into_iter().collect::<Vec<_>>();
-    entries.sort_by(|left, right| {
-        left.0
-            .to_ascii_lowercase()
-            .cmp(&right.0.to_ascii_lowercase())
-    });
-    let mut result = MpvHttpOptions::default();
-    let mut fields = Vec::new();
-
-    for (name, value) in entries {
-        if name.is_empty()
-            || name.len() > 128
-            || !name
-                .chars()
-                .all(|character| character.is_ascii_alphanumeric() || character == '-')
-            || value.is_empty()
-            || value.len() > 4096
-            || value
-                .chars()
-                .any(|character| character == '\r' || character == '\n')
-        {
-            return Err("A media request header is invalid".to_string());
-        }
-        match name.to_ascii_lowercase().as_str() {
-            "user-agent" => result.user_agent = Some(value),
-            "referer" | "referrer" => result.referrer = Some(value),
-            _ => fields.push(format!("{name}: {value}")),
-        }
-    }
-    if !fields.is_empty() {
-        result.header_fields = Some(fields.join(","));
-    }
-    Ok(result)
-}
-
-#[cfg(any(target_os = "windows", test))]
-fn first_existing_file(candidates: impl IntoIterator<Item = PathBuf>) -> Option<PathBuf> {
-    candidates.into_iter().find(|candidate| candidate.is_file())
-}
-
-#[cfg(target_os = "windows")]
-fn bundled_ytdlp_path(app: &AppHandle) -> Option<PathBuf> {
-    let mut candidates = Vec::new();
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        candidates.push(resource_dir.join("yt-dlp.exe"));
-    }
-    if let Ok(executable) = std::env::current_exe() {
-        if let Some(executable_dir) = executable.parent() {
-            candidates.push(executable_dir.join("yt-dlp.exe"));
-        }
-    }
-    first_existing_file(candidates)
-}
-
-#[cfg(any(target_os = "windows", test))]
-fn ytdlp_script_option(path: &Path) -> Result<String, String> {
-    let path = path
-        .to_str()
-        .filter(|value| !value.is_empty())
-        .ok_or("The bundled YouTube resolver path is invalid")?;
-    #[cfg(target_os = "windows")]
-    let path = path
-        .strip_prefix(r"\\?\")
-        .unwrap_or(path)
-        .replace('\\', "/");
-    #[cfg(not(target_os = "windows"))]
-    let path = path.to_string();
-
-    // script-opts is a comma-separated key/value list. mpv's fixed-length
-    // quoting keeps installation paths containing commas or spaces intact.
-    Ok(format!("ytdl_hook-ytdl_path=%{}%{path}", path.len()))
 }
 
 /// RAII guard that destroys the mpv handle if not explicitly defused.
@@ -939,9 +740,7 @@ pub fn mpv_start(
 
 #[tauri::command(async)]
 pub fn mpv_stop(app: AppHandle, state: State<'_, NativePlayerManager>) -> Result<(), String> {
-    let _lifecycle = state.lifecycle.lock().map_err(|e| e.to_string())?;
-    stop_internal(&app, &state);
-    Ok(())
+    state.stop(&app)
 }
 
 #[tauri::command(async)]

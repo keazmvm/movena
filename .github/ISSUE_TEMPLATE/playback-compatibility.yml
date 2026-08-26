@@ -1,0 +1,43 @@
+name: Playback compatibility
+description: Report a native playback problem with a lawful, redacted source.
+title: "[Playback]: "
+labels: [playback, needs-triage]
+body:
+  - type: input
+    id: version
+    attributes: { label: Movena version }
+    validations: { required: true }
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Windows, macOS, Linux]
+    validations: { required: true }
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source kind
+      options: [Xtream, Remote M3U, Local M3U]
+    validations: { required: true }
+  - type: dropdown
+    id: media
+    attributes:
+      label: Media kind
+      options: [Live TV, Movie, Series episode, Radio, Twitch live channel]
+    validations: { required: true }
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Reproduction and observed behavior
+      description: Include whether start, seek, fullscreen, track switching, replacement, or teardown fails. Redact all URLs.
+    validations: { required: true }
+  - type: textarea
+    id: diagnostics
+    attributes: { label: Sanitized diagnostic report, render: json }
+  - type: checkboxes
+    id: authorization
+    attributes:
+      label: Confirmation
+      options:
+        - label: I am authorized to access the source and removed all private provider data.
+          required: true

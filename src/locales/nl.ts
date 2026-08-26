@@ -35,6 +35,8 @@ export const NL_MESSAGES: Record<string, string> = {
   "Reset": "Opnieuw instellen",
   "Retry": "Opnieuw proberen",
   "Try Again": "Probeer het opnieuw",
+  "Restart Movena": "Movena opnieuw starten",
+  "Technical details": "Technische details",
   "Trying again": "Opnieuw proberen",
   "Reload": "Herladen",
   "Refresh": "Vernieuwen",

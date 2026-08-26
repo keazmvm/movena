@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a user problem and a narrowly scoped improvement.
+title: "[Feature]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem to solve }
+    validations: { required: true }
+  - type: textarea
+    id: outcome
+    attributes: { label: Desired outcome }
+    validations: { required: true }
+  - type: textarea
+    id: alternatives
+    attributes: { label: Alternatives considered }
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not ask Movena to provide content, subscriptions, DRM circumvention, or a media proxy.
+          required: true

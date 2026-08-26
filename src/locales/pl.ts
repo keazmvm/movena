@@ -35,6 +35,8 @@ export const PL_MESSAGES: Record<string, string> = {
   "Reset": "Zresetuj",
   "Retry": "Spróbuj ponownie",
   "Try Again": "Spróbuj ponownie",
+  "Restart Movena": "Uruchom ponownie Movena",
+  "Technical details": "Szczegóły techniczne",
   "Trying again": "Próbuję ponownie",
   "Reload": "Załaduj ponownie",
   "Refresh": "Odśwież",

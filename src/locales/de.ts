@@ -37,6 +37,8 @@ export const DE_MESSAGES: Record<string, string> = {
   'Reset': 'Zurücksetzen',
   'Retry': 'Erneut versuchen',
   'Try Again': 'Erneut versuchen',
+  'Restart Movena': 'Movena neu starten',
+  'Technical details': 'Technische Details',
   'Trying again': 'Neuer Versuch läuft',
   'Reload': 'Neu laden',
   'Refresh': 'Aktualisieren',

@@ -18,29 +18,19 @@ import { M3uChannelDetailDrawer } from './M3uChannelDetailDrawer';
 import { M3uBatchToolsModal } from './M3uBatchToolsModal';
 import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
+import {
+  collectM3uGroupStats,
+  filterAndSortM3uEntries,
+  M3U_TABLE_FILTER_STORAGE_KEY,
+  readM3uTableFilters,
+  type M3uTableHealthFilter,
+  type M3uTableSort,
+} from './m3uChannelTableModel';
 
 interface M3uChannelTableProps {
   entries: M3uEntry[];
   healthStatuses: M3uHealthStatuses;
   onUpdateEntries: (entries: M3uEntry[]) => void;
-}
-
-type SortOption = 'default' | 'name-asc' | 'name-desc' | 'chno' | 'type';
-const FILTER_STORAGE_KEY = 'movena-m3u-editor-filters-v1';
-
-function savedFilters() {
-  try {
-    const value = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY) || '{}') as Record<string, unknown>;
-    return {
-      searchQuery: '',
-      selectedGroup: typeof value.selectedGroup === 'string' ? value.selectedGroup : null,
-      mediaTypeFilter: value.mediaTypeFilter === 'live' || value.mediaTypeFilter === 'vod' || value.mediaTypeFilter === 'series' ? value.mediaTypeFilter : 'all',
-      healthFilter: value.healthFilter === 'online' || value.healthFilter === 'offline' || value.healthFilter === 'unauthorized' || value.healthFilter === 'timeout' || value.healthFilter === 'untested' ? value.healthFilter : 'all',
-      sortBy: value.sortBy === 'name-asc' || value.sortBy === 'name-desc' || value.sortBy === 'chno' || value.sortBy === 'type' ? value.sortBy : 'default',
-    } as const;
-  } catch {
-    return { searchQuery: '', selectedGroup: null, mediaTypeFilter: 'all', healthFilter: 'all', sortBy: 'default' } as const;
-  }
 }
 
 export function M3uChannelTable({
@@ -56,13 +46,13 @@ export function M3uChannelTable({
   const updateSetting = useSettingsStore((state) => state.updateSetting);
 
   // Search & Filter state
-  const initialFilters = useMemo(savedFilters, []);
+  const initialFilters = useMemo(readM3uTableFilters, []);
   const [searchQuery, setSearchQuery] = useState<string>(rememberFilters ? initialFilters.searchQuery : '');
   const [selectedGroup, setSelectedGroup] = useState<string | null>(rememberFilters ? initialFilters.selectedGroup : null);
   const [groupSearch, setGroupSearch] = useState('');
   const [mediaTypeFilter, setMediaTypeFilter] = useState<'all' | M3uMediaType>(rememberFilters ? initialFilters.mediaTypeFilter : 'all');
-  const [healthFilter, setHealthFilter] = useState<'all' | 'online' | 'offline' | 'unauthorized' | 'timeout' | 'untested'>(rememberFilters ? initialFilters.healthFilter : 'all');
-  const [sortBy, setSortBy] = useState<SortOption>(rememberFilters ? initialFilters.sortBy : 'default');
+  const [healthFilter, setHealthFilter] = useState<M3uTableHealthFilter>(rememberFilters ? initialFilters.healthFilter : 'all');
+  const [sortBy, setSortBy] = useState<M3uTableSort>(rememberFilters ? initialFilters.sortBy : 'default');
 
   // Selection & keyboard state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -77,23 +67,14 @@ export function M3uChannelTable({
 
   useEffect(() => {
     if (!rememberFilters) {
-      localStorage.removeItem(FILTER_STORAGE_KEY);
+      localStorage.removeItem(M3U_TABLE_FILTER_STORAGE_KEY);
       return;
     }
-    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({ selectedGroup, mediaTypeFilter, healthFilter, sortBy }));
+    localStorage.setItem(M3U_TABLE_FILTER_STORAGE_KEY, JSON.stringify({ selectedGroup, mediaTypeFilter, healthFilter, sortBy }));
   }, [healthFilter, mediaTypeFilter, rememberFilters, selectedGroup, sortBy]);
 
   // Group counts & sidebar
-  const groupStats = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const entry of entries) {
-      const g = entry.groupTitle || 'General';
-      counts.set(g, (counts.get(g) || 0) + 1);
-    }
-    return Array.from(counts.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [entries]);
+  const groupStats = useMemo(() => collectM3uGroupStats(entries), [entries]);
 
   const filteredGroups = useMemo(() => {
     if (!groupSearch.trim()) return groupStats;
@@ -108,56 +89,13 @@ export function M3uChannelTable({
   }, [allGroupNames, selectedGroup]);
 
   // Channel filtering
-  const filteredEntries = useMemo(() => {
-    let result = entries;
-
-    if (selectedGroup !== null) {
-      result = result.filter((e) => (e.groupTitle || 'General') === selectedGroup);
-    }
-
-    if (mediaTypeFilter !== 'all') {
-      result = result.filter((e) => e.type === mediaTypeFilter);
-    }
-
-    if (healthFilter !== 'all') {
-      result = result.filter((e) => {
-        const result = healthStatuses[e.id];
-        const status = result === 'checking' ? 'checking' : result?.status;
-        if (healthFilter === 'online') return status === 'online';
-        if (healthFilter === 'offline') return status === 'offline';
-        if (healthFilter === 'unauthorized') return status === 'unauthorized';
-        if (healthFilter === 'timeout') return status === 'timeout';
-        if (healthFilter === 'untested') return !result;
-        return true;
-      });
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter((e) => (
-        e.title.toLowerCase().includes(q)
-        || e.url.toLowerCase().includes(q)
-        || (e.tvgId && e.tvgId.toLowerCase().includes(q))
-        || (e.groupTitle && e.groupTitle.toLowerCase().includes(q))
-      ));
-    }
-
-    if (sortBy === 'name-asc') {
-      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === 'name-desc') {
-      result = [...result].sort((a, b) => b.title.localeCompare(a.title));
-    } else if (sortBy === 'chno') {
-      result = [...result].sort((a, b) => {
-        const numA = Number(a.channelNumber) || Infinity;
-        const numB = Number(b.channelNumber) || Infinity;
-        return numA - numB;
-      });
-    } else if (sortBy === 'type') {
-      result = [...result].sort((a, b) => (a.type || '').localeCompare(b.type || ''));
-    }
-
-    return result;
-  }, [entries, selectedGroup, mediaTypeFilter, healthFilter, searchQuery, sortBy, healthStatuses]);
+  const filteredEntries = useMemo(() => filterAndSortM3uEntries(entries, healthStatuses, {
+    searchQuery,
+    selectedGroup,
+    mediaTypeFilter,
+    healthFilter,
+    sortBy,
+  }), [entries, selectedGroup, mediaTypeFilter, healthFilter, searchQuery, sortBy, healthStatuses]);
 
   const rowSize = density === 'compact' ? 36 : 48;
   const rowVirtualizer = useVirtualizer({
@@ -371,7 +309,7 @@ export function M3uChannelTable({
                 { value: 'chno', label: t('Channel Number') },
                 { value: 'type', label: t('Media Type') },
               ]}
-              onChange={(val) => setSortBy(val as SortOption)}
+              onChange={(val) => setSortBy(val as M3uTableSort)}
               width="140px"
               variant="settings"
               ariaLabel={t('Sort channels by')}

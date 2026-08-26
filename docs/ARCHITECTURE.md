@@ -130,6 +130,8 @@ src-tauri/capabilities/ Tauri permissions
 scripts/             Local checks and pinned native setup
 tests/               Frontend and Rust-adjacent regression tests
 tests-ui/            Playwright accessibility, geometry, locale, and visual QA
+tests-desktop/       Feature-gated WebDriver journeys against the real Tauri binary
+docs/adr/            Durable architecture decisions and their consequences
 ```
 
 `npm run dead-code:check` runs Knip across production modules, tests, UI
@@ -157,3 +159,9 @@ Native playback still needs manual testing in a real Tauri window: stream
 start/stop, seek, fullscreen, track switching, recording, resize, and teardown.
 For Twitch, cover startup, pre-roll and mid-roll waiting states, recovery,
 replacement, close, resolver-process teardown, and loopback-listener teardown.
+
+`npm run desktop:e2e:all` compiles a separate `com.movena.desktop.e2e` binary
+with an embedded WebDriver and isolated credential-vault service. Production
+capabilities explicitly exclude that driver. The journey proves real IPC,
+vault/cache writes, and first-run navigation; it does not replace the native
+compositing and teardown matrix above.

@@ -61,6 +61,33 @@ jobs:
             test-results/
           if-no-files-found: ignore
 
+  packaged-desktop:
+    name: Packaged desktop journey
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci --ignore-scripts
+      - name: Provision pinned native playback runtime
+        run: npm run setup:mpv
+      - name: Build feature-gated desktop test binary
+        run: npm run desktop:e2e:build
+      - name: Exercise onboarding through the real Tauri boundary
+        run: npm run desktop:e2e
+      - name: Upload desktop E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-e2e-windows
+          path: |
+            logs/
+            errorShots/
+          if-no-files-found: ignore
+
   source-and-dependencies:
     name: Windows native and source compliance
     # The committed license report includes platform-specific optional packages.
@@ -86,7 +113,8 @@ jobs:
         run: |
           $env:PATH = "$(Resolve-Path 'src-tauri/lib/mpv-dev');$env:PATH"
           npm run test:rust
-      - run: npm audit --audit-level=high
+      # Runtime dependencies ship to users; desktop-only test tooling does not.
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run licenses:check
       - run: npm run public-tree:check
       - name: Reject private media in Git history

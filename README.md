@@ -21,6 +21,7 @@
   · <a href="https://apps.microsoft.com/detail/9P2T0QGGHQGQ">Microsoft Store</a>
   · <a href="https://movena.frtx.cc/">Website</a>
   · <a href="https://github.com/movena-app/movena/issues">Report an issue</a>
+  · <a href="SUPPORT.md">Support</a>
   · <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
@@ -127,7 +128,8 @@ Download the current packages from the
 [latest release](https://github.com/movena-app/movena/releases/latest). Release
 assets also include a
 [SHA-256 checksum file](https://github.com/movena-app/movena/releases/latest/download/SHA256SUMS.txt)
-and updater signatures where applicable.
+an SPDX SBOM, GitHub build-provenance attestations, and updater signatures where
+applicable. Platform trust status remains explicitly disclosed below.
 
 | Platform | Published packages | Important notes |
 | --- | --- | --- |
@@ -224,6 +226,7 @@ Every commit needs a DCO sign-off created with `git commit -s`. Please read
 [CONTRIBUTING.md](CONTRIBUTING.md),
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and
 [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) before substantial changes.
+Project direction is documented in the [roadmap](docs/ROADMAP.md).
 
 ## Project information
 

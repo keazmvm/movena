@@ -2,6 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "tests/**/*.{test,spec}.{ts,tsx}",
+    "tests-desktop/**/*.e2e.ts",
     "tests-ui/harness/main.tsx",
     "scripts/**/*.{mjs,ps1}",
     "*.config.{js,mjs,ts}"
@@ -9,13 +10,17 @@
   "project": [
     "src/**/*.{ts,tsx}",
     "tests/**/*.{ts,tsx}",
+    "tests-desktop/**/*.ts",
     "tests-ui/**/*.{ts,tsx}",
     "scripts/**/*.mjs",
     "*.config.{js,mjs,ts}"
   ],
   "ignoreDependencies": [
     "@emnapi/core",
-    "@emnapi/runtime"
+    "@emnapi/runtime",
+    "@wdio/local-runner",
+    "@wdio/mocha-framework",
+    "@wdio/spec-reporter"
   ],
   "rules": {
     "exports": "off"

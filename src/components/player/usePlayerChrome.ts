@@ -101,8 +101,7 @@ export function usePlayerChrome(isActive: boolean) {
   useEffect(() => {
     pointerOverChrome.current = false;
     if (isActive) reveal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFullscreen]);
+  }, [isActive, isFullscreen, reveal]);
 
   useEffect(() => {
     if (!isActive) return;

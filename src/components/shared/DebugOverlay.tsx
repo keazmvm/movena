@@ -48,72 +48,15 @@ import {
   searchableDetails,
   type DebugTab,
 } from './debugOverlayModel';
-
-const HUD_DEFAULT_WIDTH = 680;
-const HUD_DEFAULT_HEIGHT = 520;
-const HUD_MIN_WIDTH = 480;
-const HUD_MIN_HEIGHT = 360;
-const HUD_VIEWPORT_MARGIN = 12;
-const HUD_KEYBOARD_STEP = 16;
-
-interface HudGeometry {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface HudPointerOperation {
-  kind: 'move' | 'resize';
-  pointerId: number;
-  clientX: number;
-  clientY: number;
-  geometry: HudGeometry;
-}
-
-function clamp(value: number, minimum: number, maximum: number): number {
-  return Math.min(Math.max(value, minimum), maximum);
-}
-
-function viewportSize(): { width: number; height: number } {
-  return {
-    width: document.documentElement.clientWidth || window.innerWidth,
-    height: document.documentElement.clientHeight || window.innerHeight,
-  };
-}
-
-function fitHudGeometry(geometry: HudGeometry): HudGeometry {
-  const viewport = viewportSize();
-  const availableWidth = Math.max(1, viewport.width - HUD_VIEWPORT_MARGIN * 2);
-  const availableHeight = Math.max(1, viewport.height - HUD_VIEWPORT_MARGIN * 2);
-  const width = clamp(geometry.width, Math.min(HUD_MIN_WIDTH, availableWidth), availableWidth);
-  const height = clamp(geometry.height, Math.min(HUD_MIN_HEIGHT, availableHeight), availableHeight);
-
-  return {
-    width,
-    height,
-    x: clamp(
-      geometry.x,
-      HUD_VIEWPORT_MARGIN,
-      Math.max(HUD_VIEWPORT_MARGIN, viewport.width - width - HUD_VIEWPORT_MARGIN),
-    ),
-    y: clamp(
-      geometry.y,
-      HUD_VIEWPORT_MARGIN,
-      Math.max(HUD_VIEWPORT_MARGIN, viewport.height - height - HUD_VIEWPORT_MARGIN),
-    ),
-  };
-}
-
-function initialHudGeometry(): HudGeometry {
-  const viewport = viewportSize();
-  return fitHudGeometry({
-    width: HUD_DEFAULT_WIDTH,
-    height: HUD_DEFAULT_HEIGHT,
-    x: (viewport.width - HUD_DEFAULT_WIDTH) / 2,
-    y: (viewport.height - HUD_DEFAULT_HEIGHT) / 2,
-  });
-}
+import { DebugSparkline } from './DebugSparkline';
+import {
+  fitHudGeometry,
+  initialHudGeometry,
+  HUD_DEFAULT_HEIGHT,
+  HUD_DEFAULT_WIDTH,
+  HUD_KEYBOARD_STEP,
+  type HudPointerOperation,
+} from './debugOverlayGeometry';
 
 function providerDiagnosticSummary(auth: ReturnType<typeof useAuthStore.getState>) {
   return {
@@ -124,48 +67,6 @@ function providerDiagnosticSummary(auth: ReturnType<typeof useAuthStore.getState
       0,
     ),
   };
-}
-
-function Sparkline({
-  label,
-  values,
-  formatValue,
-}: {
-  label: string;
-  values: Array<number | undefined>;
-  formatValue: (value: number | undefined) => string;
-}) {
-  const { t } = useI18n();
-  const points = values
-    .map((value, index) => ({ value, index }))
-    .filter((point): point is { value: number; index: number } =>
-      typeof point.value === 'number' && Number.isFinite(point.value)
-    );
-  const latest = points.at(-1)?.value;
-  const min = points.length > 0 ? Math.min(...points.map((point) => point.value)) : 0;
-  const max = points.length > 0 ? Math.max(...points.map((point) => point.value)) : 0;
-  const range = Math.max(max - min, 0.0001);
-  const denominator = Math.max(values.length - 1, 1);
-  const polyline = points
-    .map((point) => `${(point.index / denominator) * 240},${40 - ((point.value - min) / range) * 34}`)
-    .join(' ');
-
-  return (
-    <div className={styles.sparklineCard}>
-      <div className={styles.sparklineHeading}>
-        <span>{label}</span>
-        <strong>{formatValue(latest)}</strong>
-      </div>
-      {points.length > 1 ? (
-        <svg viewBox="0 0 240 44" role="img" aria-label={t('{label} history, latest {value}', { label, value: formatValue(latest) })}>
-          <line x1="0" y1="40" x2="240" y2="40" />
-          <polyline points={polyline} />
-        </svg>
-      ) : (
-        <div className={styles.sparklineEmpty}>{t('Collecting samples…')}</div>
-      )}
-    </div>
-  );
 }
 
 export function DebugOverlay() {
@@ -790,12 +691,12 @@ export function DebugOverlay() {
                   <span className={styles.sectionMeta}>{t('{current}/{maximum} samples', { current: number(diagnostics.samples.length), maximum: number(60) })}</span>
                 </div>
                 <div className={styles.sparklineGrid}>
-                  <Sparkline
+                  <DebugSparkline
                     label={t('Buffer duration')}
                     values={diagnostics.samples.map((sample) => sample.cacheDurationSeconds)}
                     formatValue={(value) => typeof value === 'number' ? `${number(value, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s` : '—'}
                   />
-                  <Sparkline
+                  <DebugSparkline
                     label={t('Estimated FPS')}
                     values={diagnostics.samples.map((sample) => sample.estimatedFps)}
                     formatValue={(value) => typeof value === 'number' ? number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
