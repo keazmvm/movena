@@ -60,11 +60,10 @@ should receive their own explicit gate.
 
 1. Do not include provider accounts, playlists, tokens, private URLs,
    copyrighted channel artwork, commercial media, or real viewing data.
-2. Add focused tests for behavior changes.
-3. Add a regression test for every behavior change, then run `npm run check`
+2. Add a regression test for every behavior change, then run `npm run check`
    and `npm run licenses:check`.
-4. Document every new dependency or asset and its license.
-5. Keep credentials in the OS vault; never persist them in Zustand,
+3. Document every new dependency or asset and its license.
+4. Keep credentials in the OS vault; never persist them in Zustand,
    localStorage, logs, URLs, query keys, diagnostics, fixtures, or screenshots.
 
 See `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `docs/ARCHITECTURE.md` before

@@ -25,10 +25,11 @@ The product screenshots and social-preview image in
 `.github/assets/readme/` were created for this repository on 25 August 2026.
 They are browser captures of Movena's production React pages, shared
 components, CSS modules, and app shell at a 1440×900 viewport. The gallery
-includes Discover, Live TV, timeline guide, VOD player, movie and series
-details, global search, M3U workspace, downloads, sources, and playback
-settings. The deterministic fixture in `tests-ui/harness/ReadmeHarness.tsx`
-supplies an in-memory M3U playlist, XMLTV guide, library history, download
+includes Discover, Live TV, timeline guide, VOD player, series player with
+episode drawer, movie and series details, upcoming release schedule, global
+search, M3U visual and raw code workspace, downloads, sources, playback
+settings, and light appearance. The deterministic fixture in
+`tests-ui/harness/ReadmeHarness.tsx` supplies an in-memory M3U playlist, XMLTV guide, library history, download
 queue, player state, and track metadata. Movie and series surfaces use real
 titles, factual metadata, and TMDB poster/backdrop artwork. Live TV surfaces use
 the real channel identities and marks documented below; their schedule times
@@ -119,6 +120,6 @@ downloaded from TMDB's official
 on 23 August 2026. Its checked-in SHA-256 is
 `ea66f5cb3bf6ecf099ddcce41b374103d11ecad1b27615019359e06e20a8f767`.
 It is included only to satisfy TMDB attribution and is not offered under the
-project's GPL license. TMDB and TVmaze names, logos, and data are not project
+project's GPL license. TMDB, TVmaze, and IntroDB names, logos, and data are not project
 artwork. Their use is subject to the applicable service terms and attribution
 requirements.

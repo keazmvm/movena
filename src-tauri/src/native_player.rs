@@ -868,8 +868,7 @@ pub fn mpv_set_recording(
                 .path()
                 .download_dir()
                 .map_err(|error| error.to_string())?;
-            let home = app.path().home_dir().map_err(|error| error.to_string())?;
-            let output = resolve_recording_path(&path, &downloads, &home)?;
+            let output = resolve_recording_path(&path, &downloads)?;
             if let Some(parent) = output.parent() {
                 std::fs::create_dir_all(parent).map_err(|error| {
                     format!(
@@ -892,7 +891,7 @@ pub fn mpv_set_recording(
     }
 }
 
-fn resolve_recording_path(path: &str, downloads: &Path, _home: &Path) -> Result<PathBuf, String> {
+fn resolve_recording_path(path: &str, downloads: &Path) -> Result<PathBuf, String> {
     let candidate = Path::new(path);
 
     if candidate.is_absolute() || path == "~" || path.starts_with("~/") || path.starts_with("~\\") {
@@ -925,7 +924,6 @@ mod recording_path_tests {
         let resolved = resolve_recording_path(
             "Movena Recordings/channel.ts",
             Path::new("C:/Users/test/Downloads"),
-            Path::new("C:/Users/test"),
         )
         .unwrap();
         assert_eq!(
@@ -936,11 +934,8 @@ mod recording_path_tests {
 
     #[test]
     fn rejects_tilde_recording_paths() {
-        let result = resolve_recording_path(
-            "~/Videos/channel.ts",
-            Path::new("C:/Users/test/Downloads"),
-            Path::new("C:/Users/test"),
-        );
+        let result =
+            resolve_recording_path("~/Videos/channel.ts", Path::new("C:/Users/test/Downloads"));
         assert!(result.is_err());
     }
 
@@ -953,7 +948,6 @@ mod recording_path_tests {
         let result = resolve_recording_path(
             absolute.to_str().unwrap(),
             Path::new("C:/Users/test/Downloads"),
-            Path::new("C:/Users/test"),
         );
         assert!(result.is_err());
     }
@@ -963,18 +957,14 @@ mod recording_path_tests {
         let result = resolve_recording_path(
             "~\\Videos\\channel.ts",
             Path::new("C:/Users/test/Downloads"),
-            Path::new("C:/Users/test"),
         );
         assert!(result.is_err());
     }
 
     #[test]
     fn rejects_path_traversal_in_recording_paths() {
-        let result = resolve_recording_path(
-            "../../../etc/shadow",
-            Path::new("C:/Users/test/Downloads"),
-            Path::new("C:/Users/test"),
-        );
+        let result =
+            resolve_recording_path("../../../etc/shadow", Path::new("C:/Users/test/Downloads"));
         assert!(result.is_err());
     }
 

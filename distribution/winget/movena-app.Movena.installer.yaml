@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
 PackageIdentifier: movena-app.Movena
-PackageVersion: 0.1.8
+PackageVersion: 0.1.10
 InstallerType: nullsoft
 Scope: user
 InstallModes:
@@ -11,10 +11,10 @@ InstallerSwitches:
   Silent: /S
   SilentWithProgress: /S
 UpgradeBehavior: install
-ReleaseDate: 2026-08-25
+ReleaseDate: 2026-08-27
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/movena-app/movena/releases/download/v0.1.8/Movena_0.1.8_x64-setup.exe
+    InstallerUrl: https://github.com/movena-app/movena/releases/download/v0.1.10/Movena_0.1.10_x64-setup.exe
     InstallerSha256: 1ba5b656c9e31de4a2a67289f7ff6e652bf3de22019694186ee55bbf99dfb086
 ManifestType: installer
 ManifestVersion: 1.9.0

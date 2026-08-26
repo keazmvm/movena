@@ -61,7 +61,7 @@ jobs:
           path: store-artifacts/*.msix
           if-no-files-found: error
       - name: Publish to Microsoft Store
-        if: inputs.publish_to_store && env.STORE_TENANT_ID != '' && env.STORE_CLIENT_ID != '' && env.STORE_CLIENT_SECRET != ''
+        if: inputs.publish_to_store && secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != ''
         env:
           STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
           STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}

@@ -8,7 +8,40 @@ for tagged releases.
 
 ## [Unreleased]
 
-## [0.1.9] - 2026-08-26
+## [0.1.10] - 2026-08-27
+
+This maintenance release hardens native platform safety, cleans codebase
+architecture and config boundaries, updates factual documentation and privacy
+disclosures, and upgrades all showcase screenshot assets to 2x Retina with 4K
+master frames.
+
+### Added
+
+- Added new high-resolution screenshot captures for the Coming Up release
+  calendar (`upcoming.webp`), clean Light theme (`light-theme.webp`), Series
+  player with populated episode navigation drawer (`player-series.webp`), and
+  M3U raw syntax editor (`m3u-raw-editor.webp`).
+- Added IntroDB network connection disclosure (`api.introdb.app`) in the privacy
+  policy alongside TMDB and TVmaze, and updated asset attribution disclaimers.
+- Added `initialMode` support to `M3uEditor` component for direct raw syntax
+  view activation.
+
+### Changed
+
+- Upgraded all README product tour screenshot captures to 2x Hi-DPI (Retina)
+  resolution with uncompressed 4K master frames and hydrated fixture data.
+- Upgraded WinGet manifest with `Moniker: movena` for unambiguous package
+  matching on `winget install movena`.
+- Aligned ESLint and Knip configurations across test and config files.
+
+### Fixed
+
+- Hardened macOS native window embedding with safe `contentView` handling and
+  poisoned mutex lock recovery.
+- Removed dead parameters and redundant OS directory lookups in native player
+  recording path resolution.
+- Deduplicated source secrets constants and bundled resolver discovery in the
+  Rust backend.
 
 This release adds a complete light appearance, community-backed episode
 segment skipping, more responsive VOD seeking, and the first store-oriented
@@ -370,7 +403,8 @@ public project considerably easier to evaluate.
   resolver teardown, accessibility, signing claims, checksums, licenses, and
   corresponding source.
 
-[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/movena-app/movena/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/movena-app/movena/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/movena-app/movena/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/movena-app/movena/compare/v0.1.6...v0.1.7

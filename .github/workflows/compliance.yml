@@ -76,6 +76,18 @@ jobs:
         run: npm run setup:mpv
       - name: Build feature-gated desktop test binary
         run: npm run desktop:e2e:build
+      - name: Stage native playback runtime beside desktop test binary
+        shell: pwsh
+        run: |
+          $source = Resolve-Path 'src-tauri/lib/mpv-dev/libmpv-2.dll'
+          $destination = 'src-tauri/target/debug/libmpv-2.dll'
+          Copy-Item -LiteralPath $source -Destination $destination -Force
+          if (-not (Test-Path -LiteralPath $destination)) {
+            throw 'libmpv-2.dll was not staged beside the desktop E2E executable.'
+          }
+          if ((Get-FileHash -LiteralPath $source).Hash -ne (Get-FileHash -LiteralPath $destination).Hash) {
+            throw 'The staged desktop E2E libmpv runtime does not match the pinned source.'
+          }
       - name: Exercise onboarding through the real Tauri boundary
         run: npm run desktop:e2e
       - name: Upload desktop E2E evidence

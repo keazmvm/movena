@@ -1,6 +1,6 @@
 [package]
 name = "movena"
-version = "0.1.9"
+version = "0.1.10"
 description = "Movena — Cross-platform IPTV streaming app"
 authors = []
 license = "GPL-3.0-or-later"
@@ -60,7 +60,6 @@ windows-sys = { version = "0.61", features = [
     "Win32_System_JobObjects",
     "Win32_System_Threading",
     "Win32_UI_WindowsAndMessaging",
-    "Win32_UI_Shell",
     "Win32_System_Com",
     "Win32_Graphics_Gdi",
 ] }

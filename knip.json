@@ -5,7 +5,8 @@
     "tests-desktop/**/*.e2e.ts",
     "tests-ui/harness/main.tsx",
     "scripts/**/*.{mjs,ps1}",
-    "*.config.{js,mjs,ts}"
+    "*.config.{js,mjs,ts}",
+    "*.conf.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx}",
@@ -13,7 +14,8 @@
     "tests-desktop/**/*.ts",
     "tests-ui/**/*.{ts,tsx}",
     "scripts/**/*.mjs",
-    "*.config.{js,mjs,ts}"
+    "*.config.{js,mjs,ts}",
+    "*.conf.ts"
   ],
   "ignoreDependencies": [
     "@emnapi/core",

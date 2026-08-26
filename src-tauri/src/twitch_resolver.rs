@@ -139,9 +139,7 @@ fn resolver_executable_name() -> &'static str {
     "twitch-resolver"
 }
 
-fn first_existing_file(candidates: impl IntoIterator<Item = PathBuf>) -> Option<PathBuf> {
-    candidates.into_iter().find(|candidate| candidate.is_file())
-}
+use super::native_player_options::first_existing_file;
 
 fn bundled_resolver_path(app: &AppHandle) -> Option<PathBuf> {
     let mut candidates = Vec::new();

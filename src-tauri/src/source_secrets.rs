@@ -1,7 +1,4 @@
-#[cfg(not(feature = "desktop-e2e"))]
-const CREDENTIAL_SERVICE: &str = "com.movena.desktop";
-#[cfg(feature = "desktop-e2e")]
-const CREDENTIAL_SERVICE: &str = "com.movena.desktop.e2e";
+use super::CREDENTIAL_SERVICE;
 
 pub(crate) fn validate_source_id(source_id: &str) -> Result<(), String> {
     if source_id.len() < 3

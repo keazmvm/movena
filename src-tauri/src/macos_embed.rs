@@ -357,7 +357,7 @@ pub fn set_simple_fullscreen(app: &AppHandle, on: bool) -> bool {
                 return false;
             };
             let frame = parent.frame();
-            *WINDOWED_FRAME.lock().unwrap() = Some([
+            *WINDOWED_FRAME.lock().unwrap_or_else(|e| e.into_inner()) = Some([
                 frame.origin.x,
                 frame.origin.y,
                 frame.size.width,
@@ -379,7 +379,9 @@ pub fn set_simple_fullscreen(app: &AppHandle, on: bool) -> bool {
             // AppKit's frame constraint holds a *titled* window clear of the
             // menu bar area — measured: asked for 1470x956, got 1470x924 — so
             // it has to go for the window to cover the screen.
-            *WINDOWED_STYLE_MASK.lock().unwrap() = Some(parent.styleMask().0 as usize);
+            *WINDOWED_STYLE_MASK
+                .lock()
+                .unwrap_or_else(|e| e.into_inner()) = Some(parent.styleMask().0 as usize);
             toggle_style_mask(&parent, NSWindowStyleMask::Titled, false);
 
             let target = screen.frame();
@@ -407,10 +409,18 @@ pub fn set_simple_fullscreen(app: &AppHandle, on: bool) -> bool {
             );
         } else {
             nsapp.setPresentationOptions(NSApplicationPresentationOptions::Default);
-            if let Some(mask) = WINDOWED_STYLE_MASK.lock().unwrap().take() {
+            if let Some(mask) = WINDOWED_STYLE_MASK
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .take()
+            {
                 parent.setStyleMask(NSWindowStyleMask(mask as _));
             }
-            if let Some([x, y, w, h]) = WINDOWED_FRAME.lock().unwrap().take() {
+            if let Some([x, y, w, h]) = WINDOWED_FRAME
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .take()
+            {
                 parent.setFrame_display(NSRect::new(NSPoint::new(x, y), NSSize::new(w, h)), true);
             }
             parent.makeKeyAndOrderFront(None);
@@ -570,7 +580,9 @@ fn watch_key_window(app: &AppHandle, gen: u64) {
                     accepts_moves = Some(parent.acceptsMouseMovedEvents());
                     if accepts_moves == Some(false) {
                         parent.setAcceptsMouseMovedEvents(true);
-                        refresh_tracking_areas(&parent.contentView().unwrap());
+                        if let Some(view) = parent.contentView() {
+                            refresh_tracking_areas(&view);
+                        }
                     }
                 }
                 let _ = tx.send((key_number, label.to_string(), accepts_moves));
