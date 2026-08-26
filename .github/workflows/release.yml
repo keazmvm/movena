@@ -205,6 +205,7 @@ jobs:
             exit 1
           fi
       - name: Build Tauri bundles
+        shell: bash
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -214,7 +215,18 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: npx tauri build --config src-tauri/tauri.bundle.macos.conf.json
+        run: |
+          # The validate step above allows "all absent" as a legitimate config
+          # (ad-hoc signing, matching tauri.conf.json's signingIdentity "-"),
+          # but the env vars above are still *defined* as empty strings in
+          # that case — Tauri treats a defined-but-empty APPLE_CERTIFICATE as
+          # "attempt certificate signing" and tries to import an empty
+          # certificate into the keychain, which fails outright. Unset them
+          # so an unconfigured signing setup actually falls back to ad-hoc.
+          if [ -z "$APPLE_CERTIFICATE" ]; then
+            unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
+          fi
+          npx tauri build --config src-tauri/tauri.bundle.macos.conf.json
       - name: Verify bundled Twitch resolver
         shell: bash
         run: |
