@@ -148,16 +148,15 @@ fn parse_xmltv_time(value: &str) -> Option<i64> {
         .map(|value| value.timestamp_millis())
 }
 
-fn attribute_value<R: std::io::BufRead>(
+fn attribute_value(
     event: &quick_xml::events::BytesStart<'_>,
-    reader: &Reader<R>,
-    name: &[u8],
+    name: &str,
 ) -> Result<Option<String>, String> {
     for attribute in event.attributes() {
         let attribute = attribute.map_err(|_| "This guide is not valid XML.".to_string())?;
         if attribute.key.local_name().as_ref() == name {
             return attribute
-                .decoded_and_normalized_value(XmlVersion::Implicit1_0, reader.decoder())
+                .normalized_value(XmlVersion::Implicit1_0)
                 .map(|value| Some(value.into_owned()))
                 .map_err(|_| "This guide is not valid XML.".to_string());
         }
@@ -205,21 +204,21 @@ fn parse_xmltv_reader<R: std::io::BufRead>(input: R) -> Result<XmltvGuidePayload
     loop {
         match reader.read_event_into(&mut buffer) {
             Ok(Event::Start(event)) => match event.local_name().as_ref() {
-                b"tv" => saw_tv = true,
-                b"channel" => {
-                    current_channel_id = attribute_value(&event, &reader, b"id")?;
+                "tv" => saw_tv = true,
+                "channel" => {
+                    current_channel_id = attribute_value(&event, "id")?;
                     channel_names.clear();
                 }
-                b"display-name" if current_channel_id.is_some() => {
+                "display-name" if current_channel_id.is_some() => {
                     channel_names.push(String::new());
                     text_target = Some(TextTarget::ChannelName);
                 }
-                b"programme" => {
-                    let channel_id = attribute_value(&event, &reader, b"channel")?;
-                    let start = attribute_value(&event, &reader, b"start")?
+                "programme" => {
+                    let channel_id = attribute_value(&event, "channel")?;
+                    let start = attribute_value(&event, "start")?
                         .as_deref()
                         .and_then(parse_xmltv_time);
-                    let end = attribute_value(&event, &reader, b"stop")?
+                    let end = attribute_value(&event, "stop")?
                         .as_deref()
                         .and_then(parse_xmltv_time);
                     programme = match (channel_id, start, end) {
@@ -235,17 +234,15 @@ fn parse_xmltv_reader<R: std::io::BufRead>(input: R) -> Result<XmltvGuidePayload
                         _ => None,
                     };
                 }
-                b"title" if programme.is_some() => text_target = Some(TextTarget::ProgrammeTitle),
-                b"desc" if programme.is_some() => {
+                "title" if programme.is_some() => text_target = Some(TextTarget::ProgrammeTitle),
+                "desc" if programme.is_some() => {
                     text_target = Some(TextTarget::ProgrammeDescription)
                 }
                 _ => {}
             },
             Ok(Event::Text(text)) => {
                 if let Some(target) = text_target.as_ref() {
-                    let value = text
-                        .xml10_content()
-                        .map_err(|_| "This guide is not valid XML.".to_string())?;
+                    let value = text.xml10_content();
                     append_text(target, &value, &mut channel_names, &mut programme);
                 }
             }
@@ -257,11 +254,7 @@ fn parse_xmltv_reader<R: std::io::BufRead>(input: R) -> Result<XmltvGuidePayload
                     {
                         character.to_string()
                     } else {
-                        match reference
-                            .decode()
-                            .map_err(|_| "This guide is not valid XML.".to_string())?
-                            .as_ref()
-                        {
+                        match reference.as_ref() {
                             "amp" => "&".to_string(),
                             "lt" => "<".to_string(),
                             "gt" => ">".to_string(),
@@ -275,15 +268,13 @@ fn parse_xmltv_reader<R: std::io::BufRead>(input: R) -> Result<XmltvGuidePayload
             }
             Ok(Event::CData(text)) => {
                 if let Some(target) = text_target.as_ref() {
-                    let value = text
-                        .decode()
-                        .map_err(|_| "This guide is not valid XML.".to_string())?;
-                    append_text(target, &value, &mut channel_names, &mut programme);
+                    let value = text.as_ref();
+                    append_text(target, value, &mut channel_names, &mut programme);
                 }
             }
             Ok(Event::End(event)) => match event.local_name().as_ref() {
-                b"display-name" | b"title" | b"desc" => text_target = None,
-                b"channel" => {
+                "display-name" | "title" | "desc" => text_target = None,
+                "channel" => {
                     if let Some(id) = current_channel_id.take() {
                         let names = channel_names
                             .drain(..)
@@ -293,7 +284,7 @@ fn parse_xmltv_reader<R: std::io::BufRead>(input: R) -> Result<XmltvGuidePayload
                         channels.push(XmltvChannelDto { id, names });
                     }
                 }
-                b"programme" => {
+                "programme" => {
                     if let Some(programme) = programme.take() {
                         groups
                             .entry(programme.channel_id)
