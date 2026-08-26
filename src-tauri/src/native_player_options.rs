@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+#[cfg(any(target_os = "windows", test))]
 use std::path::{Path, PathBuf};
 
 #[cfg(target_os = "windows")]
