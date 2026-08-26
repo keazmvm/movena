@@ -22,7 +22,8 @@ Tauri/Rust
   ├─ remote_media.rs / m3u_cache.rs / xmltv.rs: validated remote data and caches
   ├─ downloads.rs / app_files.rs: downloads and allowlisted file operations
   ├─ lib.rs: module registration, app-data deletion, and Tauri wiring
-  └─ macos_embed.rs: macOS mpv child-window integration
+  ├─ macos_embed.rs: macOS mpv child-window integration
+  └─ windows_window.rs: Windows frameless window and taskbar integration
 ```
 
 The frontend never talks to Rust through ad-hoc `invoke` calls. Add domain
@@ -38,7 +39,7 @@ wrapper.
 - `useSettingsStore`: persisted preferences and layout settings.
 - `useLibraryStore`: favorites, collections, history, and watch progress.
 - `useDownloadStore`: session-only download queue and active/completion state.
-- `useNotificationStore`, `useSearchStore`, `useContextMenuStore`, `useDebugStore`: focused UI and diagnostic concerns.
+- `useNotificationStore`, `useSearchStore`, `useContextMenuStore`, `useDebugStore`, `useStreamVerificationStore`, `useUpdateStore`: focused UI, diagnostic, verification, and updater concerns.
 - TanStack Query: remote catalog/detail/EPG data keyed by source identity.
 
 Keep server data in TanStack Query and app interaction state in Zustand. Do not

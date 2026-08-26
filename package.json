@@ -1,7 +1,7 @@
 {
   "name": "movena",
   "private": true,
-  "version": "0.1.9",
+  "version": "0.1.10",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "engines": {
@@ -40,9 +40,9 @@
     "twitch:check": "node scripts/check-twitch-packaging.mjs",
     "format:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml --all",
     "format:rust:check": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check",
-    "cargo-check": "cd src-tauri && cargo check",
+    "cargo-check": "cargo check --manifest-path src-tauri/Cargo.toml",
     "cargo-clippy": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings",
-    "clean:rust": "cd src-tauri && cargo clean",
+    "clean:rust": "cargo clean --manifest-path src-tauri/Cargo.toml",
     "check": "npm run design:check && npm run dead-code:check && npm run twitch:check && npm run format:rust:check && npm run lint && npm run typecheck && npm run typecheck:test && npm run typecheck:desktop-e2e && npm run test:all && npm run cargo-clippy",
     "tauri": "tauri",
     "preview": "vite preview",

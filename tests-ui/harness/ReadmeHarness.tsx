@@ -4,7 +4,8 @@ import { MotionConfig } from 'framer-motion';
 import { MemoryRouter } from 'react-router-dom';
 import { type M3uEntry, type M3uPlaylist } from '../../src/api/m3u';
 import { detailQueryKeys } from '../../src/api/useDetails';
-import { getCombinedSourceQueryScope, getM3uQueryScope, getUrlQueryScope, getXtreamQueryScope } from '../../src/api/queryKeys';
+import { getCombinedSourceQueryScope, getM3uQueryScope, getUrlQueryScope, getXtreamQueryScope, queryKeys } from '../../src/api/queryKeys';
+import type { UpcomingRelease } from '../../src/api/useUpcomingReleases';
 import type { XCSeriesInfoResponse, XCVodInfo } from '../../src/api/xc';
 import { desktopApi } from '../../src/api/desktop';
 import { tauriApi } from '../../src/api/ipc';
@@ -25,6 +26,7 @@ import { Movies } from '../../src/pages/Movies';
 import { Search } from '../../src/pages/Search';
 import { Series } from '../../src/pages/Series';
 import { Settings } from '../../src/pages/Settings';
+import { Upcoming } from '../../src/pages/Upcoming';
 import { useDownloadStore } from '../../src/store/useDownloadStore';
 import { useAuthStore, type XCCredentials, type XtreamSourceProfile } from '../../src/store/useAuthStore';
 import { useLibraryStore } from '../../src/store/useLibraryStore';
@@ -39,13 +41,17 @@ export const README_SURFACES = [
   'live-tv',
   'live-epg',
   'player-vod',
+  'player-series',
   'library-details',
   'series-details',
+  'upcoming',
   'search',
   'm3u-editor',
+  'm3u-raw-editor',
   'downloads',
   'settings',
   'playback-settings',
+  'light-theme',
 ] as const;
 
 export type ReadmeSurface = (typeof README_SURFACES)[number];
@@ -60,55 +66,55 @@ const GUIDE_URL = 'https://guide.example.test/movena.xml';
 const TMDB_ARTWORK = {
   dunePartTwo: {
     poster: 'https://media.themoviedb.org/t/p/w500/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/eZ239CUp1d6OryZEBPnO2n87gMG.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/eZ239CUp1d6OryZEBPnO2n87gMG.jpg',
   },
   parasite: {
     poster: 'https://media.themoviedb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/vbC0rzdrb7Ohc2TkbEbxtOABECe.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/vbC0rzdrb7Ohc2TkbEbxtOABECe.jpg',
   },
   spiritedAway: {
     poster: 'https://media.themoviedb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg',
   },
   theMatrix: {
     poster: 'https://media.themoviedb.org/t/p/w500/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/tlm8UkiQsitc8rSuIAscQDCnP8d.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/tlm8UkiQsitc8rSuIAscQDCnP8d.jpg',
   },
   arrival: {
     poster: 'https://media.themoviedb.org/t/p/w500/pEzNVQfdzYDzVK0XqxERIw2x2se.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/8MUZz7oPXQftFTslZpRP3CVMOoq.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/8MUZz7oPXQftFTslZpRP3CVMOoq.jpg',
   },
   grandBudapestHotel: {
     poster: 'https://media.themoviedb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/9udCLTxTFl28RxnK8Q05E154ZGa.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/9udCLTxTFl28RxnK8Q05E154ZGa.jpg',
   },
   madMaxFuryRoad: {
     poster: 'https://media.themoviedb.org/t/p/w500/ulcAi4dKpAjHwYGS08vNyx9H6I9.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/uT895WNwm0aIJRtGizcQhrejWUo.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/uT895WNwm0aIJRtGizcQhrejWUo.jpg',
   },
   theGodfather: {
     poster: 'https://media.themoviedb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg',
   },
   severance: {
     poster: 'https://media.themoviedb.org/t/p/w500/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/ixgFmf1X59PUZam2qbAfskx2gQr.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/ixgFmf1X59PUZam2qbAfskx2gQr.jpg',
   },
   theBear: {
     poster: 'https://media.themoviedb.org/t/p/w500/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/aJtG4txtmiRHwAAqENQHZvBs6kY.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/aJtG4txtmiRHwAAqENQHZvBs6kY.jpg',
   },
   dark: {
     poster: 'https://media.themoviedb.org/t/p/w500/apbrbWs8M9lyOpJYU5WXrpFbk1Z.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/3jDXL4Xvj3AzDOF6UH1xeyHW8MH.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/3jDXL4Xvj3AzDOF6UH1xeyHW8MH.jpg',
   },
   arcane: {
     poster: 'https://media.themoviedb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/q8eejQcg1bAqImEV8jh8RtBD4uH.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/q8eejQcg1bAqImEV8jh8RtBD4uH.jpg',
   },
   shogun: {
     poster: 'https://media.themoviedb.org/t/p/w500/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/w780/bwSmgmd90hCWwqOKQYTEraeOZhJ.jpg',
+    backdrop: 'https://media.themoviedb.org/t/p/original/bwSmgmd90hCWwqOKQYTEraeOZhJ.jpg',
   },
 } as const;
 
@@ -427,19 +433,30 @@ const DOWNLOADS: DownloadJob[] = [
 
 function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
   installPlayerFixtureStubs();
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', surface === 'light-theme' ? 'light' : 'dark');
+  }
   useSettingsStore.setState({
+    themePreference: surface === 'light-theme' ? 'light' : 'dark',
     language: 'en',
     sidebarCollapsed: false,
     showCollapsedSidebarBadges: true,
     onboardingDismissed: true,
     motionPreference: 'reduced',
     accentColor: '#78aef8',
-    upcomingEnabled: false,
-    upcomingHomeEnabled: false,
-    tmdbEnabled: false,
-    tmdbApiKey: '',
+    upcomingEnabled: surface === 'upcoming',
+    upcomingHomeEnabled: surface === 'upcoming',
+    upcomingCalendarEnabled: true,
+    upcomingCountdownEnabled: true,
+    upcomingHistoryDays: 7,
+    tmdbEnabled: surface === 'upcoming',
+    tmdbApiKey: surface === 'upcoming' ? 'fixture-key' : '',
     epgSource: 'provider',
     epgXmltvUrl: '',
+    skipIntroEnabled: true,
+    skipRecapEnabled: true,
+    autoPlayNextEpisode: true,
+    streamFoldingEnabled: true,
   });
   useSourceStore.setState({
     profiles: [PROFILE],
@@ -470,11 +487,14 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
     isInitializing: false,
     initializationError: null,
   });
+  const favoriteDune = { id: 'movie-dune-part-two', sourceId: SOURCE_ID, sourceItemId: 'movie-dune-part-two', title: 'Dune: Part Two', type: 'vod' as const, posterUrl: TMDB_ARTWORK.dunePartTwo.poster, year: '2024', rating: 8.1 };
+  const favoriteArrival = { id: 'movie-arrival', sourceId: SOURCE_ID, sourceItemId: 'movie-arrival', title: 'Arrival', type: 'vod' as const, posterUrl: TMDB_ARTWORK.arrival.poster, year: '2016', rating: 7.6 };
+  const favoriteSeverance = { id: 'series-severance', sourceId: XTREAM_SOURCE_ID, sourceItemId: 'severance-s1e1', title: 'Severance', type: 'series' as const, posterUrl: TMDB_ARTWORK.severance.poster, year: '2022', rating: 8.4 };
+  const favoriteTheBear = { id: 'series-the-bear', sourceId: XTREAM_SOURCE_ID, sourceItemId: 'the-bear-s1e1', title: 'The Bear', type: 'series' as const, posterUrl: TMDB_ARTWORK.theBear.poster, year: '2022', rating: 8.1 };
+  const mockFavorites = [favoriteDune, favoriteArrival, favoriteSeverance, favoriteTheBear];
+
   useLibraryStore.setState({
-    favorites: [
-      { id: 'movie-dune-part-two', sourceId: SOURCE_ID, sourceItemId: 'movie-dune-part-two', title: 'Dune: Part Two', type: 'vod', posterUrl: TMDB_ARTWORK.dunePartTwo.poster, year: '2024', rating: 8.1 },
-      { id: 'movie-arrival', sourceId: SOURCE_ID, sourceItemId: 'movie-arrival', title: 'Arrival', type: 'vod', posterUrl: TMDB_ARTWORK.arrival.poster, year: '2016', rating: 7.6 },
-    ],
+    favorites: mockFavorites,
     collections: [{ id: 'weekend', name: 'Weekend picks', items: [] }],
     history: [
       { id: 'movie-parasite', sourceId: SOURCE_ID, sourceItemId: 'movie-parasite', title: 'Parasite', type: 'vod', posterUrl: TMDB_ARTWORK.parasite.poster, year: '2019', rating: 8.5, progressPercentage: 46, currentTime: 3_643, duration: 7_920, lastWatchedAt: now - 900_000 },
@@ -491,6 +511,75 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
   const xtreamScope = getXtreamQueryScope(XTREAM_SOURCE_ID, XTREAM_CREDENTIALS);
   queryClient.setQueryData(detailQueryKeys.vod('693134', xtreamScope), DUNE_DETAILS);
   queryClient.setQueryData(detailQueryKeys.series('95396', xtreamScope), SEVERANCE_DETAILS);
+  queryClient.setQueryData(detailQueryKeys.series('series-severance', xtreamScope), SEVERANCE_DETAILS);
+  queryClient.setQueryDefaults(['series_info'], { queryFn: async () => SEVERANCE_DETAILS, initialData: () => SEVERANCE_DETAILS });
+  queryClient.setQueryDefaults(['xc_series_info'], { queryFn: async () => SEVERANCE_DETAILS, initialData: () => SEVERANCE_DETAILS });
+
+  const d = new Date();
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const tomorrow = new Date(d.getTime() + 86_400_000);
+  const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+  const in3Days = new Date(d.getTime() + 3 * 86_400_000);
+  const in3DaysStr = `${in3Days.getFullYear()}-${String(in3Days.getMonth() + 1).padStart(2, '0')}-${String(in3Days.getDate()).padStart(2, '0')}`;
+  const nextWeek = new Date(d.getTime() + 7 * 86_400_000);
+  const nextWeekStr = `${nextWeek.getFullYear()}-${String(nextWeek.getMonth() + 1).padStart(2, '0')}-${String(nextWeek.getDate()).padStart(2, '0')}`;
+
+  const mockUpcomingList: UpcomingRelease[] = [
+    {
+      favorite: favoriteSeverance,
+      tmdbId: 95396,
+      airDate: todayStr,
+      kind: 'episode',
+      title: 'Severance',
+      seasonNumber: 2,
+      episodeNumber: 8,
+      artworkUrl: TMDB_ARTWORK.severance.backdrop,
+      exactAirTime: `${todayStr}T20:00:00Z`,
+      timeSource: 'tvmaze',
+    },
+    {
+      favorite: favoriteTheBear,
+      tmdbId: 136315,
+      airDate: tomorrowStr,
+      kind: 'episode',
+      title: 'The Bear',
+      seasonNumber: 4,
+      episodeNumber: 1,
+      artworkUrl: TMDB_ARTWORK.theBear.backdrop,
+      exactAirTime: `${tomorrowStr}T01:00:00Z`,
+      timeSource: 'tvmaze',
+    },
+    {
+      favorite: favoriteDune,
+      tmdbId: 693134,
+      airDate: in3DaysStr,
+      kind: 'movie',
+      title: 'Dune: Messiah',
+      seasonNumber: null,
+      episodeNumber: null,
+      artworkUrl: TMDB_ARTWORK.dunePartTwo.backdrop,
+      exactAirTime: null,
+      timeSource: 'tmdb',
+    },
+    {
+      favorite: favoriteArrival,
+      tmdbId: 329865,
+      airDate: nextWeekStr,
+      kind: 'movie',
+      title: 'Arrival: 4K Remaster',
+      seasonNumber: null,
+      episodeNumber: null,
+      artworkUrl: TMDB_ARTWORK.arrival.backdrop,
+      exactAirTime: null,
+      timeSource: 'tmdb',
+    },
+  ];
+  queryClient.setQueryDefaults(['tmdb_upcoming'], { queryFn: async () => mockUpcomingList, initialData: () => mockUpcomingList });
+  const scope = 'movie-arrival:Arrival|movie-dune-part-two:Dune: Part Two|series-severance:Severance|series-the-bear:The Bear';
+  queryClient.setQueryData(
+    queryKeys.tmdbUpcoming(scope, 'en-US', false, 'w500', true, 7, todayStr),
+    mockUpcomingList,
+  );
 
   if (surface === 'player-vod') {
     usePlayerStore.getState().playStream({
@@ -529,10 +618,54 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
       chapters: [{ title: 'Opening', time: 0 }, { title: 'The Desert', time: 2_760 }, { title: 'Final Act', time: 8_040 }],
     });
   }
+
+  if (surface === 'player-series') {
+    usePlayerStore.getState().playStream({
+      id: 'series-severance-s1e1',
+      sourceId: XTREAM_SOURCE_ID,
+      sourceItemId: 'severance-s1e1',
+      title: 'Severance S01E01 - Good News About Hell',
+      type: 'series',
+      streamUrl: 'https://media.example.test/series/severance/s1e1.mp4',
+      posterUrl: TMDB_ARTWORK.severance.poster,
+      knownDuration: 3_540,
+      startPosition: 140,
+      tags: ['4K', 'HDR', 'DOLBY 5.1'],
+      seriesId: 'series-severance',
+      seriesSourceItemId: '95396',
+      seriesTitle: 'Severance',
+      seasonNum: 1,
+      episodeNum: 1,
+    });
+    usePlayerStore.setState({
+      isPlaying: true,
+      currentTime: 140,
+      duration: 3_540,
+      volume: 78,
+      isMuted: false,
+      playbackSpeed: 1,
+      isBuffering: false,
+      isVideoReady: true,
+      showControls: true,
+      showEpisodesDrawer: true,
+      audioTracks: [
+        { id: 1, type: 'audio', title: 'English [Original]', lang: 'en', selected: true, codec: 'eac3' },
+        { id: 2, type: 'audio', title: 'Deutsch', lang: 'de', codec: 'aac' },
+      ],
+      subtitleTracks: [
+        { id: 3, type: 'sub', title: 'English [CC]', lang: 'en', selected: true },
+        { id: 4, type: 'sub', title: 'Deutsch', lang: 'de' },
+      ],
+      currentAudioTrack: 1,
+      currentSubTrack: 3,
+      subtitlesVisible: true,
+      chapters: [{ title: 'Intro', time: 90 }, { title: 'Lumon Floor', time: 240 }, { title: 'Refinement', time: 1_200 }],
+    });
+  }
 }
 
-function PlayerFixture() {
-  const background = TMDB_ARTWORK.dunePartTwo.backdrop;
+function PlayerFixture({ surface }: { surface: ReadmeSurface }) {
+  const background = surface === 'player-series' ? TMDB_ARTWORK.severance.backdrop : TMDB_ARTWORK.dunePartTwo.backdrop;
   return (
     <>
       <div
@@ -553,13 +686,15 @@ function PlayerFixture() {
 }
 
 function Surface({ surface }: { surface: ReadmeSurface }) {
-  if (surface === 'hero') return <Home />;
+  if (surface === 'hero' || surface === 'light-theme') return <Home />;
   if (surface === 'live-tv') return <LiveTV />;
   if (surface === 'live-epg') return <Epg />;
+  if (surface === 'upcoming') return <Upcoming />;
   if (surface === 'search') return <Search />;
   if (surface === 'downloads') return <PageTransition><Downloads /></PageTransition>;
   if (surface === 'settings' || surface === 'playback-settings') return <Settings />;
   if (surface === 'm3u-editor') return <M3uEditor initialSourceId={SOURCE_ID} onClose={() => undefined} />;
+  if (surface === 'm3u-raw-editor') return <M3uEditor initialSourceId={SOURCE_ID} initialMode="raw" onClose={() => undefined} />;
   if (surface === 'series-details') {
     return (
       <>
@@ -597,13 +732,17 @@ const ROUTES: Record<ReadmeSurface, string> = {
   'live-tv': '/live',
   'live-epg': '/epg',
   'player-vod': '/movies',
+  'player-series': '/series',
   'library-details': '/movies',
   'series-details': '/series',
+  upcoming: '/upcoming',
   search: '/search?q=dune',
   'm3u-editor': `/m3u-editor/${SOURCE_ID}`,
+  'm3u-raw-editor': `/m3u-editor/${SOURCE_ID}`,
   downloads: '/downloads',
   settings: '/settings?section=sources',
   'playback-settings': '/settings?section=playback',
+  'light-theme': '/',
 };
 
 export function ReadmeHarness({ surface }: { surface: ReadmeSurface }) {
@@ -611,7 +750,7 @@ export function ReadmeHarness({ surface }: { surface: ReadmeSurface }) {
     defaultOptions: { queries: { retry: false, staleTime: Number.POSITIVE_INFINITY, refetchOnWindowFocus: false } },
   });
   seedFixture(queryClient, surface);
-  const isPlayerSurface = surface === 'player-vod';
+  const isPlayerSurface = surface === 'player-vod' || surface === 'player-series';
 
   return (
     <MemoryRouter initialEntries={[ROUTES[surface]]}>
@@ -619,7 +758,7 @@ export function ReadmeHarness({ surface }: { surface: ReadmeSurface }) {
         <MotionConfig reducedMotion="always">
           <div className={appStyles.appContainer}>
             <div className={appStyles.windowDragArea} data-tauri-drag-region aria-hidden="true" />
-            {isPlayerSurface ? <PlayerFixture /> : (
+            {isPlayerSurface ? <PlayerFixture surface={surface} /> : (
               <div className={appStyles.appUi}>
                 <Sidebar />
                 <main className={appStyles.mainContent}>

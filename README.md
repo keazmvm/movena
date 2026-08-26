@@ -34,7 +34,7 @@
 > Bring your own authorized content. Movena does not bypass DRM; use recording,
 > catch-up, and download features only where you have permission.
 
-![Movena Discover view showing real movie and series metadata with TMDB artwork](.github/assets/readme/hero.webp)
+![Movena Discover workspace showcasing Dark and Light themes side-by-side with real metadata and TMDB artwork](.github/assets/readme/hero.webp)
 
 ## Get started
 
@@ -50,7 +50,8 @@ enabled channels, catalogues, categories, and guides in one workspace.
 **Sources and playlists**
 
 - Connect multiple Xtream Codes and M3U/M3U8 sources at the same time.
-- Load playlists from local files or remote URLs, with scheduled refresh.
+- Load playlists from local files or remote URLs, with scheduled background refresh.
+- Fold duplicate quality tiers (4K, FHD, HD, RAW, HEVC) of the same live channel into a single entry with automatic stream failover.
 - Detect playlist XMLTV metadata or configure a per-source XMLTV override.
 - Set source-specific user-agent and referrer headers when required.
 
@@ -58,6 +59,7 @@ enabled channels, catalogues, categories, and guides in one workspace.
 
 - Browse provider or XMLTV guide data with now/next information and a timeline grid.
 - Search channels, organize categories, and move between channels without leaving playback.
+- Correct distorted 16:9 and 4:3 broadcast logos with smart aspect-ratio detection.
 - Play supported provider and M3U catch-up/archive programmes.
 - Use a dedicated audio-only interface for playlist entries marked as radio.
 
@@ -65,8 +67,8 @@ enabled channels, catalogues, categories, and guides in one workspace.
 
 - Browse VOD catalogues, seasons, episodes, recently added media, and upcoming releases.
 - Search across Live TV, movies, and series, then filter and sort large catalogues.
-- Enable optional TMDB enrichment for richer movie and series metadata.
-- Use TVmaze-backed schedule information for supported upcoming-series views.
+- Enable optional TMDB enrichment for localized posters, backdrops, and descriptions.
+- Track upcoming movie premieres and TV broadcasts with a monthly release calendar and live second-by-second countdowns backed by TMDB and TVmaze.
 
 **Native playback**
 
@@ -74,21 +76,23 @@ enabled channels, catalogues, categories, and guides in one workspace.
 - Open public Twitch live-channel page URLs through the bundled Streamlink 8.5
   resolver. Twitch VODs and clips are not handled by this integration; during
   embedded ad intervals playback waits for the channel stream to resume.
-- Use hardware decoding, buffering controls, and automatic playback recovery.
-- Switch audio and subtitle tracks; adjust speed, aspect ratio, picture, and subtitle presentation.
-- Enter native fullscreen, skip chapter-marked or IntroDB-detected intros and recaps, continue to the next episode, and record live streams.
+- Configure GPU hardware decoding, demuxer buffer sizes (50–500 MiB), and automatic playback recovery.
+- Apply HDR-to-SDR tone-mapping algorithms (BT.2446a, Filmic, Reinhard, Mobius), real-time color controls, custom aspect ratios, and Side-by-Side 3D-to-2D conversion.
+- Customize subtitle styling (font size, color, background, outline, screen offset) and adjust audio/subtitle synchronization delays.
+- Skip chapter-marked or IntroDB-detected intros and recaps with on-screen prompts or hands-free auto-skip.
+- Auto-play next episodes with an interactive countdown and navigate seasons through the in-player drawer.
 
 **Library and offline use**
 
 - Save favorites, custom collections, watch history, and Continue Watching progress locally.
-- Download supported movies and episodes with queue, pause, resume, retry, and file-reveal controls.
-- Keep downloaded files on the device and choose how many transfers run in parallel.
+- Download movies and episodes with multi-threaded background transfers (1–8 parallel queues), pause, resume, retry, and file reveal.
+- Record live TV streams directly to the system Downloads folder with sandboxed path validation.
 
 **M3U workspace**
 
-- Edit playlists through structured channel tables or the raw M3U document.
+- Edit playlists through structured channel tables or the raw syntax-highlighted document.
 - Batch-clean titles, find and replace values, renumber entries, and manage categories.
-- Validate playlist data and test stream health without exposing connection secrets.
+- Validate playlist syntax and probe stream health in the background without exposing connection secrets.
 - Undo and redo edits, recover local drafts, review changes, export copies, and restore saved versions.
 
 **Privacy and personalization**
@@ -115,25 +119,29 @@ reserved `.test` fixture data. No commercial video is included.
 | ![Movena Live TV catalogue with real channel identities and logos](.github/assets/readme/live-tv.webp) | ![Movena timeline programme guide with real channels and example XMLTV scheduling](.github/assets/readme/live-epg.webp) |
 | Movie details and playback actions | Seasons and episode browser |
 | ![Movena movie details showing real Dune Part Two metadata and TMDB poster artwork](.github/assets/readme/library-details.webp) | ![Movena series details showing Severance with its correct two seasons and 19 episodes](.github/assets/readme/series-details.webp) |
-| Global library search | M3U workspace |
-| ![Movena global search returning a real movie title and example Live TV results](.github/assets/readme/search.webp) | ![Movena M3U editor with example channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp) |
+| Upcoming release calendar | Light appearance |
+| ![Movena upcoming release schedule with live countdowns](.github/assets/readme/upcoming.webp) | ![Movena Discover view in clean light appearance](.github/assets/readme/light-theme.webp) |
+| VOD player controls | Series playback & episode navigation |
+| ![Movena native VOD player controls over a TMDB backdrop with timeline, chapters, and playback settings](.github/assets/readme/player-vod.webp) | ![Movena series player with episode drawer and skip prompts](.github/assets/readme/player-series.webp) |
+| M3U visual channel workspace | M3U raw syntax editor |
+| ![Movena M3U editor with example channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp) | ![Movena M3U raw syntax editor with line numbers and editing controls](.github/assets/readme/m3u-raw-editor.webp) |
 | Download queue | Source management |
 | ![Movena downloads page with real movie titles and deterministic example transfers](.github/assets/readme/downloads.webp) | ![Movena source settings with a reserved example M3U library](.github/assets/readme/settings.webp) |
-| VOD player controls | Playback configuration |
-| ![Movena native VOD player controls over a TMDB backdrop with timeline, chapters, and playback settings](.github/assets/readme/player-vod.webp) | ![Movena player and video settings for decoding, buffering, playback behavior, and subtitles](.github/assets/readme/playback-settings.webp) |
+| Global library search | Playback configuration |
+| ![Movena global search returning a real movie title and example Live TV results](.github/assets/readme/search.webp) | ![Movena player and video settings for decoding, buffering, playback behavior, and subtitles](.github/assets/readme/playback-settings.webp) |
 
 ## Download and platform support
 
 Download the current packages from the
 [latest release](https://github.com/movena-app/movena/releases/latest). Release
 assets also include a
-[SHA-256 checksum file](https://github.com/movena-app/movena/releases/latest/download/SHA256SUMS.txt)
+[SHA-256 checksum file](https://github.com/movena-app/movena/releases/latest/download/SHA256SUMS.txt),
 an SPDX SBOM, GitHub build-provenance attestations, and updater signatures where
 applicable. Platform trust status remains explicitly disclosed below.
 
 | Platform | Published packages | Important notes |
 | --- | --- | --- |
-| Windows x64 | [Microsoft Store](https://apps.microsoft.com/detail/9P2T0QGGHQGQ), WinGet, NSIS `.exe`, `.msi`, portable `.zip` | Microsoft Store / WinGet (`winget install Movena.movena`). Standalone NSIS and portable packages bundle libmpv. |
+| Windows x64 | [Microsoft Store](https://apps.microsoft.com/detail/9P2T0QGGHQGQ), WinGet, NSIS `.exe`, `.msi`, portable `.zip` | Microsoft Store / WinGet (`winget install movena`). Standalone NSIS and portable packages bundle libmpv. |
 | macOS Apple Silicon | `.dmg` | Install the current mpv runtime with `brew install mpv`. Current builds are ad-hoc signed rather than Developer ID notarized. |
 | Linux x64 | `.deb`, `.AppImage` | A compatible system libmpv and normal Tauri/WebKit desktop libraries are required. Install `mpv` through your distribution if necessary. |
 

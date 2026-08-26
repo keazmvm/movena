@@ -1,6 +1,6 @@
 # Privacy
 
-Last updated: 25 August 2026
+Last updated: 26 August 2026
 
 Movena is a local desktop application. The Movena project does not operate an
 account service, analytics service, advertising service, telemetry endpoint, or
@@ -20,7 +20,7 @@ URLs, library data, and caches.
 
 Your device connects directly to sources you configure and may fetch metadata
 or artwork directly from those sources. When enabled, it also connects directly
-to TMDB and TVmaze. Automatic update checks are enabled by default and request
+to TMDB, TVmaze, and IntroDB. Automatic update checks are enabled by default and request
 release metadata from GitHub; they can be disabled in Settings > General, and an
 update is downloaded only after confirmation. These independent services
 receive the information normally included in an Internet request, such as your

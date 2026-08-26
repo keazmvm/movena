@@ -12,13 +12,17 @@ const surfaces = [
   'live-tv',
   'live-epg',
   'player-vod',
+  'player-series',
   'library-details',
   'series-details',
+  'upcoming',
   'search',
   'm3u-editor',
+  'm3u-raw-editor',
   'downloads',
   'settings',
   'playback-settings',
+  'light-theme',
 ];
 
 await mkdir(assetDir, { recursive: true });
@@ -32,6 +36,7 @@ try {
     colorScheme: 'dark',
     reducedMotion: 'reduce',
     viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 2,
   });
   const page = await context.newPage();
   const cdp = await context.newCDPSession(page);
@@ -44,7 +49,7 @@ try {
 
     const capture = await cdp.send('Page.captureScreenshot', {
       format: 'webp',
-      quality: 84,
+      quality: 90,
       fromSurface: true,
       captureBeyondViewport: false,
     });

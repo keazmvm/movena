@@ -53,7 +53,6 @@ pub(crate) fn build_http_options(
     Ok(result)
 }
 
-#[cfg(any(target_os = "windows", test))]
 pub(crate) fn first_existing_file(
     candidates: impl IntoIterator<Item = PathBuf>,
 ) -> Option<PathBuf> {

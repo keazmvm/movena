@@ -108,7 +108,7 @@ provider-*.json
 sources-*.json
 diagnostics-*.json
 recordings/
-downloads/
+/downloads/
 # Deliberately public, synthetic fixtures are allowlisted.
 !tests/fixtures/*.m3u
 !tests/fixtures/*.m3u8
@@ -116,3 +116,9 @@ downloads/
 *.bak
 .tauri-keys/
 tauri-signing-key*
+
+# Local release packaging outputs
+*-artifacts/
+dist-source/
+portable-*/
+release-*/

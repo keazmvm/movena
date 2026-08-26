@@ -48,10 +48,11 @@ import {
 
 interface M3uEditorProps {
   initialSourceId?: string | undefined;
+  initialMode?: EditorMode | undefined;
   onClose?: (() => void) | undefined;
 }
 
-export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
+export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorProps) {
   const { t, number } = useI18n();
   const m3uProfiles = useSourceStore((state) => state.profiles);
   const m3uRuntimes = useSourceStore((state) => state.runtimes);
@@ -66,7 +67,7 @@ export function M3uEditor({ initialSourceId, onClose }: M3uEditorProps) {
       : m3uProfiles[0]?.id || 'blank'
   ));
   const [ephemeralLabel, setEphemeralLabel] = useState('Imported playlist');
-  const [activeMode, setActiveMode] = useState<EditorMode>('channels');
+  const [activeMode, setActiveMode] = useState<EditorMode>(() => initialMode ?? 'channels');
   const [snapshot, setSnapshot] = useState<PlaylistSnapshot>(emptyPlaylist);
   const [baseline, setBaseline] = useState<PlaylistSnapshot>(emptyPlaylist);
   const [past, setPast] = useState<PlaylistSnapshot[]>([]);
