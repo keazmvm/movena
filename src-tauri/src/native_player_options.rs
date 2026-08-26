@@ -1,7 +1,8 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
+
 #[cfg(any(target_os = "windows", test))]
 use std::path::Path;
-use std::path::PathBuf;
 
 #[cfg(target_os = "windows")]
 use tauri::{AppHandle, Manager};
