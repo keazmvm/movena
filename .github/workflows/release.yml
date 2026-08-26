@@ -178,7 +178,7 @@ jobs:
       - run: npm ci
       - name: Build pinned Twitch resolver
         run: npm run setup:twitch
-      - name: Validate Apple signing configuration
+      - name: Validate and configure Apple signing
         shell: bash
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -204,16 +204,18 @@ jobs:
             echo 'Apple signing and notarization secrets must either all be configured or all be absent.' >&2
             exit 1
           fi
+          if [ "$configured" -eq "${#signing_values[@]}" ]; then
+            echo "APPLE_CERTIFICATE=$APPLE_CERTIFICATE" >> "$GITHUB_ENV"
+            echo "APPLE_CERTIFICATE_PASSWORD=$APPLE_CERTIFICATE_PASSWORD" >> "$GITHUB_ENV"
+            echo "APPLE_SIGNING_IDENTITY=$APPLE_SIGNING_IDENTITY" >> "$GITHUB_ENV"
+            echo "APPLE_ID=$APPLE_ID" >> "$GITHUB_ENV"
+            echo "APPLE_PASSWORD=$APPLE_PASSWORD" >> "$GITHUB_ENV"
+            echo "APPLE_TEAM_ID=$APPLE_TEAM_ID" >> "$GITHUB_ENV"
+          fi
       - name: Build Tauri bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx tauri build --config src-tauri/tauri.bundle.macos.conf.json
       - name: Verify bundled Twitch resolver
         shell: bash
