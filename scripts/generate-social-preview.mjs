@@ -30,6 +30,11 @@ const html = String.raw`<!doctype html>
 
       * { box-sizing: border-box; }
 
+      :root {
+        /* GitHub's 40 pt repo-card safe area is 80 px in the 1280×640 template. */
+        --safe-inset: 80px;
+      }
+
       html, body {
         width: 1280px;
         height: 640px;
@@ -63,8 +68,8 @@ const html = String.raw`<!doctype html>
       .content {
         position: absolute;
         z-index: 6;
-        top: 49px;
-        left: 48px;
+        top: var(--safe-inset);
+        left: var(--safe-inset);
         width: 360px;
       }
 
@@ -124,10 +129,10 @@ const html = String.raw`<!doctype html>
       .preview-shadow {
         position: absolute;
         z-index: 1;
-        top: 84px;
-        right: 22px;
-        width: 830px;
-        height: 510px;
+        top: 96px;
+        right: var(--safe-inset);
+        width: 760px;
+        height: 459px;
         background: #008dff;
         filter: blur(68px);
         opacity: 0.3;
@@ -136,10 +141,10 @@ const html = String.raw`<!doctype html>
       .preview {
         position: absolute;
         z-index: 3;
-        top: 62px;
-        right: 28px;
-        width: 824px;
-        height: 515px;
+        top: var(--safe-inset);
+        right: var(--safe-inset);
+        width: 760px;
+        height: 475px;
         overflow: hidden;
         border: 1px solid rgba(129, 199, 255, 0.5);
         border-radius: 14px;
@@ -167,8 +172,8 @@ const html = String.raw`<!doctype html>
       .footer {
         position: absolute;
         z-index: 7;
-        bottom: 38px;
-        left: 48px;
+        bottom: var(--safe-inset);
+        left: var(--safe-inset);
         color: #718299;
         font-size: 13px;
         font-weight: 700;
