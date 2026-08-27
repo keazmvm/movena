@@ -379,15 +379,32 @@ jobs:
     name: Publish to Microsoft Store
     needs: [build-windows, publish]
     runs-on: windows-latest
-    if: ${{ secrets.STORE_TENANT_ID != '' && secrets.STORE_CLIENT_ID != '' && secrets.STORE_CLIENT_SECRET != '' }}
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: windows-artifacts
           path: windows-artifacts
+      - name: Validate Microsoft Store credentials
+        id: check-store-credentials
+        shell: pwsh
+        env:
+          STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
+          STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}
+          STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}
+        run: |
+          $configured = (-not [string]::IsNullOrWhiteSpace($env:STORE_TENANT_ID)) -and `
+                        (-not [string]::IsNullOrWhiteSpace($env:STORE_CLIENT_ID)) -and `
+                        (-not [string]::IsNullOrWhiteSpace($env:STORE_CLIENT_SECRET))
+          if ($configured) {
+            "has_credentials=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "has_credentials=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
       - name: Setup Microsoft Store Developer CLI
+        if: steps.check-store-credentials.outputs.has_credentials == 'true'
         uses: microsoft/microsoft-store-apppublisher@v1
       - name: Submit to Microsoft Store
+        if: steps.check-store-credentials.outputs.has_credentials == 'true'
         shell: pwsh
         env:
           STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
@@ -401,4 +418,5 @@ jobs:
           & msstore @reconfigArgs
           $msix = (Get-ChildItem -Path "windows-artifacts" -Filter "*.msix" | Select-Object -First 1).FullName
           & msstore publish $msix -id $env:STORE_PRODUCT_ID
+
 
