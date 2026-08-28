@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { downloadMediaStart } = vi.hoisted(() => ({
+const { downloadMediaStart, downloadMediaDelete } = vi.hoisted(() => ({
   downloadMediaStart: vi.fn(),
+  downloadMediaDelete: vi.fn(),
 }));
 
 vi.mock('../../src/api/ipc', () => ({
-  tauriApi: { downloadMediaStart },
+  tauriApi: { downloadMediaStart, downloadMediaDelete },
 }));
 
-import { downloadMediaItem, startMediaDownload, startQueuedDownloads } from '../../src/services/mediaDownload';
+import { deleteDownloadedItem, downloadMediaItem, downloadSeriesSeason, startMediaDownload, startQueuedDownloads } from '../../src/services/mediaDownload';
 import { useDownloadStore } from '../../src/store/useDownloadStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { notify } from '../../src/store/useNotificationStore';
@@ -20,7 +21,8 @@ function activeJobCount() {
 beforeEach(() => {
   localStorage.clear();
   downloadMediaStart.mockReset().mockResolvedValue(undefined);
-  useDownloadStore.setState({ jobs: [] });
+  downloadMediaDelete.mockReset().mockResolvedValue(undefined);
+  useDownloadStore.setState({ jobs: [], downloadedByLibraryId: {} });
   useSettingsStore.getState().resetSettings();
   useSettingsStore.setState({
     maxConcurrentDownloads: 2,
@@ -213,5 +215,75 @@ describe('startQueuedDownloads', () => {
     const states = useDownloadStore.getState().jobs.map((job) => job.state);
     expect(states.filter((state) => state === 'downloading')).toHaveLength(2);
     expect(states.filter((state) => state === 'queued')).toHaveLength(1);
+  });
+});
+
+describe('downloadSeriesSeason', () => {
+  it('queues every downloadable episode and reports how many were started', () => {
+    downloadSeriesSeason('Season 1', [
+      { id: 'ep-1', title: 'Episode 1', type: 'series', streamUrl: 'https://cdn.test/ep1.mp4' },
+      { id: 'ep-2', title: 'Episode 2', type: 'series', streamUrl: 'https://cdn.test/ep2.mp4' },
+    ]);
+
+    expect(downloadMediaStart).toHaveBeenCalledTimes(2);
+    expect(notify.info).toHaveBeenCalledWith('Download Started', '2 episodes from Season 1 queued for download.', undefined, undefined, 'downloads');
+  });
+
+  it('skips an episode already in the downloaded library', () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'ep-1', jobId: 'job-1', filePath: 'C:\\ep1.mp4', fileName: 'ep1.mp4',
+      type: 'series', title: 'Episode 1', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+
+    downloadSeriesSeason('Season 1', [
+      { id: 'ep-1', title: 'Episode 1', type: 'series', streamUrl: 'https://cdn.test/ep1.mp4' },
+      { id: 'ep-2', title: 'Episode 2', type: 'series', streamUrl: 'https://cdn.test/ep2.mp4' },
+    ]);
+
+    expect(downloadMediaStart).toHaveBeenCalledTimes(1);
+    expect(notify.info).toHaveBeenCalledWith('Download Started', '1 episode from Season 1 queued for download.', undefined, undefined, 'downloads');
+  });
+
+  it('skips an episode with no stream url and reports nothing to download once all are unavailable', () => {
+    downloadSeriesSeason('Season 1', [{ id: 'ep-1', title: 'Episode 1', type: 'series' }]);
+
+    expect(downloadMediaStart).not.toHaveBeenCalled();
+    expect(notify.info).toHaveBeenCalledWith('Nothing to Download', 'Every downloadable episode in Season 1 is already saved.', undefined, undefined, 'downloads');
+  });
+});
+
+describe('deleteDownloadedItem', () => {
+  const seedDownloadedMovie = () => useDownloadStore.getState().addDownloadedItem({
+    id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Movie.mp4', fileName: 'Movie.mp4',
+    type: 'vod', title: 'Movie', sizeBytes: 100, downloadedAt: Date.now(),
+  });
+
+  it('returns false without touching the native layer when the id is not downloaded', async () => {
+    const result = await deleteDownloadedItem('missing');
+
+    expect(result).toBe(false);
+    expect(downloadMediaDelete).not.toHaveBeenCalled();
+  });
+
+  it('deletes the file, forgets the catalog entry, and notifies success', async () => {
+    seedDownloadedMovie();
+
+    const result = await deleteDownloadedItem('movie-1');
+
+    expect(result).toBe(true);
+    expect(downloadMediaDelete).toHaveBeenCalledWith({ path: 'C:\\Downloads\\Movie.mp4', directory: undefined });
+    expect(useDownloadStore.getState().downloadedByLibraryId['movie-1']).toBeUndefined();
+    expect(notify.success).toHaveBeenCalledWith('Download Removed', expect.stringContaining('Movie'), undefined, undefined, 'downloads');
+  });
+
+  it('keeps the catalog entry and notifies an error when the native delete rejects', async () => {
+    seedDownloadedMovie();
+    downloadMediaDelete.mockRejectedValueOnce(new Error('file in use'));
+
+    const result = await deleteDownloadedItem('movie-1');
+
+    expect(result).toBe(false);
+    expect(useDownloadStore.getState().downloadedByLibraryId['movie-1']).toBeDefined();
+    expect(notify.error).toHaveBeenCalledWith('Could Not Remove Download', expect.any(String), undefined, undefined, 'downloads');
   });
 });
