@@ -319,6 +319,34 @@
   flex-wrap: nowrap;
 }
 
+.downloadSeasonBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-control);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-control);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.downloadSeasonBtn:hover {
+  background: var(--surface-control-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
 .episodesList {
   display: flex;
   flex-direction: column;
@@ -415,6 +443,21 @@
 .episodeCard:hover .playOverlay,
 .episodeCard:focus-visible .playOverlay {
   opacity: var(--alpha-98);
+}
+
+.episodeDownloadedBadge {
+  position: absolute;
+  top: var(--space-1-5);
+  right: var(--space-1-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: rgba(var(--neutral-black-rgb), var(--alpha-55));
+  color: var(--text-primary);
+  border: 1px solid rgba(var(--neutral-white-rgb), var(--alpha-12));
 }
 
 .episodeProgress {

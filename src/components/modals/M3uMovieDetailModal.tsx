@@ -91,7 +91,7 @@ export function M3uMovieDetailModal({
               <button type="button" className={`${styles.favoriteBtn} ${styles.iconActionButton} ${isFavorite ? styles.activeFavoriteBtn : ''}`} onClick={toggleFavorite} aria-label={t(isFavorite ? 'Remove from favorites' : 'Add to favorites')} aria-pressed={isFavorite}>
                 <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
               </button>
-              <button type="button" className={`${styles.secondaryBtn} ${styles.iconActionButton}`} onClick={() => void downloadMediaItem({ title: parsed.cleanTitle, type: 'vod', streamUrl: entry.url, httpHeaders: entry.headers, containerExtension: entry.url.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i)?.[1] })} aria-label={t('Download movie')}>
+              <button type="button" className={`${styles.secondaryBtn} ${styles.iconActionButton}`} onClick={() => void downloadMediaItem({ id: movieId, title: parsed.cleanTitle, type: 'vod', streamUrl: entry.url, httpHeaders: entry.headers, containerExtension: entry.url.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i)?.[1], posterUrl: entry.logo || moviePoster, description: entry.description })} aria-label={t('Download movie')}>
                 <Download size={18} />
               </button>
             </div>

@@ -149,11 +149,14 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
     const streamUrl = data.movie_data.direct_stream_url
       || (credentials ? getStreamUrl(credentials, 'vod', providerMovieId, data.movie_data.container_extension || 'mp4') : '');
     void downloadMediaItem({
+      id: movieId,
       title: parsedTitle.cleanTitle,
       type: 'vod',
       streamUrl,
       httpHeaders: data.movie_data.http_headers,
       containerExtension: data.movie_data.container_extension,
+      posterUrl: data.info.movie_image || moviePoster,
+      description: data.info.description || data.info.plot,
     });
   };
 

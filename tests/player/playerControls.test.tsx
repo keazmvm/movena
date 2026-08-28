@@ -8,6 +8,7 @@ import { VolumeControl } from '../../src/components/player/SharedControls';
 import { VodControls } from '../../src/components/player/VodControls';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { useDownloadStore } from '../../src/store/useDownloadStore';
 
 const native = vi.hoisted(() => ({
   mpvPlayPause: vi.fn().mockResolvedValue(undefined),
@@ -44,6 +45,7 @@ function withQueryClient(component: React.ReactNode) {
 beforeEach(() => {
   for (const mock of Object.values(native)) mock.mockClear();
   for (const mock of Object.values(imageSettings)) mock.mockClear();
+  useDownloadStore.setState({ jobs: [], downloadedByLibraryId: {} });
   usePlayerStore.setState({
     activeStream: null,
     isPlaying: false,
@@ -175,5 +177,28 @@ describe('player control variants', () => {
     expect(native.mpvSeek).toHaveBeenCalledWith(65);
     expect(usePlayerStore.getState().currentTime).toBe(65);
     expect(usePlayerStore.getState().isBuffering).toBe(true);
+  });
+
+  it('offers to download a title that is streaming live from the provider', () => {
+    usePlayerStore.setState({
+      activeStream: { id: 'movie-1', title: 'A Movie', type: 'vod', streamUrl: 'https://provider.test/movie.mp4' },
+    });
+    withQueryClient(<VodControls />);
+    expect(screen.getByRole('button', { name: 'Download current media' })).toBeTruthy();
+  });
+
+  it('hides the download button once playing straight from a completed download', () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Movie.mp4', fileName: 'Movie.mp4',
+      type: 'vod', title: 'A Movie', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+    usePlayerStore.setState({
+      activeStream: { id: 'movie-1', title: 'A Movie', type: 'vod', streamUrl: 'C:\\Downloads\\Movie.mp4' },
+    });
+
+    withQueryClient(<VodControls />);
+
+    expect(screen.queryByRole('button', { name: 'Download current media' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Downloading current media' })).toBeNull();
   });
 });

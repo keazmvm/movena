@@ -1,15 +1,20 @@
 // @vitest-environment happy-dom
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn().mockResolvedValue(undefined), isTauri: () => false }));
+
 import { Downloads } from '../../src/pages/Downloads';
 import { useDownloadStore } from '../../src/store/useDownloadStore';
+import { usePlayerStore } from '../../src/store/usePlayerStore';
 
 describe('Downloads page', () => {
   beforeEach(() => {
-    useDownloadStore.setState({ jobs: [] });
+    useDownloadStore.setState({ jobs: [], downloadedByLibraryId: {} });
+    usePlayerStore.setState({ activeStream: null });
   });
 
   it('explains where player downloads appear when the queue is empty', () => {
@@ -67,5 +72,52 @@ describe('Downloads page', () => {
 
     expect(screen.getByRole('button', { name: 'Pause Movie.mp4' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Cancel Movie.mp4' })).toBeTruthy();
+  });
+
+  it('lists a downloaded movie under Movies and plays it straight from disk on click', async () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Dune.mp4', fileName: 'Dune.mp4',
+      type: 'vod', title: 'Dune', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+    const user = userEvent.setup();
+    render(<MemoryRouter><Downloads /></MemoryRouter>);
+
+    expect(screen.getByRole('heading', { name: 'Movies' })).toBeTruthy();
+    await user.click(screen.getByRole('heading', { name: 'Dune' }));
+
+    expect(usePlayerStore.getState().activeStream).toMatchObject({ id: 'movie-1', streamUrl: 'C:\\Downloads\\Dune.mp4' });
+  });
+
+  it('groups downloaded episodes under one series card and opens its episode list', async () => {
+    useDownloadStore.setState({
+      jobs: [],
+      downloadedByLibraryId: {
+        'ep-1': { id: 'ep-1', jobId: 'job-1', filePath: 'C:\\ep1.mp4', fileName: 'ep1.mp4', type: 'series', title: 'Show S1E1', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 1, episodeTitle: 'Pilot', sizeBytes: 100, downloadedAt: 1 },
+        'ep-2': { id: 'ep-2', jobId: 'job-2', filePath: 'C:\\ep2.mp4', fileName: 'ep2.mp4', type: 'series', title: 'Show S1E2', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 2, episodeTitle: 'Episode Two', sizeBytes: 100, downloadedAt: 2 },
+      },
+    });
+    const user = userEvent.setup();
+    render(<MemoryRouter><Downloads /></MemoryRouter>);
+
+    expect(screen.getByRole('heading', { name: 'Series' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Movies' })).toBeNull();
+    await user.click(screen.getByRole('heading', { name: 'Show' }));
+
+    expect(await screen.findByText('E1 · Pilot')).toBeTruthy();
+    expect(screen.getByText('E2 · Episode Two')).toBeTruthy();
+  });
+
+  it('deletes a downloaded movie from disk and drops it from the grid', async () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Dune.mp4', fileName: 'Dune.mp4',
+      type: 'vod', title: 'Dune', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+    const user = userEvent.setup();
+    render(<MemoryRouter><Downloads /></MemoryRouter>);
+
+    await user.click(screen.getByRole('button', { name: 'Remove Download' }));
+
+    await waitFor(() => expect(screen.queryByText('Dune')).toBeNull());
+    expect(useDownloadStore.getState().downloadedByLibraryId['movie-1']).toBeUndefined();
   });
 });

@@ -510,6 +510,16 @@
   color: var(--color-success);
 }
 
+.listDownloaded {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--accent-color);
+}
+
 .listActions {
   display: flex;
   align-items: center;
@@ -668,6 +678,27 @@
 
 .posterWrapperLive .watchedBadgeBelowChannel {
   top: var(--space-6);
+}
+
+.downloadedBadge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  background: rgba(var(--neutral-black-rgb), var(--alpha-55));
+  color: var(--text-primary);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid rgba(var(--neutral-white-rgb), var(--alpha-12));
+  z-index: 3;
+}
+
+.downloadedBadgeNextToWatched {
+  left: calc(var(--space-2) + 22px + var(--space-1));
 }
 
 .posterWrapperLiveTvGrid {

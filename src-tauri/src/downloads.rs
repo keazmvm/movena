@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex,
@@ -345,9 +345,64 @@ pub(crate) async fn download_media_cancel(
     Ok(())
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct DeleteDownloadOptions {
+    #[serde(default)]
+    directory: Option<String>,
+    path: String,
+}
+
+/// Resolves `target` to a canonical path and requires it to live inside
+/// `downloads_dir` (also canonicalized) before anything may delete it.
+/// Pulled out of `download_media_delete` so this safety check is testable
+/// without a full Tauri `AppHandle`.
+fn resolve_delete_target(downloads_dir: &Path, target: &Path) -> Result<PathBuf, String> {
+    let canonical_downloads_dir = downloads_dir
+        .canonicalize()
+        .map_err(|_| "The downloads directory could not be resolved".to_string())?;
+    let canonical_target = target
+        .canonicalize()
+        .map_err(|_| "The file no longer exists".to_string())?;
+    if !canonical_target.starts_with(&canonical_downloads_dir) {
+        return Err("Refusing to delete a file outside the downloads directory".to_string());
+    }
+    Ok(canonical_target)
+}
+
+/// Permanently deletes a completed download's file from disk. Unlike
+/// cancelling an in-flight job, this frees real space — so the target is
+/// required to resolve inside the (possibly configured) downloads
+/// directory before anything is removed, the same directory
+/// `download_target` resolves downloads into.
+#[tauri::command(async)]
+pub(crate) async fn download_media_delete(
+    app: tauri::AppHandle,
+    options: DeleteDownloadOptions,
+) -> Result<(), String> {
+    let downloads_dir = match options
+        .directory
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        Some(value) => PathBuf::from(value),
+        None => app
+            .path()
+            .download_dir()
+            .map_err(|error| error.to_string())?,
+    };
+    let target = resolve_delete_target(&downloads_dir, &PathBuf::from(&options.path))?;
+    std::fs::remove_file(&target).map_err(|error| error.to_string())?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::valid_download_id;
+    use super::{resolve_delete_target, valid_download_id};
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn accepts_opaque_download_ids_at_the_documented_boundary() {
@@ -361,5 +416,79 @@ mod tests {
             assert!(!valid_download_id(value), "accepted invalid id: {value}");
         }
         assert!(!valid_download_id(&"a".repeat(121)));
+    }
+
+    /// A uniquely-named directory under the OS temp dir, removed on drop.
+    /// Rust runs `#[test]`s concurrently, so each test gets its own tree.
+    struct TempDir(PathBuf);
+
+    impl TempDir {
+        fn new(label: &str) -> Self {
+            let nanos = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            let path = std::env::temp_dir().join(format!(
+                "movena-download-test-{}-{label}-{nanos}",
+                std::process::id()
+            ));
+            fs::create_dir_all(&path).unwrap();
+            Self(path)
+        }
+    }
+
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    #[test]
+    fn allows_deleting_a_file_inside_the_downloads_directory() {
+        let downloads = TempDir::new("downloads-ok");
+        let file = downloads.0.join("movie.mp4");
+        fs::write(&file, b"data").unwrap();
+
+        assert_eq!(
+            resolve_delete_target(&downloads.0, &file).unwrap(),
+            file.canonicalize().unwrap()
+        );
+    }
+
+    #[test]
+    fn refuses_to_delete_a_file_outside_the_downloads_directory() {
+        let downloads = TempDir::new("downloads-scope");
+        let outside = TempDir::new("outside-scope");
+        let file = outside.0.join("secret.txt");
+        fs::write(&file, b"data").unwrap();
+
+        let error = resolve_delete_target(&downloads.0, &file).unwrap_err();
+        assert!(error.contains("outside the downloads directory"));
+    }
+
+    #[test]
+    fn refuses_a_traversal_path_that_climbs_back_out_of_the_downloads_directory() {
+        let downloads = TempDir::new("downloads-traversal");
+        let outside = TempDir::new("outside-traversal");
+        let file = outside.0.join("secret.txt");
+        fs::write(&file, b"data").unwrap();
+        // Both temp dirs are siblings under the OS temp root, so climbing one
+        // level out of `downloads` and back into `outside`'s own name reaches
+        // the same file `../<outside-dir-name>/secret.txt` would on disk.
+        let traversal_path = downloads
+            .0
+            .join("..")
+            .join(outside.0.file_name().unwrap())
+            .join("secret.txt");
+
+        let error = resolve_delete_target(&downloads.0, &traversal_path).unwrap_err();
+        assert!(error.contains("outside the downloads directory"));
+    }
+
+    #[test]
+    fn reports_a_missing_file_instead_of_panicking() {
+        let downloads = TempDir::new("downloads-missing");
+        let missing = downloads.0.join("gone.mp4");
+        assert!(resolve_delete_target(&downloads.0, &missing).is_err());
     }
 }

@@ -1,10 +1,12 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Heart, MonitorPlay, Play } from 'lucide-react';
+import { Download, HardDriveDownload, Heart, MonitorPlay, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getM3uSeriesGroups } from '../../api/m3u';
 import { useSourceStore } from '../../store/useSourceStore';
 import { useLibraryStore } from '../../store/useLibraryStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
+import { useDownloadStore } from '../../store/useDownloadStore';
+import { downloadSeriesSeason, type DownloadableMediaItem } from '../../services/mediaDownload';
 import { DetailModalShell } from '../common/DetailModalShell';
 import { ErrorState } from '../common/ErrorState';
 import { parseEpisodeTitle, parseMediaDisplayTitle, formatEpisodePlaybackTitle } from '../../utils/titleParser';
@@ -13,6 +15,7 @@ import { useI18n } from '../../i18n';
 import { SeriesUpcomingEpisodes } from '../upcoming/SeriesUpcomingEpisodes';
 import { episodeScheduleKey } from '../../utils/upcoming';
 import { Select } from '../shared/Select';
+import { playableFromDownloadedItem } from '../../utils/playback';
 
 interface M3uSeriesDetailModalProps {
   seriesId: string;
@@ -48,6 +51,7 @@ export function M3uSeriesDetailModal({
   const addFavorite = useLibraryStore((state) => state.addFavorite);
   const removeFavorite = useLibraryStore((state) => state.removeFavorite);
   const historyItem = useLibraryStore((state) => state.history.find((item) => item.id === seriesId));
+  const downloadedByLibraryId = useDownloadStore((state) => state.downloadedByLibraryId);
   const parsedSeries = parseMediaDisplayTitle(seriesTitle);
   const [selectedSeason, setSelectedSeason] = useState('');
   const requestedEpisodeRef = useRef<HTMLButtonElement>(null);
@@ -110,6 +114,15 @@ export function M3uSeriesDetailModal({
     return <DetailModalShell onClose={onClose} ariaLabel="Series details" stateLayout><ErrorState modal title="Series unavailable" description="This playlist series is no longer available. Refresh the source and try again." detail={`No playable M3U series episodes matched item "${sourceItemId || seriesId}" in source "${sourceId}".`} actionLabel="Close" onAction={onClose} /></DetailModalShell>;
   }
   const play = (entry: typeof episodes[number], startPosition = 0) => {
+    // A downloaded episode plays straight from disk — instantly, online or
+    // offline — skipping the playlist URL entirely.
+    const downloaded = downloadedByLibraryId[entry.id];
+    if (downloaded) {
+      playStream(playableFromDownloadedItem(downloaded, startPosition));
+      onClose();
+      return;
+    }
+
     const episode = entry.episode!;
     const parsedEpisode = parseEpisodeTitle(entry.title, { seriesTitle: parsedSeries.cleanTitle, seasonNum: episode.seasonNumber, episodeNum: episode.episodeNumber });
     playStream({
@@ -121,6 +134,30 @@ export function M3uSeriesDetailModal({
       knownDuration: entry.duration > 0 ? entry.duration : historyItem?.duration,
     });
     onClose();
+  };
+
+  const handleDownloadSeason = () => {
+    const episodesToDownload: DownloadableMediaItem[] = visibleEpisodes.map((entry) => {
+      const episode = entry.episode!;
+      const parsedEpisode = parseEpisodeTitle(entry.title, { seriesTitle: parsedSeries.cleanTitle, seasonNum: episode.seasonNumber, episodeNum: episode.episodeNumber });
+      return {
+        id: entry.id,
+        title: formatEpisodePlaybackTitle(parsedSeries.cleanTitle, String(episode.seasonNumber), episode.episodeNumber, parsedEpisode.cleanTitle),
+        type: 'series',
+        streamUrl: entry.url,
+        httpHeaders: entry.headers,
+        posterUrl: entry.logo || seriesPoster,
+        description: entry.description,
+        seriesId,
+        seriesSourceItemId: sourceItemId || seriesId,
+        seriesTitle: parsedSeries.cleanTitle,
+        seriesPosterUrl: seriesPoster,
+        seasonNum: String(episode.seasonNumber),
+        episodeNum: episode.episodeNumber,
+        episodeTitle: parsedEpisode.cleanTitle,
+      };
+    });
+    downloadSeriesSeason(`Season ${selectedSeason}`, episodesToDownload);
   };
   return (
     <DetailModalShell onClose={onClose} labelledBy={titleId}>
@@ -149,12 +186,19 @@ export function M3uSeriesDetailModal({
           <section className={styles.episodeSection} aria-label={t('Episodes')}>
             <div className={styles.episodeBrowserHeader}>
               <Select value={selectedSeason} options={seasonOptions} onChange={setSelectedSeason} width={180} />
+              {visibleEpisodes.length > 0 && (
+                <button type="button" className={styles.downloadSeasonBtn} onClick={handleDownloadSeason}>
+                  <Download size={14} />
+                  <span>{t('Download Season')}</span>
+                </button>
+              )}
             </div>
             <div className={styles.episodesList}>{visibleEpisodes.map((entry) => {
               const episode = entry.episode!;
               const isRequestedEpisode = initialEpisodeNumber === episode.episodeNumber
                 && (!initialSeasonNumber || initialSeasonNumber === episode.seasonNumber);
-              return <button type="button" key={entry.id} ref={isRequestedEpisode ? requestedEpisodeRef : undefined} className={`${styles.episodeCard} ${isRequestedEpisode ? styles.requestedEpisodeCard : ''}`} onClick={() => play(entry)} aria-current={isRequestedEpisode ? 'true' : undefined} aria-label={t('Play season {season}, episode {episode}', { season: number(episode.seasonNumber), episode: number(episode.episodeNumber) })}><div className={styles.episodeImageWrapper}>{entry.logo ? <img src={entry.logo} alt="" className={styles.episodeImage} /> : <MonitorPlay size={22} />}</div><div className={styles.episodeInfo}><div className={styles.episodeHeaderLine}><span className={styles.episodeBadge}>E{episode.episodeNumber}</span><span className={styles.episodeTitle}>{episode.episodeTitle || entry.title}</span></div>{entry.description && <p className={styles.episodePlot}>{entry.description}</p>}</div><Play size={18} /></button>;
+              const isDownloaded = Boolean(downloadedByLibraryId[entry.id]);
+              return <button type="button" key={entry.id} ref={isRequestedEpisode ? requestedEpisodeRef : undefined} className={`${styles.episodeCard} ${isRequestedEpisode ? styles.requestedEpisodeCard : ''}`} onClick={() => play(entry)} aria-current={isRequestedEpisode ? 'true' : undefined} aria-label={t('Play season {season}, episode {episode}', { season: number(episode.seasonNumber), episode: number(episode.episodeNumber) })}><div className={styles.episodeImageWrapper}>{entry.logo ? <img src={entry.logo} alt="" className={styles.episodeImage} /> : <MonitorPlay size={22} />}{isDownloaded && <span className={styles.episodeDownloadedBadge} title={t('Downloaded')}><HardDriveDownload size={13} /></span>}</div><div className={styles.episodeInfo}><div className={styles.episodeHeaderLine}><span className={styles.episodeBadge}>E{episode.episodeNumber}</span><span className={styles.episodeTitle}>{episode.episodeTitle || entry.title}</span></div>{entry.description && <p className={styles.episodePlot}>{entry.description}</p>}</div><Play size={18} /></button>;
             })}
               <SeriesUpcomingEpisodes
                 seriesId={seriesId}

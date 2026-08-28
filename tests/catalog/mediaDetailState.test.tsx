@@ -6,6 +6,8 @@ import { MediaDetailModals } from '../../src/components/modals/MediaDetailModals
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 import { useSourceStore } from '../../src/store/useSourceStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
+import { useDownloadStore } from '../../src/store/useDownloadStore';
+import { useLibraryStore } from '../../src/store/useLibraryStore';
 import type { MediaItem } from '../../src/components/catalog/MediaCard';
 
 // Mock detail modals to keep tests lightweight and fast
@@ -33,6 +35,8 @@ describe('useMediaDetailState hook', () => {
     usePlayerStore.setState({ activeStream: null });
     useAuthStore.setState({ profiles: [], runtimes: {} });
     useSourceStore.setState({ profiles: [], enabledSourceIds: [], runtimes: {} });
+    useDownloadStore.setState({ jobs: [], downloadedByLibraryId: {} });
+    useLibraryStore.setState({ history: [] });
   });
 
   it('routes movies to selectedMovie and closes cleanly', () => {
@@ -108,6 +112,44 @@ describe('useMediaDetailState hook', () => {
       title: 'Sky Sports',
       type: 'live',
     });
+  });
+
+  it('plays a downloaded movie straight from disk instead of opening its detail modal', () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'm1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
+      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+    const { result } = renderHook(() => useMediaDetailState());
+    const movieItem: MediaItem = { id: 'm1', title: 'Inception', posterUrl: '', type: 'vod' };
+
+    act(() => {
+      result.current.handleItemClick(movieItem);
+    });
+
+    expect(result.current.selectedMovie).toBeNull();
+    expect(result.current.selectedSeries).toBeNull();
+    expect(usePlayerStore.getState().activeStream).toMatchObject({
+      id: 'm1',
+      streamUrl: 'C:\\Downloads\\Inception.mp4',
+      type: 'vod',
+    });
+  });
+
+  it('resumes a downloaded movie from its saved watch history position', () => {
+    useDownloadStore.getState().addDownloadedItem({
+      id: 'm1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
+      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+    });
+    useLibraryStore.setState({
+      history: [{ id: 'm1', title: 'Inception', posterUrl: '', type: 'vod', progressPercentage: 40, lastWatchedAt: Date.now(), currentTime: 543 }],
+    });
+    const { result } = renderHook(() => useMediaDetailState());
+
+    act(() => {
+      result.current.handleItemClick({ id: 'm1', title: 'Inception', posterUrl: '', type: 'vod' });
+    });
+
+    expect(usePlayerStore.getState().activeStream).toMatchObject({ startPosition: 543 });
   });
 
   it('enables source when enableSourceOnOpen is true', () => {

@@ -80,6 +80,11 @@ export interface DownloadMediaOptions {
   directory?: string | undefined;
 }
 
+export interface DeleteDownloadOptions {
+  path: string;
+  directory?: string | undefined;
+}
+
 export type MpvPropertyUpdate =
   | { property: 'video-aspect-override'; value: '-2' | '16:9' | '4:3' | '1:1' | '5:4' }
   | { property: 'keepaspect' | 'video-unscaled'; value: 'yes' | 'no' }
@@ -170,6 +175,8 @@ export const tauriApi = {
   downloadMediaPause: (id: string) => invoke<void>('download_media_pause', { id }),
   downloadMediaResume: (id: string) => invoke<void>('download_media_resume', { id }),
   downloadMediaCancel: (id: string) => invoke<void>('download_media_cancel', { id }),
+  /** Permanently deletes a completed download's file from disk. */
+  downloadMediaDelete: (options: DeleteDownloadOptions) => invoke<void>('download_media_delete', { options }),
 
   /** Read a user-selected local M3U and report its base directory URL. */
   m3uReadFile: (path: string) => invoke<M3uDocument>('m3u_read_file', { path }),
