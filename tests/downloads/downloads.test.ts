@@ -4,12 +4,16 @@ import {
   canTransitionDownloadJob,
   createCollisionSafeFileName,
   createDownloadJob,
+  groupDownloadedSeries,
+  normalizeDownloadedItem,
+  normalizeDownloadedItems,
   normalizeDownloadJob,
   normalizeDownloadProgress,
   retryDownloadJob,
   sanitizeDownloadFileName,
   transitionDownloadJob,
   updateDownloadProgress,
+  type DownloadedItem,
 } from '../../src/utils/downloads';
 import { migrateDownloadState } from '../../src/store/useDownloadStore';
 import { useDownloadStore } from '../../src/store/useDownloadStore';
@@ -153,5 +157,101 @@ describe('download domain helpers', () => {
       state: 'downloading', downloadedBytes: 12, totalBytes: 100,
     }] });
     expect(migrated.jobs).toEqual([]);
+  });
+
+  it('carries the downloaded library forward across the v3 -> v4 migration, defaulting when absent', () => {
+    expect(migrateDownloadState(undefined).downloadedByLibraryId).toEqual({});
+    expect(migrateDownloadState({ jobs: [] }).downloadedByLibraryId).toEqual({});
+
+    const migrated = migrateDownloadState({
+      jobs: [],
+      downloadedByLibraryId: { 'movie-1': { id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Movie.mp4', fileName: 'Movie.mp4', type: 'vod', title: 'Movie', sizeBytes: 100, downloadedAt: 1 } },
+    });
+    expect(migrated.downloadedByLibraryId['movie-1']).toMatchObject({ id: 'movie-1', title: 'Movie' });
+  });
+});
+
+describe('downloaded item normalization', () => {
+  const validItem: DownloadedItem = {
+    id: 'movie-1',
+    jobId: 'job-1',
+    filePath: 'C:\\Downloads\\Movie.mp4',
+    fileName: 'Movie.mp4',
+    type: 'vod',
+    title: 'Movie',
+    sizeBytes: 1_000_000,
+    downloadedAt: 1700000000000,
+  };
+
+  it('rejects malformed required fields', () => {
+    expect(normalizeDownloadedItem(null)).toBeNull();
+    expect(normalizeDownloadedItem({ ...validItem, id: '' })).toBeNull();
+    expect(normalizeDownloadedItem({ ...validItem, filePath: '   ' })).toBeNull();
+    expect(normalizeDownloadedItem({ ...validItem, type: 'live' })).toBeNull();
+  });
+
+  it('keeps a valid item and sanitizes optional fields', () => {
+    const normalized = normalizeDownloadedItem({
+      ...validItem,
+      tags: ['4K', '', 42, 'HDR'],
+      country: null,
+      seasonNum: 2,
+      episodeNum: '05',
+    });
+    expect(normalized).toMatchObject({
+      id: 'movie-1',
+      filePath: 'C:\\Downloads\\Movie.mp4',
+      tags: ['4K', 'HDR'],
+      country: null,
+      seasonNum: 2,
+      episodeNum: '05',
+    });
+  });
+
+  it('never resurrects provider headers or a raw stream url smuggled onto a persisted record', () => {
+    const normalized = normalizeDownloadedItem({ ...validItem, headers: { Authorization: 'secret' }, sourceUrl: 'https://provider.test/stream' });
+    expect(normalized).not.toHaveProperty('headers');
+    expect(normalized).not.toHaveProperty('sourceUrl');
+  });
+
+  it('drops records whose key does not match their own id when normalizing a persisted map', () => {
+    const map = normalizeDownloadedItems({
+      'movie-1': validItem,
+      'movie-2': { ...validItem, id: 'movie-1' }, // key/id mismatch — dropped
+      'movie-3': { not: 'a valid item' },
+    });
+    expect(Object.keys(map)).toEqual(['movie-1']);
+  });
+});
+
+describe('groupDownloadedSeries', () => {
+  const episode = (overrides: Partial<DownloadedItem>): DownloadedItem => ({
+    id: 'ep-1', jobId: 'job-1', filePath: 'C:\\ep.mp4', fileName: 'ep.mp4',
+    type: 'series', title: 'Show S1E1', sizeBytes: 1, downloadedAt: 1,
+    ...overrides,
+  });
+
+  it('groups episodes by seriesId and ignores movies', () => {
+    const groups = groupDownloadedSeries([
+      episode({ id: 'ep-1', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 1, downloadedAt: 10 }),
+      episode({ id: 'ep-2', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 2, downloadedAt: 20 }),
+      episode({ id: 'movie-1', type: 'vod', title: 'A Movie' }),
+    ]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]).toMatchObject({ seriesId: 'show-1', seriesTitle: 'Show', latestDownloadedAt: 20 });
+    expect(groups[0]!.episodes).toHaveLength(2);
+  });
+
+  it('falls back to its own id for an episode downloaded without series linkage', () => {
+    const groups = groupDownloadedSeries([episode({ id: 'ep-orphan', title: 'Orphan Episode' })]);
+    expect(groups).toEqual([expect.objectContaining({ seriesId: 'ep-orphan', seriesTitle: 'Orphan Episode' })]);
+  });
+
+  it('orders groups by most recently downloaded episode', () => {
+    const groups = groupDownloadedSeries([
+      episode({ id: 'ep-1', seriesId: 'show-old', seriesTitle: 'Old Show', downloadedAt: 5 }),
+      episode({ id: 'ep-2', seriesId: 'show-new', seriesTitle: 'New Show', downloadedAt: 50 }),
+    ]);
+    expect(groups.map((group) => group.seriesId)).toEqual(['show-new', 'show-old']);
   });
 });

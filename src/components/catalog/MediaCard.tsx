@@ -1,14 +1,16 @@
-import { 
-  Play, 
-  Heart, 
-  Check, 
-  Film, 
-  Tv, 
-  Radio
+import {
+  Play,
+  Heart,
+  Check,
+  Film,
+  Tv,
+  Radio,
+  HardDriveDownload,
 } from 'lucide-react';
 import styles from './MediaCard.module.css';
 import { memo, useState, useEffect } from 'react';
 import { useLibraryStore } from '../../store/useLibraryStore';
+import { useDownloadStore } from '../../store/useDownloadStore';
 import { useContextMenu } from '../../hooks/useContextMenu';
 import { parseLiveChannelTitle, parseMediaDisplayTitle } from '../../utils/titleParser';
 import { filterMediaTagsByVisibility, getPrimaryMediaTags, getTagColorType, mergeMediaTags } from '../../utils/mediaTags';
@@ -39,6 +41,12 @@ export interface MediaItem {
   seasonNum?: string | number | undefined;
   episodeNum?: string | number | undefined;
   channelNum?: string | number | undefined;
+  /** Series linkage, present on episode items — same fields `HistoryItem` already carries. */
+  seriesId?: string | undefined;
+  seriesSourceItemId?: string | undefined;
+  seriesTitle?: string | undefined;
+  seriesPosterUrl?: string | undefined;
+  episodeTitle?: string | undefined;
   /** Present when a source has already constructed a directly playable URL. */
   streamUrl?: string | undefined;
   /** HTTP headers required by an extended M3U entry. Never surfaced in diagnostics. */
@@ -140,6 +148,7 @@ function MediaCardComponent({
   // Fine-grained primitive selectors prevent card re-renders when unrelated store data changes
   const isFav = useLibraryStore((s) => s.favorites.some((f) => f.id === item.id)) || Boolean(item.isFavorite);
   const isW = useLibraryStore((s) => (s.watched || []).includes(item.id)) || Boolean(item.isWatched);
+  const isDownloaded = useDownloadStore((s) => Boolean(s.downloadedByLibraryId[item.id]));
 
   // Reset imgError state when virtualized grid item changes
   useEffect(() => {
@@ -290,6 +299,15 @@ function MediaCardComponent({
           </div>
         )}
 
+        {isDownloaded && viewMode !== 'list' && (
+          <div
+            className={`${styles.downloadedBadge} ${isW ? styles.downloadedBadgeNextToWatched : ''}`}
+            title={t('Downloaded')}
+          >
+            <HardDriveDownload size={13} />
+          </div>
+        )}
+
         {showPosterFooter && (
           <div className={styles.posterFooter}>
             <div className={styles.posterTitleRow}>
@@ -423,6 +441,12 @@ function MediaCardComponent({
             {isW && (
               <span className={styles.listWatched} title={t('Watched')}>
                 <Check size={14} />
+              </span>
+            )}
+
+            {isDownloaded && (
+              <span className={styles.listDownloaded} title={t('Downloaded')}>
+                <HardDriveDownload size={14} />
               </span>
             )}
 

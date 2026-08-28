@@ -68,6 +68,18 @@ export function Home() {
       .slice(0, 20);
   }, [movies]);
 
+  const recentSeries = useMemo(() => {
+    return [...series]
+      .sort((a, b) => Number.parseInt(b.added || '0', 10) - Number.parseInt(a.added || '0', 10))
+      .slice(0, 20);
+  }, [series]);
+
+  const popularMovies = useMemo(() => {
+    return [...movies]
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, 20);
+  }, [movies]);
+
   const popularSeries = useMemo(() => {
     return [...series]
       .sort((a, b) => (b.rating || 0) - (a.rating || 0))
@@ -123,6 +135,8 @@ export function Home() {
               <CarouselSkeleton title="Continue Watching" />
             )}
             <CarouselSkeleton title="Recently Added Movies" />
+            <CarouselSkeleton title="Recently Added Series" />
+            <CarouselSkeleton title="Popular Movies" />
             <CarouselSkeleton title="Popular Series" />
             <CarouselSkeleton title="Live TV Channels" isLiveTv />
           </div>
@@ -149,6 +163,18 @@ export function Home() {
             <HorizontalCarousel
               title="Recently Added Movies"
               items={recentMovies}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/movies')}
+            />
+            <HorizontalCarousel
+              title="Recently Added Series"
+              items={recentSeries}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/series')}
+            />
+            <HorizontalCarousel
+              title="Popular Movies"
+              items={popularMovies}
               onItemClick={handleItemClick}
               onSeeAll={() => navigate('/movies')}
             />

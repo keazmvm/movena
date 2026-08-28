@@ -56,6 +56,7 @@ describe('typed Tauri IPC wrapper', () => {
     ['downloadMediaPause', ['job-1'], 'download_media_pause', { id: 'job-1' }],
     ['downloadMediaResume', ['job-1'], 'download_media_resume', { id: 'job-1' }],
     ['downloadMediaCancel', ['job-1'], 'download_media_cancel', { id: 'job-1' }],
+    ['downloadMediaDelete', [{ path: 'C:\\Downloads\\movie.mp4' }], 'download_media_delete', { options: { path: 'C:\\Downloads\\movie.mp4' } }],
     ['m3uReadFile', ['C:\\list.m3u'], 'm3u_read_file', { path: 'C:\\list.m3u' }],
     ['m3uWriteFile', ['C:\\list.m3u', '#EXTM3U\n'], 'm3u_write_file', { path: 'C:\\list.m3u', content: '#EXTM3U\n' }],
     ['m3uCacheLoad', ['m3u-source'], 'm3u_cache_load', { sourceId: 'm3u-source' }],

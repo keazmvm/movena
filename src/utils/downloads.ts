@@ -378,3 +378,151 @@ export function retryDownloadJob(job: DownloadJob, now = Date.now()): DownloadJo
 export function cancelDownloadJob(job: DownloadJob, reason?: unknown, now = Date.now()): DownloadJob | null {
   return transitionDownloadJob(job, { type: 'cancel', reason }, now);
 }
+
+/**
+ * A completed download's permanent catalog snapshot: enough metadata to
+ * render and play the file with zero network/provider access. Persisted
+ * indefinitely (unlike `DownloadJob`), so — like the job it came from — it
+ * must never carry provider headers or an unresolved remote `sourceUrl`.
+ */
+export interface DownloadedItem {
+  /** Same library id used for favorites/history/watched, so lookups line up. */
+  id: string;
+  jobId: string;
+  filePath: string;
+  fileName: string;
+  type: 'vod' | 'series';
+  title: string;
+  posterUrl?: string | undefined;
+  description?: string | undefined;
+  tags?: string[] | undefined;
+  country?: string | null | undefined;
+  sizeBytes: number;
+  downloadedAt: number;
+  // Series linkage — undefined for movies.
+  seriesId?: string | undefined;
+  seriesSourceItemId?: string | undefined;
+  seriesTitle?: string | undefined;
+  seriesPosterUrl?: string | undefined;
+  seasonNum?: string | number | undefined;
+  episodeNum?: string | number | undefined;
+  episodeTitle?: string | undefined;
+}
+
+const MAX_TEXT_LENGTH = 500;
+const MAX_TAGS = 16;
+
+function safeText(value: unknown, maxLength = MAX_TEXT_LENGTH): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, maxLength) : undefined;
+}
+
+function safeStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const entries = value
+    .filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
+    .slice(0, MAX_TAGS)
+    .map((entry) => entry.trim().slice(0, 64));
+  return entries.length > 0 ? entries : undefined;
+}
+
+function safeSeasonOrEpisodeNum(value: unknown): string | number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const text = safeText(value, 32);
+  return text;
+}
+
+function isDownloadedMediaType(value: unknown): value is DownloadedItem['type'] {
+  return value === 'vod' || value === 'series';
+}
+
+/**
+ * Validates and repairs a persisted downloaded-item record. Required
+ * identity/playback fields missing or malformed return null; everything
+ * else is safely normalized or dropped.
+ */
+export function normalizeDownloadedItem(input: unknown): DownloadedItem | null {
+  if (!isRecord(input)) return null;
+
+  const id = safeText(input.id, 200);
+  const jobId = safeText(input.jobId, 200);
+  const filePath = safeText(input.filePath, 4096);
+  const fileName = safeText(input.fileName);
+  const title = safeText(input.title);
+  const type = isDownloadedMediaType(input.type) ? input.type : null;
+  if (!id || !jobId || !filePath || !fileName || !title || !type) return null;
+
+  const sizeBytes = nonNegativeInteger(input.sizeBytes);
+  const downloadedAt = safeTimestamp(input.downloadedAt, Date.now());
+
+  return {
+    id,
+    jobId,
+    filePath,
+    fileName: sanitizeDownloadFileName(fileName),
+    type,
+    title,
+    ...(safeText(input.posterUrl, 2048) ? { posterUrl: safeText(input.posterUrl, 2048) } : {}),
+    ...(safeText(input.description, 2000) ? { description: safeText(input.description, 2000) } : {}),
+    ...(safeStringArray(input.tags) ? { tags: safeStringArray(input.tags) } : {}),
+    ...(input.country === null ? { country: null } : (safeText(input.country, 100) ? { country: safeText(input.country, 100) } : {})),
+    sizeBytes,
+    downloadedAt,
+    ...(safeText(input.seriesId, 200) ? { seriesId: safeText(input.seriesId, 200) } : {}),
+    ...(safeText(input.seriesSourceItemId, 200) ? { seriesSourceItemId: safeText(input.seriesSourceItemId, 200) } : {}),
+    ...(safeText(input.seriesTitle) ? { seriesTitle: safeText(input.seriesTitle) } : {}),
+    ...(safeText(input.seriesPosterUrl, 2048) ? { seriesPosterUrl: safeText(input.seriesPosterUrl, 2048) } : {}),
+    ...(safeSeasonOrEpisodeNum(input.seasonNum) !== undefined ? { seasonNum: safeSeasonOrEpisodeNum(input.seasonNum) } : {}),
+    ...(safeSeasonOrEpisodeNum(input.episodeNum) !== undefined ? { episodeNum: safeSeasonOrEpisodeNum(input.episodeNum) } : {}),
+    ...(safeText(input.episodeTitle) ? { episodeTitle: safeText(input.episodeTitle) } : {}),
+  };
+}
+
+/** The catalog snapshot captured *before* a download completes — everything a `DownloadedItem` needs except transport/completion facts only the finished job can supply. */
+export type DownloadItemMetadata = Omit<DownloadedItem, 'jobId' | 'filePath' | 'fileName' | 'sizeBytes' | 'downloadedAt'>;
+
+/** Normalizes a whole persisted map, dropping any record that fails validation. */
+export function normalizeDownloadedItems(input: unknown): Record<string, DownloadedItem> {
+  if (!isRecord(input)) return {};
+  const result: Record<string, DownloadedItem> = {};
+  for (const [key, value] of Object.entries(input)) {
+    const item = normalizeDownloadedItem(value);
+    if (item && item.id === key) result[key] = item;
+  }
+  return result;
+}
+
+export interface DownloadedSeriesGroup {
+  /** The series' own library id when known, else a per-item fallback so an
+   *  episode downloaded without series linkage still gets its own tile. */
+  seriesId: string;
+  seriesTitle: string;
+  seriesPosterUrl?: string | undefined;
+  episodes: DownloadedItem[];
+  latestDownloadedAt: number;
+}
+
+/** Groups downloaded episodes by series, newest download first. */
+export function groupDownloadedSeries(items: Iterable<DownloadedItem>): DownloadedSeriesGroup[] {
+  const groups = new Map<string, DownloadedSeriesGroup>();
+  for (const item of items) {
+    if (item.type !== 'series') continue;
+    const key = item.seriesId || item.id;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.episodes.push(item);
+      existing.latestDownloadedAt = Math.max(existing.latestDownloadedAt, item.downloadedAt);
+      if (!existing.seriesPosterUrl && item.seriesPosterUrl) existing.seriesPosterUrl = item.seriesPosterUrl;
+    } else {
+      groups.set(key, {
+        seriesId: key,
+        seriesTitle: item.seriesTitle || item.title,
+        seriesPosterUrl: item.seriesPosterUrl || item.posterUrl,
+        episodes: [item],
+        latestDownloadedAt: item.downloadedAt,
+      });
+    }
+  }
+  return Array.from(groups.values()).sort((a, b) => b.latestDownloadedAt - a.latestDownloadedAt);
+}

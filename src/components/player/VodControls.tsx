@@ -15,6 +15,7 @@ import { formatTime } from '../../utils/time';
 import { applySbsTo2d } from './aspect';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useDownloadStore } from '../../store/useDownloadStore';
 import { StateIcon } from '../common/StateIcon';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
 import { type XCEpisode } from '../../api/xc';
@@ -165,6 +166,10 @@ export function VodControls() {
   const showEpisodesDrawer = usePlayerStore((s) => s.showEpisodesDrawer);
   const setShowEpisodesDrawer = usePlayerStore((s) => s.setShowEpisodesDrawer);
   const [isDownloading, setIsDownloading] = useState(false);
+  // Playing straight from a completed download already — its `streamUrl` is
+  // the local file path, not a fetchable source, so offering to download it
+  // again would just fail. See playableFromDownloadedItem in utils/playback.
+  const isPlayingDownload = useDownloadStore((s) => activeStream ? Boolean(s.downloadedByLibraryId[String(activeStream.id)]) : false);
 
   const seekJumpSecs = useSettingsStore((s) => s.seekJumpSecs);
 
@@ -413,9 +418,11 @@ export function VodControls() {
             </button>
           )}
 
-          <button type="button" className={styles.iconBtn} onClick={downloadCurrent} disabled={isDownloading} aria-label={t(isDownloading ? 'Downloading current media' : 'Download current media')}>
-            <Download size={19} />
-          </button>
+          {!isPlayingDownload && (
+            <button type="button" className={styles.iconBtn} onClick={downloadCurrent} disabled={isDownloading} aria-label={t(isDownloading ? 'Downloading current media' : 'Download current media')}>
+              <Download size={19} />
+            </button>
+          )}
 
           {/* Side-by-side 3D → flat 2D */}
           <button type="button"

@@ -1,10 +1,12 @@
 import { useEffect, useId, useState, useMemo, useRef } from 'react';
-import { CheckCircle2, ChevronDown, ChevronUp, Clock, Heart, MonitorPlay, Play, Settings, Star } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp, Clock, Download, Heart, HardDriveDownload, MonitorPlay, Play, Settings, Star } from 'lucide-react';
 import { getXtreamCredentials, resolveXtreamSourceId, useAuthStore } from '../../store/useAuthStore';
 import { type XCEpisode } from '../../api/xc';
 import { useSeriesInfo } from '../../api/useDetails';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useLibraryStore } from '../../store/useLibraryStore';
+import { useDownloadStore } from '../../store/useDownloadStore';
+import { downloadSeriesSeason, type DownloadableMediaItem } from '../../services/mediaDownload';
 import { formatDurationLabel, formatRemaining } from '../../utils/time';
 import {
   formatEpisodePlaybackTitle,
@@ -20,7 +22,7 @@ import { ErrorState } from '../common/ErrorState';
 import { Select } from '../shared/Select';
 import { getErrorPresentation } from '../../utils/error';
 import styles from './SeriesDetailModal.module.css';
-import { resolveEpisodePlayback } from '../../utils/playback';
+import { playableFromDownloadedItem, resolveEpisodePlayback } from '../../utils/playback';
 import { xtreamItemId } from '../../utils/sourceIdentity';
 import { M3uSeriesDetailModal } from './M3uSeriesDetailModal';
 import { useI18n } from '../../i18n';
@@ -80,6 +82,7 @@ function XtreamSeriesDetailModal({
   const historyItem = useLibraryStore(state => state.history.find(h => h.id === seriesId));
   const watchedIds = useLibraryStore(state => state.watched);
   const remainingLabel = formatRemaining(historyItem?.currentTime, historyItem?.duration, language);
+  const downloadedByLibraryId = useDownloadStore(state => state.downloadedByLibraryId);
 
   const [selectedSeason, setSelectedSeason] = useState<string>('');
   const initialEpisodeRef = useRef<HTMLButtonElement>(null);
@@ -214,6 +217,23 @@ function XtreamSeriesDetailModal({
     customStartPos?: number,
     seasonOverride = selectedSeason,
   ) => {
+    const episodeLibraryId = resolvedSourceId ? xtreamItemId(resolvedSourceId, 'episode', episode.id) : episode.id.toString();
+
+    let startPosition = customStartPos;
+    if (startPosition === undefined) {
+      const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
+      startPosition = isSavedEp ? (historyItem.currentTime || 0) : 0;
+    }
+
+    // A downloaded episode plays straight from disk — instantly, online or
+    // offline — skipping the provider stream entirely.
+    const downloaded = downloadedByLibraryId[episodeLibraryId];
+    if (downloaded) {
+      playStream(playableFromDownloadedItem(downloaded, startPosition));
+      onClose();
+      return;
+    }
+
     const playback = resolveEpisodePlayback(episode, credentials);
     if (!playback) return;
 
@@ -222,12 +242,6 @@ function XtreamSeriesDetailModal({
       seasonNum: seasonOverride,
       episodeNum: episode.episode_num,
     });
-
-    let startPosition = customStartPos;
-    if (startPosition === undefined) {
-      const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
-      startPosition = isSavedEp ? (historyItem.currentTime || 0) : 0;
-    }
 
     playStream({
       id: resolvedSourceId ? xtreamItemId(resolvedSourceId, 'episode', episode.id) : episode.id,
@@ -254,6 +268,36 @@ function XtreamSeriesDetailModal({
       country: parsedTitle.country ?? parsedEpisode.country,
     });
     onClose();
+  };
+
+  const handleDownloadSeason = () => {
+    const episodesToDownload: DownloadableMediaItem[] = currentEpisodes.map((episode) => {
+      const episodeLibraryId = resolvedSourceId ? xtreamItemId(resolvedSourceId, 'episode', episode.id) : episode.id.toString();
+      const playback = resolveEpisodePlayback(episode, credentials);
+      const parsedEpisode = parseEpisodeTitle(episode.title, {
+        seriesTitle: cleanSeriesTitle,
+        seasonNum: selectedSeason,
+        episodeNum: episode.episode_num,
+      });
+      return {
+        id: episodeLibraryId,
+        title: formatEpisodePlaybackTitle(cleanSeriesTitle, selectedSeason, episode.episode_num, episode.title),
+        type: 'series',
+        streamUrl: playback?.streamUrl,
+        httpHeaders: playback?.httpHeaders,
+        containerExtension: episode.container_extension,
+        posterUrl: episode.info?.movie_image || data?.info?.cover || seriesPoster,
+        description: episode.info?.plot,
+        seriesId,
+        seriesSourceItemId: providerSeriesId,
+        seriesTitle: cleanSeriesTitle,
+        seriesPosterUrl: data?.info?.cover || seriesPoster,
+        seasonNum: selectedSeason,
+        episodeNum: episode.episode_num,
+        episodeTitle: parsedEpisode.cleanTitle,
+      };
+    });
+    downloadSeriesSeason(`Season ${selectedSeason}`, episodesToDownload);
   };
 
   const handleResumeClick = () => {
@@ -435,6 +479,12 @@ function XtreamSeriesDetailModal({
                     />
                   ) : null}
 
+                  {currentEpisodes.length > 0 && (
+                    <button type="button" className={styles.downloadSeasonBtn} onClick={handleDownloadSeason}>
+                      <Download size={14} />
+                      <span>{t('Download Season')}</span>
+                    </button>
+                  )}
                 </div>
 
                 <div
@@ -464,6 +514,14 @@ function XtreamSeriesDetailModal({
                       streamUrl: resolveEpisodePlayback(episode, credentials)?.streamUrl || '',
                       httpHeaders: episode.http_headers,
                       sourceId: episode.source_id,
+                      description: episode.info?.plot,
+                      seriesId,
+                      seriesSourceItemId: providerSeriesId,
+                      seriesTitle: cleanSeriesTitle,
+                      seriesPosterUrl: data.info?.cover || seriesPoster,
+                      seasonNum: selectedSeason,
+                      episodeNum: episode.episode_num,
+                      episodeTitle: parsedEpisode.cleanTitle,
                     };
 
                     const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
@@ -471,6 +529,7 @@ function XtreamSeriesDetailModal({
                       ? Math.min(100, Math.max(0, historyItem.progressPercentage))
                       : 0;
                     const isWatched = watchedIds.includes(episodeLibraryId);
+                    const isDownloaded = Boolean(downloadedByLibraryId[episodeLibraryId]);
                     const durationLabel = formatDurationLabel(
                       episode.info?.duration,
                       episode.info?.duration_secs,
@@ -510,6 +569,11 @@ function XtreamSeriesDetailModal({
                               <Play size={20} fill="currentColor" />
                             </div>
                           </div>
+                          {isDownloaded && (
+                            <span className={styles.episodeDownloadedBadge} title={t('Downloaded')}>
+                              <HardDriveDownload size={13} />
+                            </span>
+                          )}
                           {(isWatched || epProgress > 0) && (
                             <span
                               className={`${styles.episodeProgress} ${isWatched ? styles.watchedEpisodeProgress : ''}`}

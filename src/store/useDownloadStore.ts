@@ -4,16 +4,21 @@ import {
   cancelDownloadJob,
   createDownloadJob,
   normalizeDownloadJob,
+  normalizeDownloadedItem,
+  normalizeDownloadedItems,
   DOWNLOAD_JOB_STATES,
   retryDownloadJob,
   transitionDownloadJob,
   updateDownloadProgress,
   type DownloadStatusEvent,
   type DownloadJob,
+  type DownloadedItem,
 } from '../utils/downloads';
 
 interface DownloadState {
   jobs: DownloadJob[];
+  /** Completed downloads' permanent metadata snapshot, keyed by library id. Survives restarts. */
+  downloadedByLibraryId: Record<string, DownloadedItem>;
   enqueue: (input: { id: string; sourceUrl: string; headers?: Record<string, string> | undefined; fileName?: string | undefined; totalBytes?: number | undefined }) => void;
   start: (id: string) => void;
   pause: (id: string) => void;
@@ -27,14 +32,20 @@ interface DownloadState {
   cancel: (id: string, reason?: unknown) => void;
   remove: (id: string) => void;
   removeFinished: () => void;
+  addDownloadedItem: (item: unknown) => void;
+  removeDownloadedItem: (id: string) => void;
 }
 
-export function migrateDownloadState(value: unknown): { jobs: DownloadJob[] } {
-  void value;
+export function migrateDownloadState(value: unknown): { jobs: DownloadJob[]; downloadedByLibraryId: Record<string, DownloadedItem> } {
   // Native downloads cannot survive an application restart, and persisting a
   // restartable job would write credential-bearing media URLs/headers to
   // localStorage. Version 3 deliberately discards all legacy queue records.
-  return { jobs: [] };
+  // Version 4 adds a *separate*, permanent metadata snapshot for completed
+  // downloads (title/poster/series link, never headers or a remote URL) so
+  // Downloads and any card can render and play them without the provider —
+  // carried forward here for anyone upgrading from an older version.
+  const previous = value && typeof value === 'object' ? value as { downloadedByLibraryId?: unknown } : {};
+  return { jobs: [], downloadedByLibraryId: normalizeDownloadedItems(previous.downloadedByLibraryId) };
 }
 
 const updateJob = (jobs: DownloadJob[], id: string, updater: (job: DownloadJob) => DownloadJob | null) =>
@@ -46,6 +57,7 @@ const updateJob = (jobs: DownloadJob[], id: string, updater: (job: DownloadJob) 
 
 export const useDownloadStore = create<DownloadState>()(persist((set) => ({
   jobs: [],
+  downloadedByLibraryId: {},
   enqueue: (input) => set((state) => {
     const job = createDownloadJob(input);
     return job && !state.jobs.some((candidate) => candidate.id === job.id)
@@ -90,10 +102,22 @@ export const useDownloadStore = create<DownloadState>()(persist((set) => ({
   cancel: (id, reason) => set((state) => ({ jobs: updateJob(state.jobs, id, (job) => cancelDownloadJob(job, reason)) })),
   remove: (id) => set((state) => ({ jobs: state.jobs.filter((job) => job.id !== id) })),
   removeFinished: () => set((state) => ({ jobs: state.jobs.filter((job) => !['completed', 'failed', 'cancelled'].includes(job.state)) })),
+  addDownloadedItem: (item) => set((state) => {
+    const normalized = normalizeDownloadedItem(item);
+    return normalized ? { downloadedByLibraryId: { ...state.downloadedByLibraryId, [normalized.id]: normalized } } : state;
+  }),
+  removeDownloadedItem: (id) => set((state) => {
+    if (!(id in state.downloadedByLibraryId)) return state;
+    const next = { ...state.downloadedByLibraryId };
+    delete next[id];
+    return { downloadedByLibraryId: next };
+  }),
 }), {
   name: 'movena-downloads-v1',
-  version: 3,
+  version: 4,
   migrate: migrateDownloadState,
-  // Keep the persist API for reset/migration, but never serialize transport.
-  partialize: () => ({ jobs: [] }),
+  // Keep the persist API for reset/migration. Jobs never serialize (see
+  // migrateDownloadState); downloadedByLibraryId is the one slice meant to
+  // survive restarts — it never carries provider headers or a raw stream URL.
+  partialize: (state) => ({ jobs: [], downloadedByLibraryId: state.downloadedByLibraryId }),
 }));

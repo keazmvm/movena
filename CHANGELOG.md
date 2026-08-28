@@ -8,6 +8,26 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-28
+
+### Added
+
+- Added Recently Added Series and Popular Movies rows to the Discover home
+  page, alongside the existing Recently Added Movies and Popular Series.
+- Improved downloads:
+  - Downloaded movies and episodes now play straight from disk — instantly,
+    online or offline — with no provider round-trip, and resume from the
+    saved watch position.
+  - Added whole-season downloads from the series detail view.
+  - Downloads is now a grid of movies and series (with a local per-series
+    episode browser) instead of a flat transfer list, and completed
+    downloads persist across restarts with their title, poster, and
+    series/season/episode metadata.
+  - Added a "Downloaded" badge to catalogue cards, and removing a download
+    now deletes the file from disk instead of only forgetting it.
+  - The player's download button now hides itself once you're already
+    playing a local copy.
+
 ## [0.1.10] - 2026-08-27
 
 This maintenance release hardens native platform safety, cleans codebase

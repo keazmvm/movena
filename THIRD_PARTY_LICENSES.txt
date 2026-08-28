@@ -231,6 +231,7 @@ cargo:MIT
 - plist@1.10.0
 - precomputed-hash@0.1.1
 - quick-xml@0.41.0
+- quick-xml@0.42.0
 - redox_syscall@0.5.18
 - redox_users@0.5.2
 - rfd@0.16.0
@@ -944,7 +945,7 @@ npm:MIT
 - @types/json-schema@7.0.15
 - @types/mocha@10.0.10
 - @types/node@20.19.43
-- @types/node@24.13.3
+- @types/node@26.2.0
 - @types/normalize-package-data@2.4.4
 - @types/react-dom@19.2.5
 - @types/react@19.2.18
@@ -1319,7 +1320,7 @@ npm:MIT
 - type-check@0.4.0
 - typescript-eslint@8.68.0
 - undici-types@6.21.0
-- undici-types@7.18.2
+- undici-types@8.3.0
 - undici@6.28.0
 - undici@7.29.0
 - unicorn-magic@0.3.0
@@ -26557,7 +26558,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 SHA-256: fe64958bfaef10b1c9628b4ee9f1c48170b0219bd4b2a7ef4a0c41aebd920c9e
 Used by:
 - npm:undici-types@6.21.0 (LICENSE)
-- npm:undici-types@7.18.2 (LICENSE)
+- npm:undici-types@8.3.0 (LICENSE)
 - npm:undici@6.28.0 (LICENSE)
 - npm:undici@7.29.0 (LICENSE)
 
@@ -26629,7 +26630,7 @@ Used by:
 - npm:@types/json-schema@7.0.15 (LICENSE)
 - npm:@types/mocha@10.0.10 (LICENSE)
 - npm:@types/node@20.19.43 (LICENSE)
-- npm:@types/node@24.13.3 (LICENSE)
+- npm:@types/node@26.2.0 (LICENSE)
 - npm:@types/normalize-package-data@2.4.4 (LICENSE)
 - npm:@types/react-dom@19.2.5 (LICENSE)
 - npm:@types/react@19.2.18 (LICENSE)

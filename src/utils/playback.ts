@@ -3,6 +3,7 @@ import { getStreamUrl, type XCEpisode } from '../api/xc';
 import { getXtreamCredentials, resolveXtreamSourceId, type XCCredentials } from '../store/useAuthStore';
 import type { PlayableStream } from '../store/usePlayerStore';
 import { useSourceStore } from '../store/useSourceStore';
+import type { DownloadedItem } from '../utils/downloads';
 
 function cachedM3uTransport(id: string | number, sourceId: string | undefined) {
   if (!sourceId?.startsWith('m3u-')) return null;
@@ -55,6 +56,32 @@ export function playableFromMediaItem(
         ? [{ streamUrl: cached.streamUrl, httpHeaders: cached.httpHeaders }]
         : []),
     ],
+  };
+}
+
+/**
+ * Builds a playable stream straight from a completed download: the local
+ * file path as `streamUrl`, no headers, no provider/network access at all.
+ * mpv plays a local path exactly like a URL, so nothing else is needed.
+ */
+export function playableFromDownloadedItem(item: DownloadedItem, resumeSeconds?: number): PlayableStream {
+  return {
+    id: item.id,
+    sourceItemId: item.id,
+    title: item.title,
+    type: item.type,
+    streamUrl: item.filePath,
+    posterUrl: item.posterUrl,
+    seriesPosterUrl: item.seriesPosterUrl,
+    seriesId: item.seriesId,
+    seriesSourceItemId: item.seriesSourceItemId,
+    seriesTitle: item.seriesTitle,
+    seasonNum: item.seasonNum,
+    episodeNum: item.episodeNum,
+    episodeTitle: item.episodeTitle,
+    startPosition: resumeSeconds,
+    tags: item.tags,
+    country: item.country,
   };
 }
 

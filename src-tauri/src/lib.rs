@@ -107,6 +107,7 @@ pub fn run() {
             downloads::download_media_pause,
             downloads::download_media_resume,
             downloads::download_media_cancel,
+            downloads::download_media_delete,
             remote_media::m3u_read_file,
             app_files::m3u_write_file,
             m3u_cache::m3u_cache_store,
