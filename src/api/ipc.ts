@@ -170,6 +170,16 @@ export const tauriApi = {
   /** Download, decompress, and parse XMLTV outside the webview. */
   xmltvFetch: (options: M3uFetchOptions) => invoke<XmltvGuidePayload>('xmltv_fetch', { options }),
 
+  /**
+   * Fetch IntroDB's intro/recap/outro timestamps outside the webview's CORS
+   * boundary. IntroDB always answers with a hardcoded
+   * `Access-Control-Allow-Origin: https://introdb.app`, so a direct
+   * `fetch()` from the app is silently blocked by the browser for every
+   * request regardless of network connectivity or data availability.
+   */
+  introDbFetchSegments: (imdbId: string, season: number, episode: number) =>
+    invoke<unknown>('introdb_fetch_segments', { imdbId, season, episode }),
+
   /** Start a managed media download; progress and lifecycle arrive on download-event. */
   downloadMediaStart: (options: DownloadMediaOptions & { id: string }) => invoke<void>('download_media_start', { options }),
   downloadMediaPause: (id: string) => invoke<void>('download_media_pause', { id }),

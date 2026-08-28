@@ -5,6 +5,7 @@ import { DEFAULT_ACCENT_COLOR, isValidHex } from '../utils/color';
 import { DEFAULT_RECORDING_DIRECTORY } from '../utils/recording';
 import { isUiLanguage, isUiLocale } from '../i18nConfig';
 import type { CustomTitleRule } from '../utils/titleParser';
+import { sanitizeHomeSections } from '../utils/homeSections';
 import {
   SETTINGS_SNAPSHOT_KEYS,
   type BadgeVisibilitySettings,
@@ -41,6 +42,7 @@ export type {
   ToneMappingMode,
   UpcomingHistoryDays,
 } from './settingsTypes';
+export { HOME_SECTION_IDS, HOME_SECTION_LABELS, type HomeSectionId } from '../utils/homeSections';
 
 const emptySelectedCategoryIds = (): SelectedCategoryIds => ({
   live: null,
@@ -179,6 +181,7 @@ const DEFAULT_SETTINGS = {
   upcomingCountdownEnabled: false,
   upcomingCalendarEnabled: false,
   upcomingExactTimesEnabled: false,
+  homeSections: sanitizeHomeSections(undefined),
   upcomingHistoryDays: 7 as UpcomingHistoryDays,
 
   streamFoldingEnabled: true,
@@ -369,6 +372,7 @@ export function migrateSettingsState(persistedState: unknown): SettingsState {
       || state.upcomingHistoryDays === 30
       ? state.upcomingHistoryDays
       : 7,
+    homeSections: sanitizeHomeSections(state.homeSections),
     streamFoldingEnabled: typeof state.streamFoldingEnabled === 'boolean' ? state.streamFoldingEnabled : true,
     customTitleRules: normalizeCustomTitleRules(state.customTitleRules),
     badgeVisibility,

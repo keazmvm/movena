@@ -3,9 +3,17 @@
  *
  * Public read API, no API key required.
  * @see https://api.introdb.app
+ *
+ * The request goes through the Rust backend (`introDbFetchSegments`), not a
+ * direct `fetch()`: IntroDB always answers with a hardcoded
+ * `Access-Control-Allow-Origin: https://introdb.app`, so the webview's own
+ * CORS enforcement silently blocks every response regardless of the actual
+ * requesting origin. `reqwest` on the backend isn't a browser and isn't
+ * subject to that check.
  */
 
-const INTRODB_API = 'https://api.introdb.app';
+import { tauriApi } from './ipc';
+
 const VALID_IMDB_ID = /^tt\d{7,8}$/;
 
 // ── Types ────────────────────────────────────────────────────
@@ -98,7 +106,6 @@ export async function fetchIntroDbSegments(
   imdbId: string,
   season: number,
   episode: number,
-  signal?: AbortSignal,
 ): Promise<IntroDbSegments> {
   const empty: IntroDbSegments = { intro: null, recap: null, outro: null };
 
@@ -106,16 +113,8 @@ export async function fetchIntroDbSegments(
   if (!Number.isInteger(season) || season < 1) return empty;
   if (!Number.isInteger(episode) || episode < 1) return empty;
 
-  const url = `${INTRODB_API}/segments?imdb_id=${encodeURIComponent(imdbId)}&season=${season}&episode=${episode}`;
-
   try {
-    const response = await fetch(url, {
-      ...(signal ? { signal } : {}),
-      headers: { Accept: 'application/json' },
-    });
-
-    if (!response.ok) return empty;
-    return normalizeSegmentsResponse(await response.json());
+    return normalizeSegmentsResponse(await tauriApi.introDbFetchSegments(imdbId, season, episode));
   } catch {
     return empty;
   }

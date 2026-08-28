@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { debugLog } from '../store/useDebugStore';
 import { getTmdbTvExternalIds, searchTmdb } from './tmdb';
 import { searchTvmazeShows } from './tvmaze';
 import { fetchIntroDbSegments, type IntroDbSegments } from './introdb';
@@ -59,7 +60,7 @@ export function useIntroDbSegments(
 
   return useQuery<IntroDbSegments>({
     queryKey: ['introdb_pipeline', cleanTitle.toLowerCase(), season, episode],
-    queryFn: async ({ signal }) => {
+    queryFn: async () => {
       if (!isEligible || season === null || episode === null) {
         return EMPTY_SEGMENTS;
       }
@@ -89,8 +90,8 @@ export function useIntroDbSegments(
               imdbId = externalIds.imdbId;
             }
           }
-        } catch {
-          // Fallback to TVmaze below
+        } catch (error) {
+          debugLog.warn('api', `IntroDB: TMDB lookup for "${cleanTitle}" failed`, error);
         }
       }
 
@@ -107,9 +108,14 @@ export function useIntroDbSegments(
           const match = tvmazeShows.find((s) => s.externals.imdb);
           if (match?.externals.imdb) {
             imdbId = match.externals.imdb;
+          } else {
+            debugLog.info('api', `IntroDB: TVmaze had no IMDb-linked match for "${cleanTitle}"`, {
+              resultCount: tvmazeShows.length,
+              names: tvmazeShows.slice(0, 5).map((s) => s.name),
+            });
           }
-        } catch {
-          // No match found
+        } catch (error) {
+          debugLog.warn('api', `IntroDB: TVmaze lookup for "${cleanTitle}" failed`, error);
         }
       }
 
@@ -118,12 +124,14 @@ export function useIntroDbSegments(
       }
 
       // Strategy 3: Query IntroDB with the resolved IMDb ID
-      return queryClient.ensureQueryData({
+      const segments = await queryClient.ensureQueryData({
         queryKey: queryKeys.introDbSegments(imdbId, season, episode),
-        queryFn: ({ signal: segSignal }) => fetchIntroDbSegments(imdbId!, season, episode, segSignal ?? signal),
+        queryFn: () => fetchIntroDbSegments(imdbId!, season, episode),
         staleTime: INTRODB_STALE_TIME,
         gcTime: INTRODB_GC_TIME,
       });
+      debugLog.info('api', `IntroDB: fetched segments for ${imdbId} S${season}E${episode}`, segments);
+      return segments;
     },
     enabled: isEligible,
     staleTime: INTRODB_STALE_TIME,

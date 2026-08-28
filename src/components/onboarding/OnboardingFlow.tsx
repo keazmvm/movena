@@ -22,7 +22,7 @@ const DESTINATIONS: Destination[] = [
   { path: '/live', label: 'Live TV', description: 'Channels and the guide', icon: RiTv2Line },
   { path: '/movies', label: 'Movies', description: 'Browse the film library', icon: RiMovie2Line },
   { path: '/series', label: 'Series', description: 'Catch up on episodes', icon: RiSlideshow3Line },
-  { path: '/', label: 'Everything', description: 'See it all on Discover', icon: RiHome5Line },
+  { path: '/', label: 'Everything', description: 'See it all on Home', icon: RiHome5Line },
 ];
 
 /**

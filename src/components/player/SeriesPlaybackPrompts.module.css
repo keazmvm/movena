@@ -1,10 +1,25 @@
-.skipIntroBtn,
-.skipRecapBtn,
-.nextEpisodeSimpleBtn {
+/*
+ * Skip Recap, Skip Intro, and the simple Next Episode button are mutually
+ * exclusive almost all the time, but crowdsourced timestamps can occasionally
+ * place a recap and an intro right next to each other (or overlapping, given
+ * imprecise community-submitted data). A shared wrapper stacks whichever of
+ * them are visible instead of drawing them all at the same fixed position,
+ * where only the last one in the DOM would actually be clickable.
+ */
+.promptStack {
   position: absolute;
   right: var(--space-6);
   bottom: 120px;
   z-index: calc(var(--z-player-controls) + 1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.skipIntroBtn,
+.skipRecapBtn,
+.nextEpisodeSimpleBtn {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -29,10 +44,6 @@
 }
 
 .nextEpisodeCard {
-  position: absolute;
-  right: var(--space-6);
-  bottom: 120px;
-  z-index: calc(var(--z-player-controls) + 1);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { PageTransition } from '../components/layout/PageTransition';
 import { HorizontalCarousel } from '../components/shared/HorizontalCarousel';
 import { useLibraryStore } from '../store/useLibraryStore';
-import { useSettingsStore } from '../store/useSettingsStore';
+import { useSettingsStore, type HomeSectionId } from '../store/useSettingsStore';
 import { historyCardSubtitle } from '../utils/time';
 import { MediaDetailModals } from '../components/modals/MediaDetailModals';
 import { useMediaDetailState } from '../hooks/useMediaDetailState';
@@ -25,6 +25,7 @@ export function Home() {
   const history = useLibraryStore((state) => state.history);
   const upcomingEnabled = useSettingsStore((state) => state.upcomingEnabled);
   const upcomingHomeEnabled = useSettingsStore((state) => state.upcomingHomeEnabled);
+  const homeSections = useSettingsStore((state) => state.homeSections);
   const navigate = useNavigate();
   const hasSource = sources.isAvailable;
   const showUpcomingOnHome = upcomingEnabled && upcomingHomeEnabled;
@@ -98,11 +99,110 @@ export function Home() {
   ], '');
   const hasCatalogData = movies.length > 0 || series.length > 0 || liveChannelsData.length > 0;
   const showLoadError = Boolean(catalogError) && !hasCatalogData;
-  const errorPresentation = getErrorPresentation(catalogError, 'Discover');
+  const errorPresentation = getErrorPresentation(catalogError, 'Home');
   const failedCatalogQueries = [moviesQuery, seriesQuery, liveQuery].filter((query) => query.isError);
   const isRetrying = failedCatalogQueries.some((query) => query.isFetching);
   const retryCatalogs = () => {
     void Promise.all(failedCatalogQueries.map((query) => query.refetch()));
+  };
+
+  // Sections beyond Continue Watching and Coming Up always render once
+  // enabled — they never had an item-count gate before this became
+  // reorderable/toggleable, and users who bother to disable a row expect it
+  // to actually be gone, not conditionally back the moment it has content.
+  const sectionVisible: Record<HomeSectionId, boolean> = {
+    upcoming: showUpcomingOnHome,
+    continueWatching: continueWatchingItems.length > 0,
+    recentMovies: true,
+    recentSeries: true,
+    popularMovies: true,
+    popularSeries: true,
+    liveChannels: true,
+  };
+  const activeSectionIds = homeSections
+    .filter((section) => section.enabled && sectionVisible[section.id])
+    .map((section) => section.id);
+
+  const renderSection = (id: HomeSectionId, loading: boolean): ReactNode => {
+    switch (id) {
+      case 'upcoming':
+        return <UpcomingReleaseCard key={id} onOpen={handleItemClick} onViewAll={() => navigate('/upcoming')} showEmpty />;
+      case 'continueWatching':
+        return loading
+          ? <CarouselSkeleton key={id} title="Continue Watching" />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Continue Watching"
+              items={continueWatchingItems}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/continue')}
+            />
+          );
+      case 'recentMovies':
+        return loading
+          ? <CarouselSkeleton key={id} title="Recently Added Movies" />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Recently Added Movies"
+              items={recentMovies}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/movies')}
+            />
+          );
+      case 'recentSeries':
+        return loading
+          ? <CarouselSkeleton key={id} title="Recently Added Series" />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Recently Added Series"
+              items={recentSeries}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/series')}
+            />
+          );
+      case 'popularMovies':
+        return loading
+          ? <CarouselSkeleton key={id} title="Popular Movies" />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Popular Movies"
+              items={popularMovies}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/movies')}
+            />
+          );
+      case 'popularSeries':
+        return loading
+          ? <CarouselSkeleton key={id} title="Popular Series" />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Popular Series"
+              items={popularSeries}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/series')}
+            />
+          );
+      case 'liveChannels':
+        return loading
+          ? <CarouselSkeleton key={id} title="Live TV Channels" isLiveTv />
+          : (
+            <HorizontalCarousel
+              key={id}
+              title="Live TV Channels"
+              items={liveChannels}
+              onItemClick={handleItemClick}
+              onSeeAll={() => navigate('/live')}
+              isLiveTv
+            />
+          );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -110,7 +210,7 @@ export function Home() {
       <div className={styles.page}>
         <div className={`${styles.pageHeader} ${styles.homeHeader}`}>
           <div className={styles.homeTitleGroup}>
-            <h1 className={styles.pageTitle}>{t('Discover')}</h1>
+            <h1 className={styles.pageTitle}>{t('Home')}</h1>
             <p className={styles.pageSubtitle}>
               {t("Pick up where you left off and discover what's new")}
             </p>
@@ -124,21 +224,13 @@ export function Home() {
           <EmptyState
             icon={Tv}
             title="No Source Available"
-            description="Connect an Xtream account or add an M3U playlist to fill Discover with available media."
+            description="Connect an Xtream account or add an M3U playlist to fill Home with available media."
             actionLabel="Manage Sources"
             onAction={() => navigate('/settings?section=sources')}
           />
         ) : isLoading ? (
           <div className={`${styles.homeScrollContainer} subtle-scrollbar`}>
-            {showUpcomingOnHome && <UpcomingReleaseCard onOpen={handleItemClick} onViewAll={() => navigate('/upcoming')} showEmpty />}
-            {continueWatchingItems.length > 0 && (
-              <CarouselSkeleton title="Continue Watching" />
-            )}
-            <CarouselSkeleton title="Recently Added Movies" />
-            <CarouselSkeleton title="Recently Added Series" />
-            <CarouselSkeleton title="Popular Movies" />
-            <CarouselSkeleton title="Popular Series" />
-            <CarouselSkeleton title="Live TV Channels" isLiveTv />
+            {activeSectionIds.map((id) => renderSection(id, true))}
           </div>
         ) : showLoadError ? (
           <ErrorState
@@ -151,46 +243,7 @@ export function Home() {
           />
         ) : (
           <div className={`${styles.homeScrollContainer} subtle-scrollbar`}>
-            {showUpcomingOnHome && <UpcomingReleaseCard onOpen={handleItemClick} onViewAll={() => navigate('/upcoming')} showEmpty />}
-            {continueWatchingItems.length > 0 && (
-              <HorizontalCarousel
-                title="Continue Watching"
-                items={continueWatchingItems}
-                onItemClick={handleItemClick}
-                onSeeAll={() => navigate('/continue')}
-              />
-            )}
-            <HorizontalCarousel
-              title="Recently Added Movies"
-              items={recentMovies}
-              onItemClick={handleItemClick}
-              onSeeAll={() => navigate('/movies')}
-            />
-            <HorizontalCarousel
-              title="Recently Added Series"
-              items={recentSeries}
-              onItemClick={handleItemClick}
-              onSeeAll={() => navigate('/series')}
-            />
-            <HorizontalCarousel
-              title="Popular Movies"
-              items={popularMovies}
-              onItemClick={handleItemClick}
-              onSeeAll={() => navigate('/movies')}
-            />
-            <HorizontalCarousel
-              title="Popular Series"
-              items={popularSeries}
-              onItemClick={handleItemClick}
-              onSeeAll={() => navigate('/series')}
-            />
-            <HorizontalCarousel
-              title="Live TV Channels"
-              items={liveChannels}
-              onItemClick={handleItemClick}
-              onSeeAll={() => navigate('/live')}
-              isLiveTv
-            />
+            {activeSectionIds.map((id) => renderSection(id, false))}
           </div>
         )}
       </div>

@@ -70,12 +70,12 @@ export function ComingUpSettingsSection() {
         description="Choose where the release schedule appears and how much timing detail it shows."
       >
         <SettingsRow
-          title="Show on Discover"
-          description="Show a compact release row on the Discover screen. Upcoming items appear before recent releases."
+          title="Show on Home"
+          description="Show a compact release row on the Home screen. Upcoming items appear before recent releases."
           disabled={scheduleDisabled}
         >
           <SettingsToggle
-            label="Show Coming Up on Discover"
+            label="Show Coming Up on Home"
             checked={settings.upcomingHomeEnabled}
             disabled={scheduleDisabled}
             onChange={(checked) => settings.updateSetting('upcomingHomeEnabled', checked)}

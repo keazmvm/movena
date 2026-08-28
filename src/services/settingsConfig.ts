@@ -98,6 +98,7 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     upcomingCalendarEnabled: booleanOr(source.upcomingCalendarEnabled, migrated.upcomingCalendarEnabled),
     upcomingExactTimesEnabled: booleanOr(source.upcomingExactTimesEnabled, migrated.upcomingExactTimesEnabled),
     upcomingHistoryDays: oneOf(source.upcomingHistoryDays, [3, 7, 14, 30] as const, migrated.upcomingHistoryDays),
+    homeSections: migrated.homeSections,
     streamFoldingEnabled: booleanOr(source.streamFoldingEnabled, migrated.streamFoldingEnabled),
     customTitleRules: migrated.customTitleRules,
     badgeVisibility: migrated.badgeVisibility,

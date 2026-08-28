@@ -17,7 +17,7 @@ export function getShortcutGroups(seekJumpSecs: number): ShortcutGroup[] {
     {
       title: 'Global Navigation',
       items: [
-        { keys: ['Ctrl', '1'], desc: 'Go to Home / Discover' },
+        { keys: ['Ctrl', '1'], desc: 'Go to Home' },
         { keys: ['Ctrl', '2'], desc: 'Go to Live TV' },
         { keys: ['Ctrl', '3'], desc: 'Go to TV Guide (EPG)' },
         { keys: ['Ctrl', '4'], desc: 'Go to Movies' },

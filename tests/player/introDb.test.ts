@@ -1,31 +1,33 @@
-import { describe, expect, it, vi, afterEach } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+const { introDbFetchSegments } = vi.hoisted(() => ({
+  introDbFetchSegments: vi.fn(),
+}));
+
+vi.mock('../../src/api/ipc', () => ({
+  tauriApi: { introDbFetchSegments },
+}));
+
 import { fetchIntroDbSegments } from '../../src/api/introdb';
 import { normalizeTmdbExternalIds } from '../../src/utils/tmdb';
 
 describe('IntroDB API client & normalization', () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-    vi.restoreAllMocks();
-  });
-
+  // The request is proxied through the Rust backend — see introdb.ts's
+  // module doc — so what's under test here is the IPC call and the response
+  // normalization, not a `fetch()` call.
   describe('fetchIntroDbSegments', () => {
     it('returns segments for valid episode response with seconds', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          imdb_id: 'tt0944947',
-          season: 1,
-          episode: 1,
-          intro: { start_sec: 95, end_sec: 172, confidence: 0.98, submission_count: 14 },
-          recap: { start_sec: 0, end_sec: 45, confidence: 0.95, submission_count: 8 },
-          outro: { start_sec: 3480, end_sec: 3600, confidence: 0.92, submission_count: 5 },
-        }),
+      introDbFetchSegments.mockResolvedValue({
+        imdb_id: 'tt0944947',
+        season: 1,
+        episode: 1,
+        intro: { start_sec: 95, end_sec: 172, confidence: 0.98, submission_count: 14 },
+        recap: { start_sec: 0, end_sec: 45, confidence: 0.95, submission_count: 8 },
+        outro: { start_sec: 3480, end_sec: 3600, confidence: 0.92, submission_count: 5 },
       });
 
       const segments = await fetchIntroDbSegments('tt0944947', 1, 1);
+      expect(introDbFetchSegments).toHaveBeenCalledWith('tt0944947', 1, 1);
       expect(segments).toEqual({
         intro: { startSec: 95, endSec: 172 },
         recap: { startSec: 0, endSec: 45 },
@@ -34,17 +36,13 @@ describe('IntroDB API client & normalization', () => {
     });
 
     it('falls back to converting millisecond timestamps if start_sec/end_sec are omitted', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          imdb_id: 'tt0944947',
-          season: 1,
-          episode: 1,
-          intro: { start_ms: 95000, end_ms: 172000, confidence: 0.9 },
-          recap: null,
-          outro: null,
-        }),
+      introDbFetchSegments.mockResolvedValue({
+        imdb_id: 'tt0944947',
+        season: 1,
+        episode: 1,
+        intro: { start_ms: 95000, end_ms: 172000, confidence: 0.9 },
+        recap: null,
+        outro: null,
       });
 
       const segments = await fetchIntroDbSegments('tt0944947', 1, 1);
@@ -54,17 +52,13 @@ describe('IntroDB API client & normalization', () => {
     });
 
     it('filters out low-confidence submissions (< 0.5)', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          imdb_id: 'tt0944947',
-          season: 1,
-          episode: 1,
-          intro: { start_sec: 10, end_sec: 60, confidence: 0.2 },
-          recap: null,
-          outro: null,
-        }),
+      introDbFetchSegments.mockResolvedValue({
+        imdb_id: 'tt0944947',
+        season: 1,
+        episode: 1,
+        intro: { start_sec: 10, end_sec: 60, confidence: 0.2 },
+        recap: null,
+        outro: null,
       });
 
       const segments = await fetchIntroDbSegments('tt0944947', 1, 1);
@@ -72,45 +66,37 @@ describe('IntroDB API client & normalization', () => {
     });
 
     it('filters out invalid ranges where endSec <= startSec', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          imdb_id: 'tt0944947',
-          season: 1,
-          episode: 1,
-          intro: { start_sec: 100, end_sec: 50, confidence: 0.9 },
-          recap: null,
-          outro: null,
-        }),
+      introDbFetchSegments.mockResolvedValue({
+        imdb_id: 'tt0944947',
+        season: 1,
+        episode: 1,
+        intro: { start_sec: 100, end_sec: 50, confidence: 0.9 },
+        recap: null,
+        outro: null,
       });
 
       const segments = await fetchIntroDbSegments('tt0944947', 1, 1);
       expect(segments.intro).toBeNull();
     });
 
-    it('returns empty segments on 404 (show or episode not in IntroDB)', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 404,
-      });
+    it('returns empty segments when the backend has no data (show or episode not in IntroDB)', async () => {
+      introDbFetchSegments.mockResolvedValue(null);
 
       const segments = await fetchIntroDbSegments('tt0944947', 99, 99);
       expect(segments).toEqual({ intro: null, recap: null, outro: null });
     });
 
-    it('returns empty segments on invalid IMDb ID or non-positive season/episode without fetching', async () => {
-      const fetchMock = vi.fn();
-      globalThis.fetch = fetchMock;
+    it('returns empty segments on invalid IMDb ID or non-positive season/episode without calling the backend', async () => {
+      introDbFetchSegments.mockClear();
 
       expect(await fetchIntroDbSegments('invalid', 1, 1)).toEqual({ intro: null, recap: null, outro: null });
       expect(await fetchIntroDbSegments('tt1234567', 0, 1)).toEqual({ intro: null, recap: null, outro: null });
       expect(await fetchIntroDbSegments('tt1234567', 1, -1)).toEqual({ intro: null, recap: null, outro: null });
-      expect(fetchMock).not.toHaveBeenCalled();
+      expect(introDbFetchSegments).not.toHaveBeenCalled();
     });
 
-    it('safely handles network errors or malformed json', async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    it('safely handles a rejected IPC call', async () => {
+      introDbFetchSegments.mockRejectedValue(new Error('IPC error'));
       expect(await fetchIntroDbSegments('tt0944947', 1, 1)).toEqual({ intro: null, recap: null, outro: null });
     });
   });

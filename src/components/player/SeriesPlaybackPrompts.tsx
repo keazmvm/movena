@@ -5,6 +5,7 @@ import { tauriApi } from '../../api/ipc';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { debugLog } from '../../store/useDebugStore';
 import { useSeriesInfo } from '../../api/useDetails';
 import { useIntroDbSegments } from '../../api/useIntroDb';
 import { findNextEpisode } from '../../utils/seriesNavigation';
@@ -146,6 +147,19 @@ export function SeriesPlaybackPrompts() {
     [chapters, introDbSegments, anySkipActive]
   );
 
+  useEffect(() => {
+    if (!activeStream) return;
+    debugLog.info('player', `Skip prompts: resolved segments for "${activeStream.title}"`, {
+      chapterCount: chapters.length,
+      chapterTitles: chapters.map((c) => c.title).filter(Boolean),
+      introDbSegments,
+      resolvedSegments: segments,
+      autoSkipIntro,
+      skipIntroEnabled,
+      skipRecapEnabled,
+    });
+  }, [activeStream, chapters, introDbSegments, segments, autoSkipIntro, skipIntroEnabled, skipRecapEnabled]);
+
   // ── Automatic Intro / Recap Skipping ──────────────────────────
 
   const autoSkippedSegmentsRef = useRef<Set<string>>(new Set());
@@ -187,6 +201,20 @@ export function SeriesPlaybackPrompts() {
 
   const showSkipRecap =
     skipRecapEnabled && !autoSkipIntro && !!segments.recap && currentTime >= segments.recap.start && currentTime < segments.recap.skipTo - 0.5;
+
+  const shownRef = useRef({ intro: false, recap: false });
+  useEffect(() => {
+    if (showSkipIntro && !shownRef.current.intro) {
+      shownRef.current.intro = true;
+      debugLog.info('player', `Skip prompts: showSkipIntro became true at currentTime=${currentTime}`, segments.intro);
+    }
+    if (!showSkipIntro) shownRef.current.intro = false;
+    if (showSkipRecap && !shownRef.current.recap) {
+      shownRef.current.recap = true;
+      debugLog.info('player', `Skip prompts: showSkipRecap became true at currentTime=${currentTime}`, segments.recap);
+    }
+    if (!showSkipRecap) shownRef.current.recap = false;
+  }, [showSkipIntro, showSkipRecap, currentTime, segments.intro, segments.recap]);
 
   const skipIntro = useCallback(() => {
     if (!segments.intro) return;
@@ -262,7 +290,7 @@ export function SeriesPlaybackPrompts() {
   if (!activeStream) return null;
 
   return (
-    <>
+    <div className={styles.promptStack}>
       {showSkipRecap && (
         <button
           type="button"
@@ -314,6 +342,6 @@ export function SeriesPlaybackPrompts() {
           </button>
         )
       )}
-    </>
+    </div>
   );
 }

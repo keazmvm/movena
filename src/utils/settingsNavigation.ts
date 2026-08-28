@@ -8,6 +8,7 @@ export type SettingsSectionId =
   | 'storage'
   | 'config'
   | 'shortcuts'
+  | 'home'
   | 'playback'
   | 'subtitles-audio'
   | 'picture'
@@ -91,6 +92,12 @@ export const SETTINGS_NAV_GROUPS = [
         label: 'Keyboard Shortcuts',
         description: 'Review the keyboard controls available during playback.',
         keywords: ['keys', 'hotkeys', 'play', 'pause', 'fullscreen', 'volume', 'seek'],
+      },
+      {
+        id: 'home',
+        label: 'Home Layout',
+        description: 'Choose which rows appear on the Home page, and in what order.',
+        keywords: ['discover', 'home', 'homepage', 'layout', 'rows', 'sections', 'reorder', 'continue watching', 'recently added', 'popular', 'live tv'],
       },
     ],
   },

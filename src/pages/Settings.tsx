@@ -12,6 +12,7 @@ import { ComingUpSettingsSection } from '../components/settings/ComingUpSettings
 import { DeveloperSettingsSection } from '../components/settings/DeveloperSettingsSection';
 import { ConfigSettingsSection } from '../components/settings/ConfigSettingsSection';
 import { GeneralSettingsSection } from '../components/settings/GeneralSettingsSection';
+import { HomeSettingsSection } from '../components/settings/HomeSettingsSection';
 import { LibraryMetadataSettingsSection } from '../components/settings/LibraryMetadataSettingsSection';
 import { NotificationSettingsSection } from '../components/settings/NotificationSettingsSection';
 import { PictureSettingsSection } from '../components/settings/PictureSettingsSection';
@@ -92,6 +93,8 @@ export function Settings() {
         return <ConfigSettingsSection />;
       case 'shortcuts':
         return <ShortcutSettingsSection />;
+      case 'home':
+        return <HomeSettingsSection />;
       case 'playback':
         return <PlaybackSettingsSection />;
       case 'subtitles-audio':

@@ -58,8 +58,8 @@ function NotFoundPage() {
         <EmptyState
           icon={Compass}
           title="Page Not Found"
-          description="That page is not part of this Movena workspace. Return to Discover to keep browsing."
-          actionLabel="Back to Discover"
+          description="That page is not part of this Movena workspace. Return to Home to keep browsing."
+          actionLabel="Back to Home"
           onAction={() => void navigate('/')}
         />
       </div>

@@ -26,7 +26,7 @@ describe('release schedule settings', () => {
     const user = userEvent.setup();
     render(<ComingUpSettingsSection />);
 
-    await user.click(screen.getByRole('checkbox', { name: 'Show Coming Up on Discover' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Show Coming Up on Home' }));
     await user.click(screen.getByRole('checkbox', { name: 'Show live release countdowns' }));
     await user.click(screen.getByRole('checkbox', { name: 'Show release calendar' }));
     await user.click(screen.getByRole('checkbox', { name: 'Look up exact TV airtimes' }));
@@ -49,7 +49,7 @@ describe('release schedule settings', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Enable Coming Up' }));
 
     expect(useSettingsStore.getState().upcomingEnabled).toBe(false);
-    expect(screen.getByRole('checkbox', { name: 'Show Coming Up on Discover' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('checkbox', { name: 'Show Coming Up on Home' }).hasAttribute('disabled')).toBe(true);
     expect(screen.getByRole('checkbox', { name: 'Show live release countdowns' }).hasAttribute('disabled')).toBe(true);
     expect(screen.getByRole('checkbox', { name: 'Show release calendar' }).hasAttribute('disabled')).toBe(true);
     expect(screen.getByRole('checkbox', { name: 'Look up exact TV airtimes' }).hasAttribute('disabled')).toBe(true);

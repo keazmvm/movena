@@ -1,6 +1,7 @@
 import type { AspectMode } from '../utils/aspect';
 import type { UiLanguage, UiLocale } from '../i18nConfig';
 import type { CustomTitleRule } from '../utils/titleParser';
+import type { HomeSectionPref } from '../utils/homeSections';
 
 export type CatalogType = 'live' | 'vod' | 'series';
 export type HwdecMode = 'auto' | 'auto-safe' | 'no';
@@ -83,6 +84,9 @@ export interface SettingsState {
   upcomingCalendarEnabled: boolean;
   upcomingExactTimesEnabled: boolean;
   upcomingHistoryDays: UpcomingHistoryDays;
+
+  // Discover/home page layout
+  homeSections: HomeSectionPref[];
 
   // Title Normalization & Stream Folding
   streamFoldingEnabled: boolean;
@@ -194,7 +198,7 @@ export const SETTINGS_SNAPSHOT_KEYS = [
   'streamFailoverEnabled', 'maxStreamFailovers', 'language', 'hdrMode', 'toneMappingMode',
   'tmdbEnabled', 'tmdbLanguage', 'tmdbImageSize', 'tmdbIncludeAdult',
   'upcomingEnabled', 'upcomingHomeEnabled', 'upcomingCountdownEnabled', 'upcomingCalendarEnabled', 'upcomingExactTimesEnabled',
-  'upcomingHistoryDays',
+  'upcomingHistoryDays', 'homeSections',
   'streamFoldingEnabled', 'customTitleRules', 'badgeVisibility',
   'smartLogoAspectMode',
   'imageSharpness', 'imageBrightness', 'imageContrast', 'imageSaturation', 'imageHue', 'imageGamma',

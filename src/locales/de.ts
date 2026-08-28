@@ -6,7 +6,6 @@
 export const DE_MESSAGES: Record<string, string> = {
   // Global navigation and common actions
   'Home': 'Start',
-  'Discover': 'Entdecken',
   'Browse': 'Entdecken',
   'Library': 'Bibliothek',
   'Live TV': 'Live-TV',
@@ -165,9 +164,9 @@ export const DE_MESSAGES: Record<string, string> = {
   'Loading categories': 'Kategorien werden geladen',
   'Loading guide': 'Programm wird geladen',
   'Page Not Found': 'Seite nicht gefunden',
-  'That page is not part of this Movena workspace. Return to Discover to keep browsing.': 'Diese Seite gehört nicht zu diesem Movena-Bereich. Kehren Sie zum Entdecken zurück.',
-  'Back to Discover': 'Zurück zu Entdecken',
-  'Connect an Xtream account or add an M3U playlist to fill Discover with available media.': 'Verbinden Sie ein Xtream-Konto oder fügen Sie eine M3U-Wiedergabeliste hinzu, um verfügbare Medien zu entdecken.',
+  'That page is not part of this Movena workspace. Return to Home to keep browsing.': 'Diese Seite gehört nicht zu diesem Movena-Bereich. Kehren Sie zum Start zurück.',
+  'Back to Home': 'Zurück zum Start',
+  'Connect an Xtream account or add an M3U playlist to fill Home with available media.': 'Verbinden Sie ein Xtream-Konto oder fügen Sie eine M3U-Wiedergabeliste hinzu, um Start mit verfügbaren Medien zu füllen.',
   'Connect an Xtream account or add an M3U playlist in Settings to view movies.': 'Verbinden Sie in den Einstellungen ein Xtream-Konto oder fügen Sie eine M3U-Wiedergabeliste hinzu, um Filme anzusehen.',
   'Connect an Xtream account or add an M3U playlist in Settings to view TV series.': 'Verbinden Sie in den Einstellungen ein Xtream-Konto oder fügen Sie eine M3U-Wiedergabeliste hinzu, um Serien anzusehen.',
   'Connect an Xtream account or add an M3U playlist in Settings to view live channels.': 'Verbinden Sie in den Einstellungen ein Xtream-Konto oder fügen Sie eine M3U-Wiedergabeliste hinzu, um Live-Kanäle anzusehen.',
@@ -711,7 +710,7 @@ export const DE_MESSAGES: Record<string, string> = {
   'Browse the film library': 'Filmbibliothek durchsuchen',
   'Catch up on episodes': 'Episoden nachholen',
   'Everything': 'Alles',
-  'See it all on Discover': 'Alles unter Entdecken ansehen',
+  'See it all on Home': 'Alles unter Start ansehen',
   'You’re ready to watch.': 'Sie können jetzt loslegen.',
   'Your source is connected. Start exploring {destination}.': 'Ihre Quelle ist verbunden. Entdecken Sie jetzt {destination}.',
   'Your source is connected and ready.': 'Ihre Quelle ist verbunden und bereit.',
@@ -1202,7 +1201,7 @@ export const DE_MESSAGES: Record<string, string> = {
   // Shortcuts
   'Global Navigation': 'Globale Navigation',
   'Live TV Channel Navigation': 'Live-TV-Kanalnavigation',
-  'Go to Home / Discover': 'Zu Start / Entdecken wechseln',
+  'Go to Home': 'Zum Start wechseln',
   'Go to Live TV': 'Zu Live-TV wechseln',
   'Go to TV Guide (EPG)': 'Zum TV-Programm (EPG) wechseln',
   'Go to Movies': 'Zu Filme wechseln',

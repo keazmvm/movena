@@ -1,6 +1,7 @@
 mod app_files;
 mod credentials;
 mod downloads;
+mod introdb;
 mod m3u_cache;
 #[cfg(target_os = "macos")]
 mod macos_embed;
@@ -103,6 +104,7 @@ pub fn run() {
             remote_media::m3u_fetch,
             remote_media::m3u_probe_stream,
             xmltv::xmltv_fetch,
+            introdb::introdb_fetch_segments,
             downloads::download_media_start,
             downloads::download_media_pause,
             downloads::download_media_resume,

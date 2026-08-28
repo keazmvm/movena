@@ -8,6 +8,20 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-08-28
+
+### Added
+
+- Added a Home Layout setting under Settings > Application: choose which
+  rows appear on the home page and reorder them.
+
+### Fixed
+
+- Fixed Skip Intro and Skip Recap: IntroDB's API always answered with a
+  CORS header scoped to its own site, so the app's request was silently
+  blocked before it ever reached the community timestamp data. The request
+  now goes through the desktop backend instead, bypassing that restriction.
+
 ## [0.1.11] - 2026-08-28
 
 ### Added
