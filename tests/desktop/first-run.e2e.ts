@@ -28,6 +28,9 @@ describe('packaged desktop first run', () => {
     );
     expect(cleared).toBeNull();
 
+    await browser.execute(() => localStorage.clear());
+    await browser.refresh();
+
     await (await $('button*=M3U playlist')).click();
     await (await $('input[type="url"]')).setValue(fixtureUrl);
     await (await $('button=Save Source')).click();
