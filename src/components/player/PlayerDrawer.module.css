@@ -17,7 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
+  padding: calc(var(--window-chrome-height) + var(--space-2)) var(--space-5) var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
   -webkit-app-region: no-drag;
 }
@@ -87,6 +87,23 @@
   text-align: left;
   cursor: pointer;
   transition: background-color var(--duration-normal) var(--ease-standard);
+}
+
+@media (max-width: 640px), (max-height: 420px) {
+  .drawer {
+    width: 100vw;
+    max-width: none;
+    border-left: 0;
+  }
+
+  .header {
+    gap: var(--space-2);
+    padding: calc(var(--window-chrome-height) + var(--space-1)) var(--space-3) var(--space-2);
+  }
+
+  .list {
+    padding: var(--space-2);
+  }
 }
 
 .row:disabled {

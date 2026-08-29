@@ -2,12 +2,14 @@
 
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '../../src/components/layout/Sidebar';
 import { useLibraryStore } from '../../src/store/useLibraryStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
 describe('Sidebar library counts', () => {
+  const originalMatchMedia = window.matchMedia;
+
   beforeEach(() => {
     useLibraryStore.setState({
       history: [{
@@ -70,11 +72,50 @@ describe('Sidebar library counts', () => {
     expect(screen.queryByRole('button', { name: 'Expand sidebar' })).toBeNull();
   });
 
+  afterEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: originalMatchMedia,
+    });
+  });
+
+  function setCompactViewport(matches: boolean) {
+    const mediaQuery = {
+      matches,
+      media: '(max-width: 640px)',
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    } satisfies MediaQueryList;
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(() => mediaQuery),
+    });
+    return mediaQuery;
+  }
+
   it('hides the Coming Up workspace when its master preference is disabled', () => {
     useSettingsStore.setState({ upcomingEnabled: false, sidebarCollapsed: false });
 
     render(<MemoryRouter><Sidebar /></MemoryRouter>);
 
     expect(screen.queryByRole('link', { name: 'Coming Up' })).toBeNull();
+  });
+
+  it('uses the compact rail without changing the saved normal-width preference', () => {
+    setCompactViewport(true);
+    useSettingsStore.setState({ sidebarCollapsed: false });
+
+    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+
+    expect(document.querySelector('aside')?.className).toContain('collapsed');
+    expect(screen.getByRole('link', { name: 'Home' }).getAttribute('title')).toBe('Home');
+    expect((screen.getByRole('button', { name: 'Sidebar stays compact in narrow layouts' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(useSettingsStore.getState().sidebarCollapsed).toBe(false);
   });
 });

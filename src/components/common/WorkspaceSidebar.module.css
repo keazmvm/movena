@@ -37,7 +37,6 @@
 
 .count {
   color: var(--text-muted);
-  opacity: var(--alpha-75);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   font-variant-numeric: tabular-nums;
@@ -165,8 +164,8 @@
   top: 0;
   bottom: 0;
   /* Center the divider in the shared 32px sidebar/content gutter. */
-  right: -13px;
-  width: 9px;
+  right: -21px;
+  width: 24px;
   padding: 0;
   border: none;
   background: transparent;
@@ -179,10 +178,38 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 4px;
+  left: 12px;
   width: 2px;
   background-color: transparent;
   transition: background-color var(--duration-normal) var(--ease-standard);
+}
+
+/* AppLayout stacks secondary workspaces at this width. Match that transition
+   so the sidebar cannot retain its full-height desktop geometry after the
+   route has already changed to a vertical layout. */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100% !important;
+    max-height: min(30vh, 220px);
+    align-self: auto;
+    margin: 0 0 var(--space-2);
+    padding: 0;
+    transition: none;
+  }
+
+  .header {
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .list {
+    min-height: var(--control-height-lg);
+    padding-bottom: var(--space-2);
+  }
+
+  .resizeHandle {
+    display: none;
+  }
 }
 
 .resizeHandle:hover::after,

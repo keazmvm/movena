@@ -98,7 +98,7 @@ showcase, dependency, release, and quality-gate work into one tagged build.
 - Added Microsoft Store MSIX build and optional submission automation, WinGet
   manifests, distribution starting points for Homebrew, AUR, and Flathub, plus
   store listing copy, screenshots, and generated artwork.
-- Added dark/light accessibility, minimum-window, 200%-zoom, translated-copy,
+- Added dark/light accessibility, minimum-window, high-DPI, translated-copy,
   token-contract, and visual-regression coverage to the component QA harness,
   including checked-in Windows light-theme baselines.
 
@@ -229,7 +229,7 @@ public project considerably easier to evaluate.
 
 - Added a production-component Playwright harness covering primitives, content
   states, settings controls, overlays, and the developer HUD.
-- Added automated accessibility, geometry, 200%-zoom containment, German-copy,
+- Added automated accessibility, geometry, high-DPI containment, German-copy,
   and visual-regression checks for representative interface surfaces.
 - Added checked-in Windows visual baselines for core controls and settings.
 - Added accessibility and geometry evidence uploads to the compliance workflow.
@@ -402,7 +402,7 @@ public project considerably easier to evaluate.
 - Fixed unchecked array/index access and ambiguous optional-property handling
   across stores, utilities, API adapters, components, and tests.
 - Fixed catalogue and shared-control layouts that could overflow or lose
-  containment at narrow widths and the 200% zoom equivalent.
+  containment at narrow and minimum supported logical widths.
 - Fixed duplicate or ambiguous accessible queries by giving interactive
   controls stable roles, labels, descriptions, and scoping.
 - Fixed source, credential, cache, and app-data deletion paths so Movena-owned

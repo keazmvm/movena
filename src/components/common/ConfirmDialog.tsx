@@ -1,7 +1,6 @@
 import { useId } from 'react';
-import { createPortal } from 'react-dom';
 import { Button } from './Button';
-import { useModalFocus } from '../../hooks/useModalFocus';
+import { ModalShell } from './ModalShell';
 import styles from './ConfirmDialog.module.css';
 import { useI18n } from '../../i18n';
 
@@ -27,25 +26,16 @@ export function ConfirmDialog({
   const { t } = useI18n();
   const titleId = useId();
   const descriptionId = useId();
-  const dialogRef = useModalFocus<HTMLDivElement>({
-    onClose: () => {
-      if (!isConfirming) onCancel();
-    },
-    initialFocusSelector: '[data-modal-initial-focus]',
-  });
-
-  return createPortal(
-    <div className="uiModalOverlay" onMouseDown={isConfirming ? undefined : onCancel}>
-      <div
-        ref={dialogRef}
-        className={`${styles.dialog} uiModalPanel`}
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        tabIndex={-1}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+  return (
+    <ModalShell
+      onClose={onCancel}
+      className={styles.dialog}
+      role="alertdialog"
+      labelledBy={titleId}
+      describedBy={descriptionId}
+      initialFocusSelector="[data-modal-initial-focus]"
+      dismissDisabled={isConfirming}
+    >
         <h2 id={titleId} className={styles.title}>{t(title)}</h2>
         <p id={descriptionId} className={styles.description}>{t(description)}</p>
         <div className={styles.actions}>
@@ -61,8 +51,6 @@ export function ConfirmDialog({
             {isConfirming ? t('Deleting…') : t(confirmLabel)}
           </Button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </ModalShell>
   );
 }

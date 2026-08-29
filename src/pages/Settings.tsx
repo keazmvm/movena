@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AccountConnectionForm } from '../components/forms/AccountConnectionForm';
@@ -23,7 +22,7 @@ import { ShortcutSettingsSection } from '../components/settings/ShortcutSettings
 import { SourcesSettingsSection } from '../components/settings/SourcesSettingsSection';
 import { SubtitleAudioSettingsSection } from '../components/settings/SubtitleAudioSettingsSection';
 import { IconButton } from '../components/common/Button';
-import { useModalFocus } from '../hooks/useModalFocus';
+import { ModalShell } from '../components/common/ModalShell';
 import { MOTION_DURATION, MOTION_EASE } from '../design/motion';
 import {
   resolveSettingsSectionId,
@@ -50,14 +49,6 @@ export function Settings() {
   const sourceEditorKey = sourceEditor
     ? `${sourceEditor.kind}-${'sourceId' in sourceEditor ? sourceEditor.sourceId ?? 'new' : 'choose'}`
     : 'closed';
-  const sourceDialogRef = useModalFocus<HTMLDivElement>({
-    enabled: sourceEditor !== null,
-    onClose: closeSourceEditor,
-    initialFocusSelector: sourceEditor?.kind === 'choose'
-      ? '[data-modal-initial-focus]'
-      : 'input:not([disabled])',
-    focusKey: sourceEditorKey,
-  });
 
   const selectSection = (section: SettingsSectionId) => {
     sectionScrollRef.current?.scrollTo({ top: 0 });
@@ -115,7 +106,13 @@ export function Settings() {
           <SettingsNavigation activeSection={activeSection} onSelect={selectSection} />
 
           <div className={settingsStyles.rightColumn}>
-            <div ref={sectionScrollRef} className={`${settingsStyles.scrollContainer} subtle-scrollbar`}>
+            <div
+              ref={sectionScrollRef}
+              className={`${settingsStyles.scrollContainer} subtle-scrollbar`}
+              role="region"
+              aria-label={t('Settings content')}
+              tabIndex={0}
+            >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={activeSection}
@@ -133,33 +130,18 @@ export function Settings() {
         </div>
       </PageTransition>
 
-      {createPortal(
-        <AnimatePresence>
-          {sourceEditor && (
-            <motion.div
-              className="uiModalOverlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeSourceEditor}
-            >
-              <motion.div
-                ref={sourceDialogRef}
-                className={`${settingsStyles.accountModal} uiModalPanel`}
-                role="dialog"
-                aria-modal="true"
-                aria-label={sourceEditor.kind === 'choose'
-                  ? t('Add media source')
-                  : sourceEditor.sourceId
-                    ? t(sourceEditor.kind === 'xtream' ? 'Edit Xtream source' : 'Edit M3U source')
-                    : t(sourceEditor.kind === 'xtream' ? 'Add Xtream source' : 'Add M3U source')}
-                tabIndex={-1}
-                initial={{ scale: 0.94, opacity: 0, y: 12 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.94, opacity: 0, y: 12 }}
-                transition={{ duration: MOTION_DURATION.normal, ease: MOTION_EASE.standard }}
-                onClick={(event) => event.stopPropagation()}
-              >
+      {sourceEditor && (
+        <ModalShell
+          onClose={closeSourceEditor}
+          className={settingsStyles.accountModal}
+          focusKey={sourceEditorKey}
+          initialFocusSelector={sourceEditor.kind === 'choose' ? '[data-modal-initial-focus]' : 'input:not([disabled])'}
+          ariaLabel={sourceEditor.kind === 'choose'
+            ? t('Add media source')
+            : sourceEditor.sourceId
+              ? t(sourceEditor.kind === 'xtream' ? 'Edit Xtream source' : 'Edit M3U source')
+              : t(sourceEditor.kind === 'xtream' ? 'Add Xtream source' : 'Add M3U source')}
+        >
                 {sourceEditor.kind === 'choose' ? (
                   <div className={settingsStyles.sourceChooser}>
                     <div className={settingsStyles.sourceChooserHeader}>
@@ -195,11 +177,7 @@ export function Settings() {
                     onCancel={closeSourceEditor}
                   />
                 )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body,
+        </ModalShell>
       )}
     </>
   );

@@ -181,7 +181,8 @@ describe('M3U Editor UI components', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Batch Tools' }));
-    expect(screen.getByRole('dialog', { name: 'Batch Tools' })).toBeTruthy();
+    const batchDialog = screen.getByRole('dialog', { name: 'Batch Tools' });
+    expect(batchDialog.closest('[data-ui-layer="modal"]')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /Apply Clean/ }));
     expect(onUpdateEntries).toHaveBeenCalledWith(
@@ -199,7 +200,8 @@ describe('M3U Editor UI components', () => {
     expect((screen.getByLabelText(`Select channel ${sampleEntries[0]!.title}`) as HTMLInputElement).checked).toBe(true);
     fireEvent.keyDown(grid, { key: 'ArrowDown' });
     fireEvent.keyDown(grid, { key: 'Enter' });
-    expect(screen.getByRole('dialog', { name: 'Edit Channel' })).toBeTruthy();
+    const editDialog = screen.getByRole('dialog', { name: 'Edit Channel' });
+    expect(editDialog.closest('[data-ui-layer="modal"]')).toBeTruthy();
     expect(screen.getByLabelText('Channel Name')).toHaveProperty('value', sampleEntries[1]!.title);
   });
 

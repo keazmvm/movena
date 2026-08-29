@@ -49,7 +49,7 @@
   left: 0;
   right: 0;
   height: var(--window-chrome-height);
-  z-index: calc(var(--z-player-popover) + 1);
+  z-index: var(--z-player-drag);
   -webkit-app-region: drag;
 }
 
@@ -104,7 +104,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: calc(var(--z-player) - 1);
+  z-index: var(--z-player-backdrop);
   pointer-events: auto;
 }
 
@@ -297,4 +297,43 @@
   color: var(--badge-accent);
   background: color-mix(in srgb, var(--badge-accent) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--badge-accent) 30%, transparent);
+}
+
+@media (max-width: 640px), (max-height: 420px) {
+  .controlsContainer {
+    padding: calc(var(--window-chrome-height) + var(--space-1)) var(--space-2) var(--space-2);
+  }
+
+  .titleGroup {
+    max-width: calc(100% - 150px);
+  }
+
+  .title {
+    font-size: var(--font-size-body);
+  }
+
+  .badgeGroup {
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .radioStage {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .radioCopy {
+    min-width: 0;
+  }
+
+  .radioCopy strong {
+    overflow: hidden;
+    font-size: var(--font-size-section);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .errorOverlay {
+    padding: var(--space-3);
+  }
 }

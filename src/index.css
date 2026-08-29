@@ -68,7 +68,7 @@
   /* Text and semantic colors. */
   --text-primary: #f3f6fb;
   --text-secondary: #aeb8c8;
-  --text-muted: #78869a;
+  --text-muted: #8d9aab;
   --text-media-primary: #ffffff;
   --text-media-secondary: rgba(255, 255, 255, 0.75);
   --text-on-accent: #ffffff;
@@ -206,7 +206,7 @@
   --space-10: 64px;
   --space-16: 96px;
   --window-chrome-height: 32px;
-  --page-top-inset: clamp(var(--space-2), 2vh, var(--space-4));
+  --page-top-inset: var(--space-2);
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -219,12 +219,16 @@
   /* Above the sidebar so the window drag strip wins the top inset where the
      two drag regions overlap. See WindowChrome.tsx. */
   --z-window-drag: 150;
-  --z-overlay: 1000;
+  --z-modal: 1000;
   --z-dropdown: 2000;
   --z-toast: 3000;
+  --z-player-backdrop: 9999;
   --z-player: 10000;
   --z-player-controls: 10010;
+  --z-window-chrome: 10011;
+  --z-player-prompt: 10012;
   --z-player-popover: 10020;
+  --z-player-drag: 10021;
   --z-debug: 20000;
   --z-context-menu: 30000;
   --z-context-submenu: 30010;
@@ -270,13 +274,13 @@ html[data-theme='light']:not(.is-playing) {
 
   --text-primary: #172033;
   --text-secondary: #526176;
-  --text-muted: #748399;
+  --text-muted: #56677f;
   --text-on-success: #ffffff;
   --text-on-error: #ffffff;
   --focus-color: #176dcc;
   --focus-color-rgb: 23, 109, 204;
-  --color-success: #168a4b;
-  --color-success-rgb: 22, 138, 75;
+  --color-success: #0c713b;
+  --color-success-rgb: 12, 113, 59;
   --color-warning: #9a6500;
   --color-warning-rgb: 154, 101, 0;
   --color-error: #b12b3c;
@@ -552,16 +556,18 @@ html.is-playing {
 .uiModalOverlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-modal);
   display: grid;
   place-items: center;
-  padding: var(--space-6);
+  box-sizing: border-box;
+  padding: calc(var(--window-chrome-height) + var(--space-2)) var(--space-6) var(--space-6);
   background: var(--surface-overlay);
   overflow: auto;
 }
 
 .uiModalPanel {
   max-width: 100%;
+  max-height: calc(100dvh - var(--window-chrome-height) - var(--space-8));
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface-elevated);
@@ -702,6 +708,16 @@ html[data-motion='reduced'] *::after {
     --surface-control-hover: #e3eaf2;
     --surface-control-active: #d5e0eb;
     --focus-ring: 0 0 0 4px rgba(var(--focus-color-rgb), 0.58);
+  }
+}
+
+@media (max-width: 640px), (max-height: 420px) {
+  .uiModalOverlay {
+    padding: calc(var(--window-chrome-height) + var(--space-1)) var(--space-2) var(--space-2);
+  }
+
+  .uiModalPanel {
+    max-height: calc(100dvh - var(--window-chrome-height) - var(--space-3));
   }
 }
 

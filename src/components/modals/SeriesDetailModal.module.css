@@ -394,6 +394,10 @@
   background: var(--surface-selection);
 }
 
+.requestedEpisodeCard .episodeMeta {
+  color: var(--text-secondary);
+}
+
 .episodeImageWrapper {
   position: relative;
   width: 140px;

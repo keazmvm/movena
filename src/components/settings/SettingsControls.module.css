@@ -77,7 +77,9 @@
 }
 
 .rowDisabled {
-  opacity: var(--alpha-60);
+  /* The native disabled control conveys availability; fading the complete
+     row would make its explanatory copy fail text contrast. */
+  opacity: 1;
 }
 
 .rowInfo {

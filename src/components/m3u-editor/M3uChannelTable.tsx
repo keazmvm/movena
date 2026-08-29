@@ -259,6 +259,19 @@ export function M3uChannelTable({
       <div className={styles.channelArea}>
         {/* Table Filter Toolbar */}
         <div className={styles.tableToolbar}>
+          <div className={styles.compactCategoryFilter}>
+            <Select
+              value={selectedGroup ?? ''}
+              options={[
+                { value: '', label: t('All Channels') },
+                ...groupStats.map((group) => ({ value: group.name, label: `${group.name} (${number(group.count)})` })),
+              ]}
+              onChange={(value) => setSelectedGroup(value || null)}
+              width="100%"
+              variant="settings"
+              ariaLabel={t('Playlist category')}
+            />
+          </div>
           <div className={styles.searchFilters}>
             <div style={{ position: 'relative', flex: 1, minWidth: '160px', maxWidth: '300px' }}>
               <input

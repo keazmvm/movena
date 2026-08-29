@@ -6,13 +6,16 @@ import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { applyAppearanceTheme } from '../../src/design/appearance';
 import '../../src/index.css';
 import { ComponentHarness } from './ComponentHarness';
-import { README_SURFACES, ReadmeHarness, type ReadmeSurface } from './ReadmeHarness';
+import { ReadmeHarness } from './ReadmeHarness';
+import { README_SURFACES, type ReadmeSurface } from '../readmeSurfaces';
 
 async function renderHarness() {
   const searchParams = new URLSearchParams(window.location.search);
   const requestedLocale = searchParams.get('locale');
   const language = isUiLanguage(requestedLocale) ? requestedLocale : 'en';
-  const theme = searchParams.get('theme') === 'light' ? 'light' : 'dark';
+  const theme = searchParams.get('theme') === 'light' || searchParams.get('readme') === 'light-theme'
+    ? 'light'
+    : 'dark';
   await ensureUiMessages(language);
   useSettingsStore.setState({ language, themePreference: theme });
   applyAppearanceTheme(theme, useSettingsStore.getState().accentColor);
@@ -21,9 +24,10 @@ async function renderHarness() {
 
   const readmeSurface = searchParams.get('readme');
   const isReadmeSurface = README_SURFACES.includes(readmeSurface as ReadmeSurface);
+  const settingsSection = searchParams.get('settingsSection');
 
   createRoot(document.getElementById('root')!).render(isReadmeSurface ? (
-    <ReadmeHarness surface={readmeSurface as ReadmeSurface} />
+    <ReadmeHarness surface={readmeSurface as ReadmeSurface} settingsSection={settingsSection} />
   ) : (
     <BrowserRouter>
       <ComponentHarness language={language} />

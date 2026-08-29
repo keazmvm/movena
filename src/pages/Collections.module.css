@@ -135,3 +135,18 @@
 .modalSubmitBtn {
   flex-shrink: 0;
 }
+
+@media (max-width: 640px) {
+  .collectionsPage {
+    flex-direction: column;
+  }
+
+  .modalFooter {
+    flex-wrap: wrap;
+  }
+
+  .modalCancelBtn,
+  .modalSubmitBtn {
+    flex: 1 1 120px;
+  }
+}

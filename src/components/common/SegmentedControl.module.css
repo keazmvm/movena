@@ -73,3 +73,24 @@
 .active .icon {
   color: var(--accent-foreground);
 }
+
+@media (max-width: 640px), (max-height: 420px) {
+  .iconOnlyAtCompact {
+    flex-wrap: nowrap;
+  }
+
+  .iconOnlyAtCompact .segment {
+    width: var(--control-height-sm);
+    flex: 0 0 var(--control-height-sm);
+    padding-inline: 0;
+  }
+
+  .iconOnlyAtCompact .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

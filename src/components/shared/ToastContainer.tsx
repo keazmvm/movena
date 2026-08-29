@@ -121,7 +121,7 @@ export function ToastContainer() {
       : styles.topRight;
 
   return (
-    <div className={`${styles.toastContainer} ${positionClass}`}>
+    <div className={`${styles.toastContainer} ${positionClass}`} data-ui-layer="toast">
       <AnimatePresence mode="sync">
         {visibleNotifications.map((notification) => (
           <ToastCard key={notification.id} notification={notification} />

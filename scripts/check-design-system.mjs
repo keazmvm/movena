@@ -20,6 +20,12 @@ const sourceFiles = walk(sourceRoot).filter((path) =>
 const cssFiles = sourceFiles.filter((path) => extname(path) === '.css');
 const tokenSource = join(sourceRoot, 'index.css');
 const violations = [];
+const globalLayerTokens = new Set([
+  '--z-sidebar', '--z-header', '--z-window-drag', '--z-modal', '--z-dropdown', '--z-toast',
+  '--z-player-backdrop', '--z-player', '--z-player-controls', '--z-window-chrome',
+  '--z-player-prompt', '--z-player-popover', '--z-player-drag', '--z-debug',
+  '--z-context-menu', '--z-context-submenu',
+]);
 
 function report(path, rule, match) {
   const content = readFileSync(path, 'utf8');
@@ -64,6 +70,12 @@ for (const path of cssFiles) {
   for (const match of withoutComments.matchAll(/z-index\s*:\s*(\d+)/gi)) {
     if (Number(match[1]) >= 50) report(path, 'global layer must use a z-index token', match);
   }
+  for (const match of withoutComments.matchAll(/z-index\s*:\s*calc\([^;]*--z-[^;]+/gi)) {
+    report(path, 'global layer calculations are forbidden; declare a named layer token', match);
+  }
+  for (const match of withoutComments.matchAll(/z-index\s*:\s*var\(\s*(--z-[\w-]+)/gi)) {
+    if (!globalLayerTokens.has(match[1])) report(path, 'undeclared global layer token', match);
+  }
 
   if (relative(sourceRoot, path).replaceAll('\\', '/').startsWith('components/player/')) {
     for (const match of withoutComments.matchAll(/(?:-webkit-)?backdrop-filter\s*:\s*([^;]+)/gi)) {
@@ -101,6 +113,16 @@ for (const path of sourceFiles.filter((sourcePath) => ['.ts', '.tsx'].includes(e
   }
 
   const sourcePath = relative(sourceRoot, path).replaceAll('\\', '/');
+  const ownsModalPrimitive = sourcePath === 'components/common/ModalShell.tsx'
+    || sourcePath === 'components/common/DetailModalShell.tsx';
+  if (/aria-modal\s*=\s*["{]true/.test(content)
+    && !ownsModalPrimitive
+    && !/<(?:ModalShell|DetailModalShell)\b/.test(content)) {
+    report(path, 'modal surfaces must compose a shared portal modal primitive', {
+      0: 'aria-modal="true"',
+      index: content.search(/aria-modal\s*=\s*["{]true/),
+    });
+  }
   const isPlayerSource = sourcePath.startsWith('components/player/') || sourcePath === 'hooks/usePlayerContextMenus.tsx';
   const sourceFile = ts.createSourceFile(path, content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const reportNode = (rule, node) => report(path, rule, {

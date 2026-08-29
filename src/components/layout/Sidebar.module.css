@@ -95,8 +95,7 @@
 }
 
 .bottomBar {
-  position: sticky;
-  bottom: 0;
+  position: relative;
   z-index: 1;
   flex: 0 0 auto;
   height: calc(var(--control-height-md) + var(--space-3));
@@ -155,6 +154,11 @@
 .bottomToggleBtn:hover {
   color: var(--text-primary);
   background-color: var(--surface-control-hover);
+}
+
+.bottomToggleBtn:disabled {
+  cursor: default;
+  opacity: var(--alpha-45);
 }
 
 .toggleIcon {

@@ -196,6 +196,7 @@ export function Epg() {
   );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const [timelineViewport, setTimelineViewport] = useState({ scrollLeft: 0, width: 0 });
 
   const rows = useVirtualizer({
     count: channels.length,
@@ -217,7 +218,27 @@ export function Epg() {
   }, [pixelsPerMinute]);
 
   const syncHorizontalClip = useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty('--timeline-scroll-left', `${event.currentTarget.scrollLeft}px`);
+    const scroller = event.currentTarget;
+    scroller.style.setProperty('--timeline-scroll-left', `${scroller.scrollLeft}px`);
+    setTimelineViewport((current) => (
+      current.scrollLeft === scroller.scrollLeft && current.width === scroller.clientWidth
+        ? current
+        : { scrollLeft: scroller.scrollLeft, width: scroller.clientWidth }
+    ));
+  }, []);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const update = () => setTimelineViewport({ scrollLeft: scroller.scrollLeft, width: scroller.clientWidth });
+    update();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', update);
+      return () => window.removeEventListener('resize', update);
+    }
+    const observer = new ResizeObserver(update);
+    observer.observe(scroller);
+    return () => observer.disconnect();
   }, []);
 
   // On arrival the guide should already be showing what is on, not the small
@@ -231,6 +252,7 @@ export function Epg() {
       const left = epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute, NOW_INSET);
       scroller.scrollLeft = left;
       scroller.style.setProperty('--timeline-scroll-left', `${left}px`);
+      setTimelineViewport({ scrollLeft: left, width: scroller.clientWidth });
     };
     // Set it before the first paint, then verify once the lazy route, sticky
     // column, and virtual canvas have completed their first layout.
@@ -463,6 +485,8 @@ export function Epg() {
                       onProgrammeEnd={reportProgrammeEnd}
                       requestEnabled={!rows.isScrolling}
                       customTitleRules={customTitleRules}
+                      timelineScrollLeft={timelineViewport.scrollLeft}
+                      timelineViewportWidth={timelineViewport.width}
                     />
                   );
                 })}
@@ -507,11 +531,14 @@ interface EpgRowProps {
   onProgrammeEnd: (end: number) => void;
   requestEnabled: boolean;
   customTitleRules: readonly CustomTitleRule[];
+  timelineScrollLeft: number;
+  timelineViewportWidth: number;
 }
 
 const EpgRow = memo(function EpgRow({
   channel, xmltv, xmltvLoading, top, windowStart, windowEnd, offsetOf, now, selectedId,
   selectedChannelId, alternate, onSelect, onPlay, onProgrammeEnd, requestEnabled, customTitleRules,
+  timelineScrollLeft, timelineViewportWidth,
 }: EpgRowProps) {
   const { t, time, number } = useI18n();
 
@@ -593,6 +620,14 @@ const EpgRow = memo(function EpgRow({
             const from = Math.max(programme.start, windowStart);
             const to = Math.min(programme.end, windowEnd);
             const live = now >= programme.start && now < programme.end;
+            const programmeLeft = offsetOf(from) + 2;
+            const programmeWidth = Math.max(4, offsetOf(to) - offsetOf(from) - 4);
+            const visibleStart = Math.max(programmeLeft, timelineScrollLeft);
+            const visibleEnd = Math.min(
+              programmeLeft + programmeWidth,
+              timelineScrollLeft + Math.max(0, timelineViewportWidth - CHANNEL_WIDTH),
+            );
+            const isReachable = visibleEnd - visibleStart >= 24;
             const progress = live
               ? ((now - programme.start) / (programme.end - programme.start)) * 100
               : 0;
@@ -612,10 +647,13 @@ const EpgRow = memo(function EpgRow({
                   selectedChannelId === channel.id && selectedId === programme.id ? styles.programmeSelected : '',
                 ].join(' ')}
                 style={{
-                  left: offsetOf(from) + 2,
-                  width: Math.max(4, offsetOf(to) - offsetOf(from) - 4),
+                  left: programmeLeft,
+                  width: programmeWidth,
                   '--programme-left': `${offsetOf(from)}px`,
                 } as React.CSSProperties}
+                disabled={!isReachable}
+                aria-hidden={!isReachable || undefined}
+                tabIndex={isReachable ? undefined : -1}
                 onClick={() => onSelect(programme)}
                 onDoubleClick={() => onPlay(channel)}
               >

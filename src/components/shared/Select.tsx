@@ -196,6 +196,7 @@ export function Select<T extends string | number>({
               ref={dropdownRef}
               id={listboxId}
               className={`${styles.dropdown} ${variant === 'player' ? styles.playerDropdown : ''} subtle-scrollbar`}
+              data-ui-layer={variant === 'player' ? 'player-popover' : 'dropdown'}
               role="listbox"
               tabIndex={-1}
               aria-activedescendant={`${listboxId}-option-${activeIndex}`}

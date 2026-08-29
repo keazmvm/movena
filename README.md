@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://github.com/movena-app/movena/releases/latest"><img src="https://img.shields.io/github/v/release/movena-app/movena?display_name=tag&sort=semver&style=flat-square" alt="Latest release"></a>
   <a href="https://github.com/movena-app/movena/actions/workflows/compliance.yml"><img src="https://img.shields.io/github/actions/workflow/status/movena-app/movena/compliance.yml?branch=main&label=verify&style=flat-square" alt="Verify workflow status"></a>
+  <a href="https://discord.gg/hRHpwVPjBN"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord community"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-3b82f6?style=flat-square" alt="GPL-3.0-or-later license"></a>
   <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-58677d?style=flat-square" alt="Windows, macOS, and Linux">
 </p>
@@ -20,6 +21,7 @@
   <strong><a href="https://github.com/movena-app/movena/releases/latest">Download</a></strong>
   · <a href="https://apps.microsoft.com/detail/9P2T0QGGHQGQ">Microsoft Store</a>
   · <a href="https://movena.frtx.cc/">Website</a>
+  · <a href="https://discord.gg/hRHpwVPjBN">Discord</a>
   · <a href="https://github.com/movena-app/movena/issues">Report an issue</a>
   · <a href="SUPPORT.md">Support</a>
   · <a href="CONTRIBUTING.md">Contribute</a>

@@ -35,6 +35,7 @@ export function DetailModalShell({
   return createPortal(
     <motion.div
       className="uiModalOverlay"
+      data-ui-layer="modal"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

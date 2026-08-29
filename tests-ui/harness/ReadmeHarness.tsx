@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components -- screenshot routes share their typed registry with the harness entrypoint */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'framer-motion';
 import { MemoryRouter } from 'react-router-dom';
@@ -19,8 +18,11 @@ import { SeriesDetailModal } from '../../src/components/modals/SeriesDetailModal
 import { M3uEditor } from '../../src/components/m3u-editor/M3uEditor';
 import { PlayerShell } from '../../src/components/player/PlayerShell';
 import { Downloads } from '../../src/pages/Downloads';
+import { Collections } from '../../src/pages/Collections';
+import { ContinueWatching } from '../../src/pages/ContinueWatching';
 import { Epg } from '../../src/pages/Epg';
 import { Home } from '../../src/pages/Home';
+import { Favorites } from '../../src/pages/Favorites';
 import { LiveTV } from '../../src/pages/LiveTV';
 import { Movies } from '../../src/pages/Movies';
 import { Search } from '../../src/pages/Search';
@@ -34,99 +36,80 @@ import { usePlayerStore } from '../../src/store/usePlayerStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { useSourceStore, type M3uSourceProfile } from '../../src/store/useSourceStore';
 import type { DownloadJob } from '../../src/utils/downloads';
+import { resolveSettingsSectionId, type SettingsSectionId } from '../../src/utils/settingsNavigation';
 import appStyles from '../../src/components/layout/AppLayout.module.css';
-
-export const README_SURFACES = [
-  'hero',
-  'live-tv',
-  'live-epg',
-  'player-vod',
-  'player-series',
-  'library-details',
-  'series-details',
-  'upcoming',
-  'search',
-  'm3u-editor',
-  'm3u-raw-editor',
-  'downloads',
-  'settings',
-  'playback-settings',
-  'light-theme',
-] as const;
-
-export type ReadmeSurface = (typeof README_SURFACES)[number];
+import type { ReadmeSurface } from '../readmeSurfaces';
+import { NotFoundPage } from '../../src/App';
 
 const SOURCE_ID = 'm3u-readme-fixture';
 const XTREAM_SOURCE_ID = 'xtream-readme-fixture';
 const GUIDE_URL = 'https://guide.example.test/movena.xml';
 
-// Real TMDB poster/backdrop artwork is loaded only by this deterministic
-// screenshot fixture. The rendered captures exercise Movena's production UI;
-// no product component or layout is recreated here.
+// Local data-URI artwork keeps visual QA independent of network availability.
 const TMDB_ARTWORK = {
   dunePartTwo: {
-    poster: 'https://media.themoviedb.org/t/p/w500/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/eZ239CUp1d6OryZEBPnO2n87gMG.jpg',
+    poster: artwork(0),
+    backdrop: artwork(0, true),
   },
   parasite: {
-    poster: 'https://media.themoviedb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/vbC0rzdrb7Ohc2TkbEbxtOABECe.jpg',
+    poster: artwork(1),
+    backdrop: artwork(1, true),
   },
   spiritedAway: {
-    poster: 'https://media.themoviedb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg',
+    poster: artwork(2),
+    backdrop: artwork(2, true),
   },
   theMatrix: {
-    poster: 'https://media.themoviedb.org/t/p/w500/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/tlm8UkiQsitc8rSuIAscQDCnP8d.jpg',
+    poster: artwork(3),
+    backdrop: artwork(3, true),
   },
   arrival: {
-    poster: 'https://media.themoviedb.org/t/p/w500/pEzNVQfdzYDzVK0XqxERIw2x2se.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/8MUZz7oPXQftFTslZpRP3CVMOoq.jpg',
+    poster: artwork(4),
+    backdrop: artwork(4, true),
   },
   grandBudapestHotel: {
-    poster: 'https://media.themoviedb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/9udCLTxTFl28RxnK8Q05E154ZGa.jpg',
+    poster: artwork(5),
+    backdrop: artwork(5, true),
   },
   madMaxFuryRoad: {
-    poster: 'https://media.themoviedb.org/t/p/w500/ulcAi4dKpAjHwYGS08vNyx9H6I9.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/uT895WNwm0aIJRtGizcQhrejWUo.jpg',
+    poster: artwork(6),
+    backdrop: artwork(6, true),
   },
   theGodfather: {
-    poster: 'https://media.themoviedb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg',
+    poster: artwork(7),
+    backdrop: artwork(7, true),
   },
   severance: {
-    poster: 'https://media.themoviedb.org/t/p/w500/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/ixgFmf1X59PUZam2qbAfskx2gQr.jpg',
+    poster: artwork(8),
+    backdrop: artwork(8, true),
   },
   theBear: {
-    poster: 'https://media.themoviedb.org/t/p/w500/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/aJtG4txtmiRHwAAqENQHZvBs6kY.jpg',
+    poster: artwork(9),
+    backdrop: artwork(9, true),
   },
   dark: {
-    poster: 'https://media.themoviedb.org/t/p/w500/apbrbWs8M9lyOpJYU5WXrpFbk1Z.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/3jDXL4Xvj3AzDOF6UH1xeyHW8MH.jpg',
+    poster: artwork(10),
+    backdrop: artwork(10, true),
   },
   arcane: {
-    poster: 'https://media.themoviedb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/q8eejQcg1bAqImEV8jh8RtBD4uH.jpg',
+    poster: artwork(11),
+    backdrop: artwork(11, true),
   },
   shogun: {
-    poster: 'https://media.themoviedb.org/t/p/w500/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg',
-    backdrop: 'https://media.themoviedb.org/t/p/original/bwSmgmd90hCWwqOKQYTEraeOZhJ.jpg',
+    poster: artwork(12),
+    backdrop: artwork(12, true),
   },
 } as const;
 
 const CHANNEL_LOGOS = {
-  bbcNews: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/BBC_News_2022_%28Alt%2C_boxed%29.svg',
-  cnnInternational: 'https://upload.wikimedia.org/wikipedia/commons/6/66/CNN_International_logo.svg',
-  arte: 'https://upload.wikimedia.org/wikipedia/commons/4/43/Arte_Logo_2017.svg',
-  nationalGeographic: 'https://upload.wikimedia.org/wikipedia/commons/1/13/National_Geographic_Channel.svg',
-  eurosport: 'https://upload.wikimedia.org/wikipedia/commons/1/17/Eurosport_Logo_2015.svg',
-  mtv: 'https://upload.wikimedia.org/wikipedia/commons/6/68/MTV_2021_%28brand_version%29.svg',
-  cartoonNetwork: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Cartoon_Network_2010_logo.svg',
-  deutscheWelle: 'https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg',
+  bbcNews: artwork(13, true),
+  cnnInternational: artwork(14, true),
+  arte: artwork(15, true),
+  nationalGeographic: artwork(16, true),
+  eurosport: artwork(17, true),
+  mtv: artwork(18, true),
+  cartoonNetwork: artwork(19, true),
+  deutscheWelle: artwork(20, true),
 } as const;
 
 const XTREAM_CREDENTIALS: XCCredentials = {
@@ -198,7 +181,7 @@ function severanceEpisode(
   number: number,
   title: string,
   runtimeMinutes: number,
-  imagePath: string,
+  _imagePath: string,
   plot: string,
 ): XCSeriesInfoResponse['episodes'][string][number] {
   return {
@@ -212,7 +195,7 @@ function severanceEpisode(
     info: {
       duration_secs: runtimeMinutes * 60,
       duration: `${Math.floor(runtimeMinutes / 60).toString().padStart(2, '0')}:${(runtimeMinutes % 60).toString().padStart(2, '0')}:00`,
-      movie_image: `https://media.themoviedb.org/t/p/w500/${imagePath}`,
+      movie_image: artwork((season * 10) + number, true),
       plot,
     },
   };
@@ -433,12 +416,7 @@ const DOWNLOADS: DownloadJob[] = [
 
 function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
   installPlayerFixtureStubs();
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', surface === 'light-theme' ? 'light' : 'dark');
-  }
   useSettingsStore.setState({
-    themePreference: surface === 'light-theme' ? 'light' : 'dark',
-    language: 'en',
     sidebarCollapsed: false,
     showCollapsedSidebarBadges: true,
     onboardingDismissed: true,
@@ -687,6 +665,12 @@ function PlayerFixture({ surface }: { surface: ReadmeSurface }) {
 
 function Surface({ surface }: { surface: ReadmeSurface }) {
   if (surface === 'hero' || surface === 'light-theme') return <Home />;
+  if (surface === 'movies') return <Movies />;
+  if (surface === 'series') return <Series />;
+  if (surface === 'continue-watching') return <ContinueWatching />;
+  if (surface === 'favorites') return <Favorites />;
+  if (surface === 'collections') return <Collections />;
+  if (surface === 'not-found') return <NotFoundPage />;
   if (surface === 'live-tv') return <LiveTV />;
   if (surface === 'live-epg') return <Epg />;
   if (surface === 'upcoming') return <Upcoming />;
@@ -729,6 +713,12 @@ function Surface({ surface }: { surface: ReadmeSurface }) {
 
 const ROUTES: Record<ReadmeSurface, string> = {
   hero: '/',
+  movies: '/movies',
+  series: '/series',
+  'continue-watching': '/continue',
+  favorites: '/favorites',
+  collections: '/collections',
+  'not-found': '/does-not-exist',
   'live-tv': '/live',
   'live-epg': '/epg',
   'player-vod': '/movies',
@@ -745,18 +735,24 @@ const ROUTES: Record<ReadmeSurface, string> = {
   'light-theme': '/',
 };
 
-export function ReadmeHarness({ surface }: { surface: ReadmeSurface }) {
+export function ReadmeHarness({ surface, settingsSection }: { surface: ReadmeSurface; settingsSection?: string | null | undefined }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Number.POSITIVE_INFINITY, refetchOnWindowFocus: false } },
   });
   seedFixture(queryClient, surface);
   const isPlayerSurface = surface === 'player-vod' || surface === 'player-series';
 
+  const resolvedSettingsSection: SettingsSectionId = resolveSettingsSectionId(settingsSection ?? null);
+  const initialRoute = surface === 'settings'
+    ? `/settings?section=${resolvedSettingsSection}`
+    : ROUTES[surface];
+  const scenarioId = surface === 'settings' ? `settings-${resolvedSettingsSection}` : surface;
+
   return (
-    <MemoryRouter initialEntries={[ROUTES[surface]]}>
+    <MemoryRouter initialEntries={[initialRoute]}>
       <QueryClientProvider client={queryClient}>
         <MotionConfig reducedMotion="always">
-          <div className={appStyles.appContainer}>
+          <div className={appStyles.appContainer} data-ui-qa-scenario={scenarioId}>
             <div className={appStyles.windowDragArea} data-tauri-drag-region aria-hidden="true" />
             {isPlayerSurface ? <PlayerFixture surface={surface} /> : (
               <div className={appStyles.appUi}>

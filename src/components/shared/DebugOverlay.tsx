@@ -373,6 +373,7 @@ export function DebugOverlay() {
         drag
         dragMomentum={false}
         className={styles.debugPill}
+        data-ui-layer="debug"
         onClick={() => setIsMinimized(false)}
         aria-label={t('Open Developer HUD')}
       >
@@ -397,6 +398,7 @@ export function DebugOverlay() {
     <AnimatePresence>
       <motion.div
         className={styles.debugOverlayWindow}
+        data-ui-layer="debug"
         style={{
           left: hudGeometry.x,
           top: hudGeometry.y,

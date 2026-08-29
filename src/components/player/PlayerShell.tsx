@@ -100,6 +100,7 @@ export function PlayerShell() {
         exit={{ opacity: 0 }}
         transition={{ duration: MOTION_DURATION.normal }}
         className={styles.playerOverlay}
+        data-ui-layer="player"
         ref={containerRef}
         onClick={handleOverlayClick}
         onContextMenu={handlePlayerContextMenu}
@@ -176,7 +177,7 @@ export function PlayerShell() {
           </div>
         )}
 
-        {!errorMessage && <div className={`${styles.controlsContainer} ${showControls ? styles.showControls : ''}`}>
+        {!errorMessage && <div className={`${styles.controlsContainer} ${showControls ? styles.showControls : ''}`} data-ui-layer="player-controls">
           <div
             className={styles.topBar}
             data-tauri-drag-region

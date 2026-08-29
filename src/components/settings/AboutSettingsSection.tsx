@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { desktopApi } from '../../api/desktop';
 import { RefreshCw, Bug, ExternalLink, Download } from 'lucide-react';
+import { DiscordIcon, GithubIcon } from '../shared/icons';
 import { notify } from '../../store/useNotificationStore';
 import { clearAllAppData } from '../../services/appDataReset';
 import { useUpdateStore } from '../../store/useUpdateStore';
@@ -109,8 +110,11 @@ export function AboutSettingsSection() {
             >
               <RefreshCw size={15} className={updatePhase === 'checking' ? 'animate-spin' : undefined} /> {t('Check for Updates')}
             </SettingsButton>
+            <SettingsButton onClick={() => void desktopApi.openUrl('https://discord.gg/hRHpwVPjBN')}>
+              <DiscordIcon size={15} /> Discord
+            </SettingsButton>
             <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena')}>
-              <ExternalLink size={15} /> {t('View on GitHub')}
+              <GithubIcon size={15} /> {t('View on GitHub')}
             </SettingsButton>
             <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/issues/new')}>
               <Bug size={15} /> {t('Report an Issue')}

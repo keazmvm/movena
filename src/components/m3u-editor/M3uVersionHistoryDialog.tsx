@@ -8,8 +8,8 @@ import {
   saveM3uVersion,
   type M3uVersionRecord,
 } from '../../services/m3uVersionHistory';
-import { useModalFocus } from '../../hooks/useModalFocus';
 import { Button, IconButton } from '../common/Button';
+import { ModalShell } from '../common/ModalShell';
 import { useI18n } from '../../i18n';
 import { tauriApi } from '../../api/ipc';
 import { notify } from '../../store/useNotificationStore';
@@ -34,7 +34,6 @@ export function M3uVersionHistoryDialog({
   const { t, number } = useI18n();
   const [versions, setVersions] = useState<M3uVersionRecord[]>([]);
   const [isWorking, setIsWorking] = useState(false);
-  const dialogRef = useModalFocus<HTMLDivElement>({ onClose, initialFocusSelector: '[data-modal-initial-focus]' });
 
   const refresh = useCallback(async () => setVersions(await listM3uVersions(sourceId)), [sourceId]);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -62,16 +61,12 @@ export function M3uVersionHistoryDialog({
   };
 
   return (
-    <div className="uiModalOverlay" onMouseDown={onClose}>
-      <div
-        ref={dialogRef}
-        className={`${styles.historyDialog} uiModalPanel`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('Playlist Version History')}
-        tabIndex={-1}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+    <ModalShell
+      onClose={onClose}
+      className={styles.historyDialog}
+      ariaLabel={t('Playlist Version History')}
+      initialFocusSelector="[data-modal-initial-focus]"
+    >
         <div className={styles.modalHeader}>
           <div>
             <h2 className={styles.drawerHeaderTitle}>{t('Playlist Version History')}</h2>
@@ -110,7 +105,6 @@ export function M3uVersionHistoryDialog({
             {versions.length === 0 && <p className={styles.emptyNotice}>{t('No saved versions yet. A checkpoint is created before every source save.')}</p>}
           </div>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

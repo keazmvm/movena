@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Command, Search, X } from 'lucide-react';
-import { useModalFocus } from '../../hooks/useModalFocus';
 import { IconButton } from '../common/Button';
+import { ModalShell } from '../common/ModalShell';
 import { useI18n } from '../../i18n';
 import styles from './M3uEditorWorkspace.module.css';
 
@@ -21,23 +21,18 @@ interface M3uCommandPaletteProps {
 export function M3uCommandPalette({ commands, onClose }: M3uCommandPaletteProps) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
-  const dialogRef = useModalFocus<HTMLDivElement>({ onClose, initialFocusSelector: 'input' });
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return normalized ? commands.filter((command) => t(command.label).toLowerCase().includes(normalized)) : commands;
   }, [commands, query, t]);
 
   return (
-    <div className="uiModalOverlay" onMouseDown={onClose}>
-      <div
-        ref={dialogRef}
-        className={`${styles.commandPalette} uiModalPanel`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('Editor Command Palette')}
-        tabIndex={-1}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+    <ModalShell
+      onClose={onClose}
+      className={styles.commandPalette}
+      ariaLabel={t('Editor Command Palette')}
+      initialFocusSelector="input"
+    >
         <div className={styles.commandSearch}>
           <Search size={15} aria-hidden="true" />
           <input className="uiField" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search editor commands...')} aria-label={t('Search editor commands')} />
@@ -61,7 +56,6 @@ export function M3uCommandPalette({ commands, onClose }: M3uCommandPaletteProps)
           ))}
           {filtered.length === 0 && <p className={styles.emptyNotice}>{t('No matching commands.')}</p>}
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

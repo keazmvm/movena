@@ -12,7 +12,7 @@ import { WorkspaceSidebar } from '../components/common/WorkspaceSidebar';
 import { CatalogPageHeader } from '../components/common/CatalogPageHeader';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Button, IconButton } from '../components/common/Button';
-import { useModalFocus } from '../hooks/useModalFocus';
+import { ModalShell } from '../components/common/ModalShell';
 import { MediaDetailModals } from '../components/modals/MediaDetailModals';
 import { useMediaDetailState } from '../hooks/useMediaDetailState';
 import { useI18n } from '../i18n';
@@ -47,16 +47,6 @@ export function Collections() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const closeCreateModal = useCallback(() => setIsCreateOpen(false), []);
   const closeRenameModal = useCallback(() => setIsRenameOpen(false), []);
-  const createModalRef = useModalFocus<HTMLDivElement>({
-    enabled: isCreateOpen,
-    onClose: closeCreateModal,
-    initialFocusSelector: '[data-modal-initial-focus]',
-  });
-  const renameModalRef = useModalFocus<HTMLDivElement>({
-    enabled: isRenameOpen,
-    onClose: closeRenameModal,
-    initialFocusSelector: '[data-modal-initial-focus]',
-  });
 
   // Keep activeCollectionId synced if collection list changes
   useEffect(() => {
@@ -225,16 +215,7 @@ export function Collections() {
 
         {/* Create Collection Modal */}
         {isCreateOpen && (
-          <div className="uiModalOverlay" onClick={closeCreateModal}>
-            <div
-              ref={createModalRef}
-              className={`${styles.modalContent} uiModalPanel`}
-              role="dialog"
-              aria-modal="true"
-              aria-label={t('Create new collection')}
-              tabIndex={-1}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <ModalShell onClose={closeCreateModal} className={styles.modalContent} ariaLabel={t('Create new collection')} initialFocusSelector="[data-modal-initial-focus]">
               <div className={styles.modalHeader}>
                 <h3 className={styles.modalTitle}>{t('Create New Collection')}</h3>
                 <IconButton
@@ -272,22 +253,12 @@ export function Collections() {
                   </Button>
                 </div>
               </form>
-            </div>
-          </div>
+          </ModalShell>
         )}
 
         {/* Rename Collection Modal */}
         {isRenameOpen && activeCollection && (
-          <div className="uiModalOverlay" onClick={closeRenameModal}>
-            <div
-              ref={renameModalRef}
-              className={`${styles.modalContent} uiModalPanel`}
-              role="dialog"
-              aria-modal="true"
-              aria-label={t('Rename {name}', { name: activeCollection.name })}
-              tabIndex={-1}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <ModalShell onClose={closeRenameModal} className={styles.modalContent} ariaLabel={t('Rename {name}', { name: activeCollection.name })} initialFocusSelector="[data-modal-initial-focus]">
               <div className={styles.modalHeader}>
                 <h3 className={styles.modalTitle}>{t('Rename Collection')}</h3>
                 <IconButton
@@ -325,8 +296,7 @@ export function Collections() {
                   </Button>
                 </div>
               </form>
-            </div>
-          </div>
+          </ModalShell>
         )}
 
         {/* Delete Collection Confirmation Modal */}

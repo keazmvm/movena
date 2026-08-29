@@ -481,7 +481,7 @@
 }
 
 .programmePast {
-  opacity: var(--alpha-75);
+  color: var(--text-secondary);
 }
 
 .programmeLive {

@@ -24,6 +24,7 @@ import { Button, IconButton } from '../common/Button';
 import { Select } from '../shared/Select';
 import { SegmentedControl } from '../common/SegmentedControl';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { ModalShell } from '../common/ModalShell';
 import { M3uChannelTable } from './M3uChannelTable';
 import { M3uGroupManager } from './M3uGroupManager';
 import { type M3uHealthStatuses } from './M3uStreamHealthChecker';
@@ -505,6 +506,7 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
           </div>
         </div>
         <SegmentedControl
+          iconOnlyAtCompact
           options={[
             { value: 'channels', label: t('Channels'), icon: Tv },
             { value: 'groups', label: t('Categories'), icon: FolderTree },
@@ -550,8 +552,7 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       </div>
 
       {loadUrlModal && (
-        <div className="uiModalOverlay" onClick={() => setLoadUrlModal(false)}>
-          <div className={`${styles.modalDialog} uiModalPanel`} role="dialog" aria-modal="true" aria-label={t('Load from URL')} onClick={(event) => event.stopPropagation()}>
+        <ModalShell onClose={() => setLoadUrlModal(false)} className={styles.modalDialog} ariaLabel={t('Load from URL')} initialFocusSelector="input">
             <div className={styles.modalHeader}><h2 className={styles.drawerHeaderTitle}>{t('Load Playlist from URL')}</h2></div>
             <div className={styles.modalBody}>
               <label className={styles.formGroup} htmlFor="m3u-remote-url-input">
@@ -563,8 +564,7 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
               <Button variant="ghost" type="button" onClick={() => setLoadUrlModal(false)}>{t('Cancel')}</Button>
               <Button variant="primary" type="button" onClick={() => void handleFetchUrl()} disabled={!remoteUrlInput.trim()}>{t('Load Playlist')}</Button>
             </div>
-          </div>
-        </div>
+        </ModalShell>
       )}
 
       {pendingAction && (

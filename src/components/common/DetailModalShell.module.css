@@ -42,7 +42,7 @@
 
 @media (max-width: 760px), (max-height: 720px) {
   .modal:not(.stateModal) {
-    height: calc(100vh - 24px);
+    height: calc(100dvh - var(--window-chrome-height) - var(--space-8));
     max-height: none;
     border-radius: var(--radius-lg);
   }
@@ -50,5 +50,12 @@
   .closeBtn {
     top: var(--space-3);
     right: var(--space-3);
+  }
+}
+
+@media (max-width: 640px), (max-height: 420px) {
+  .modal:not(.stateModal) {
+    height: calc(100dvh - var(--window-chrome-height) - var(--space-3));
+    border-radius: var(--radius-md);
   }
 }

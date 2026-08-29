@@ -266,7 +266,7 @@ export const ContextMenu: React.FC = () => {
   if (!isOpen || items.length === 0) return null;
 
   return createPortal(
-    <div className={styles.overlay} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+    <div className={styles.overlay} data-ui-layer="context-menu" onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
       <div
         ref={menuRef}
         role="menu"

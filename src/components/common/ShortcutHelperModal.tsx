@@ -3,8 +3,8 @@ import { IconButton } from './Button';
 import styles from './ShortcutHelperModal.module.css';
 import { getShortcutGroups } from '../../utils/shortcuts';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { useModalFocus } from '../../hooks/useModalFocus';
 import { useI18n } from '../../i18n';
+import { ModalShell } from './ModalShell';
 
 interface ShortcutHelperModalProps {
   onClose: () => void;
@@ -14,19 +14,8 @@ export function ShortcutHelperModal({ onClose }: ShortcutHelperModalProps) {
   const { t } = useI18n();
   const seekJumpSecs = useSettingsStore((state) => state.seekJumpSecs);
   const groups = getShortcutGroups(seekJumpSecs);
-  const modalRef = useModalFocus<HTMLDivElement>({ onClose });
-
   return (
-    <div className="uiModalOverlay" onClick={onClose}>
-      <div
-        ref={modalRef}
-        className={`${styles.modal} uiModalPanel`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('Keyboard Shortcuts')}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <ModalShell onClose={onClose} className={styles.modal} ariaLabel={t('Keyboard Shortcuts')}>
         <header className={styles.header}>
           <h2 className={styles.title}>{t('Keyboard Shortcuts')}</h2>
           <IconButton size="sm" className={styles.closeBtn} onClick={onClose} aria-label="Close shortcuts">
@@ -55,7 +44,6 @@ export function ShortcutHelperModal({ onClose }: ShortcutHelperModalProps) {
             </section>
           ))}
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

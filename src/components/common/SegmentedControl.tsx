@@ -20,6 +20,7 @@ interface SegmentedControlProps<T extends string | number> {
   size?: 'sm' | 'md' | undefined;
   className?: string | undefined;
   ariaLabel?: string | undefined;
+  iconOnlyAtCompact?: boolean | undefined;
 }
 
 export function SegmentedControl<T extends string | number>({
@@ -30,6 +31,7 @@ export function SegmentedControl<T extends string | number>({
   size = 'md',
   className = '',
   ariaLabel,
+  iconOnlyAtCompact = false,
 }: SegmentedControlProps<T>) {
   const { t } = useI18n();
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -47,7 +49,7 @@ export function SegmentedControl<T extends string | number>({
 
   return (
     <div
-      className={`${styles.container} ${styles[size] ?? ''} ${disabled ? styles.disabled : ''} ${className}`}
+      className={`${styles.container} ${styles[size] ?? ''} ${disabled ? styles.disabled : ''} ${iconOnlyAtCompact ? styles.iconOnlyAtCompact : ''} ${className}`}
       role="radiogroup"
       aria-label={ariaLabel ? t(ariaLabel) : undefined}
       onKeyDown={handleKeyDown}
@@ -63,6 +65,7 @@ export function SegmentedControl<T extends string | number>({
             onClick={() => !disabled && onChange(opt.value)}
             disabled={disabled}
             role="radio"
+            aria-label={t(opt.label)}
             aria-checked={isActive}
             tabIndex={isActive ? 0 : -1}
           >

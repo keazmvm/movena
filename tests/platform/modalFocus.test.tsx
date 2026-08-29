@@ -35,6 +35,8 @@ describe('shared modal focus behavior', () => {
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     const confirm = screen.getByRole('button', { name: 'Remove Source' });
+    const dialog = screen.getByRole('alertdialog');
+    expect(dialog.parentElement?.dataset.uiLayer).toBe('modal');
     await waitFor(() => expect(document.activeElement).toBe(cancel));
     expect(document.body.style.overflow).toBe('hidden');
 
@@ -47,5 +49,18 @@ describe('shared modal focus behavior', () => {
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(document.body.style.overflow).toBe('');
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('dismisses from the backdrop without leaking the click through the panel', async () => {
+    const user = userEvent.setup();
+    render(<DialogHarness />);
+    await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+
+    const dialog = screen.getByRole('alertdialog');
+    fireEvent.mouseDown(dialog);
+    expect(screen.getByRole('alertdialog')).toBeTruthy();
+
+    fireEvent.mouseDown(dialog.parentElement!);
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
   });
 });

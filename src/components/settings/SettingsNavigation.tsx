@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   SearchX,
 } from 'lucide-react';
@@ -50,36 +50,9 @@ import { StateIcon, type StateIconPair } from '../common/StateIcon';
 import { Select } from '../shared/Select';
 import styles from './SettingsNavigation.module.css';
 import { useI18n } from '../../i18n';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const COMPACT_SETTINGS_QUERY = '(max-width: 800px)';
-
-function getCompactSettingsMatch() {
-  if (typeof window === 'undefined') return false;
-  if (typeof window.matchMedia === 'function') {
-    return window.matchMedia(COMPACT_SETTINGS_QUERY).matches;
-  }
-  return window.innerWidth <= 800;
-}
-
-function useCompactSettingsNavigation() {
-  const [isCompact, setIsCompact] = useState(getCompactSettingsMatch);
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') {
-      const update = () => setIsCompact(getCompactSettingsMatch());
-      window.addEventListener('resize', update);
-      return () => window.removeEventListener('resize', update);
-    }
-
-    const mediaQuery = window.matchMedia(COMPACT_SETTINGS_QUERY);
-    const update = (event: MediaQueryListEvent) => setIsCompact(event.matches);
-    setIsCompact(mediaQuery.matches);
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
-  }, []);
-
-  return isCompact;
-}
 
 const SECTION_ICONS: Record<SettingsSectionId, StateIconPair> = {
   sources: { line: RiServerLine, fill: RiServerFill },
@@ -106,7 +79,7 @@ interface SettingsNavigationProps {
 
 export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigationProps) {
   const { t } = useI18n();
-  const isCompact = useCompactSettingsNavigation();
+  const isCompact = useMediaQuery(COMPACT_SETTINGS_QUERY);
   const [searchQuery, setSearchQuery] = useState('');
   const sidebarWidth = useSettingsStore((state) => state.sidebarWidth);
   const updateSetting = useSettingsStore((state) => state.updateSetting);

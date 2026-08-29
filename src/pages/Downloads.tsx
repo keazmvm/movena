@@ -85,7 +85,18 @@ function DownloadRow({ job }: { job: DownloadJob }) {
           <strong className={styles.fileName}>{job.fileName}</strong>
           <span className={`${styles.status} ${styles[`status${job.state}`]}`}>{stateLabel()}</span>
         </div>
-        {job.state === 'downloading' && <div className={styles.progressTrack} aria-label={t('{state} progress', { state: stateLabel() })}><span style={{ width: job.progress === null ? '35%' : `${job.progress * 100}%` }} /></div>}
+        {job.state === 'downloading' && (
+          <div
+            className={styles.progressTrack}
+            role="progressbar"
+            aria-label={t('{state} progress', { state: stateLabel() })}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={job.progress === null ? undefined : Math.round(job.progress * 100)}
+          >
+            <span style={{ width: job.progress === null ? '35%' : `${job.progress * 100}%` }} />
+          </div>
+        )}
         <div className={styles.rowMeta}>
           <span>{byteText ?? (job.state === 'failed' ? t('Failed') : job.state === 'downloading' ? t('Downloading…') : job.state === 'paused' ? t('Paused') : t('Queued to start'))}</span>
           {job.state === 'failed' && job.error && <span className={styles.errorMessage}>{job.error}</span>}

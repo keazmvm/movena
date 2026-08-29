@@ -35,11 +35,11 @@ export function SubtitleAudioSettingsSection() {
           />
         </SettingsRow>
         <SettingsRow title="Subtitle Size" description="Native MPV subtitle font size.">
-          <SettingsInput type="number" min={12} max={96} value={settings.subtitleFontSize}
+          <SettingsInput aria-label="Subtitle size" type="number" min={12} max={96} value={settings.subtitleFontSize}
             onChange={(event) => settings.updateSetting('subtitleFontSize', Math.max(12, Math.min(96, Number(event.target.value) || 38)))} />
         </SettingsRow>
         <SettingsRow title="Subtitle Font" description="Font family name available on this system.">
-          <SettingsInput value={settings.subtitleFontFamily}
+          <SettingsInput aria-label="Subtitle font" value={settings.subtitleFontFamily}
             onChange={(event) => settings.updateSetting('subtitleFontFamily', event.target.value)} />
         </SettingsRow>
         <SettingsRow title="Subtitle Opacity" description="Transparency applied to subtitle text.">
@@ -61,7 +61,7 @@ export function SubtitleAudioSettingsSection() {
 
       <SettingsGroup title="Audio" description="Audio synchronization settings applied globally.">
         <SettingsRow title="Audio Delay" description="Shift audio relative to video when a source is out of sync.">
-          <SettingsInput type="number" min={-5000} max={5000} step={50} value={settings.audioDelayMs}
+          <SettingsInput aria-label="Audio delay" type="number" min={-5000} max={5000} step={50} value={settings.audioDelayMs}
             onChange={(event) => settings.updateSetting('audioDelayMs', Math.max(-5000, Math.min(5000, Number(event.target.value) || 0)))} />
         </SettingsRow>
       </SettingsGroup>

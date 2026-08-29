@@ -90,6 +90,13 @@ describe('all-data deletion settings control', () => {
     render(<AboutSettingsSection />);
     expect(screen.getByRole('button', { name: 'Check for Updates' })).toBeTruthy();
   });
+
+  it('renders about links including Discord, GitHub, and issues', () => {
+    render(<AboutSettingsSection />);
+    expect(screen.getByRole('button', { name: 'Discord' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'View on GitHub' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Report an Issue' })).toBeTruthy();
+  });
 });
 
 describe('update download and install flow', () => {

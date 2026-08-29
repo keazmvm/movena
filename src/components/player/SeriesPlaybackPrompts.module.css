@@ -10,11 +10,24 @@
   position: absolute;
   right: var(--space-6);
   bottom: 120px;
-  z-index: calc(var(--z-player-controls) + 1);
+  z-index: var(--z-player-prompt);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: var(--space-3);
+}
+
+@media (max-width: 640px), (max-height: 420px) {
+  .promptStack {
+    right: var(--space-2);
+    bottom: var(--space-2);
+    left: var(--space-2);
+    align-items: stretch;
+  }
+
+  .nextEpisodeCard {
+    width: auto;
+  }
 }
 
 .skipIntroBtn,

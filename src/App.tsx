@@ -50,7 +50,7 @@ import {
 
 
 
-function NotFoundPage() {
+export function NotFoundPage() {
   const navigate = useNavigate();
   return (
     <PageTransition>

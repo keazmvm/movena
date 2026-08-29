@@ -16,7 +16,7 @@ import { SegmentedControl } from '../common/SegmentedControl';
 import { Select } from '../shared/Select';
 import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
-import { useModalFocus } from '../../hooks/useModalFocus';
+import { ModalShell } from '../common/ModalShell';
 
 interface M3uBatchToolsModalProps {
   entries: M3uEntry[];
@@ -39,7 +39,6 @@ export function M3uBatchToolsModal({
   const [activeTab, setActiveTab] = useState<ToolTab>('clean');
   const [presetName, setPresetName] = useState('');
   const [presets, setPresets] = useState<M3uTransformPreset[]>(loadTransformPresets);
-  const modalRef = useModalFocus<HTMLDivElement>({ enabled: isOpen, onClose, initialFocusSelector: 'button' });
 
   // Title Cleaner state
   const [removeResolution, setRemoveResolution] = useState(true);
@@ -176,16 +175,13 @@ export function M3uBatchToolsModal({
   };
 
   return (
-    <div className={styles.drawerOverlay} onClick={onClose}>
-      <div
-        ref={modalRef}
-        className={`${styles.modalDialog} uiModalPanel`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('Batch Tools')}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <ModalShell
+      onClose={onClose}
+      overlayClassName={styles.drawerOverlay}
+      className={styles.modalDialog}
+      ariaLabel={t('Batch Tools')}
+      initialFocusSelector="button"
+    >
         <div className={styles.modalHeader}>
           <h2 className={styles.drawerHeaderTitle}>{t('Batch Playlist Tools')}</h2>
           <IconButton size="sm" type="button" onClick={onClose} aria-label={t('Close')}>
@@ -430,7 +426,6 @@ export function M3uBatchToolsModal({
             </Button>
           )}
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

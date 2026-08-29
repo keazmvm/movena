@@ -39,14 +39,14 @@
   min-height: 0;
   position: relative;
   z-index: 1;
-  padding: var(--window-chrome-height) var(--space-6) 0;
+  padding: var(--window-chrome-height) var(--space-5) 0;
   display: flex;
   transition: padding var(--duration-normal) var(--ease-standard);
 }
 
 .page {
   padding-top: var(--page-top-inset);
-  padding-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
   max-width: 100%;
   width: 100%;
   display: flex;
@@ -158,14 +158,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
   flex-shrink: 0;
-  padding-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
   gap: var(--space-4);
 }
 
 .homeHeader {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
   padding-right: var(--scrollbar-inset);
   padding-bottom: 0;
 }
@@ -205,7 +205,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   padding-inline: var(--space-4);
   flex-shrink: 0;
 }
@@ -247,7 +247,10 @@
   margin-inline: var(--space-4);
 }
 
-@container catalog-main (max-width: 540px) {
+/* The catalog actions need roughly 600px before they can safely share the
+   title row. Use the catalog pane itself, rather than the window width, so a
+   resized category workspace cannot make the controls cover the heading. */
+@container catalog-main (max-width: 760px) {
   .catalogHeader {
     flex-direction: column;
     align-items: stretch;
@@ -256,16 +259,53 @@
 
   .headerActions {
     width: 100%;
-    justify-content: space-between;
+  }
+}
+
+/* Once the action row can no longer hold search + sort + view mode, keep the
+   search on its own row and let the select absorb the remaining width beside
+   the view toggle. The select owns an inline desktop width, hence the scoped
+   override here. */
+@container catalog-main (max-width: 660px) {
+  .headerActions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 
   .headerActions > :first-child {
-    flex: 1;
+    grid-column: 1 / -1;
+    width: 100%;
     min-width: 0;
+  }
+
+  .headerActions > :nth-child(2) {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .headerActions > :last-child {
+    justify-self: end;
   }
 
   .headerActions > :first-child form {
     width: 100%;
+  }
+}
+
+@container catalog-main (max-width: 360px) {
+  .headerActions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .headerActions > :first-child,
+  .headerActions > :nth-child(2),
+  .headerActions > :last-child {
+    grid-column: 1;
+  }
+
+  .headerActions > :last-child {
+    justify-self: start;
   }
 }
 

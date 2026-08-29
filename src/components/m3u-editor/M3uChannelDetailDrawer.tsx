@@ -8,8 +8,8 @@ import { SegmentedControl } from '../common/SegmentedControl';
 import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { useModalFocus } from '../../hooks/useModalFocus';
 import { getErrorMessage } from '../../utils/error';
+import { ModalShell } from '../common/ModalShell';
 
 interface M3uChannelDetailDrawerProps {
   entry: M3uEntry | null;
@@ -56,12 +56,6 @@ export function M3uChannelDetailDrawer({
   const [testingHealth, setTestingHealth] = useState(false);
   const [healthResult, setHealthResult] = useState<M3uProbeStatus | null>(null);
   const [healthError, setHealthError] = useState('');
-  const drawerRef = useModalFocus<HTMLDivElement>({
-    enabled: isOpen,
-    onClose,
-    initialFocusSelector: '#m3u-channel-title',
-    focusKey: entry?.id ?? 'new-channel',
-  });
 
   useEffect(() => {
     if (entry) {
@@ -174,16 +168,17 @@ export function M3uChannelDetailDrawer({
   };
 
   return (
-    <div className={styles.drawerOverlay} onClick={onClose}>
+    <ModalShell
+      onClose={onClose}
+      overlayClassName={styles.drawerOverlay}
+      className={styles.drawerPanel}
+      ariaLabel={entry ? t('Edit Channel') : t('Add Channel')}
+      initialFocusSelector="#m3u-channel-title"
+      focusKey={entry?.id ?? 'new-channel'}
+    >
       <div
-        ref={drawerRef}
-        className={styles.drawerPanel}
+        className={styles.drawerPanelContent}
         style={{ '--m3u-inspector-width': `${inspectorWidth}px` } as CSSProperties}
-        role="dialog"
-        aria-modal="true"
-        aria-label={entry ? t('Edit Channel') : t('Add Channel')}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.drawerHeader}>
           <h2 className={styles.drawerHeaderTitle}>{entry ? t('Channel Inspector') : t('New Channel')}</h2>
@@ -416,6 +411,6 @@ export function M3uChannelDetailDrawer({
           </Button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }

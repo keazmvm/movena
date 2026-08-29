@@ -13,7 +13,7 @@ function runWindowAction(action: () => Promise<void>) {
 /** Native-Windows-style minimize/maximize/close buttons, right-aligned. */
 function WindowsWindowChrome() {
   return (
-    <div className={styles.windowChrome}>
+    <div className={styles.windowChrome} data-ui-layer="window-chrome">
       <IconButton
         size="sm"
         className={styles.windowControl}
@@ -46,7 +46,7 @@ function WindowsWindowChrome() {
 function MacWindowChrome() {
   const { t } = useI18n();
   return (
-    <div className={styles.windowChromeMac}>
+    <div className={styles.windowChromeMac} data-ui-layer="window-chrome">
       <button
         type="button"
         className={`${styles.trafficLight} ${styles.trafficLightClose}`}

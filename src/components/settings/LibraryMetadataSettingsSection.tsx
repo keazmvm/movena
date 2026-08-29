@@ -100,6 +100,7 @@ export function LibraryMetadataSettingsSection() {
         >
           <SettingsInput
             type="password"
+            aria-label="TMDB API key"
             autoComplete="off"
             disabled={!settings.tmdbEnabled}
             value={settings.tmdbApiKey}

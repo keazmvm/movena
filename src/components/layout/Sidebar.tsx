@@ -32,10 +32,15 @@ import { useEnabledSources } from '../../hooks/useEnabledSources';
 import { prefetchNavigationData } from '../../api/prefetch';
 import styles from './Sidebar.module.css';
 import { useI18n } from '../../i18n';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+
+const COMPACT_NAVIGATION_QUERY = '(max-width: 640px)';
 
 export function Sidebar() {
   const { t, number, tn } = useI18n();
-  const isCollapsed = useSettingsStore((state) => state.sidebarCollapsed);
+  const storedCollapsed = useSettingsStore((state) => state.sidebarCollapsed);
+  const isCompactViewport = useMediaQuery(COMPACT_NAVIGATION_QUERY);
+  const isCollapsed = storedCollapsed || isCompactViewport;
   const showCollapsedSidebarBadges = useSettingsStore((state) => state.showCollapsedSidebarBadges);
   const upcomingEnabled = useSettingsStore((state) => state.upcomingEnabled);
   const updateSetting = useSettingsStore((state) => state.updateSetting);
@@ -171,17 +176,18 @@ export function Sidebar() {
 
           <button type="button"
             className={styles.bottomToggleBtn}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={t(isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
-            aria-label={t(isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
+            onClick={() => setIsCollapsed(!storedCollapsed)}
+            title={t(isCompactViewport ? 'Sidebar stays compact in narrow layouts' : storedCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
+            aria-label={t(isCompactViewport ? 'Sidebar stays compact in narrow layouts' : storedCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
+            disabled={isCompactViewport}
           >
             <span className={styles.toggleIcon} aria-hidden="true">
               <PanelLeftClose
-                className={`${styles.toggleIconLayer} ${isCollapsed ? styles.toggleIconHidden : styles.toggleIconVisible}`}
+                className={`${styles.toggleIconLayer} ${storedCollapsed ? styles.toggleIconHidden : styles.toggleIconVisible}`}
                 size={20}
               />
               <PanelLeft
-                className={`${styles.toggleIconLayer} ${isCollapsed ? styles.toggleIconVisible : styles.toggleIconHidden}`}
+                className={`${styles.toggleIconLayer} ${storedCollapsed ? styles.toggleIconVisible : styles.toggleIconHidden}`}
                 size={20}
               />
             </span>

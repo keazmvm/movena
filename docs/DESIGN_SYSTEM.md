@@ -100,9 +100,11 @@ player, but normal app navigation should always retain the functional bar.
 - The shell reserves one title-bar height; route content uses the responsive
   `--page-top-inset` only for breathing room below it. Do not add another
   page-level top spacer.
-- The 960×600 minimum and 1280×800 default desktop sizes are release
-  contracts. Content may scroll vertically, but the document must never gain
-  unintended horizontal overflow, including at 200% zoom.
+- The 960×600 logical-pixel minimum and 1280×800 default desktop sizes are
+  release contracts. OS display scaling does not reduce that CSS viewport:
+  200% DPI renders the same 960×600 logical layout at a 2× device scale.
+  Content may scroll vertically, but the document must never gain unintended
+  horizontal overflow.
 - Long titles and translated copy wrap or truncate non-destructively. Never
   hide the only label, value, recovery action, or destructive warning.
 
@@ -143,9 +145,10 @@ npm run ui:qa
 The component QA harness is a separate Vite entry under `tests-ui/harness`.
 It renders production primitives, content states, settings controls, and
 overlays without adding a development route or fixture code to the app.
-`npm run ui:qa` checks accessibility and the 960×600/200%-zoom geometry
-contracts; `npm run ui:qa:visual` also compares the representative Windows
-screenshots. Update a baseline only after reviewing the rendered difference.
+`npm run ui:qa` checks accessibility and the 960×600 logical-pixel geometry
+contract, plus a 2× device-scale pass that preserves that viewport.
+`npm run ui:qa:visual` also compares the representative Windows screenshots.
+Update a baseline only after reviewing the rendered difference.
 
 Shared controls should have role-based tests for keyboard navigation, focus,
 ARIA state, disabled behavior, dismissal, selection, and boundaries. Pure grid

@@ -6,6 +6,7 @@ import { Select } from '../shared/Select';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import styles from './M3uEditorWorkspace.module.css';
 import { useI18n } from '../../i18n';
+import { ModalShell } from '../common/ModalShell';
 
 interface M3uGroupManagerProps {
   entries: M3uEntry[];
@@ -154,8 +155,13 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
       </div>
 
       {mergingGroup && (
-        <div className={styles.drawerOverlay} onClick={() => setMergingGroup(null)}>
-          <div className={styles.modalDialog} role="dialog" aria-modal="true" aria-label={t('Merge Category')} onClick={(e) => e.stopPropagation()}>
+        <ModalShell
+          onClose={() => setMergingGroup(null)}
+          overlayClassName={styles.drawerOverlay}
+          className={styles.modalDialog}
+          ariaLabel={t('Merge Category')}
+          initialFocusSelector="button"
+        >
             <div className={styles.modalHeader}>
               <h3 className={styles.drawerHeaderTitle}>{t('Merge Category: {name}', { name: mergingGroup })}</h3>
             </div>
@@ -181,8 +187,7 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
                 {t('Merge Channels')}
               </Button>
             </div>
-          </div>
-        </div>
+        </ModalShell>
       )}
 
       {deletingGroup && (

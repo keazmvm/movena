@@ -1,5 +1,4 @@
 import { useId, useState } from 'react';
-import { createPortal } from 'react-dom';
 import {
   countChangedSettings,
   parseSettingsConfig,
@@ -7,7 +6,7 @@ import {
 } from '../../services/settingsConfig';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Button } from '../common/Button';
-import { useModalFocus } from '../../hooks/useModalFocus';
+import { ModalShell } from '../common/ModalShell';
 import styles from './PasteSettingsDialog.module.css';
 import { getErrorMessage } from '../../utils/error';
 import { useI18n } from '../../i18n';
@@ -22,10 +21,6 @@ export function PasteSettingsDialog({ onImport, onCancel }: PasteSettingsDialogP
   const [text, setText] = useState('');
   const titleId = useId();
   const descriptionId = useId();
-  const dialogRef = useModalFocus<HTMLDivElement>({
-    onClose: onCancel,
-    initialFocusSelector: '[data-modal-initial-focus]',
-  });
 
   let statusMessage = t('Enter or paste your exported settings JSON to import.');
   let statusClass = styles.statusNeutral;
@@ -67,18 +62,14 @@ export function PasteSettingsDialog({ onImport, onCancel }: PasteSettingsDialogP
     onImport(parsedConfig, changedCount);
   };
 
-  return createPortal(
-    <div className="uiModalOverlay" onMouseDown={onCancel}>
-      <div
-        ref={dialogRef}
-        className={`${styles.dialog} uiModalPanel`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        tabIndex={-1}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
+  return (
+    <ModalShell
+      onClose={onCancel}
+      className={styles.dialog}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+      initialFocusSelector="[data-modal-initial-focus]"
+    >
         <h2 id={titleId} className={styles.title}>{t('Paste Settings JSON')}</h2>
         <p id={descriptionId} className={styles.description}>
           {t('Paste application configuration JSON text here to apply your settings.')}
@@ -110,8 +101,6 @@ export function PasteSettingsDialog({ onImport, onCancel }: PasteSettingsDialogP
             Import Settings
           </Button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </ModalShell>
   );
 }

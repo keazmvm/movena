@@ -186,6 +186,7 @@ export function ChannelsDrawer() {
       {shouldShow && (
         <motion.div
           className={drawerStyles.drawer}
+          data-ui-layer="player-popover"
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}

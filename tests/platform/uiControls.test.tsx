@@ -116,6 +116,24 @@ describe('custom control keyboard contracts', () => {
     expect(screen.getByRole('radio', { name: 'Grid' }).getAttribute('aria-checked')).toBe('true');
   });
 
+  it('keeps compact icon-only segmented options accessible by their labels', () => {
+    render(
+      <SegmentedControl
+        ariaLabel="Editor view"
+        value="channels"
+        onChange={() => undefined}
+        iconOnlyAtCompact
+        options={[
+          { value: 'channels', label: 'Channels', icon: ({ className }) => <span className={className} aria-hidden="true">C</span> },
+          { value: 'raw', label: 'Raw M3U', icon: ({ className }) => <span className={className} aria-hidden="true">R</span> },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('radio', { name: 'Channels' })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: 'Raw M3U' })).toBeTruthy();
+  });
+
   it('keeps settings ranges labelled and reports formatted values', async () => {
     const onChange = vi.fn();
     render(
