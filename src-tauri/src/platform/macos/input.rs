@@ -1,3 +1,11 @@
+/// Give keyboard focus to the webview itself.
+///
+/// A style mask change resets the first responder, and tao's own helper points
+/// it back at the *content view*. That is enough for tao's own key handling, but
+/// not for ours: the WKWebView is a subview, and unless it holds first responder
+/// status the DOM sees no key events at all — the player's shortcuts went dead
+/// in screen-filling mode until a click on the picture happened to make the
+/// webview first responder again.
 fn focus_webview(parent: &NSWindow) {
     let Some(content) = parent.contentView() else {
         return;
@@ -208,5 +216,3 @@ fn pointer_location(app: &AppHandle) -> (f64, f64) {
     rx.recv_timeout(Duration::from_secs(1))
         .unwrap_or((0.0, 0.0))
 }
-
-/// One-time setup of the main window. Run at startup, before any stream.

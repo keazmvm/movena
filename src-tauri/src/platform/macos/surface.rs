@@ -1,3 +1,4 @@
+/// One-time setup of the main window. Run at startup, before any stream.
 pub fn prepare_main_window(app: &AppHandle) {
     with_main(app, |app, mtm| {
         apply_app_icon(mtm);

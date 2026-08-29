@@ -1,3 +1,13 @@
+/// Put the main window into (or out of) fullscreen *without* using a macOS
+/// fullscreen space — the window simply grows to cover the screen while the
+/// menu bar and dock auto-hide.
+///
+/// Native fullscreen moves the window into a space of its own, and inside that
+/// space the video kept drawing over the control overlay no matter how the
+/// child window was ordered. Windowed playback composites correctly, so this
+/// keeps the window in exactly that configuration and only changes its size.
+///
+/// Returns the state actually applied.
 pub fn set_simple_fullscreen(app: &AppHandle, on: bool) -> bool {
     // A redundant call in the same direction is not a no-op below: the `on`
     // branch unconditionally overwrites `WINDOWED_FRAME`/`WINDOWED_STYLE_MASK`
@@ -106,12 +116,3 @@ pub fn set_simple_fullscreen(app: &AppHandle, on: bool) -> bool {
 
     SIMPLE_FULLSCREEN.load(Ordering::SeqCst)
 }
-
-/// Give keyboard focus to the webview itself.
-///
-/// A style mask change resets the first responder, and tao's own helper points
-/// it back at the *content view*. That is enough for tao's own key handling, but
-/// not for ours: the WKWebView is a subview, and unless it holds first responder
-/// status the DOM sees no key events at all — the player's shortcuts went dead
-/// in screen-filling mode until a click on the picture happened to make the
-/// webview first responder again.

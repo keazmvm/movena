@@ -78,7 +78,7 @@ static WINDOWED_STYLE_MASK: Mutex<Option<usize>> = Mutex::new(None);
 /// Our dock icon, compiled in rather than read from the bundle: `cargo run`
 /// during development produces a bare executable with no bundle to read from,
 /// and that is exactly the case where mpv's icon takeover is visible.
-const APP_ICON_ICNS: &[u8] = include_bytes!("../icons/icon.icns");
+const APP_ICON_ICNS: &[u8] = include_bytes!("../../../icons/icon.icns");
 
 // ── Main-thread plumbing ─────────────────────────────────────
 
@@ -319,17 +319,6 @@ fn apply_app_icon(mtm: MainThreadMarker) {
     };
     unsafe { NSApplication::sharedApplication(mtm).setApplicationIconImage(Some(&icon)) };
 }
-
-/// Put the main window into (or out of) fullscreen *without* using a macOS
-/// fullscreen space — the window simply grows to cover the screen while the
-/// menu bar and dock auto-hide.
-///
-/// Native fullscreen moves the window into a space of its own, and inside that
-/// space the video kept drawing over the control overlay no matter how the
-/// child window was ordered. Windowed playback composites correctly, so this
-/// keeps the window in exactly that configuration and only changes its size.
-///
-/// Returns the state actually applied.
 
 include!("fullscreen.rs");
 include!("input.rs");
