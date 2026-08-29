@@ -58,6 +58,8 @@ changing routes, persisted data formats, Tauri commands, or playback events.
   local settings by clearing browser persistence before reloading onboarding.
 - Corrected modal, drawer, checkbox, player-control, settings, and minimum-width
   geometry and focus behavior covered by the expanded UI quality suite.
+- Updated Microsoft Store submission to the current Store Developer CLI input
+  directory contract.
 
 ## [0.1.12] - 2026-08-28
 
