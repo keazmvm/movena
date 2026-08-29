@@ -41,7 +41,7 @@ export interface NetworkLogEntry {
 interface DebugState {
   logs: LogEntry[];
   networkLogs: NetworkLogEntry[];
-  
+
   addLog: (level: LogLevel, category: LogCategory, message: string, details?: unknown) => void;
   addNetworkLog: (entry: Omit<NetworkLogEntry, 'id' | 'timestamp'>) => void;
   clearLogs: () => void;
@@ -118,7 +118,8 @@ export const useDebugStore = create<DebugState>((set, get) => ({
       {},
     );
     const measuredRequests = networkLogs.filter(
-      (entry): entry is NetworkLogEntry & { durationMs: number } => typeof entry.durationMs === 'number',
+      (entry): entry is NetworkLogEntry & { durationMs: number } =>
+        typeof entry.durationMs === 'number',
     );
     const report = {
       exportedAt: new Date().toISOString(),
@@ -132,10 +133,15 @@ export const useDebugStore = create<DebugState>((set, get) => ({
       summary: {
         levels,
         categories,
-        failedRequests: networkLogs.filter((entry) => entry.error || (entry.status ?? 0) >= 400).length,
-        averageRequestMs: measuredRequests.length > 0
-          ? Math.round(measuredRequests.reduce((total, entry) => total + entry.durationMs, 0) / measuredRequests.length)
-          : null,
+        failedRequests: networkLogs.filter((entry) => entry.error || (entry.status ?? 0) >= 400)
+          .length,
+        averageRequestMs:
+          measuredRequests.length > 0
+            ? Math.round(
+                measuredRequests.reduce((total, entry) => total + entry.durationMs, 0) /
+                  measuredRequests.length,
+              )
+            : null,
       },
       context,
       logs,

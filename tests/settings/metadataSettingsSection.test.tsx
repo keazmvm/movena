@@ -41,8 +41,14 @@ describe('library and metadata settings', () => {
     useSettingsStore.setState({ tmdbEnabled: false });
     render(<LibraryMetadataSettingsSection />);
 
-    expect(screen.getByRole('checkbox', { name: 'Include adult TMDB results' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('button', { name: 'TMDB metadata language' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('button', { name: 'TMDB poster quality' }).hasAttribute('disabled')).toBe(true);
+    expect(
+      screen.getByRole('checkbox', { name: 'Include adult TMDB results' }).hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'TMDB metadata language' }).hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'TMDB poster quality' }).hasAttribute('disabled'),
+    ).toBe(true);
   });
 });

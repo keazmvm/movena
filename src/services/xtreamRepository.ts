@@ -1,7 +1,10 @@
 import { tauriApi } from '../api/ipc';
 import type { XCCredentials } from '../store/useAuthStore';
 
-export async function storeXtreamCredentials(sourceId: string, credentials: XCCredentials): Promise<void> {
+export async function storeXtreamCredentials(
+  sourceId: string,
+  credentials: XCCredentials,
+): Promise<void> {
   await tauriApi.sourceSecretStore(sourceId, JSON.stringify(credentials));
 }
 
@@ -11,12 +14,13 @@ export async function loadXtreamCredentials(sourceId: string): Promise<XCCredent
   try {
     const parsed = JSON.parse(value) as Partial<XCCredentials>;
     if (
-      typeof parsed.url !== 'string'
-      || !parsed.url.trim()
-      || typeof parsed.username !== 'string'
-      || !parsed.username.trim()
-      || typeof parsed.password !== 'string'
-    ) return null;
+      typeof parsed.url !== 'string' ||
+      !parsed.url.trim() ||
+      typeof parsed.username !== 'string' ||
+      !parsed.username.trim() ||
+      typeof parsed.password !== 'string'
+    )
+      return null;
     return {
       // The vault key is the authority for source isolation. A stale or
       // tampered payload must never redirect credentials into another source.

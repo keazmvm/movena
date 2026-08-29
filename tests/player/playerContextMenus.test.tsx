@@ -38,7 +38,7 @@ describe('Player Context Menu Developer HUD option', () => {
     expect(menuState.isOpen).toBe(true);
 
     // Verify presence of developer HUD toggle
-    const debugItem = menuState.items.find(item => item.id === 'debug');
+    const debugItem = menuState.items.find((item) => item.id === 'debug');
     expect(debugItem).toBeDefined();
     expect(debugItem?.label).toBe('Show Developer HUD');
 
@@ -67,7 +67,7 @@ describe('Player Context Menu Developer HUD option', () => {
     expect(menuState.isOpen).toBe(true);
 
     // Verify absence of developer HUD toggle
-    const debugItem = menuState.items.find(item => item.id === 'debug');
+    const debugItem = menuState.items.find((item) => item.id === 'debug');
     expect(debugItem).toBeUndefined();
   });
 
@@ -84,7 +84,7 @@ describe('Player Context Menu Developer HUD option', () => {
 
     result.current.handleAppBackdropContextMenu(mockEvent);
 
-    const debugItem = useContextMenuStore.getState().items.find(item => item.id === 'debug');
+    const debugItem = useContextMenuStore.getState().items.find((item) => item.id === 'debug');
     expect(debugItem).toBeUndefined();
   });
 
@@ -102,7 +102,7 @@ describe('Player Context Menu Developer HUD option', () => {
 
     result.current.handleAppBackdropContextMenu(mockEvent);
 
-    const debugItem = useContextMenuStore.getState().items.find(item => item.id === 'debug');
+    const debugItem = useContextMenuStore.getState().items.find((item) => item.id === 'debug');
     expect(debugItem?.label).toBe('Show Debug HUD');
   });
 });

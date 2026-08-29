@@ -37,15 +37,22 @@ export function SeriesUpcomingEpisodes({
     return () => window.clearInterval(timer);
   }, [countdownEnabled]);
 
-  const announcedGroups = useMemo(() => groupUpcomingReleases(
-    (schedule.data ?? []).filter((release) => (
-      release.favorite.id === seriesId
-      && release.kind === 'episode'
-      && release.seasonNumber !== null
-      && release.episodeNumber !== null
-      && !availableEpisodeKeys.has(episodeScheduleKey(release.seasonNumber, release.episodeNumber))
-    )),
-  ), [availableEpisodeKeys, schedule.data, seriesId]);
+  const announcedGroups = useMemo(
+    () =>
+      groupUpcomingReleases(
+        (schedule.data ?? []).filter(
+          (release) =>
+            release.favorite.id === seriesId &&
+            release.kind === 'episode' &&
+            release.seasonNumber !== null &&
+            release.episodeNumber !== null &&
+            !availableEpisodeKeys.has(
+              episodeScheduleKey(release.seasonNumber, release.episodeNumber),
+            ),
+        ),
+      ),
+    [availableEpisodeKeys, schedule.data, seriesId],
+  );
 
   if (!schedule.isEnabled || announcedGroups.length === 0) return null;
 
@@ -70,23 +77,35 @@ export function SeriesUpcomingEpisodes({
           const exactTime = group.exactAirTime ? exactTimestampDate(group.exactAirTime) : null;
           const calendarDate = exactTime ?? localCalendarDate(group.airDate);
           const phase = releasePhase(group, now);
-          const status = countdownEnabled && phase === 'upcoming'
-            ? (group.exactAirTime
-              ? timestampCountdown(group.exactAirTime, now)
-              : releaseCountdown(group.airDate, now))
-            : releaseStatusLabel(group, now);
-          const episodeCode = group.episodeCount > 1
-            ? group.summarySubtitle.split(' · ')[0] ?? group.summarySubtitle
-            : primary.seasonNumber !== null && primary.episodeNumber !== null
-              ? `S${primary.seasonNumber} E${primary.episodeNumber}`
-              : t('Next episode');
-          const title = group.episodeCount > 1
-            ? t('{count} announced episodes', { count: number(group.episodeCount) })
-            : primary.title;
+          const status =
+            countdownEnabled && phase === 'upcoming'
+              ? group.exactAirTime
+                ? timestampCountdown(group.exactAirTime, now)
+                : releaseCountdown(group.airDate, now)
+              : releaseStatusLabel(group, now);
+          const episodeCode =
+            group.episodeCount > 1
+              ? (group.summarySubtitle.split(' · ')[0] ?? group.summarySubtitle)
+              : primary.seasonNumber !== null && primary.episodeNumber !== null
+                ? `S${primary.seasonNumber} E${primary.episodeNumber}`
+                : t('Next episode');
+          const title =
+            group.episodeCount > 1
+              ? t('{count} announced episodes', { count: number(group.episodeCount) })
+              : primary.title;
           const dateLabel = calendarDate
-            ? date(calendarDate, exactTime
-              ? { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }
-              : { weekday: 'short', month: 'short', day: 'numeric' })
+            ? date(
+                calendarDate,
+                exactTime
+                  ? {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    }
+                  : { weekday: 'short', month: 'short', day: 'numeric' },
+              )
             : group.airDate;
           const isReleased = phase === 'released';
 
@@ -94,11 +113,20 @@ export function SeriesUpcomingEpisodes({
             <article
               key={`${group.favorite.id}-${group.airDate}-${episodeCode}`}
               className={`${styles.announcedEpisodeCard} ${isReleased ? styles.announcedEpisodeReleased : ''}`}
-              aria-label={t('{episode}, {title}, {date}', { episode: episodeCode, title, date: dateLabel })}
+              aria-label={t('{episode}, {title}, {date}', {
+                episode: episodeCode,
+                title,
+                date: dateLabel,
+              })}
             >
               <div className={styles.episodeImageWrapper}>
                 {primary.artworkUrl ? (
-                  <img src={primary.artworkUrl} alt="" className={styles.episodeImage} loading="lazy" />
+                  <img
+                    src={primary.artworkUrl}
+                    alt=""
+                    className={styles.episodeImage}
+                    loading="lazy"
+                  />
                 ) : (
                   <span className={styles.announcedArtworkFallback} aria-hidden="true">
                     <CalendarClock size={24} />
@@ -117,7 +145,11 @@ export function SeriesUpcomingEpisodes({
                 <div className={styles.episodeMeta}>
                   <span>{dateLabel}</span>
                   {status && (
-                    <span className={isReleased ? styles.announcedReleasedStatus : styles.announcedTiming}>
+                    <span
+                      className={
+                        isReleased ? styles.announcedReleasedStatus : styles.announcedTiming
+                      }
+                    >
                       {t(status)}
                     </span>
                   )}

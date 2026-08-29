@@ -73,12 +73,18 @@ describe('application shell', () => {
   it('restores M3U and Xtream sources in parallel', async () => {
     let resolveSources!: () => void;
     let resolveAuth!: () => void;
-    const initializeSources = vi.fn(() => new Promise<void>((resolve) => {
-      resolveSources = resolve;
-    }));
-    const initializeAuth = vi.fn(() => new Promise<void>((resolve) => {
-      resolveAuth = resolve;
-    }));
+    const initializeSources = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSources = resolve;
+        }),
+    );
+    const initializeAuth = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAuth = resolve;
+        }),
+    );
     useSourceStore.setState({ initialize: initializeSources });
     useAuthStore.setState({ initialize: initializeAuth });
 

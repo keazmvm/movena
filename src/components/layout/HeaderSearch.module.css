@@ -117,7 +117,9 @@
   cursor: pointer;
   padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
-  transition: color var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard);
+  transition:
+    color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
 }
 
 .clearAllBtn:hover {
@@ -182,7 +184,9 @@
   height: var(--control-height-sm);
   padding: 0;
   border-radius: var(--radius-full);
-  transition: color var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard);
+  transition:
+    color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
 }
 
 .recentDeleteBtn:hover {
@@ -403,7 +407,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   background-color: var(--surface-control);
-  transition: color var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard);
+  transition:
+    color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
 }
 
 .viewAllRow,

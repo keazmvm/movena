@@ -42,7 +42,9 @@ describe('custom control keyboard contracts', () => {
     expect(save.getAttribute('data-size')).toBe('lg');
     await userEvent.click(save);
     expect(onSave).toHaveBeenCalledOnce();
-    expect((screen.getByRole('button', { name: 'Dismiss' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Dismiss' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 
   it('keeps modal error retry actions accessible and exposes retry progress', async () => {
@@ -71,20 +73,24 @@ describe('custom control keyboard contracts', () => {
         isRetrying
       />,
     );
-    expect((screen.getByRole('button', { name: 'Trying again' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (screen.getByRole('button', { name: 'Trying again' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
   it('announces error toasts and lets the user dismiss them', async () => {
     useSettingsStore.setState({ enableNotifications: true, dndDuringPlayback: false });
     useNotificationStore.setState({
-      notifications: [{
-        id: 'error-toast',
-        type: 'error',
-        title: 'Connection failed',
-        message: 'The provider did not respond.',
-        duration: 0,
-        timestamp: Date.now(),
-      }],
+      notifications: [
+        {
+          id: 'error-toast',
+          type: 'error',
+          title: 'Connection failed',
+          message: 'The provider did not respond.',
+          duration: 0,
+          timestamp: Date.now(),
+        },
+      ],
     });
 
     render(<ToastContainer />);
@@ -102,7 +108,10 @@ describe('custom control keyboard contracts', () => {
           ariaLabel="Layout"
           value={value}
           onChange={setValue}
-          options={[{ value: 'grid', label: 'Grid' }, { value: 'list', label: 'List' }]}
+          options={[
+            { value: 'grid', label: 'Grid' },
+            { value: 'list', label: 'List' },
+          ]}
         />
       );
     }
@@ -124,8 +133,24 @@ describe('custom control keyboard contracts', () => {
         onChange={() => undefined}
         iconOnlyAtCompact
         options={[
-          { value: 'channels', label: 'Channels', icon: ({ className }) => <span className={className} aria-hidden="true">C</span> },
-          { value: 'raw', label: 'Raw M3U', icon: ({ className }) => <span className={className} aria-hidden="true">R</span> },
+          {
+            value: 'channels',
+            label: 'Channels',
+            icon: ({ className }) => (
+              <span className={className} aria-hidden="true">
+                C
+              </span>
+            ),
+          },
+          {
+            value: 'raw',
+            label: 'Raw M3U',
+            icon: ({ className }) => (
+              <span className={className} aria-hidden="true">
+                R
+              </span>
+            ),
+          },
         ]}
       />,
     );
@@ -147,9 +172,13 @@ describe('custom control keyboard contracts', () => {
       />,
     );
 
-    expect((screen.getByRole('slider', { name: 'Subtitle opacity' }) as HTMLInputElement).value).toBe('75');
+    expect(
+      (screen.getByRole('slider', { name: 'Subtitle opacity' }) as HTMLInputElement).value,
+    ).toBe('75');
     expect(screen.getByText('75%')).toBeTruthy();
-    fireEvent.change(screen.getByRole('slider', { name: 'Subtitle opacity' }), { target: { value: '80' } });
+    fireEvent.change(screen.getByRole('slider', { name: 'Subtitle opacity' }), {
+      target: { value: '80' },
+    });
     expect(onChange).toHaveBeenCalledOnce();
   });
 
@@ -216,7 +245,13 @@ describe('custom control keyboard contracts', () => {
     render(
       <MemoryRouter>
         <MediaCard
-          item={{ id: 'live-1', title: 'News Live', posterUrl: '', type: 'live', streamUrl: 'https://stream.test/live' }}
+          item={{
+            id: 'live-1',
+            title: 'News Live',
+            posterUrl: '',
+            type: 'live',
+            streamUrl: 'https://stream.test/live',
+          }}
           onClick={vi.fn()}
         />
       </MemoryRouter>,
@@ -250,13 +285,31 @@ describe('custom control keyboard contracts', () => {
     render(
       <MemoryRouter>
         <MediaCard
-          item={{ id: 'youtube-live', title: 'YouTube Live', posterUrl: '', type: 'live', streamUrl: 'https://www.youtube.com/@channel/live' }}
+          item={{
+            id: 'youtube-live',
+            title: 'YouTube Live',
+            posterUrl: '',
+            type: 'live',
+            streamUrl: 'https://www.youtube.com/@channel/live',
+          }}
         />
         <MediaCard
-          item={{ id: 'twitch-live', title: 'Twitch Live', posterUrl: '', type: 'live', streamUrl: 'https://www.twitch.tv/channel' }}
+          item={{
+            id: 'twitch-live',
+            title: 'Twitch Live',
+            posterUrl: '',
+            type: 'live',
+            streamUrl: 'https://www.twitch.tv/channel',
+          }}
         />
         <MediaCard
-          item={{ id: 'ordinary-live', title: 'Ordinary Live', posterUrl: '', type: 'live', streamUrl: 'https://stream.example.test/live.m3u8' }}
+          item={{
+            id: 'ordinary-live',
+            title: 'Ordinary Live',
+            posterUrl: '',
+            type: 'live',
+            streamUrl: 'https://stream.example.test/live.m3u8',
+          }}
         />
       </MemoryRouter>,
     );
@@ -266,7 +319,9 @@ describe('custom control keyboard contracts', () => {
     expect(screen.getAllByText('YouTube Live')).toHaveLength(1);
     expect(screen.getAllByText('Twitch Live')).toHaveLength(1);
     expect(
-      screen.getByRole('group', { name: 'Ordinary Live' }).querySelector('[aria-label="YouTube"], [aria-label="Twitch"]'),
+      screen
+        .getByRole('group', { name: 'Ordinary Live' })
+        .querySelector('[aria-label="YouTube"], [aria-label="Twitch"]'),
     ).toBeNull();
   });
 
@@ -297,7 +352,9 @@ describe('custom control keyboard contracts', () => {
     const first = screen.getByRole('tab', { name: 'Season 1' });
     await user.click(first);
     await user.keyboard('{ArrowLeft}');
-    expect(screen.getByRole('tab', { name: 'Season 3' }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByRole('tab', { name: 'Season 3' }).getAttribute('aria-selected')).toBe(
+      'true',
+    );
     await user.keyboard('{Home}');
     expect(first.getAttribute('aria-selected')).toBe('true');
     await user.keyboard('{End}');
@@ -312,7 +369,10 @@ describe('custom control keyboard contracts', () => {
         <Select
           value={value}
           onChange={setValue}
-          options={[{ value: 'one', label: 'One' }, { value: 'two', label: 'Two' }]}
+          options={[
+            { value: 'one', label: 'One' },
+            { value: 'two', label: 'Two' },
+          ]}
         />
       );
     }
@@ -331,7 +391,9 @@ describe('custom control keyboard contracts', () => {
 
   it('keeps disabled custom selects closed', async () => {
     const user = userEvent.setup();
-    render(<Select disabled value="one" onChange={vi.fn()} options={[{ value: 'one', label: 'One' }]} />);
+    render(
+      <Select disabled value="one" onChange={vi.fn()} options={[{ value: 'one', label: 'One' }]} />,
+    );
     await user.click(screen.getByRole('button', { name: /One/ }));
     expect(screen.queryByRole('listbox')).toBeNull();
   });
@@ -339,11 +401,17 @@ describe('custom control keyboard contracts', () => {
   it('resizes the shared sidebar with bounded keyboard steps and Home reset', () => {
     const onWidthChange = vi.fn();
     render(
-      <WorkspaceSidebar className="embedded-sidebar" width={WORKSPACE_SIDEBAR_MAX_WIDTH} onWidthChange={onWidthChange}>
+      <WorkspaceSidebar
+        className="embedded-sidebar"
+        width={WORKSPACE_SIDEBAR_MAX_WIDTH}
+        onWidthChange={onWidthChange}
+      >
         Content
       </WorkspaceSidebar>,
     );
-    expect(screen.getByText('Content').closest('aside')?.classList.contains('embedded-sidebar')).toBe(true);
+    expect(
+      screen.getByText('Content').closest('aside')?.classList.contains('embedded-sidebar'),
+    ).toBe(true);
     const handle = screen.getByRole('button', { name: /Resize sidebar/ });
 
     fireEvent.keyDown(handle, { key: 'ArrowRight' });

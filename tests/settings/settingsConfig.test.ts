@@ -24,7 +24,9 @@ describe('portable settings configuration', () => {
     useSettingsStore.getState().updateSetting('tmdbApiKey', 'local-secret');
     useSettingsStore.getState().updateSetting('tmdbLanguage', 'de-DE');
     useSettingsStore.getState().updateSetting('tmdbImageSize', 'w780');
-    useSettingsStore.getState().updateSetting('epgXmltvUrl', 'https://guide.test/private.xml?token=secret');
+    useSettingsStore
+      .getState()
+      .updateSetting('epgXmltvUrl', 'https://guide.test/private.xml?token=secret');
     useSettingsStore.getState().updateSetting('upcomingHomeEnabled', false);
     useSettingsStore.getState().updateSetting('upcomingCalendarEnabled', false);
     useSettingsStore.getState().updateSetting('upcomingHistoryDays', 14);
@@ -60,24 +62,26 @@ describe('portable settings configuration', () => {
   });
 
   it('migrates partial files, sanitizes malformed values, and reports unknown entries', () => {
-    const parsed = parseSettingsConfig(JSON.stringify({
-      format: SETTINGS_CONFIG_FORMAT,
-      version: 1,
-      exportedAt: '2025-04-05T10:30:00Z',
-      settings: {
-        cacheSecs: 999,
-        seekJumpSecs: 30,
-        accentColor: 'not-a-color',
-        themePreference: 'system',
-        enableNotifications: 'yes',
-        hardwareAcceleration: 'yes',
-        hwdecMode: 'turbo',
-        categoryPrefs: { hidden: { vod: ['10', '10', 11] } },
-        upcomingHistoryDays: 365,
-        futurePreference: true,
-        epgXmltvUrl: 'https://guide.test/legacy.xml',
-      },
-    }));
+    const parsed = parseSettingsConfig(
+      JSON.stringify({
+        format: SETTINGS_CONFIG_FORMAT,
+        version: 1,
+        exportedAt: '2025-04-05T10:30:00Z',
+        settings: {
+          cacheSecs: 999,
+          seekJumpSecs: 30,
+          accentColor: 'not-a-color',
+          themePreference: 'system',
+          enableNotifications: 'yes',
+          hardwareAcceleration: 'yes',
+          hwdecMode: 'turbo',
+          categoryPrefs: { hidden: { vod: ['10', '10', 11] } },
+          upcomingHistoryDays: 365,
+          futurePreference: true,
+          epgXmltvUrl: 'https://guide.test/legacy.xml',
+        },
+      }),
+    );
 
     expect(parsed.document.settings).toMatchObject({
       cacheSecs: 30,
@@ -118,13 +122,18 @@ describe('portable settings configuration', () => {
 
   it('rejects unrelated, future, malformed, and oversized documents', () => {
     expect(() => parseSettingsConfig('{')).toThrow('valid JSON');
-    expect(() => parseSettingsConfig(JSON.stringify({ format: 'other', version: 1, settings: {} })))
-      .toThrow('not a Movena');
-    expect(() => parseSettingsConfig(JSON.stringify({
-      format: SETTINGS_CONFIG_FORMAT,
-      version: SETTINGS_CONFIG_VERSION + 1,
-      settings: {},
-    }))).toThrow('newer version');
+    expect(() =>
+      parseSettingsConfig(JSON.stringify({ format: 'other', version: 1, settings: {} })),
+    ).toThrow('not a Movena');
+    expect(() =>
+      parseSettingsConfig(
+        JSON.stringify({
+          format: SETTINGS_CONFIG_FORMAT,
+          version: SETTINGS_CONFIG_VERSION + 1,
+          settings: {},
+        }),
+      ),
+    ).toThrow('newer version');
     expect(() => parseSettingsConfig(' '.repeat(MAX_SETTINGS_CONFIG_BYTES + 1))).toThrow('larger');
   });
 });

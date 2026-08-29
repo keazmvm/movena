@@ -122,7 +122,9 @@
   text-align: left;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .navItem:hover {

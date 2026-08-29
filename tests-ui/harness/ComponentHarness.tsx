@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  CircleHelp,
-  FolderOpen,
-  Grid2X2,
-  List,
-  RefreshCw,
-} from 'lucide-react';
+import { CircleHelp, FolderOpen, Grid2X2, List, RefreshCw } from 'lucide-react';
 import { Button, IconButton } from '../../src/components/common/Button';
 import { ConfirmDialog } from '../../src/components/common/ConfirmDialog';
 import { ErrorState } from '../../src/components/common/ErrorState';
@@ -44,7 +38,8 @@ const COPY = {
   },
   de: {
     eyebrow: 'Prüfung der Produktionskomponenten',
-    description: 'Gezielte Zustände mit denselben gemeinsam genutzten Bedienelementen, die Movena verwendet.',
+    description:
+      'Gezielte Zustände mit denselben gemeinsam genutzten Bedienelementen, die Movena verwendet.',
     primitives: 'Bedienelemente und Auswahl',
     content: 'Inhaltszustände',
     settings: 'Einstellungen und Steuerelemente',
@@ -93,7 +88,9 @@ function PrimitivesSurface() {
           <Button variant="ghost">Cancel</Button>
           <Button variant="danger">Remove source</Button>
           <Button disabled>Disabled</Button>
-          <IconButton aria-label="Help"><CircleHelp size={18} /></IconButton>
+          <IconButton aria-label="Help">
+            <CircleHelp size={18} />
+          </IconButton>
         </div>
       </section>
       <section className={styles.componentGroup} aria-labelledby="selection-heading">
@@ -143,7 +140,9 @@ function ContentStatesSurface() {
       </section>
       <section className={styles.statePanel} aria-labelledby="loading-heading">
         <h2 id="loading-heading">Loading</h2>
-        <div className={styles.skeletonFrame}><GridSkeleton count={1} /></div>
+        <div className={styles.skeletonFrame}>
+          <GridSkeleton count={1} />
+        </div>
       </section>
       <section className={styles.statePanel} aria-labelledby="empty-heading">
         <h2 id="empty-heading">Empty</h2>
@@ -186,9 +185,16 @@ function SettingsControlsSurface() {
           title="Enable hardware decoding"
           description="Use the graphics processor when the current stream and platform support it."
         >
-          <SettingsToggle checked={enabled} onChange={setEnabled} label="Enable hardware decoding" />
+          <SettingsToggle
+            checked={enabled}
+            onChange={setEnabled}
+            label="Enable hardware decoding"
+          />
         </SettingsRow>
-        <SettingsRow title="Quality profile" description="Apply one consistent profile to new playback sessions.">
+        <SettingsRow
+          title="Quality profile"
+          description="Apply one consistent profile to new playback sessions."
+        >
           <Select
             variant="settings"
             ariaLabel="Quality profile"
@@ -201,7 +207,10 @@ function SettingsControlsSurface() {
             ]}
           />
         </SettingsRow>
-        <SettingsRow title="Default volume" description="The selected value remains visible while the slider has focus.">
+        <SettingsRow
+          title="Default volume"
+          description="The selected value remains visible while the slider has focus."
+        >
           <SettingsRange
             aria-label="Default volume"
             min={0}
@@ -217,7 +226,11 @@ function SettingsControlsSurface() {
           wideControl
         >
           <div className={styles.settingsInputRow}>
-            <SettingsInput aria-label="Download folder" readOnly value="C:\\Users\\viewer\\Downloads\\Movena Media" />
+            <SettingsInput
+              aria-label="Download folder"
+              readOnly
+              value="C:\\Users\\viewer\\Downloads\\Movena Media"
+            />
             <SettingsButton>Choose</SettingsButton>
           </div>
         </SettingsRow>
@@ -243,9 +256,12 @@ function OverlaysSurface() {
 }
 
 function DeveloperHudSurface() {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  }));
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      }),
+  );
 
   useEffect(() => {
     const settings = useSettingsStore.getState();
@@ -315,7 +331,11 @@ export function ComponentHarness({ language }: { language: UiLanguage }) {
         </div>
         <nav className={styles.navigation} aria-label="Component QA surfaces">
           {UI_QA_SURFACES.map((item) => (
-            <a key={item} href={`/${item}?locale=${language}&theme=${themePreference}`} aria-current={item === surface ? 'page' : undefined}>
+            <a
+              key={item}
+              href={`/${item}?locale=${language}&theme=${themePreference}`}
+              aria-current={item === surface ? 'page' : undefined}
+            >
               {item.replace('-', ' ')}
             </a>
           ))}

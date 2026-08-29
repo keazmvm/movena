@@ -158,7 +158,8 @@
   appearance: none;
 }
 
-.input:disabled, .inputHasRemove:disabled {
+.input:disabled,
+.inputHasRemove:disabled {
   opacity: var(--alpha-60);
   cursor: not-allowed;
 }
@@ -229,7 +230,9 @@
   flex-shrink: 0;
 }
 
-.submitBtn:disabled, .speedTestBtn:disabled, .cancelBtn:disabled {
+.submitBtn:disabled,
+.speedTestBtn:disabled,
+.cancelBtn:disabled {
   opacity: var(--alpha-60);
   cursor: not-allowed;
   transform: none;

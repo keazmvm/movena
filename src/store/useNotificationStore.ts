@@ -32,9 +32,13 @@ let sharedAudioCtx: AudioContext | null = null;
 
 function getSharedAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
-  const AudioCtx = window.AudioContext || (window as Window & {
-    webkitAudioContext?: typeof AudioContext | undefined;
-  }).webkitAudioContext;
+  const AudioCtx =
+    window.AudioContext ||
+    (
+      window as Window & {
+        webkitAudioContext?: typeof AudioContext | undefined;
+      }
+    ).webkitAudioContext;
   if (!AudioCtx) return null;
   if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
     sharedAudioCtx = new AudioCtx();
@@ -84,7 +88,11 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     // Do this before creating a toast or chime. Filtering only in the visual
     // container still played audio for a notification the user explicitly
     // asked not to be disturbed by.
-    if (settings.dndDuringPlayback && usePlayerStore.getState().activeStream && notification.type !== 'error') {
+    if (
+      settings.dndDuringPlayback &&
+      usePlayerStore.getState().activeStream &&
+      notification.type !== 'error'
+    ) {
       return '';
     }
 
@@ -127,17 +135,54 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
 // Convenient shorthand helper object
 export const notify = {
-  success: (title: string, message?: string, duration?: number, action?: NotificationAction, category?: NotificationCategory) =>
-    useNotificationStore.getState().addNotification({ type: 'success', title, message, duration, action, category }),
+  success: (
+    title: string,
+    message?: string,
+    duration?: number,
+    action?: NotificationAction,
+    category?: NotificationCategory,
+  ) =>
+    useNotificationStore
+      .getState()
+      .addNotification({ type: 'success', title, message, duration, action, category }),
 
-  error: (title: string, message?: string, duration?: number, action?: NotificationAction, category?: NotificationCategory) =>
-    useNotificationStore.getState().addNotification({ type: 'error', title, message, duration: duration ?? 6000, action, category }),
+  error: (
+    title: string,
+    message?: string,
+    duration?: number,
+    action?: NotificationAction,
+    category?: NotificationCategory,
+  ) =>
+    useNotificationStore.getState().addNotification({
+      type: 'error',
+      title,
+      message,
+      duration: duration ?? 6000,
+      action,
+      category,
+    }),
 
-  warning: (title: string, message?: string, duration?: number, action?: NotificationAction, category?: NotificationCategory) =>
-    useNotificationStore.getState().addNotification({ type: 'warning', title, message, duration, action, category }),
+  warning: (
+    title: string,
+    message?: string,
+    duration?: number,
+    action?: NotificationAction,
+    category?: NotificationCategory,
+  ) =>
+    useNotificationStore
+      .getState()
+      .addNotification({ type: 'warning', title, message, duration, action, category }),
 
-  info: (title: string, message?: string, duration?: number, action?: NotificationAction, category?: NotificationCategory) =>
-    useNotificationStore.getState().addNotification({ type: 'info', title, message, duration, action, category }),
+  info: (
+    title: string,
+    message?: string,
+    duration?: number,
+    action?: NotificationAction,
+    category?: NotificationCategory,
+  ) =>
+    useNotificationStore
+      .getState()
+      .addNotification({ type: 'info', title, message, duration, action, category }),
 
   dismiss: (id: string) => useNotificationStore.getState().removeNotification(id),
 

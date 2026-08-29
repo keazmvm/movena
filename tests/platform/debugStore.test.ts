@@ -20,11 +20,9 @@ describe('debug store', () => {
   });
 
   it('redacts credentials in log messages, details, and network entries', () => {
-    useDebugStore.getState().addLog(
-      'error', 'api',
-      'https://provider.test/live/alice/secret/1',
-      { password: 'secret' },
-    );
+    useDebugStore
+      .getState()
+      .addLog('error', 'api', 'https://provider.test/live/alice/secret/1', { password: 'secret' });
     useDebugStore.getState().addNetworkLog({
       url: 'https://provider.test/player_api.php?username=alice&password=secret',
       method: 'GET',
@@ -39,10 +37,12 @@ describe('debug store', () => {
 
   it('exports a redacted, count-bearing report', () => {
     useDebugStore.getState().addLog('error', 'system', 'Failure');
-    const report = JSON.parse(useDebugStore.getState().exportDebugReport({
-      player: { phase: 'Idle' },
-      password: 'must-not-leak',
-    }));
+    const report = JSON.parse(
+      useDebugStore.getState().exportDebugReport({
+        player: { phase: 'Idle' },
+        password: 'must-not-leak',
+      }),
+    );
 
     expect(report.logsCount).toBe(1);
     expect(report.networkLogsCount).toBe(0);

@@ -68,7 +68,9 @@ export function LibraryMetadataSettingsSection() {
             variant="settings"
             width={180}
             value={settings.smartLogoAspectMode}
-            onChange={(value) => settings.setSmartLogoAspectMode(value as typeof settings.smartLogoAspectMode)}
+            onChange={(value) =>
+              settings.setSmartLogoAspectMode(value as typeof settings.smartLogoAspectMode)
+            }
             options={[
               { value: 'auto', label: 'Smart Auto-Detect' },
               { value: 'force-16:9', label: 'Always 16:9' },
@@ -107,7 +109,10 @@ export function LibraryMetadataSettingsSection() {
             onChange={(event) => settings.updateSetting('tmdbApiKey', event.target.value)}
             onBlur={() => {
               void storeTmdbApiKey(settings.tmdbApiKey).catch((error: unknown) => {
-                notify.error('TMDB Key Not Saved', getErrorMessage(error, 'Credential storage failed without an error message.'));
+                notify.error(
+                  'TMDB Key Not Saved',
+                  getErrorMessage(error, 'Credential storage failed without an error message.'),
+                );
               });
             }}
             style={{ width: '220px' }}
@@ -167,7 +172,6 @@ export function LibraryMetadataSettingsSection() {
           />
         </SettingsRow>
       </SettingsGroup>
-
     </SettingsPageContent>
   );
 }

@@ -12,18 +12,17 @@ import { useSettingsStore, type ThemePreference } from '../../store/useSettingsS
 import { DEFAULT_ACCENT_COLOR } from '../../utils/color';
 import { AccentColorPicker } from '../shared/AccentColorPicker';
 import { SegmentedControl } from '../common/SegmentedControl';
-import {
-  SettingsGroup,
-  SettingsPageContent,
-  SettingsRow,
-} from './SettingsControls';
+import { SettingsGroup, SettingsPageContent, SettingsRow } from './SettingsControls';
 export function AppearanceSettingsSection() {
   const settings = useSettingsStore();
   const accentColor = settings.accentColor || DEFAULT_ACCENT_COLOR;
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Catalogue & Theme" description="Choose how browsing surfaces look by default.">
+      <SettingsGroup
+        title="Catalogue & Theme"
+        description="Choose how browsing surfaces look by default."
+      >
         <SettingsRow
           title="Theme"
           description="Use light or dark colors across the Movena interface."
@@ -57,13 +56,17 @@ export function AppearanceSettingsSection() {
             value={settings.viewMode}
             onChange={(value) => settings.updateSetting('viewMode', value)}
             options={[
-              { value: 'grid', label: 'Grid', icon: RiLayoutGridLine, activeIcon: RiLayoutGridFill },
+              {
+                value: 'grid',
+                label: 'Grid',
+                icon: RiLayoutGridLine,
+                activeIcon: RiLayoutGridFill,
+              },
               { value: 'list', label: 'List', icon: RiLayoutRowLine, activeIcon: RiLayoutRowFill },
             ]}
           />
         </SettingsRow>
       </SettingsGroup>
-
     </SettingsPageContent>
   );
 }

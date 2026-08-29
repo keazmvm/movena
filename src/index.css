@@ -163,7 +163,9 @@
   --duration-loop-pulse: 2s;
 
   /* Typography. The UI is compact, with clear jumps between levels. */
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
   --font-size-micro: 10px;
   --font-size-caption: 11px;
   --font-size-small: 12px;
@@ -324,15 +326,34 @@ html[data-theme='light']:not(.is-playing) {
 
 /* One semantic mapping for every category, catalogue, detail, and player tag.
    Media cards opt into the invariant accent when the tag sits over artwork. */
-[data-tag-type='gold'] { --badge-accent: var(--tag-gold); --media-badge-accent: var(--tag-media-gold); }
-[data-tag-type='cyan'] { --badge-accent: var(--tag-cyan); --media-badge-accent: var(--tag-media-cyan); }
-[data-tag-type='purple'] { --badge-accent: var(--tag-purple); --media-badge-accent: var(--tag-media-purple); }
-[data-tag-type='blue'] { --badge-accent: var(--tag-blue); --media-badge-accent: var(--tag-media-blue); }
-[data-tag-type='green'] { --badge-accent: var(--tag-green); --media-badge-accent: var(--tag-media-green); }
-[data-tag-type='coral'] { --badge-accent: var(--tag-coral); --media-badge-accent: var(--tag-media-coral); }
-[data-tag-type='silver'] { --badge-accent: var(--tag-silver); --media-badge-accent: var(--tag-media-silver); }
-
-
+[data-tag-type='gold'] {
+  --badge-accent: var(--tag-gold);
+  --media-badge-accent: var(--tag-media-gold);
+}
+[data-tag-type='cyan'] {
+  --badge-accent: var(--tag-cyan);
+  --media-badge-accent: var(--tag-media-cyan);
+}
+[data-tag-type='purple'] {
+  --badge-accent: var(--tag-purple);
+  --media-badge-accent: var(--tag-media-purple);
+}
+[data-tag-type='blue'] {
+  --badge-accent: var(--tag-blue);
+  --media-badge-accent: var(--tag-media-blue);
+}
+[data-tag-type='green'] {
+  --badge-accent: var(--tag-green);
+  --media-badge-accent: var(--tag-media-green);
+}
+[data-tag-type='coral'] {
+  --badge-accent: var(--tag-coral);
+  --media-badge-accent: var(--tag-media-coral);
+}
+[data-tag-type='silver'] {
+  --badge-accent: var(--tag-silver);
+  --media-badge-accent: var(--tag-media-silver);
+}
 
 * {
   box-sizing: border-box;
@@ -369,7 +390,8 @@ button,
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-standard),
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard),
@@ -450,7 +472,8 @@ button,
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-standard),
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard);
 }
@@ -476,7 +499,8 @@ button,
   background: var(--surface-input);
   color: var(--text-primary);
   font-size: var(--font-size-control);
-  transition: background-color var(--duration-fast) var(--ease-standard),
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);
 }
@@ -520,7 +544,8 @@ html.is-playing {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--surface-input);
-  transition: background-color var(--duration-fast) var(--ease-standard),
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard);
 }
@@ -598,7 +623,8 @@ body {
 }
 
 /* Allow selection in inputs */
-input, textarea {
+input,
+textarea {
   user-select: auto;
 }
 
@@ -726,7 +752,7 @@ html[data-motion='reduced'] *::after {
 html.is-playing:not(.is-video-ready),
 body.is-playing:not(.is-video-ready),
 body.is-playing:not(.is-video-ready) #root,
-body.is-playing:not(.is-video-ready) [class*="appContainer"] {
+body.is-playing:not(.is-video-ready) [class*='appContainer'] {
   background-color: var(--neutral-black) !important;
   background: var(--neutral-black) !important;
 }
@@ -734,17 +760,16 @@ body.is-playing:not(.is-video-ready) [class*="appContainer"] {
 html.is-playing.is-video-ready,
 body.is-playing.is-video-ready,
 body.is-playing.is-video-ready #root,
-body.is-playing.is-video-ready [class*="appContainer"] {
+body.is-playing.is-video-ready [class*='appContainer'] {
   background-color: transparent !important;
   background: transparent !important;
 }
 
 body.is-playing main,
 body.is-playing aside,
-body.is-playing [class*="sidebar"],
-body.is-playing [class*="mainContent"],
-body.is-playing [class*="pageContainer"],
-body.is-playing [class*="mainDragArea"] {
+body.is-playing [class*='sidebar'],
+body.is-playing [class*='mainContent'],
+body.is-playing [class*='pageContainer'],
+body.is-playing [class*='mainDragArea'] {
   display: none !important;
 }
-

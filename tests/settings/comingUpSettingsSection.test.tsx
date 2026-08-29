@@ -49,10 +49,22 @@ describe('release schedule settings', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Enable Coming Up' }));
 
     expect(useSettingsStore.getState().upcomingEnabled).toBe(false);
-    expect(screen.getByRole('checkbox', { name: 'Show Coming Up on Home' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('checkbox', { name: 'Show live release countdowns' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('checkbox', { name: 'Show release calendar' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('checkbox', { name: 'Look up exact TV airtimes' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('button', { name: 'Recently released retention' }).hasAttribute('disabled')).toBe(true);
+    expect(
+      screen.getByRole('checkbox', { name: 'Show Coming Up on Home' }).hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen
+        .getByRole('checkbox', { name: 'Show live release countdowns' })
+        .hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('checkbox', { name: 'Show release calendar' }).hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('checkbox', { name: 'Look up exact TV airtimes' }).hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Recently released retention' }).hasAttribute('disabled'),
+    ).toBe(true);
   });
 });

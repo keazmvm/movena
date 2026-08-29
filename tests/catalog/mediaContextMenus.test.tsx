@@ -2,7 +2,10 @@
 
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildLogoAspectMenuItem, useMediaContextMenus } from '../../src/hooks/useMediaContextMenus';
+import {
+  buildLogoAspectMenuItem,
+  useMediaContextMenus,
+} from '../../src/hooks/useMediaContextMenus';
 import { useContextMenuStore } from '../../src/store/useContextMenuStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
@@ -53,13 +56,17 @@ describe('media download actions', () => {
       streamUrl: 'https://media.test/episode.mp4',
     });
 
-    const downloadItem = useContextMenuStore.getState().items.find((item) => item.id === 'download');
+    const downloadItem = useContextMenuStore
+      .getState()
+      .items.find((item) => item.id === 'download');
     expect(downloadItem?.label).toBe('Download Content');
     downloadItem?.action?.();
-    expect(downloadMediaItemMock).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Series - S01E01',
-      streamUrl: 'https://media.test/episode.mp4',
-    }));
+    expect(downloadMediaItemMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Series - S01E01',
+        streamUrl: 'https://media.test/episode.mp4',
+      }),
+    );
   });
 
   it('does not offer downloads for live channels or catalogue-only series cards', () => {
@@ -88,7 +95,9 @@ describe('media download actions', () => {
     });
     expect(useContextMenuStore.getState().items.some((item) => item.id === 'download')).toBe(false);
     expect(useContextMenuStore.getState().items.some((item) => item.id === 'play')).toBe(false);
-    expect(useContextMenuStore.getState().items.find((item) => item.id === 'copy-url')?.label).toBe('Copy Title');
+    expect(useContextMenuStore.getState().items.find((item) => item.id === 'copy-url')?.label).toBe(
+      'Copy Title',
+    );
   });
 
   it('offers Logo Aspect Ratio submenu for Live TV items and updates override', () => {
@@ -107,7 +116,9 @@ describe('media download actions', () => {
       type: 'live',
     });
 
-    const aspectMenu = useContextMenuStore.getState().items.find((item) => item.id === 'logo-aspect-submenu');
+    const aspectMenu = useContextMenuStore
+      .getState()
+      .items.find((item) => item.id === 'logo-aspect-submenu');
     expect(aspectMenu).toBeDefined();
     expect(aspectMenu?.label).toBe('Logo Aspect Ratio');
     expect(aspectMenu?.submenu).toHaveLength(4);

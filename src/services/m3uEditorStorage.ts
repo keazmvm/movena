@@ -17,12 +17,19 @@ function storageKey(namespace: string, sourceId: string): string {
  * Stores credential-bearing editor state in Movena's native application-data
  * cache, never localStorage/IndexedDB.
  */
-export async function loadM3uEditorState(namespace: string, sourceId: string): Promise<string | null> {
+export async function loadM3uEditorState(
+  namespace: string,
+  sourceId: string,
+): Promise<string | null> {
   const key = storageKey(namespace, sourceId);
   return (await loadM3uCache(key))?.content ?? null;
 }
 
-export async function storeM3uEditorState(namespace: string, sourceId: string, content: string): Promise<void> {
+export async function storeM3uEditorState(
+  namespace: string,
+  sourceId: string,
+  content: string,
+): Promise<void> {
   const key = storageKey(namespace, sourceId);
   await storeM3uCache(key, { content, baseUrl: '', fileName: `${namespace}.json` });
 }
@@ -38,7 +45,8 @@ export function deleteLegacyM3uEditorDatabase(): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase('movena-m3u-editor');
     request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error ?? new Error('Could not remove legacy playlist history.'));
+    request.onerror = () =>
+      reject(request.error ?? new Error('Could not remove legacy playlist history.'));
     request.onblocked = () => reject(new Error('Legacy playlist history is still open.'));
   });
 }

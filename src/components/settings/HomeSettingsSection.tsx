@@ -1,6 +1,10 @@
 import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useSettingsStore, type HomeSectionId } from '../../store/useSettingsStore';
-import { DEFAULT_HOME_SECTIONS, HOME_SECTION_LABELS, moveHomeSection } from '../../utils/homeSections';
+import {
+  DEFAULT_HOME_SECTIONS,
+  HOME_SECTION_LABELS,
+  moveHomeSection,
+} from '../../utils/homeSections';
 import {
   SettingsButton,
   SettingsGroup,
@@ -18,9 +22,12 @@ export function HomeSettingsSection() {
   const updateSetting = useSettingsStore((state) => state.updateSetting);
 
   const toggleSection = (id: HomeSectionId) => {
-    updateSetting('homeSections', homeSections.map((section) => (
-      section.id === id ? { ...section, enabled: !section.enabled } : section
-    )));
+    updateSetting(
+      'homeSections',
+      homeSections.map((section) =>
+        section.id === id ? { ...section, enabled: !section.enabled } : section,
+      ),
+    );
   };
 
   const move = (index: number, direction: -1 | 1) => {
@@ -40,7 +47,11 @@ export function HomeSettingsSection() {
             <SettingsRow
               key={section.id}
               title={label}
-              description={isUpcoming ? 'Shown or hidden by the "Show on Home" setting under Coming Up.' : undefined}
+              description={
+                isUpcoming
+                  ? 'Shown or hidden by the "Show on Home" setting under Coming Up.'
+                  : undefined
+              }
             >
               <div style={rowControlsStyle}>
                 <SettingsButton

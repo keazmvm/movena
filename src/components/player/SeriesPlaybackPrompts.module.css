@@ -45,7 +45,9 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   box-shadow: var(--shadow-md);
-  transition: background-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
   animation: promptIn var(--duration-normal) var(--ease-standard);
 }
 
@@ -94,7 +96,8 @@
   font-size: var(--font-size-control);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-standard),
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);

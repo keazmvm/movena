@@ -1,8 +1,4 @@
-import {
-  deleteM3uEditorState,
-  loadM3uEditorState,
-  storeM3uEditorState,
-} from './m3uEditorStorage';
+import { deleteM3uEditorState, loadM3uEditorState, storeM3uEditorState } from './m3uEditorStorage';
 
 export interface M3uDraftRecord {
   content: string;
@@ -16,7 +12,9 @@ export async function loadM3uDraft(sourceId: string): Promise<M3uDraftRecord | n
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<M3uDraftRecord>;
-    return typeof parsed.content === 'string' && typeof parsed.savedAt === 'number' && Number.isFinite(parsed.savedAt)
+    return typeof parsed.content === 'string' &&
+      typeof parsed.savedAt === 'number' &&
+      Number.isFinite(parsed.savedAt)
       ? { content: parsed.content, savedAt: parsed.savedAt }
       : null;
   } catch {

@@ -20,9 +20,7 @@ export const useSearchStore = create<SearchState>()(
 
         const current = get().recentSearches;
         // Case-insensitive filter out existing query to place new one at top
-        const filtered = current.filter(
-          (item) => item.toLowerCase() !== trimmed.toLowerCase()
-        );
+        const filtered = current.filter((item) => item.toLowerCase() !== trimmed.toLowerCase());
 
         // Keep max 15 recent searches
         const updated = [trimmed, ...filtered].slice(0, 15);
@@ -33,7 +31,7 @@ export const useSearchStore = create<SearchState>()(
       removeRecentSearch: (query: string) => {
         set((state) => ({
           recentSearches: state.recentSearches.filter(
-            (item) => item.toLowerCase() !== query.toLowerCase()
+            (item) => item.toLowerCase() !== query.toLowerCase(),
           ),
         }));
         debugLog.info('search', `Removed recent search: "${query}"`);
@@ -55,6 +53,6 @@ export const useSearchStore = create<SearchState>()(
           recentSearches: Array.isArray(state.recentSearches) ? state.recentSearches : [],
         } as SearchState;
       },
-    }
-  )
+    },
+  ),
 );

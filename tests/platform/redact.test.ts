@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { redactDiagnosticText, redactDiagnosticValue, redactSensitiveText } from '../../src/utils/redact';
+import {
+  redactDiagnosticText,
+  redactDiagnosticValue,
+  redactSensitiveText,
+} from '../../src/utils/redact';
 
 describe('diagnostic redaction', () => {
   it('redacts Xtream query credentials', () => {
     const result = redactSensitiveText(
-      'https://provider.test/player_api.php?username=alice&password=hunter2&action=get_live_streams'
+      'https://provider.test/player_api.php?username=alice&password=hunter2&action=get_live_streams',
     );
 
     expect(result).not.toContain('alice');
@@ -20,7 +24,7 @@ describe('diagnostic redaction', () => {
 
   it('redacts percent-encoded credentials', () => {
     const result = redactSensitiveText(
-      'url=https%3A%2F%2Fprovider.test%2Flive%2Falice%2Fhunter2%2F42.m3u8'
+      'url=https%3A%2F%2Fprovider.test%2Flive%2Falice%2Fhunter2%2F42.m3u8',
     );
 
     expect(result).not.toContain('alice');
@@ -47,8 +51,12 @@ describe('diagnostic redaction', () => {
   });
 
   it('omits ordinary URLs and local paths from diagnostic text', () => {
-    expect(redactDiagnosticText('Opening https://cdn.test/public/video.m3u8')).toBe('Opening [URL]');
-    expect(redactDiagnosticText('Opening C:\\Users\\viewer\\Videos\\movie.mkv')).toBe('Opening [PATH]');
+    expect(redactDiagnosticText('Opening https://cdn.test/public/video.m3u8')).toBe(
+      'Opening [URL]',
+    );
+    expect(redactDiagnosticText('Opening C:\\Users\\viewer\\Videos\\movie.mkv')).toBe(
+      'Opening [PATH]',
+    );
     expect(redactDiagnosticText('Opening /home/viewer/Videos/movie.mkv')).toBe('Opening [PATH]');
   });
 

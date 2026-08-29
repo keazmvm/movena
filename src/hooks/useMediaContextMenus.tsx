@@ -37,9 +37,10 @@ export function buildLogoAspectMenuItem(
 ): ContextMenuItem {
   const legacyChannelKey = (channel.sourceItemId || channel.id).toString();
   const channelKey = sourceScopedItemKey(channel.sourceId, legacyChannelKey);
-  const currentOverride = settings.channelLogoAspectOverrides[channelKey]
-    ?? settings.channelLogoAspectOverrides[legacyChannelKey]
-    ?? 'auto';
+  const currentOverride =
+    settings.channelLogoAspectOverrides[channelKey] ??
+    settings.channelLogoAspectOverrides[legacyChannelKey] ??
+    'auto';
   const choices = [
     ['aspect-auto', 'Smart Auto', 'auto'],
     ['aspect-16-9', 'Widescreen (16:9)', '16:9'],
@@ -73,7 +74,7 @@ export function useMediaContextMenus() {
         onPlay?: ((item: MediaItem) => void) | undefined;
         onViewDetails?: ((item: MediaItem) => void) | undefined;
         currentCollectionId?: string | undefined;
-      }
+      },
     ) => {
       e.preventDefault();
       e.stopPropagation();
@@ -85,35 +86,40 @@ export function useMediaContextMenus() {
       const collections = state.collections;
 
       const canPlay = Boolean(options?.onPlay || item.streamUrl);
-      const items: ContextMenuItem[] = canPlay ? [
-        {
-          id: 'play',
-          label: t('Play Content'),
-          icon: <Play size={16} />,
-          action: () => {
-            if (options?.onPlay) {
-              options.onPlay(item);
-            } else {
-              if (!item.streamUrl) {
-                notify.warning('Stream Unavailable', 'This item needs to be opened from its catalogue.');
-                return;
-              }
-              usePlayerStore.getState().playStream({
-                id: item.id,
-                title: item.title,
-                type: item.type || 'vod',
-                streamUrl: item.streamUrl,
-                httpHeaders: item.httpHeaders,
-                sourceId: item.sourceId,
-                epgChannelId: item.epgChannelId,
-                posterUrl: item.posterUrl,
-                tags: item.tags,
-                country: item.country,
-              });
-            }
-          },
-        },
-      ] : [];
+      const items: ContextMenuItem[] = canPlay
+        ? [
+            {
+              id: 'play',
+              label: t('Play Content'),
+              icon: <Play size={16} />,
+              action: () => {
+                if (options?.onPlay) {
+                  options.onPlay(item);
+                } else {
+                  if (!item.streamUrl) {
+                    notify.warning(
+                      'Stream Unavailable',
+                      'This item needs to be opened from its catalogue.',
+                    );
+                    return;
+                  }
+                  usePlayerStore.getState().playStream({
+                    id: item.id,
+                    title: item.title,
+                    type: item.type || 'vod',
+                    streamUrl: item.streamUrl,
+                    httpHeaders: item.httpHeaders,
+                    sourceId: item.sourceId,
+                    epgChannelId: item.epgChannelId,
+                    posterUrl: item.posterUrl,
+                    tags: item.tags,
+                    country: item.country,
+                  });
+                }
+              },
+            },
+          ]
+        : [];
 
       if (options?.onViewDetails) {
         items.push({
@@ -129,7 +135,9 @@ export function useMediaContextMenus() {
           id: 'download',
           label: t('Download Content'),
           icon: <Download size={16} />,
-          action: () => { void downloadMediaItem(item); },
+          action: () => {
+            void downloadMediaItem(item);
+          },
         });
       }
 
@@ -137,7 +145,13 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove from Favorites' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
+          icon: (
+            <Heart
+              size={16}
+              fill={isFav ? 'var(--accent-foreground)' : 'none'}
+              color={isFav ? 'var(--accent-foreground)' : 'currentColor'}
+            />
+          ),
           action: () => {
             if (isFav) {
               state.removeFavorite(item.id);
@@ -149,7 +163,11 @@ export function useMediaContextMenus() {
         {
           id: 'watched',
           label: t(isW ? 'Mark as Unwatched' : 'Mark as Watched'),
-          icon: isW ? <CheckCircle size={16} color="var(--accent-foreground)" /> : <Circle size={16} />,
+          icon: isW ? (
+            <CheckCircle size={16} color="var(--accent-foreground)" />
+          ) : (
+            <Circle size={16} />
+          ),
           action: () => state.toggleWatched(item.id),
         },
       );
@@ -166,9 +184,10 @@ export function useMediaContextMenus() {
               label: collection.name,
               localize: false,
               checked: containsItem,
-              action: () => containsItem
-                ? state.removeFromCollection(collection.id, item.id)
-                : state.addToCollection(collection.id, item),
+              action: () =>
+                containsItem
+                  ? state.removeFromCollection(collection.id, item.id)
+                  : state.addToCollection(collection.id, item),
             };
           }),
         });
@@ -198,7 +217,7 @@ export function useMediaContextMenus() {
               notify.info('Copied to Clipboard', getDisplayTitle(item.title, item.type));
             }
           },
-        }
+        },
       );
 
       if (options?.currentCollectionId) {
@@ -214,7 +233,7 @@ export function useMediaContextMenus() {
             icon: <Trash2 size={16} />,
             danger: true,
             action: () => state.removeFromCollection(options.currentCollectionId!, item.id),
-          }
+          },
         );
       }
 
@@ -231,13 +250,13 @@ export function useMediaContextMenus() {
             icon: <Trash2 size={16} />,
             danger: true,
             action: () => state.removeFromHistory(item.id),
-          }
+          },
         );
       }
 
       openContextMenu(e.clientX, e.clientY, items);
     },
-    [openContextMenu, t]
+    [openContextMenu, t],
   );
 
   // 2. Continue Watching Cards
@@ -254,7 +273,9 @@ export function useMediaContextMenus() {
           id: 'resume',
           label: (() => {
             const left = formatRemaining(item.currentTime, item.duration, language);
-            return left ? t('Resume Playback ({remaining})', { remaining: left }) : t('Resume Playback');
+            return left
+              ? t('Resume Playback ({remaining})', { remaining: left })
+              : t('Resume Playback');
           })(),
           icon: <Play size={16} />,
           action: () => onPlay?.(item),
@@ -271,7 +292,13 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove Favorite' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
+          icon: (
+            <Heart
+              size={16}
+              fill={isFav ? 'var(--accent-foreground)' : 'none'}
+              color={isFav ? 'var(--accent-foreground)' : 'currentColor'}
+            />
+          ),
           action: () => (isFav ? state.removeFavorite(item.id) : state.addFavorite(item)),
         },
         {
@@ -299,7 +326,7 @@ export function useMediaContextMenus() {
 
       openContextMenu(e.clientX, e.clientY, items);
     },
-    [language, openContextMenu, t]
+    [language, openContextMenu, t],
   );
 
   // 3. Live TV Channel
@@ -320,7 +347,13 @@ export function useMediaContextMenus() {
         {
           id: 'favorite',
           label: t(isFav ? 'Remove Favorite' : 'Add to Favorites'),
-          icon: <Heart size={16} fill={isFav ? 'var(--accent-foreground)' : 'none'} color={isFav ? 'var(--accent-foreground)' : 'currentColor'} />,
+          icon: (
+            <Heart
+              size={16}
+              fill={isFav ? 'var(--accent-foreground)' : 'none'}
+              color={isFav ? 'var(--accent-foreground)' : 'currentColor'}
+            />
+          ),
           action: () => (isFav ? state.removeFavorite(channel.id) : state.addFavorite(channel)),
         },
         buildLogoAspectMenuItem(channel, t),
@@ -343,7 +376,7 @@ export function useMediaContextMenus() {
 
       openContextMenu(e.clientX, e.clientY, items);
     },
-    [openContextMenu, t]
+    [openContextMenu, t],
   );
 
   return {

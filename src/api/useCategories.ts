@@ -32,21 +32,29 @@ export function categoriesQueryOptions(type: CatalogType, sources: EnabledSource
           });
         }
       }
-      const results = await Promise.allSettled(sources.availableXtreamSources.map(async (source) => {
-        let res;
-        if (type === 'vod') res = await getVodCategories(source.credentials!, signal);
-        else if (type === 'series') res = await getSeriesCategories(source.credentials!, signal);
-        else res = await getLiveCategories(source.credentials!, signal);
-        return (Array.isArray(res) ? res : []).map((category) => ({
-          ...category,
-          category_id: xtreamCategoryId(source.id, category.category_id)!,
-          category_name: category.category_name,
-        }));
-      }));
-      const providerCategories = results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
-      const providerFailures = results.flatMap((result, index) => result.status === 'rejected'
-        ? [`${sources.availableXtreamSources[index]?.profile.name ?? `Source ${index + 1}`}: ${getErrorMessage(result.reason, 'Category request failed without an error message.')}`]
-        : []);
+      const results = await Promise.allSettled(
+        sources.availableXtreamSources.map(async (source) => {
+          let res;
+          if (type === 'vod') res = await getVodCategories(source.credentials!, signal);
+          else if (type === 'series') res = await getSeriesCategories(source.credentials!, signal);
+          else res = await getLiveCategories(source.credentials!, signal);
+          return (Array.isArray(res) ? res : []).map((category) => ({
+            ...category,
+            category_id: xtreamCategoryId(source.id, category.category_id)!,
+            category_name: category.category_name,
+          }));
+        }),
+      );
+      const providerCategories = results.flatMap((result) =>
+        result.status === 'fulfilled' ? result.value : [],
+      );
+      const providerFailures = results.flatMap((result, index) =>
+        result.status === 'rejected'
+          ? [
+              `${sources.availableXtreamSources[index]?.profile.name ?? `Source ${index + 1}`}: ${getErrorMessage(result.reason, 'Category request failed without an error message.')}`,
+            ]
+          : [],
+      );
       const failedProviders = providerFailures.length;
       if (groups.size === 0 && results.length > 0 && failedProviders === results.length) {
         throw new Error(providerFailures.join('\n'));
@@ -121,7 +129,7 @@ export function useVisibleCatalog(type: CatalogType) {
 
   const data = useMemo(
     () => items.filter((item) => !item.categoryId || !hiddenIds.has(item.categoryId)),
-    [items, hiddenIds]
+    [items, hiddenIds],
   );
 
   return { ...query, data };

@@ -38,7 +38,10 @@ describe('sanitizeHomeSections', () => {
     expect(result.filter((section) => section.id === 'recentMovies')).toHaveLength(1);
     expect(result.some((section) => (section.id as string) === 'not-a-real-section')).toBe(false);
     // A non-boolean `enabled` only counts as false when it's literally `false`.
-    expect(result.find((section) => section.id === 'popularSeries')).toEqual({ id: 'popularSeries', enabled: true });
+    expect(result.find((section) => section.id === 'popularSeries')).toEqual({
+      id: 'popularSeries',
+      enabled: true,
+    });
   });
 
   it('appends a section missing from an older saved layout instead of dropping it', () => {
@@ -53,7 +56,13 @@ describe('moveHomeSection', () => {
     const sections = DEFAULT_HOME_SECTIONS;
     const movedDown = moveHomeSection(sections, 0, 1);
     expect(movedDown.map((section) => section.id)).toEqual([
-      'continueWatching', 'upcoming', 'recentMovies', 'recentSeries', 'popularMovies', 'popularSeries', 'liveChannels',
+      'continueWatching',
+      'upcoming',
+      'recentMovies',
+      'recentSeries',
+      'popularMovies',
+      'popularSeries',
+      'liveChannels',
     ]);
 
     const movedUp = moveHomeSection(movedDown, 1, -1);

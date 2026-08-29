@@ -8,8 +8,7 @@ describe('responsive grid layout', () => {
     const layout = calculateGridLayout(width, gap, false);
 
     expect(layout.columns).toBe(6);
-    expect(layout.cardWidth * layout.columns + gap * (layout.columns - 1))
-      .toBeCloseTo(width);
+    expect(layout.cardWidth * layout.columns + gap * (layout.columns - 1)).toBeCloseTo(width);
     expect(layout.rowHeight).toBeCloseTo(layout.cardWidth * 1.5);
   });
 
@@ -25,8 +24,7 @@ describe('responsive grid layout', () => {
     const gap = 16;
     const layout = calculateGridLayout(width, gap, true);
 
-    expect(layout.cardWidth * layout.columns + gap * (layout.columns - 1))
-      .toBeCloseTo(width);
+    expect(layout.cardWidth * layout.columns + gap * (layout.columns - 1)).toBeCloseTo(width);
     expect(layout.rowHeight).toBe(layout.cardWidth);
   });
 });

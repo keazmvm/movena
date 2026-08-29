@@ -13,10 +13,11 @@ import { normalizeCountryCode } from '../../utils/categoryName';
  * category list reaches well past the simple tricolours.
  */
 
-const FLAG_URLS = import.meta.glob<string>(
-  '/node_modules/country-flag-icons/3x2/??.svg',
-  { eager: true, query: '?url&no-inline', import: 'default' },
-);
+const FLAG_URLS = import.meta.glob<string>('/node_modules/country-flag-icons/3x2/??.svg', {
+  eager: true,
+  query: '?url&no-inline',
+  import: 'default',
+});
 
 function resolve(code: string | null): string | undefined {
   const key = normalizeCountryCode(code);

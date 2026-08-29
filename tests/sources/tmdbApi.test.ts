@@ -16,12 +16,17 @@ describe('TMDB API boundary', () => {
     });
     expect(fetchMock).not.toHaveBeenCalled();
 
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({
-      page: 1,
-      total_pages: 2,
-      total_results: 1,
-      results: [{ id: 603, media_type: 'movie', title: 'The Matrix' }],
-    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          page: 1,
+          total_pages: 2,
+          total_results: 1,
+          results: [{ id: 603, media_type: 'movie', title: 'The Matrix' }],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    );
 
     const result = await searchTmdb('api-key', '  The Matrix & Friends  ', undefined, {
       language: 'de-DE',
@@ -38,17 +43,28 @@ describe('TMDB API boundary', () => {
   });
 
   it('fetches details with append-to-response and applies the configured image size', async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        id: 10,
-        title: 'Movie',
-        poster_path: '/movie.jpg',
-      }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        id: 20,
-        name: 'Show',
-        poster_path: '/show.jpg',
-      }), { status: 200 }));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            id: 10,
+            title: 'Movie',
+            poster_path: '/movie.jpg',
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            id: 20,
+            name: 'Show',
+            poster_path: '/show.jpg',
+          }),
+          { status: 200 },
+        ),
+      );
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(getTmdbMovie('key', 10, undefined, { imageSize: 'w780' })).resolves.toMatchObject({
@@ -67,7 +83,9 @@ describe('TMDB API boundary', () => {
   it('surfaces HTTP failures without exposing the API key in the error', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 401 })));
 
-    await expect(searchTmdb('super-secret-key', 'Movie')).rejects.toThrow('TMDB request failed (HTTP 401)');
+    await expect(searchTmdb('super-secret-key', 'Movie')).rejects.toThrow(
+      'TMDB request failed (HTTP 401)',
+    );
     await expect(searchTmdb('super-secret-key', 'Movie')).rejects.not.toThrow('super-secret-key');
   });
 });

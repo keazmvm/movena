@@ -53,16 +53,20 @@ beforeEach(() => {
 describe('native credential and repository boundaries', () => {
   it('routes M3U operations through typed native IPC', async () => {
     const document = { content: '#EXTM3U', baseUrl: 'https://list.test' };
-    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({
-      location: 'https://list.test',
-      headers: { Referer: 'ok', invalid: 42 },
-    }));
+    native.sourceSecretLoad.mockResolvedValue(
+      JSON.stringify({
+        location: 'https://list.test',
+        headers: { Referer: 'ok', invalid: 42 },
+      }),
+    );
     native.m3uCacheLoad.mockResolvedValue(document);
     native.m3uFetch.mockResolvedValue(document);
     native.m3uReadFile.mockResolvedValue({ ...document, fileName: 'playlist.m3u' });
 
     await storeM3uConnection('m3u-1', { location: 'https://list.test' });
-    await expect(loadM3uConnection('m3u-1')).resolves.toMatchObject({ location: 'https://list.test' });
+    await expect(loadM3uConnection('m3u-1')).resolves.toMatchObject({
+      location: 'https://list.test',
+    });
     await fetchRemoteM3u({ location: 'https://list.test' }, 'm3u-1');
     await readLocalM3u('C:\\playlist.m3u');
     await storeM3uCache('m3u-1', document);
@@ -70,14 +74,26 @@ describe('native credential and repository boundaries', () => {
     await deleteM3uCache('m3u-1');
     await deleteM3uConnection('m3u-1');
 
-    expect(native.sourceSecretStore).toHaveBeenCalledWith('m3u-1', JSON.stringify({ location: 'https://list.test' }));
-    expect(native.m3uFetch).toHaveBeenCalledWith({ url: 'https://list.test', headers: undefined, cacheKey: 'm3u-1' });
+    expect(native.sourceSecretStore).toHaveBeenCalledWith(
+      'm3u-1',
+      JSON.stringify({ location: 'https://list.test' }),
+    );
+    expect(native.m3uFetch).toHaveBeenCalledWith({
+      url: 'https://list.test',
+      headers: undefined,
+      cacheKey: 'm3u-1',
+    });
     expect(native.m3uReadFile).toHaveBeenCalledWith('C:\\playlist.m3u');
     expect(native.m3uCacheStore).toHaveBeenCalledWith('m3u-1', document);
   });
 
   it('routes provider credentials and password storage through native IPC', async () => {
-    const credentials = { sourceId: 'xtream-1', url: 'https://provider.test', username: 'alice', password: 'secret' };
+    const credentials = {
+      sourceId: 'xtream-1',
+      url: 'https://provider.test',
+      username: 'alice',
+      password: 'secret',
+    };
     native.sourceSecretLoad.mockResolvedValue(JSON.stringify(credentials));
     native.credentialLoad.mockResolvedValue('secret');
 
@@ -97,19 +113,25 @@ describe('native credential and repository boundaries', () => {
   it('fails closed for malformed native secret documents', async () => {
     native.sourceSecretLoad.mockResolvedValue('{broken');
     await expect(loadM3uConnection('m3u-bad')).resolves.toBeNull();
-    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({ username: 'alice', password: 'secret' }));
+    native.sourceSecretLoad.mockResolvedValue(
+      JSON.stringify({ username: 'alice', password: 'secret' }),
+    );
     await expect(loadXtreamCredentials('xtream-bad')).resolves.toBeNull();
-    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({ url: {}, username: 42, password: 'secret' }));
+    native.sourceSecretLoad.mockResolvedValue(
+      JSON.stringify({ url: {}, username: 42, password: 'secret' }),
+    );
     await expect(loadXtreamCredentials('xtream-bad')).resolves.toBeNull();
   });
 
   it('binds restored provider credentials to the requested vault source', async () => {
-    native.sourceSecretLoad.mockResolvedValue(JSON.stringify({
-      sourceId: 'xtream-other',
-      url: 'https://provider.test',
-      username: 'alice',
-      password: 'secret',
-    }));
+    native.sourceSecretLoad.mockResolvedValue(
+      JSON.stringify({
+        sourceId: 'xtream-other',
+        url: 'https://provider.test',
+        username: 'alice',
+        password: 'secret',
+      }),
+    );
 
     await expect(loadXtreamCredentials('xtream-requested')).resolves.toMatchObject({
       sourceId: 'xtream-requested',

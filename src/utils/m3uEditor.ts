@@ -21,11 +21,7 @@ const COUNTRY_PREFIX_PATTERNS = [
   /^[a-z]{2,3}\s*[:|•-]\s*/i,
 ];
 
-const PROVIDER_NOISE_PATTERNS = [
-  /[#*~=_>-]{2,}/g,
-  /^[|>•~*#<-]+\s*/g,
-  /\s*[|<•~*#>-]+$/g,
-];
+const PROVIDER_NOISE_PATTERNS = [/[#*~=_>-]{2,}/g, /^[|>•~*#<-]+\s*/g, /\s*[|<•~*#>-]+$/g];
 
 export function cleanChannelTitle(title: string, options: TitleCleanOptions = {}): string {
   let cleaned = title;
@@ -100,7 +96,10 @@ export function detectDuplicates(entries: M3uEntry[]): DuplicateGroup[] {
   const results = new Map<string, DuplicateGroup>();
   const addGroup = (type: DuplicateGroup['type'], key: string, group: M3uEntry[]) => {
     if (group.length < 2) return;
-    const identity = group.map((entry) => entry.id).sort().join('|');
+    const identity = group
+      .map((entry) => entry.id)
+      .sort()
+      .join('|');
     const existing = results.get(identity);
     const signals: DuplicateGroup['signals'] = existing ? [...existing.signals] : [];
     if (!signals.includes(type)) signals.push(type);
@@ -129,19 +128,27 @@ export function detectDuplicates(entries: M3uEntry[]): DuplicateGroup[] {
 
 export function mergeDuplicateEntries(primary: M3uEntry, duplicates: M3uEntry[]): M3uEntry {
   const candidates = [primary, ...duplicates.filter((entry) => entry.id !== primary.id)];
-  const firstText = (select: (entry: M3uEntry) => string | undefined) => candidates
-    .map(select)
-    .find((value) => value?.trim())?.trim();
-  const longestText = (select: (entry: M3uEntry) => string | undefined) => candidates
-    .map(select)
-    .filter((value): value is string => Boolean(value?.trim()))
-    .sort((a, b) => b.length - a.length)[0];
+  const firstText = (select: (entry: M3uEntry) => string | undefined) =>
+    candidates
+      .map(select)
+      .find((value) => value?.trim())
+      ?.trim();
+  const longestText = (select: (entry: M3uEntry) => string | undefined) =>
+    candidates
+      .map(select)
+      .filter((value): value is string => Boolean(value?.trim()))
+      .sort((a, b) => b.length - a.length)[0];
   const extraDirectives = [...new Set(candidates.flatMap((entry) => entry.extraDirectives ?? []))];
-  const inheritedHeaderNames = candidates.length > 0
-    ? (candidates[0]!.inheritedHeaderNames ?? []).filter((name) => candidates.every((entry) => (
-        (entry.inheritedHeaderNames ?? []).some((candidate) => candidate.toLowerCase() === name.toLowerCase())
-      )))
-    : [];
+  const inheritedHeaderNames =
+    candidates.length > 0
+      ? (candidates[0]!.inheritedHeaderNames ?? []).filter((name) =>
+          candidates.every((entry) =>
+            (entry.inheritedHeaderNames ?? []).some(
+              (candidate) => candidate.toLowerCase() === name.toLowerCase(),
+            ),
+          ),
+        )
+      : [];
 
   return {
     ...primary,
@@ -158,7 +165,10 @@ export function mergeDuplicateEntries(primary: M3uEntry, duplicates: M3uEntry[])
     radio: candidates.some((entry) => entry.radio),
     headers: Object.assign({}, ...[...candidates].reverse().map((entry) => entry.headers)),
     inheritedHeaderNames: inheritedHeaderNames.length > 0 ? inheritedHeaderNames : undefined,
-    extraAttributes: Object.assign({}, ...[...candidates].reverse().map((entry) => entry.extraAttributes ?? {})),
+    extraAttributes: Object.assign(
+      {},
+      ...[...candidates].reverse().map((entry) => entry.extraAttributes ?? {}),
+    ),
     extraDirectives: extraDirectives.length > 0 ? extraDirectives : undefined,
   };
 }
@@ -185,7 +195,10 @@ function isSupportedUrl(value: string, allowData = false): boolean {
   }
 }
 
-export function validateM3uEntries(entries: M3uEntry[], parserWarnings: string[] = []): M3uValidationIssue[] {
+export function validateM3uEntries(
+  entries: M3uEntry[],
+  parserWarnings: string[] = [],
+): M3uValidationIssue[] {
   const issues: M3uValidationIssue[] = parserWarnings.map((message, index) => ({
     id: `parser-${index}`,
     code: 'parser-warning',
@@ -196,27 +209,40 @@ export function validateM3uEntries(entries: M3uEntry[], parserWarnings: string[]
   const epgIds = new Map<string, M3uEntry[]>();
 
   for (const entry of entries) {
-    const add = (code: string, severity: M3uValidationSeverity, message: string) => issues.push({
-      id: `${code}-${entry.id}`,
-      code,
-      severity,
-      message,
-      entryId: entry.id,
-      entryTitle: entry.title || 'Untitled channel',
-    });
+    const add = (code: string, severity: M3uValidationSeverity, message: string) =>
+      issues.push({
+        id: `${code}-${entry.id}`,
+        code,
+        severity,
+        message,
+        entryId: entry.id,
+        entryTitle: entry.title || 'Untitled channel',
+      });
     if (!entry.title.trim()) add('missing-title', 'error', 'Channel name is empty.');
     if (!entry.url.trim()) add('missing-url', 'error', 'Stream URL is empty.');
-    else if (!isSupportedUrl(entry.url)) add('invalid-url', 'error', 'Stream URL uses an invalid or unsupported scheme.');
+    else if (!isSupportedUrl(entry.url))
+      add('invalid-url', 'error', 'Stream URL uses an invalid or unsupported scheme.');
     if (!entry.groupTitle.trim()) add('missing-group', 'warning', 'Channel has no category.');
-    if (entry.logo && !isSupportedUrl(entry.logo, true)) add('invalid-logo', 'warning', 'Logo URL is malformed or unsupported.');
-    if (entry.rating !== undefined && (!Number.isFinite(entry.rating) || entry.rating < 0 || entry.rating > 10)) {
+    if (entry.logo && !isSupportedUrl(entry.logo, true))
+      add('invalid-logo', 'warning', 'Logo URL is malformed or unsupported.');
+    if (
+      entry.rating !== undefined &&
+      (!Number.isFinite(entry.rating) || entry.rating < 0 || entry.rating > 10)
+    ) {
       add('invalid-rating', 'warning', 'Rating should be between 0 and 10.');
     }
-    if (entry.catchupDays !== undefined && (!Number.isFinite(entry.catchupDays) || entry.catchupDays < 0)) {
+    if (
+      entry.catchupDays !== undefined &&
+      (!Number.isFinite(entry.catchupDays) || entry.catchupDays < 0)
+    ) {
       add('invalid-catchup-days', 'warning', 'Catch-up days must be zero or greater.');
     }
     if (entry.extraDirectives?.some((directive) => directive.trim().startsWith('#EXT'))) {
-      add('preserved-directive', 'info', 'Channel contains preserved directives that Movena does not interpret.');
+      add(
+        'preserved-directive',
+        'info',
+        'Channel contains preserved directives that Movena does not interpret.',
+      );
     }
     if (entry.channelNumber?.trim()) {
       const key = entry.channelNumber.trim();
@@ -232,25 +258,29 @@ export function validateM3uEntries(entries: M3uEntry[], parserWarnings: string[]
 
   for (const [number, duplicates] of channelNumbers) {
     if (duplicates.length < 2) continue;
-    duplicates.forEach((entry) => issues.push({
-      id: `duplicate-number-${number}-${entry.id}`,
-      code: 'duplicate-channel-number',
-      severity: 'warning',
-      message: `Channel number ${number} is used ${duplicates.length} times.`,
-      entryId: entry.id,
-      entryTitle: entry.title,
-    }));
+    duplicates.forEach((entry) =>
+      issues.push({
+        id: `duplicate-number-${number}-${entry.id}`,
+        code: 'duplicate-channel-number',
+        severity: 'warning',
+        message: `Channel number ${number} is used ${duplicates.length} times.`,
+        entryId: entry.id,
+        entryTitle: entry.title,
+      }),
+    );
   }
   for (const [epgId, duplicates] of epgIds) {
     if (duplicates.length < 2) continue;
-    duplicates.forEach((entry) => issues.push({
-      id: `duplicate-epg-${epgId}-${entry.id}`,
-      code: 'duplicate-epg-id',
-      severity: 'warning',
-      message: `EPG ID “${entry.tvgId}” is assigned to ${duplicates.length} channels.`,
-      entryId: entry.id,
-      entryTitle: entry.title,
-    }));
+    duplicates.forEach((entry) =>
+      issues.push({
+        id: `duplicate-epg-${epgId}-${entry.id}`,
+        code: 'duplicate-epg-id',
+        severity: 'warning',
+        message: `EPG ID “${entry.tvgId}” is assigned to ${duplicates.length} channels.`,
+        entryId: entry.id,
+        entryTitle: entry.title,
+      }),
+    );
   }
   return issues;
 }
@@ -270,7 +300,10 @@ function comparableName(value: string): string {
     removeResolutionTags: true,
     removeCountryPrefixes: true,
     removeProviderNoise: true,
-  }).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  })
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 function levenshteinSimilarity(left: string, right: string): number {
@@ -282,25 +315,45 @@ function levenshteinSimilarity(left: string, right: string): number {
     previous[0] = i;
     for (let j = 1; j <= right.length; j += 1) {
       const above = previous[j] ?? 0;
-      previous[j] = Math.min((previous[j] ?? 0) + 1, (previous[j - 1] ?? 0) + 1, diagonal + (left[i - 1] === right[j - 1] ? 0 : 1));
+      previous[j] = Math.min(
+        (previous[j] ?? 0) + 1,
+        (previous[j - 1] ?? 0) + 1,
+        diagonal + (left[i - 1] === right[j - 1] ? 0 : 1),
+      );
       diagonal = above;
     }
   }
   return 1 - (previous[right.length] ?? 0) / Math.max(left.length, right.length);
 }
 
-export function buildEpgMatchSuggestions(entries: M3uEntry[], guide: XmltvGuide | undefined, sourceId?: string): EpgMatchSuggestion[] {
+export function buildEpgMatchSuggestions(
+  entries: M3uEntry[],
+  guide: XmltvGuide | undefined,
+  sourceId?: string,
+): EpgMatchSuggestion[] {
   const liveEntries = entries.filter((entry) => entry.type === 'live');
-  if (!guide) return liveEntries.map((entry) => ({
-    entryId: entry.id, entryTitle: entry.title, currentTvgId: entry.tvgId, confidence: 0, status: 'unmatched',
-  }));
+  if (!guide)
+    return liveEntries.map((entry) => ({
+      entryId: entry.id,
+      entryTitle: entry.title,
+      currentTvgId: entry.tvgId,
+      confidence: 0,
+      status: 'unmatched',
+    }));
   const prefix = sourceId ? `${sourceId}::` : '';
   const candidates = [...guide.nameById.entries()]
     .filter(([id]) => !prefix || id.startsWith(prefix))
-    .map(([id, name]) => ({ id: prefix ? id.slice(prefix.length) : id, scopedId: id, name, normalized: comparableName(name) }));
+    .map(([id, name]) => ({
+      id: prefix ? id.slice(prefix.length) : id,
+      scopedId: id,
+      name,
+      normalized: comparableName(name),
+    }));
   const candidatesByToken = new Map<string, typeof candidates>();
   for (const candidate of candidates) {
-    for (const token of new Set(candidate.normalized.split(' ').filter((part) => part.length > 1))) {
+    for (const token of new Set(
+      candidate.normalized.split(' ').filter((part) => part.length > 1),
+    )) {
       candidatesByToken.set(token, [...(candidatesByToken.get(token) ?? []), candidate]);
     }
   }
@@ -309,20 +362,47 @@ export function buildEpgMatchSuggestions(entries: M3uEntry[], guide: XmltvGuide 
     const scopedCurrent = entry.tvgId ? `${prefix}${entry.tvgId}` : '';
     if (entry.tvgId && (guide.byChannel.has(scopedCurrent) || guide.byChannel.has(entry.tvgId))) {
       const name = guide.nameById.get(scopedCurrent) || guide.nameById.get(entry.tvgId);
-      return { entryId: entry.id, entryTitle: entry.title, currentTvgId: entry.tvgId, suggestedTvgId: entry.tvgId, guideName: name, confidence: 1, status: 'matched' };
+      return {
+        entryId: entry.id,
+        entryTitle: entry.title,
+        currentTvgId: entry.tvgId,
+        suggestedTvgId: entry.tvgId,
+        guideName: name,
+        confidence: 1,
+        status: 'matched',
+      };
     }
     const normalized = comparableName(entry.title);
-    const pool = [...new Set(normalized.split(' ').flatMap((token) => candidatesByToken.get(token) ?? []))];
+    const pool = [
+      ...new Set(normalized.split(' ').flatMap((token) => candidatesByToken.get(token) ?? [])),
+    ];
     let best: (typeof candidates)[number] | undefined;
     let score = 0;
     for (const candidate of pool) {
       const candidateScore = levenshteinSimilarity(normalized, candidate.normalized);
-      if (candidateScore > score) { best = candidate; score = candidateScore; }
+      if (candidateScore > score) {
+        best = candidate;
+        score = candidateScore;
+      }
     }
     if (best && score >= 0.62) {
-      return { entryId: entry.id, entryTitle: entry.title, currentTvgId: entry.tvgId, suggestedTvgId: best.id, guideName: best.name, confidence: score, status: 'suggested' };
+      return {
+        entryId: entry.id,
+        entryTitle: entry.title,
+        currentTvgId: entry.tvgId,
+        suggestedTvgId: best.id,
+        guideName: best.name,
+        confidence: score,
+        status: 'suggested',
+      };
     }
-    return { entryId: entry.id, entryTitle: entry.title, currentTvgId: entry.tvgId, confidence: score, status: 'unmatched' };
+    return {
+      entryId: entry.id,
+      entryTitle: entry.title,
+      currentTvgId: entry.tvgId,
+      confidence: score,
+      status: 'unmatched',
+    };
   });
 }
 
@@ -339,8 +419,20 @@ export const TRANSFORM_PRESET_KEY = 'movena-m3u-transform-presets-v1';
 
 export function loadTransformPresets(): M3uTransformPreset[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(TRANSFORM_PRESET_KEY) || '[]') as M3uTransformPreset[];
-    return Array.isArray(parsed) ? parsed.filter((preset) => preset && typeof preset.id === 'string' && typeof preset.name === 'string' && (preset.kind === 'clean' || preset.kind === 'replace')).slice(0, 20) : [];
+    const parsed = JSON.parse(
+      localStorage.getItem(TRANSFORM_PRESET_KEY) || '[]',
+    ) as M3uTransformPreset[];
+    return Array.isArray(parsed)
+      ? parsed
+          .filter(
+            (preset) =>
+              preset &&
+              typeof preset.id === 'string' &&
+              typeof preset.name === 'string' &&
+              (preset.kind === 'clean' || preset.kind === 'replace'),
+          )
+          .slice(0, 20)
+      : [];
   } catch {
     return [];
   }
@@ -350,8 +442,12 @@ export function persistTransformPresets(presets: M3uTransformPreset[]): void {
   localStorage.setItem(TRANSFORM_PRESET_KEY, JSON.stringify(presets.slice(0, 20)));
 }
 
-export function applyTransformPreset(entries: M3uEntry[], preset: M3uTransformPreset): { entries: M3uEntry[]; count: number } {
-  if (preset.kind === 'replace' && preset.replaceOptions) return findAndReplace(entries, preset.replaceOptions);
+export function applyTransformPreset(
+  entries: M3uEntry[],
+  preset: M3uTransformPreset,
+): { entries: M3uEntry[]; count: number } {
+  if (preset.kind === 'replace' && preset.replaceOptions)
+    return findAndReplace(entries, preset.replaceOptions);
   if (preset.kind === 'clean' && preset.cleanOptions) {
     let count = 0;
     const updated = entries.map((entry) => {
@@ -373,7 +469,10 @@ export interface FindReplaceOptions {
   useRegex?: boolean | undefined;
 }
 
-export function findAndReplace(entries: M3uEntry[], options: FindReplaceOptions): { entries: M3uEntry[]; count: number } {
+export function findAndReplace(
+  entries: M3uEntry[],
+  options: FindReplaceOptions,
+): { entries: M3uEntry[]; count: number } {
   if (!options.findText) return { entries, count: 0 };
 
   let count = 0;

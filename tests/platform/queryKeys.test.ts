@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getAuthQueryScope, getCombinedSourceQueryScope, getM3uQueryScope, getUrlQueryScope, getXtreamQueryScope, queryKeys } from '../../src/api/queryKeys';
+import {
+  getAuthQueryScope,
+  getCombinedSourceQueryScope,
+  getM3uQueryScope,
+  getUrlQueryScope,
+  getXtreamQueryScope,
+  queryKeys,
+} from '../../src/api/queryKeys';
 
 describe('provider-scoped query keys', () => {
   const credentials = {
@@ -27,7 +34,7 @@ describe('provider-scoped query keys', () => {
 
   it('keeps provider accounts in different cache namespaces', () => {
     expect(getAuthQueryScope(credentials)).not.toBe(
-      getAuthQueryScope({ ...credentials, username: 'bob' })
+      getAuthQueryScope({ ...credentials, username: 'bob' }),
     );
   });
 
@@ -64,10 +71,18 @@ describe('provider-scoped query keys', () => {
   it('builds deterministic resource keys', () => {
     expect(queryKeys.vodInfo(42, 'account-abc')).toEqual(['vod_info', 'account-abc', '42']);
     expect(queryKeys.catalog('live', 'account-abc')).toEqual(['catalog', 'live', 'account-abc']);
-    expect(queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', true, 14, '2026-08-23'))
-      .not.toEqual(queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', false, 14, '2026-08-23'));
+    expect(
+      queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', true, 14, '2026-08-23'),
+    ).not.toEqual(
+      queryKeys.tmdbUpcoming('favorites', 'en-US', false, 'w500', false, 14, '2026-08-23'),
+    );
     expect(queryKeys.tvmazeEpisodes(42)).toEqual(['tvmaze_episodes_v3', 42]);
     expect(queryKeys.tmdbExternalIds(1399)).toEqual(['tmdb_external_ids', 1399]);
-    expect(queryKeys.introDbSegments('tt0944947', 1, 1)).toEqual(['introdb_segments', 'tt0944947', 1, 1]);
+    expect(queryKeys.introDbSegments('tt0944947', 1, 1)).toEqual([
+      'introdb_segments',
+      'tt0944947',
+      1,
+      1,
+    ]);
   });
 });

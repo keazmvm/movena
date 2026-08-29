@@ -1,25 +1,25 @@
-import {
-  Play,
-  Heart,
-  Check,
-  Film,
-  Tv,
-  Radio,
-  HardDriveDownload,
-} from 'lucide-react';
+import { Play, Heart, Check, Film, Tv, Radio, HardDriveDownload } from 'lucide-react';
 import styles from './MediaCard.module.css';
 import { memo, useState, useEffect } from 'react';
 import { useLibraryStore } from '../../store/useLibraryStore';
 import { useDownloadStore } from '../../store/useDownloadStore';
 import { useContextMenu } from '../../hooks/useContextMenu';
 import { parseLiveChannelTitle, parseMediaDisplayTitle } from '../../utils/titleParser';
-import { filterMediaTagsByVisibility, getPrimaryMediaTags, getTagColorType, mergeMediaTags } from '../../utils/mediaTags';
+import {
+  filterMediaTagsByVisibility,
+  getPrimaryMediaTags,
+  getTagColorType,
+  mergeMediaTags,
+} from '../../utils/mediaTags';
 import { countryName, normalizeCountryCode } from '../../utils/categoryName';
 import { MediaCardMenu } from './MediaCardMenu';
 import { CountryFlag } from '../shared/CountryFlag';
 import { useI18n } from '../../i18n';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { formatVerifiedResolution, useStreamVerificationStore } from '../../store/useStreamVerificationStore';
+import {
+  formatVerifiedResolution,
+  useStreamVerificationStore,
+} from '../../store/useStreamVerificationStore';
 import { useLogoAspect } from '../../hooks/useLogoAspect';
 import { streamProviderBrand, type StreamProviderBrand } from '../../utils/streamProvider';
 
@@ -65,18 +65,22 @@ export interface MediaItem {
   /** Provider sort timestamp, kept as a string because Xtream returns epoch text. */
   added?: string | undefined;
   radio?: boolean | undefined;
-  radioMetadata?: {
-    title: string;
-    artist?: string | undefined;
-    album?: string | undefined;
-    genre?: string | undefined;
-    channelNumber?: string | undefined;
-    logoUrl?: string | undefined;
-  } | undefined;
+  radioMetadata?:
+    | {
+        title: string;
+        artist?: string | undefined;
+        album?: string | undefined;
+        genre?: string | undefined;
+        channelNumber?: string | undefined;
+        logoUrl?: string | undefined;
+      }
+    | undefined;
   catchup?: string | undefined;
   catchupSource?: string | undefined;
   catchupDays?: number | undefined;
-  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> | undefined;
+  fallbacks?:
+    | Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }>
+    | undefined;
 }
 
 /** Ephemeral navigation context used when a series is opened from an episode. */
@@ -126,17 +130,20 @@ function ProviderFallbackLogo({ provider }: { provider: StreamProviderBrand }) {
       aria-label="Twitch"
     >
       <path d="M3 1h20v14l-6 6h-5l-4 3v-3H1V5l2-4Z" fill="currentColor" />
-      <path d="M5 4v14h4v3l4-3h4l3-3V4H5Zm5 4h2v6h-2V8Zm5 0h2v6h-2V8Z" fill="var(--text-on-accent)" />
+      <path
+        d="M5 4v14h4v3l4-3h4l3-3V4H5Zm5 4h2v6h-2V8Zm5 0h2v6h-2V8Z"
+        fill="var(--text-on-accent)"
+      />
     </svg>
   );
 }
 
-function MediaCardComponent({ 
-  item, 
-  onClick, 
-  onViewDetails, 
-  currentCollectionId, 
-  style, 
+function MediaCardComponent({
+  item,
+  onClick,
+  onViewDetails,
+  currentCollectionId,
+  style,
   viewMode = 'grid',
   isLiveTv = false,
   showTypeInList = true,
@@ -146,8 +153,10 @@ function MediaCardComponent({
   const [imgError, setImgError] = useState(false);
 
   // Fine-grained primitive selectors prevent card re-renders when unrelated store data changes
-  const isFav = useLibraryStore((s) => s.favorites.some((f) => f.id === item.id)) || Boolean(item.isFavorite);
-  const isW = useLibraryStore((s) => (s.watched || []).includes(item.id)) || Boolean(item.isWatched);
+  const isFav =
+    useLibraryStore((s) => s.favorites.some((f) => f.id === item.id)) || Boolean(item.isFavorite);
+  const isW =
+    useLibraryStore((s) => (s.watched || []).includes(item.id)) || Boolean(item.isWatched);
   const isDownloaded = useDownloadStore((s) => Boolean(s.downloadedByLibraryId[item.id]));
 
   // Reset imgError state when virtualized grid item changes
@@ -175,9 +184,11 @@ function MediaCardComponent({
 
   const renderPlaceholderIcon = () => {
     if (item.type === 'live') {
-      return providerBrand
-        ? <ProviderFallbackLogo provider={providerBrand} />
-        : <Radio size={36} className={styles.placeholderIcon} />;
+      return providerBrand ? (
+        <ProviderFallbackLogo provider={providerBrand} />
+      ) : (
+        <Radio size={36} className={styles.placeholderIcon} />
+      );
     }
     if (item.type === 'series') return <Tv size={36} className={styles.placeholderIcon} />;
     return <Film size={36} className={styles.placeholderIcon} />;
@@ -192,12 +203,15 @@ function MediaCardComponent({
   const verifiedMeta = useStreamVerificationStore((s) => s.verifiedStreams[item.id]);
 
   const parsedTitle = isLive ? parseLiveChannelTitle(item.title, customRules) : null;
-  const parsedMediaTitle = !isLive ? parseMediaDisplayTitle(item.title, item.year, customRules) : null;
+  const parsedMediaTitle = !isLive
+    ? parseMediaDisplayTitle(item.title, item.year, customRules)
+    : null;
   const displayTitle = parsedTitle?.cleanTitle ?? parsedMediaTitle?.cleanTitle ?? item.title;
   const displayYear = parsedMediaTitle?.releaseYear ?? null;
-  const verifiedResolutionBadge = badgeVisibility?.verified && verifiedMeta
-    ? formatVerifiedResolution(verifiedMeta.width, verifiedMeta.height, verifiedMeta.fps)
-    : null;
+  const verifiedResolutionBadge =
+    badgeVisibility?.verified && verifiedMeta
+      ? formatVerifiedResolution(verifiedMeta.width, verifiedMeta.height, verifiedMeta.fps)
+      : null;
   const qualityBadges = mergeMediaTags(
     ...(parsedTitle?.qualityBadges ?? parsedMediaTitle?.tags ?? []),
     ...(item.tags ?? []),
@@ -211,26 +225,32 @@ function MediaCardComponent({
   // Catalog items use `subtitle` for their source name. That is useful for
   // routing and debugging, but it is not viewer-facing card metadata. History
   // items are the exception: their subtitle answers what will resume.
-  const isResumeItem = item.progress !== undefined || item.seasonNum !== undefined || item.episodeNum !== undefined;
+  const isResumeItem =
+    item.progress !== undefined || item.seasonNum !== undefined || item.episodeNum !== undefined;
   const cardSubtitle = isResumeItem ? item.subtitle : undefined;
   const cardContext = cardSubtitle || t('Continue watching');
   const showListSecondary = Boolean(
-    countryCode
-      || (isLive && parsedTitle?.categoryPrefix)
-      || cardSubtitle
-      || (!isLive && showTypeInList),
+    countryCode ||
+      (isLive && parsedTitle?.categoryPrefix) ||
+      cardSubtitle ||
+      (!isLive && showTypeInList),
   );
 
   const isLiveTvGrid = isLiveTv && viewMode === 'grid';
   const showPosterFooter = viewMode === 'grid';
-  const numericRating = item.rating !== undefined && !isNaN(Number(item.rating)) && Number(item.rating) > 0
-    ? number(Number(item.rating), { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-    : null;
+  const numericRating =
+    item.rating !== undefined && !isNaN(Number(item.rating)) && Number(item.rating) > 0
+      ? number(Number(item.rating), { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+      : null;
 
   const channelKey = item.sourceItemId || item.id;
   const logoAspect = useLogoAspect(isLive ? item.posterUrl : undefined, channelKey, item.sourceId);
   const logoAspectClass = isLive
-    ? (logoAspect === '16:9' ? styles.posterUnsquish169 : (logoAspect === '4:3' ? styles.posterUnsquish43 : ''))
+    ? logoAspect === '16:9'
+      ? styles.posterUnsquish169
+      : logoAspect === '4:3'
+        ? styles.posterUnsquish43
+        : ''
     : '';
 
   const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -241,28 +261,32 @@ function MediaCardComponent({
   };
 
   return (
-    <div 
-      className={`${styles.cardContainer} ${viewMode === 'list' ? styles.listView : ''} ${isLiveTvGrid ? styles.cardContainerLiveTvGrid : ''}`} 
+    <div
+      className={`${styles.cardContainer} ${viewMode === 'list' ? styles.listView : ''} ${isLiveTvGrid ? styles.cardContainerLiveTvGrid : ''}`}
       style={style}
       role="group"
       aria-label={onClick ? t('Open {title}', { title: displayTitle }) : displayTitle}
       tabIndex={onClick ? 0 : undefined}
       onClick={() => onClick?.(item)}
       onKeyDown={handleCardKeyDown}
-      onContextMenu={(e) => handleMediaCardContextMenu(e, item, { 
-        onPlay: isLive ? (i) => onClick?.(i) : undefined,
-        onViewDetails: onViewDetails || ((i) => onClick?.(i)),
-        currentCollectionId 
-      })}
+      onContextMenu={(e) =>
+        handleMediaCardContextMenu(e, item, {
+          onPlay: isLive ? (i) => onClick?.(i) : undefined,
+          onViewDetails: onViewDetails || ((i) => onClick?.(i)),
+          currentCollectionId,
+        })
+      }
     >
       {viewMode === 'list' && isLive && (
         <span className={styles.listChannelNumber}>{formatChannelNumber(item.channelNum)}</span>
       )}
 
-      <div className={`${styles.posterWrapper} ${isLive ? styles.posterWrapperLive : ''} ${isLiveTvGrid ? styles.posterWrapperLiveTvGrid : ''}`}>
+      <div
+        className={`${styles.posterWrapper} ${isLive ? styles.posterWrapperLive : ''} ${isLiveTvGrid ? styles.posterWrapperLiveTvGrid : ''}`}
+      >
         {!showPlaceholder ? (
-          <img 
-            src={item.posterUrl} 
+          <img
+            src={item.posterUrl}
             alt={displayTitle}
             className={`${styles.poster} ${isLive ? styles.posterLive : ''} ${logoAspectClass}`}
             loading="lazy"
@@ -275,7 +299,7 @@ function MediaCardComponent({
             {!isLive && <span className={styles.placeholderTitle}>{displayTitle}</span>}
           </div>
         )}
-        
+
         {viewMode !== 'list' && isLive && item.channelNum !== undefined && (
           <div className={styles.channelBadge}>{item.channelNum}</div>
         )}
@@ -283,7 +307,11 @@ function MediaCardComponent({
         {viewMode !== 'list' && visibleQualityBadges.length > 0 && (
           <div className={styles.posterBadgesRight}>
             {visibleQualityBadges.map((badge) => (
-              <span key={badge} className={styles.posterBadgeRight} data-tag-type={getTagColorType(badge)}>
+              <span
+                key={badge}
+                className={styles.posterBadgeRight}
+                data-tag-type={getTagColorType(badge)}
+              >
                 {badge}
               </span>
             ))}
@@ -326,7 +354,8 @@ function MediaCardComponent({
 
         {viewMode !== 'list' && (
           <div className={styles.overlay}>
-            <button type="button"
+            <button
+              type="button"
               className={styles.actionBtn}
               onClick={handlePlayClick}
               title={t('Play Content')}
@@ -334,18 +363,19 @@ function MediaCardComponent({
             >
               <Play size={20} fill="currentColor" />
             </button>
-            
+
             <div className={styles.topActions}>
-              <button type="button"
+              <button
+                type="button"
                 className={styles.iconBtn}
                 onClick={handleFavoriteClick}
                 title={t(isFav ? 'Remove from Favorites' : 'Add to Favorites')}
                 aria-label={t(isFav ? 'Remove from Favorites' : 'Add to Favorites')}
               >
-                <Heart 
-                  size={16} 
-                  fill={isFav ? "var(--color-favorite)" : "transparent"}
-                  color={isFav ? "var(--color-favorite)" : "currentColor"}
+                <Heart
+                  size={16}
+                  fill={isFav ? 'var(--color-favorite)' : 'transparent'}
+                  color={isFav ? 'var(--color-favorite)' : 'currentColor'}
                 />
               </button>
 
@@ -361,7 +391,11 @@ function MediaCardComponent({
               {visibleQualityBadges.length > 0 && (
                 <div className={styles.overlayBadges}>
                   {visibleQualityBadges.map((badge) => (
-                    <span key={badge} className={styles.overlayBadge} data-tag-type={getTagColorType(badge)}>
+                    <span
+                      key={badge}
+                      className={styles.overlayBadge}
+                      data-tag-type={getTagColorType(badge)}
+                    >
                       {badge}
                     </span>
                   ))}
@@ -378,10 +412,7 @@ function MediaCardComponent({
 
         {viewMode !== 'list' && item.progress !== undefined && item.progress > 0 && (
           <div className={styles.progressBar}>
-            <div 
-              className={styles.progressFill} 
-              style={{ width: `${item.progress * 100}%` }}
-            />
+            <div className={styles.progressFill} style={{ width: `${item.progress * 100}%` }} />
           </div>
         )}
       </div>
@@ -390,35 +421,47 @@ function MediaCardComponent({
         <div className={styles.listContent}>
           <div className={styles.listCopy}>
             <div className={styles.listTitleRow}>
-              <h3 className={styles.listTitle} title={displayTitle}>{displayTitle}</h3>
+              <h3 className={styles.listTitle} title={displayTitle}>
+                {displayTitle}
+              </h3>
               {displayYear && <span className={styles.listYear}>{displayYear}</span>}
             </div>
 
-            {showListSecondary && <div className={styles.listSecondary}>
-              {countryCode ? (
-                <span
-                  className={`${styles.listSecondaryItem} ${styles.countryMeta}`}
-                  aria-label={countryName(titleCountry, language)}
-                  title={countryName(titleCountry, language)}
-                >
-                  <CountryFlag code={countryCode} className={styles.countryFlag} />
-                  <span className={styles.countryName}>{countryName(titleCountry, language)}</span>
-                </span>
-              ) : isLive && parsedTitle?.categoryPrefix ? (
-                <span className={`${styles.listSecondaryItem} ${styles.categoryPrefix}`}>
-                  {parsedTitle.categoryPrefix}
-                </span>
-              ) : null}
+            {showListSecondary && (
+              <div className={styles.listSecondary}>
+                {countryCode ? (
+                  <span
+                    className={`${styles.listSecondaryItem} ${styles.countryMeta}`}
+                    aria-label={countryName(titleCountry, language)}
+                    title={countryName(titleCountry, language)}
+                  >
+                    <CountryFlag code={countryCode} className={styles.countryFlag} />
+                    <span className={styles.countryName}>
+                      {countryName(titleCountry, language)}
+                    </span>
+                  </span>
+                ) : isLive && parsedTitle?.categoryPrefix ? (
+                  <span className={`${styles.listSecondaryItem} ${styles.categoryPrefix}`}>
+                    {parsedTitle.categoryPrefix}
+                  </span>
+                ) : null}
 
-              {cardSubtitle ? (
-                <span className={styles.listSecondaryItem}>{cardSubtitle}</span>
-              ) : isLive || !showTypeInList ? null : (
-                <>
-                  <span className={styles.listSecondaryItem}>{t(item.type === 'series' ? 'Series' : 'Movie')}</span>
-                  {numericRating && <span className={styles.listSecondaryItem}>{t('Rating {rating}', { rating: numericRating })}</span>}
-                </>
-              )}
-            </div>}
+                {cardSubtitle ? (
+                  <span className={styles.listSecondaryItem}>{cardSubtitle}</span>
+                ) : isLive || !showTypeInList ? null : (
+                  <>
+                    <span className={styles.listSecondaryItem}>
+                      {t(item.type === 'series' ? 'Series' : 'Movie')}
+                    </span>
+                    {numericRating && (
+                      <span className={styles.listSecondaryItem}>
+                        {t('Rating {rating}', { rating: numericRating })}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {item.progress !== undefined && item.progress > 0 && (
               <div className={styles.listProgress}>
@@ -431,7 +474,11 @@ function MediaCardComponent({
             {visibleQualityBadges.length > 0 && (
               <div className={styles.badgeRow}>
                 {visibleQualityBadges.map((badge) => (
-                  <span key={badge} className={styles.badgeQualityInline} data-tag-type={getTagColorType(badge)}>
+                  <span
+                    key={badge}
+                    className={styles.badgeQualityInline}
+                    data-tag-type={getTagColorType(badge)}
+                  >
                     {badge}
                   </span>
                 ))}
@@ -451,7 +498,8 @@ function MediaCardComponent({
             )}
 
             <div className={styles.listActions}>
-              <button type="button"
+              <button
+                type="button"
                 className={styles.listPlayBtn}
                 onClick={handlePlayClick}
                 aria-label={t('Play {title}', { title: displayTitle })}

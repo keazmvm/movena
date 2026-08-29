@@ -39,19 +39,75 @@ const categoryResult = {
 beforeEach(() => {
   localStorage.clear();
   useSettingsStore.getState().resetSettings();
-  vi.mocked(useCategories).mockReturnValue(categoryResult as unknown as ReturnType<typeof useCategories>);
+  vi.mocked(useCategories).mockReturnValue(
+    categoryResult as unknown as ReturnType<typeof useCategories>,
+  );
   vi.mocked(useHiddenCategoryIds).mockReturnValue(new Set());
   vi.mocked(useCatalogByType).mockReturnValue({
     data: [
-      { id: 'ar-1', title: 'Argentina One', type: 'live', posterUrl: '', categoryId: 'm3u-category-ar' },
-      { id: 'ar-2', title: 'Argentina Two', type: 'live', posterUrl: '', categoryId: 'm3u-category-ar' },
-      { id: 'de-1', title: 'Germany News', type: 'live', posterUrl: '', categoryId: 'm3u-category-de-news' },
-      { id: 'de-2', title: 'Germany Sports', type: 'live', posterUrl: '', categoryId: 'm3u-category-de-sports' },
-      { id: 'es-1', title: 'Spain General', type: 'live', posterUrl: '', categoryId: 'm3u-category-es' },
-      { id: 'es-2', title: 'Spain VOD', type: 'live', posterUrl: '', categoryId: 'm3u-category-es-vod' },
-      { id: 'tr-1', title: 'Türkiye General', type: 'live', posterUrl: '', categoryId: 'm3u-category-tr' },
-      { id: 'gb-1', title: 'United Kingdom General', type: 'live', posterUrl: '', categoryId: 'm3u-category-gb' },
-      { id: 'ad-1', title: 'Andorra General', type: 'live', posterUrl: '', categoryId: 'm3u-category-ad' },
+      {
+        id: 'ar-1',
+        title: 'Argentina One',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-ar',
+      },
+      {
+        id: 'ar-2',
+        title: 'Argentina Two',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-ar',
+      },
+      {
+        id: 'de-1',
+        title: 'Germany News',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-de-news',
+      },
+      {
+        id: 'de-2',
+        title: 'Germany Sports',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-de-sports',
+      },
+      {
+        id: 'es-1',
+        title: 'Spain General',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-es',
+      },
+      {
+        id: 'es-2',
+        title: 'Spain VOD',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-es-vod',
+      },
+      {
+        id: 'tr-1',
+        title: 'Türkiye General',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-tr',
+      },
+      {
+        id: 'gb-1',
+        title: 'United Kingdom General',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-gb',
+      },
+      {
+        id: 'ad-1',
+        title: 'Andorra General',
+        type: 'live',
+        posterUrl: '',
+        categoryId: 'm3u-category-ad',
+      },
     ],
   } as ReturnType<typeof useCatalogByType>);
 });
@@ -68,13 +124,7 @@ describe('category sidebar M3U country groups', () => {
       refetch,
     } as unknown as ReturnType<typeof useCategories>);
 
-    render(
-      <CategorySidebar
-        type="live"
-        activeCategoryId={null}
-        onSelectCategory={vi.fn()}
-      />,
-    );
+    render(<CategorySidebar type="live" activeCategoryId={null} onSelectCategory={vi.fn()} />);
 
     expect(screen.getByText('Categories unavailable')).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
@@ -97,13 +147,7 @@ describe('category sidebar M3U country groups', () => {
   });
 
   it('keeps bulk collapse available without a redundant sidebar heading', async () => {
-    render(
-      <CategorySidebar
-        type="live"
-        activeCategoryId={null}
-        onSelectCategory={vi.fn()}
-      />,
-    );
+    render(<CategorySidebar type="live" activeCategoryId={null} onSelectCategory={vi.fn()} />);
 
     expect(screen.queryByRole('heading', { name: /Categories/i })).toBeNull();
 
@@ -116,14 +160,12 @@ describe('category sidebar M3U country groups', () => {
   it('turns a redundant country folder into one directly selectable row', async () => {
     const onSelectCategory = vi.fn();
     render(
-      <CategorySidebar
-        type="live"
-        activeCategoryId={null}
-        onSelectCategory={onSelectCategory}
-      />,
+      <CategorySidebar type="live" activeCategoryId={null} onSelectCategory={onSelectCategory} />,
     );
 
-    expect(screen.queryByRole('button', { name: /Collapse Argentina|Expand Argentina/ })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Collapse Argentina|Expand Argentina/ }),
+    ).toBeNull();
     expect(screen.getAllByRole('button', { name: 'Argentina, 2 channels' })).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Collapse Germany' })).toBeTruthy();
 
@@ -132,13 +174,7 @@ describe('category sidebar M3U country groups', () => {
   });
 
   it('absorbs country-equivalent children but retains meaningful siblings', () => {
-    render(
-      <CategorySidebar
-        type="live"
-        activeCategoryId={null}
-        onSelectCategory={vi.fn()}
-      />,
-    );
+    render(<CategorySidebar type="live" activeCategoryId={null} onSelectCategory={vi.fn()} />);
 
     expect(screen.getByRole('button', { name: 'Collapse Spain' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Spain, 1 channel' })).toBeNull();
@@ -148,7 +184,9 @@ describe('category sidebar M3U country groups', () => {
     expect(screen.queryByRole('button', { name: 'Turkey, 1 channel' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Türkiye, 1 channel' })).toBeTruthy();
 
-    expect(screen.queryByRole('button', { name: /Collapse United Kingdom|Expand United Kingdom/ })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Collapse United Kingdom|Expand United Kingdom/ }),
+    ).toBeNull();
     expect(screen.queryByRole('button', { name: 'Uk, 1 channel' })).toBeNull();
     expect(screen.getByRole('button', { name: 'United Kingdom, 1 channel' })).toBeTruthy();
 

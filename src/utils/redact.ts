@@ -1,11 +1,14 @@
 const REDACTED = '[REDACTED]';
-const SENSITIVE_KEY = /^(?:authorization|cookie|credential|password|passwd|secret|token|username)$/i;
+const SENSITIVE_KEY =
+  /^(?:authorization|cookie|credential|password|passwd|secret|token|username)$/i;
 const QUERY_SECRET = /([?&](?:password|passwd|token|username)=)[^&#\s]*/gi;
 const XC_PATH_SECRET = /(\/(?:live|movie|series)\/)[^/\s]+\/[^/\s]+\//gi;
 const ENCODED_QUERY_SECRET = /(%(?:3f|26)(?:password|passwd|token|username)%3d)(?:(?!%26|\s).)*/gi;
-const ENCODED_XC_PATH_SECRET = /(%2f(?:live|movie|series)%2f)(?:(?!%2f|\s).)+%2f(?:(?!%2f|\s).)+%2f/gi;
+const ENCODED_XC_PATH_SECRET =
+  /(%2f(?:live|movie|series)%2f)(?:(?!%2f|\s).)+%2f(?:(?!%2f|\s).)+%2f/gi;
 const URL_VALUE = /\b(?:https?|rtsp|rtmp|rtp|mms|file):\/\/[^\s"'<>]+/gi;
-const ENCODED_URL_VALUE = /\b(?:https?|rtsp|rtmp|rtp|mms|file)%3a%2f%2f(?:(?!\s|%22|%27|%3c|%3e).)+/gi;
+const ENCODED_URL_VALUE =
+  /\b(?:https?|rtsp|rtmp|rtp|mms|file)%3a%2f%2f(?:(?!\s|%22|%27|%3c|%3e).)+/gi;
 const WINDOWS_PATH = /\b[a-z]:[\\/][^\r\n"'<>]*/gi;
 const UNIX_PRIVATE_PATH = /(^|\s)\/(?:Users|home|Volumes|tmp|var|private|mnt|media)\/[^\s"'<>]*/g;
 
@@ -59,6 +62,6 @@ export function redactDiagnosticValue(value: unknown, seen = new WeakSet<object>
     Object.entries(value).map(([key, item]) => [
       key,
       SENSITIVE_KEY.test(key) ? REDACTED : redactDiagnosticValue(item, seen),
-    ])
+    ]),
   );
 }

@@ -17,9 +17,9 @@ export function streamProviderBrand(url: string | undefined): StreamProviderBran
     const hostname = parsed.hostname.toLowerCase().replace(/\.$/, '');
 
     if (
-      hostname === 'youtu.be'
-      || isHostOrSubdomain(hostname, 'youtube.com')
-      || isHostOrSubdomain(hostname, 'youtube-nocookie.com')
+      hostname === 'youtu.be' ||
+      isHostOrSubdomain(hostname, 'youtube.com') ||
+      isHostOrSubdomain(hostname, 'youtube-nocookie.com')
     ) {
       return 'youtube';
     }

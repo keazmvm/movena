@@ -37,8 +37,12 @@ function formatMpvEndFileError(endFile: EndFileData): string {
 function formatResolverPlaybackError(log: MpvLogData): string | null {
   if (log.prefix !== 'ytdl_hook' || (log.level !== 'error' && log.level !== 'fatal')) return null;
   const message = log.text.trim();
-  if (!message || message === '[media location omitted]'
-    || /^youtube-dl failed: unexpected error occurred\.?$/i.test(message)) return null;
+  if (
+    !message ||
+    message === '[media location omitted]' ||
+    /^youtube-dl failed: unexpected error occurred\.?$/i.test(message)
+  )
+    return null;
   if (/the channel is not currently live/i.test(message)) {
     return 'This channel is not currently live.';
   }
@@ -48,12 +52,16 @@ function formatResolverPlaybackError(log: MpvLogData): string | null {
 function parseResolverStatus(data: unknown): ResolverStatusEventData | null {
   if (!data || typeof data !== 'object') return null;
   const value = data as Record<string, unknown>;
-  if (value.provider !== 'twitch'
-    || !['starting', 'ready', 'ad-break', 'failed'].includes(String(value.phase))) return null;
-  const expectedDurationSeconds = typeof value.expectedDurationSeconds === 'number'
-    && Number.isFinite(value.expectedDurationSeconds)
-    ? Math.max(1, Math.min(180, Math.round(value.expectedDurationSeconds)))
-    : undefined;
+  if (
+    value.provider !== 'twitch' ||
+    !['starting', 'ready', 'ad-break', 'failed'].includes(String(value.phase))
+  )
+    return null;
+  const expectedDurationSeconds =
+    typeof value.expectedDurationSeconds === 'number' &&
+    Number.isFinite(value.expectedDurationSeconds)
+      ? Math.max(1, Math.min(180, Math.round(value.expectedDurationSeconds)))
+      : undefined;
   return {
     provider: 'twitch',
     phase: value.phase as ResolverStatusEventData['phase'],
@@ -147,8 +155,13 @@ export function useMpvSession(): MpvSessionState {
   const tryFallback = useCallback(() => {
     const state = usePlayerStore.getState();
     const current = state.activeStream;
-    if (!current || !streamFailoverEnabled || !current.fallbacks?.length
-      || fallbackAttemptsRef.current >= maxStreamFailovers) return false;
+    if (
+      !current ||
+      !streamFailoverEnabled ||
+      !current.fallbacks?.length ||
+      fallbackAttemptsRef.current >= maxStreamFailovers
+    )
+      return false;
     const [fallback, ...remaining] = current.fallbacks;
     if (!fallback) return false;
     fallbackAttemptsRef.current += 1;
@@ -160,7 +173,13 @@ export function useMpvSession(): MpvSessionState {
       fallbacks: remaining,
       startPosition: current.type === 'live' ? 0 : state.currentTime,
     });
-    notify.warning('Trying Alternate Source', 'The primary stream is unavailable. Trying another source.', undefined, undefined, 'playback');
+    notify.warning(
+      'Trying Alternate Source',
+      'The primary stream is unavailable. Trying another source.',
+      undefined,
+      undefined,
+      'playback',
+    );
     return true;
   }, [maxStreamFailovers, streamFailoverEnabled]);
   fallbackRef.current = tryFallback;
@@ -171,19 +190,29 @@ export function useMpvSession(): MpvSessionState {
       const currentSessionId = usePlayerStore.getState().sessionId;
       if (payload.sessionId && payload.sessionId !== currentSessionId) return;
       if (payload.type === 'property-change' && payload.name) {
-        if (payload.name === 'vo-configured' && payload.data === true && startupTimerRef.current !== null) {
+        if (
+          payload.name === 'vo-configured' &&
+          payload.data === true &&
+          startupTimerRef.current !== null
+        ) {
           clearTimeout(startupTimerRef.current);
           startupTimerRef.current = null;
         }
         const playerState = usePlayerStore.getState();
-        if (payload.name === 'paused-for-cache' && payload.data === true
-          && playerState.resolverStatus?.phase === 'ad-break') {
+        if (
+          payload.name === 'paused-for-cache' &&
+          payload.data === true &&
+          playerState.resolverStatus?.phase === 'ad-break'
+        ) {
           twitchBreakSawBufferingRef.current = true;
         }
-        if (payload.name === 'time-pos' && typeof payload.data === 'number'
-          && playerState.resolverStatus?.phase === 'ad-break'
-          && twitchBreakSawBufferingRef.current
-          && payload.data > twitchBreakStartPositionRef.current) {
+        if (
+          payload.name === 'time-pos' &&
+          typeof payload.data === 'number' &&
+          playerState.resolverStatus?.phase === 'ad-break' &&
+          twitchBreakSawBufferingRef.current &&
+          payload.data > twitchBreakStartPositionRef.current
+        ) {
           playerState.setResolverStatus(null, payload.sessionId);
           twitchBreakSawBufferingRef.current = false;
         } else if (payload.name === 'time-pos' && playerState.resolverStatus?.phase === 'ready') {
@@ -192,7 +221,9 @@ export function useMpvSession(): MpvSessionState {
         if (payload.name === 'track-list' && Array.isArray(payload.data)) {
           usePlayerStore.getState().setTrackList(payload.data, payload.sessionId);
         } else {
-          usePlayerStore.getState().updateFromMpvEvent(payload.name, payload.data, payload.sessionId);
+          usePlayerStore
+            .getState()
+            .updateFromMpvEvent(payload.name, payload.data, payload.sessionId);
         }
         const settingsStore = useSettingsStore.getState();
         if (payload.name === 'volume' && typeof payload.data === 'number') {
@@ -223,9 +254,8 @@ export function useMpvSession(): MpvSessionState {
         }
         usePlayerStore.getState().setResolverStatus(resolverStatus, payload.sessionId);
       } else if (payload.type === 'end-file') {
-        const endFile = payload.data && typeof payload.data === 'object'
-          ? payload.data as EndFileData
-          : null;
+        const endFile =
+          payload.data && typeof payload.data === 'object' ? (payload.data as EndFileData) : null;
         debugLog.info('player', 'MPV end-file event received', endFile);
         if (endFile?.reason === 'error') {
           const mpvError = resolverErrorRef.current ?? formatMpvEndFileError(endFile);
@@ -243,13 +273,14 @@ export function useMpvSession(): MpvSessionState {
         if (logData) {
           const resolverError = formatResolverPlaybackError(logData);
           if (resolverError) resolverErrorRef.current = resolverError;
-          const level: LogLevel = logData.level === 'error' || logData.level === 'fatal'
-            ? 'error'
-            : logData.level === 'warn'
-              ? 'warn'
-              : logData.level === 'info'
-                ? 'info'
-                : 'debug';
+          const level: LogLevel =
+            logData.level === 'error' || logData.level === 'fatal'
+              ? 'error'
+              : logData.level === 'warn'
+                ? 'warn'
+                : logData.level === 'info'
+                  ? 'info'
+                  : 'debug';
           debugLog[level]('player', `[mpv] ${logData.prefix}: ${logData.text}`);
         }
       }
@@ -309,14 +340,27 @@ export function useMpvSession(): MpvSessionState {
       { property: 'audio-delay', value: audioDelayMs / 1000 },
       { property: 'sub-font-size', value: subtitleFontSize },
       { property: 'sub-font', value: subtitleFontFamily },
-      { property: 'sub-color', value: `#FFFFFF${Math.round(subtitleOpacity * 2.55).toString(16).padStart(2, '0')}` },
+      {
+        property: 'sub-color',
+        value: `#FFFFFF${Math.round(subtitleOpacity * 2.55)
+          .toString(16)
+          .padStart(2, '0')}`,
+      },
       { property: 'sub-border-size', value: subtitleBorderSize },
       { property: 'sub-shadow-offset', value: subtitleShadowOffset },
     ];
     for (const update of updates) {
       void tauriApi.mpvSetProperty(update).catch(() => undefined);
     }
-  }, [activeStream, audioDelayMs, subtitleBorderSize, subtitleFontFamily, subtitleFontSize, subtitleOpacity, subtitleShadowOffset]);
+  }, [
+    activeStream,
+    audioDelayMs,
+    subtitleBorderSize,
+    subtitleFontFamily,
+    subtitleFontSize,
+    subtitleOpacity,
+    subtitleShadowOffset,
+  ]);
 
   useEffect(() => {
     if (!activeStream) return;
@@ -342,9 +386,10 @@ export function useMpvSession(): MpvSessionState {
         // stall recovery would silently rewind the episode to wherever it
         // was originally resumed from. Live channels have no such position;
         // they always rejoin at the live edge.
-        const resumePosition = restartNonce > 0 && activeStream.type !== 'live'
-          ? usePlayerStore.getState().currentTime || activeStream.startPosition || 0
-          : activeStream.startPosition || 0;
+        const resumePosition =
+          restartNonce > 0 && activeStream.type !== 'live'
+            ? usePlayerStore.getState().currentTime || activeStream.startPosition || 0
+            : activeStream.startPosition || 0;
         const playbackSessionId = usePlayerStore.getState().sessionId;
         const startSettings = useSettingsStore.getState();
         await tauriApi.mpvStart({
@@ -376,28 +421,51 @@ export function useMpvSession(): MpvSessionState {
           if (!readyAfterStart && !waitingForTwitchAd) {
             startupTimerRef.current = setTimeout(() => {
               const state = usePlayerStore.getState();
-              if (state.sessionId !== playbackSessionId || state.isVideoReady || activeStream.radio || cancelled) return;
+              if (
+                state.sessionId !== playbackSessionId ||
+                state.isVideoReady ||
+                activeStream.radio ||
+                cancelled
+              )
+                return;
               const timeoutError = `mpv startup timed out after ${startSettings.startupTimeoutMs} ms.`;
               const completeError = recordPlaybackError(timeoutError);
               setIsRetrying(false);
               if (!fallbackRef.current()) setErrorMessage(completeError);
-              debugLog.warn('player', 'Playback startup timed out', { timeoutMs: startSettings.startupTimeoutMs });
+              debugLog.warn('player', 'Playback startup timed out', {
+                timeoutMs: startSettings.startupTimeoutMs,
+              });
             }, startSettings.startupTimeoutMs);
           } else {
             startupTimerRef.current = null;
           }
           await applyAspectRatio(startSettings.aspectRatio, true).catch((error: unknown) => {
-            notify.error('Aspect Ratio Failed', getErrorMessage(error, 'Could not apply the saved aspect ratio.'), undefined, undefined, 'playback');
+            notify.error(
+              'Aspect Ratio Failed',
+              getErrorMessage(error, 'Could not apply the saved aspect ratio.'),
+              undefined,
+              undefined,
+              'playback',
+            );
           });
-          await applyImageAdjustments({
-            imageSharpness: startSettings.imageSharpness,
-            imageBrightness: startSettings.imageBrightness,
-            imageContrast: startSettings.imageContrast,
-            imageSaturation: startSettings.imageSaturation,
-            imageHue: startSettings.imageHue,
-            imageGamma: startSettings.imageGamma,
-          }, true).catch((error: unknown) => {
-            notify.error('Image Adjustment Failed', getErrorMessage(error, 'Could not apply the saved image adjustments.'), undefined, undefined, 'playback');
+          await applyImageAdjustments(
+            {
+              imageSharpness: startSettings.imageSharpness,
+              imageBrightness: startSettings.imageBrightness,
+              imageContrast: startSettings.imageContrast,
+              imageSaturation: startSettings.imageSaturation,
+              imageHue: startSettings.imageHue,
+              imageGamma: startSettings.imageGamma,
+            },
+            true,
+          ).catch((error: unknown) => {
+            notify.error(
+              'Image Adjustment Failed',
+              getErrorMessage(error, 'Could not apply the saved image adjustments.'),
+              undefined,
+              undefined,
+              'playback',
+            );
           });
           setIsRetrying(false);
           debugLog.info('player', 'MPV started successfully');
@@ -466,17 +534,19 @@ export function useMpvSession(): MpvSessionState {
     const armForStatus = (status: ReturnType<typeof usePlayerStore.getState>['resolverStatus']) => {
       clearTwitchBreakTimer();
       if (status?.phase !== 'ad-break') return;
-      const timeoutMs = status.expectedDurationSeconds === undefined
-        ? MAX_TWITCH_AD_BREAK_MS
-        : Math.min(
-            status.expectedDurationSeconds * 1000 + TWITCH_AD_BREAK_GRACE_MS,
-            MAX_TWITCH_AD_BREAK_MS,
-          );
+      const timeoutMs =
+        status.expectedDurationSeconds === undefined
+          ? MAX_TWITCH_AD_BREAK_MS
+          : Math.min(
+              status.expectedDurationSeconds * 1000 + TWITCH_AD_BREAK_GRACE_MS,
+              MAX_TWITCH_AD_BREAK_MS,
+            );
       twitchBreakTimerRef.current = setTimeout(() => {
         twitchBreakTimerRef.current = null;
         if (usePlayerStore.getState().resolverStatus?.phase !== 'ad-break') return;
         if (twitchBreakRecoveryCountRef.current >= MAX_TWITCH_AD_BREAK_RECOVERIES) {
-          const message = 'Twitch did not resume the live stream after the filtered commercial break.';
+          const message =
+            'Twitch did not resume the live stream after the filtered commercial break.';
           resolverErrorRef.current = message;
           setIsRetrying(false);
           setErrorMessage(recordPlaybackError(message));
@@ -518,8 +588,11 @@ export function useMpvSession(): MpvSessionState {
     }
 
     const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
-      if (state.isBuffering === previousState.isBuffering
-        && state.resolverStatus === previousState.resolverStatus) return;
+      if (
+        state.isBuffering === previousState.isBuffering &&
+        state.resolverStatus === previousState.resolverStatus
+      )
+        return;
 
       if (state.resolverStatus?.phase === 'ad-break') {
         clearStallTimer();
@@ -550,7 +623,13 @@ export function useMpvSession(): MpvSessionState {
           `Playback stalled for ${STALL_TIMEOUT_MS}ms with no recovery; restarting automatically`,
           { attempt: autoRecoveryCountRef.current },
         );
-        notify.warning('Playback Stalled', 'The stream stopped responding. Reconnecting…', undefined, undefined, 'playback');
+        notify.warning(
+          'Playback Stalled',
+          'The stream stopped responding. Reconnecting…',
+          undefined,
+          undefined,
+          'playback',
+        );
         retryPlayback();
       }, STALL_TIMEOUT_MS);
     });

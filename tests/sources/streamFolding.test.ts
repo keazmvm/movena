@@ -62,7 +62,14 @@ describe('stream folding', () => {
     const items: MediaItem[] = [
       { id: '1', title: 'DE| Sky Sport 1 HD', posterUrl: '', type: 'live', categoryId: 'sports' },
       { id: '2', title: 'DE| Sky Sport 2 HD', posterUrl: '', type: 'live', categoryId: 'sports' },
-      { id: '3', title: 'UK| Sky Sport 1 HD', posterUrl: '', type: 'live', categoryId: 'sports', country: 'GB' },
+      {
+        id: '3',
+        title: 'UK| Sky Sport 1 HD',
+        posterUrl: '',
+        type: 'live',
+        categoryId: 'sports',
+        country: 'GB',
+      },
     ];
     const result = foldLiveChannels(items);
     expect(result).toHaveLength(3);
@@ -70,8 +77,24 @@ describe('stream folding', () => {
 
   it('deduplicates inherited and variant fallback URLs', () => {
     const result = foldLiveChannels([
-      { id: '4k', title: 'News 4K', posterUrl: '', type: 'live', categoryId: 'news', streamUrl: 'https://stream/4k', fallbacks: [{ streamUrl: 'https://stream/hd' }, { streamUrl: 'https://stream/4k' }] },
-      { id: 'hd', title: 'News HD', posterUrl: '', type: 'live', categoryId: 'news', streamUrl: 'https://stream/hd', fallbacks: [{ streamUrl: 'https://stream/sd' }] },
+      {
+        id: '4k',
+        title: 'News 4K',
+        posterUrl: '',
+        type: 'live',
+        categoryId: 'news',
+        streamUrl: 'https://stream/4k',
+        fallbacks: [{ streamUrl: 'https://stream/hd' }, { streamUrl: 'https://stream/4k' }],
+      },
+      {
+        id: 'hd',
+        title: 'News HD',
+        posterUrl: '',
+        type: 'live',
+        categoryId: 'news',
+        streamUrl: 'https://stream/hd',
+        fallbacks: [{ streamUrl: 'https://stream/sd' }],
+      },
     ]);
     expect(result[0]!.fallbacks?.map((fallback) => fallback.streamUrl)).toEqual([
       'https://stream/hd',

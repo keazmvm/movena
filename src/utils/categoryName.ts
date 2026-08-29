@@ -182,7 +182,7 @@ const CODE_PREFIX = /^\s*([A-Za-z]{2,3})\s*[|\-:]\s*(.+)$/;
 /** Common short, legacy, and IPTV-specific spellings. */
 const EXTRA_NAMES: Record<string, string> = {
   AMERICA: 'US',
-  'BOLIVIA': 'BO',
+  BOLIVIA: 'BO',
   BOSNIA: 'BA',
   BRUNEI: 'BN',
   'CAPE VERDE': 'CV',
@@ -218,14 +218,15 @@ const EXTRA_NAMES: Record<string, string> = {
   VIETNAM: 'VN',
 };
 
-const normalizeCountryName = (value: string) => value
-  .normalize('NFKD')
-  .replace(/\p{M}/gu, '')
-  .replace(/&/g, ' AND ')
-  .replace(/[^A-Za-z0-9]+/g, ' ')
-  .trim()
-  .replace(/\s+/g, ' ')
-  .toUpperCase();
+const normalizeCountryName = (value: string) =>
+  value
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/&/g, ' AND ')
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toUpperCase();
 
 const PREFIX_NAME_TO_CODE: Record<string, string> = { ...EXTRA_NAMES };
 const NORMALIZED_NAME_TO_CODE: Record<string, string> = {};
@@ -238,8 +239,8 @@ for (const [name, code] of Object.entries(PREFIX_NAME_TO_CODE)) {
 
 function countryCodeForName(value: string): string | null {
   const normalized = normalizeCountryName(value);
-  const candidate = NORMALIZED_NAME_TO_CODE[normalized]
-    ?? (/^[A-Z]{2,3}$/.test(normalized) ? normalized : null);
+  const candidate =
+    NORMALIZED_NAME_TO_CODE[normalized] ?? (/^[A-Z]{2,3}$/.test(normalized) ? normalized : null);
   const code = normalizeCountryCode(candidate);
   return code && COUNTRY_NAMES[code] ? code : null;
 }
@@ -267,7 +268,11 @@ function getCategoryCluster(label: string, rawName?: string): CategoryCluster {
   }
 
   // 2. Check Streaming brands (Disney+, Apple+, Paramount+, Netflix, Prime, Joyn, RTL+, WOW, HBO, Plex, Magenta)
-  if (/\b(NETFLIX|DISNEY\+?|APPLE\+?|HULU|PARAMOUNT\+?|AMAZON|PRIME|JOYN|RTL\+?|WOW|PLEX|HBO|MAGENTA)\b/.test(upper)) {
+  if (
+    /\b(NETFLIX|DISNEY\+?|APPLE\+?|HULU|PARAMOUNT\+?|AMAZON|PRIME|JOYN|RTL\+?|WOW|PLEX|HBO|MAGENTA)\b/.test(
+      upper,
+    )
+  ) {
     return 'streaming';
   }
 
@@ -275,7 +280,10 @@ function getCategoryCluster(label: string, rawName?: string): CategoryCluster {
   if (/\b(CINEMA|MOVIES|FILME|FILM|FILMA|BOXOFFICE)\b/.test(upper)) {
     return 'cinema';
   }
-  if (upper.includes('PPV') && !/\b(SPORT|SPORTS|UFC|WWE|DAZN|ESPN|EUROSPORT|F1|MOTOGP|FOOTBALL|SOCCER)\b/.test(upper)) {
+  if (
+    upper.includes('PPV') &&
+    !/\b(SPORT|SPORTS|UFC|WWE|DAZN|ESPN|EUROSPORT|F1|MOTOGP|FOOTBALL|SOCCER)\b/.test(upper)
+  ) {
     return 'cinema';
   }
 
@@ -316,7 +324,8 @@ function formatCategoryLabel(label: string): string {
     .join('');
 }
 
-const CATEGORY_PROMOTIONAL_FLUFF = /\b(?:INF\s*(?:&|\+)\s*(?:EVENTS|CHANNELS)?|INF\s*&|GOLD|SILVER|PLATINUM|VIP|PREMIUM|ULTRA|PRO|RAW)\b/gi;
+const CATEGORY_PROMOTIONAL_FLUFF =
+  /\b(?:INF\s*(?:&|\+)\s*(?:EVENTS|CHANNELS)?|INF\s*&|GOLD|SILVER|PLATINUM|VIP|PREMIUM|ULTRA|PRO|RAW)\b/gi;
 
 function extractCategoryTags(label: string): { cleanLabel: string; tags: string[] } {
   if (!label) return { cleanLabel: '', tags: [] };
@@ -357,7 +366,11 @@ function extractCategoryTags(label: string): { cleanLabel: string; tags: string[
 export function parseCategoryName(name: string): ParsedCategory {
   let trimmed = normalizeFancyUnicode(name || '').trim();
   // Strip decorative leading and trailing hashes (#), asterisks (*), equals (=), dashes (-), tildes (~)
-  trimmed = trimmed.replace(/^[\s#*=_~\-\|:]+/, '').replace(/[\s#*=_~\-\|:]+$/, '').trim() || trimmed;
+  trimmed =
+    trimmed
+      .replace(/^[\s#*=_~\-\|:]+/, '')
+      .replace(/[\s#*=_~\-\|:]+$/, '')
+      .trim() || trimmed;
 
   let country: string | null = null;
   let label = trimmed;
@@ -407,10 +420,16 @@ export function parseCategoryName(name: string): ParsedCategory {
     const labelUpper = label.toUpperCase();
 
     if (labelUpper.startsWith(fullCountryName)) {
-      const rest = label.slice(fullCountryName.length).replace(/^[\s|\-:]+/, '').trim();
+      const rest = label
+        .slice(fullCountryName.length)
+        .replace(/^[\s|\-:]+/, '')
+        .trim();
       if (rest) label = rest;
     } else if (labelUpper.startsWith(codeUpper)) {
-      const rest = label.slice(codeUpper.length).replace(/^[\s|\-:]+/, '').trim();
+      const rest = label
+        .slice(codeUpper.length)
+        .replace(/^[\s|\-:]+/, '')
+        .trim();
       if (rest) label = rest;
     }
   }

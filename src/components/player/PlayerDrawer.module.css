@@ -54,7 +54,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: opacity var(--duration-normal) var(--ease-standard), transform var(--duration-normal) var(--ease-standard);
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    transform var(--duration-normal) var(--ease-standard);
 }
 
 .iconBtn:hover {
@@ -165,6 +167,12 @@
 }
 
 @keyframes pulseDot {
-  0% { opacity: var(--alpha-50); transform: scale(0.85); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: var(--alpha-50);
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

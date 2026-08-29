@@ -28,12 +28,42 @@ interface SliderDef {
 }
 
 const SLIDERS: SliderDef[] = [
-  { key: 'imageSharpness', label: 'Sharpness', min: 0, max: 100, format: (v) => (v === 0 ? 'Off' : String(Math.round(v))) },
-  { key: 'imageBrightness', label: 'Brightness', min: 0, max: 200, format: (v) => `${Math.round(v)}%` },
-  { key: 'imageContrast', label: 'Contrast', min: -100, max: 100, format: (v) => String(Math.round(v)) },
-  { key: 'imageSaturation', label: 'Saturation', min: -100, max: 100, format: (v) => String(Math.round(v)) },
+  {
+    key: 'imageSharpness',
+    label: 'Sharpness',
+    min: 0,
+    max: 100,
+    format: (v) => (v === 0 ? 'Off' : String(Math.round(v))),
+  },
+  {
+    key: 'imageBrightness',
+    label: 'Brightness',
+    min: 0,
+    max: 200,
+    format: (v) => `${Math.round(v)}%`,
+  },
+  {
+    key: 'imageContrast',
+    label: 'Contrast',
+    min: -100,
+    max: 100,
+    format: (v) => String(Math.round(v)),
+  },
+  {
+    key: 'imageSaturation',
+    label: 'Saturation',
+    min: -100,
+    max: 100,
+    format: (v) => String(Math.round(v)),
+  },
   { key: 'imageHue', label: 'Hue', min: -100, max: 100, format: (v) => String(Math.round(v)) },
-  { key: 'imageGamma', label: 'Dark scene (gamma)', min: -100, max: 100, format: (v) => String(Math.round(v)) },
+  {
+    key: 'imageGamma',
+    label: 'Dark scene (gamma)',
+    min: -100,
+    max: 100,
+    format: (v) => String(Math.round(v)),
+  },
 ];
 
 const isAtDefaults = (values: ImageAdjustments) =>
@@ -70,7 +100,12 @@ export function ImageControls() {
   const imageHue = useSettingsStore((s) => s.imageHue);
   const imageGamma = useSettingsStore((s) => s.imageGamma);
   const values: ImageAdjustments = {
-    imageSharpness, imageBrightness, imageContrast, imageSaturation, imageHue, imageGamma,
+    imageSharpness,
+    imageBrightness,
+    imageContrast,
+    imageSaturation,
+    imageHue,
+    imageGamma,
   };
 
   const isOpen = activePopover === 'image';
@@ -80,11 +115,14 @@ export function ImageControls() {
   const throttleRef = useRef<Partial<Record<keyof ImageAdjustments, ThrottleEntry>>>({});
   const pendingRef = useRef<Partial<Record<keyof ImageAdjustments, ImageAdjustments>>>({});
 
-  useEffect(() => () => {
-    for (const entry of Object.values(throttleRef.current)) {
-      if (entry?.timer !== null && entry?.timer !== undefined) clearTimeout(entry.timer);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      for (const entry of Object.values(throttleRef.current)) {
+        if (entry?.timer !== null && entry?.timer !== undefined) clearTimeout(entry.timer);
+      }
+    },
+    [],
+  );
 
   const scheduleApply = (key: keyof ImageAdjustments, next: ImageAdjustments) => {
     pendingRef.current[key] = next;
@@ -97,9 +135,16 @@ export function ImageControls() {
       entry.timer = null;
       entry.lastRunAt = Date.now();
       const latest = pendingRef.current[key];
-      if (latest) void applyImageAdjustment(key, latest, true).catch((error: unknown) => {
-        notify.error('Image Adjustment Failed', getErrorMessage(error, `Could not apply ${key}.`), undefined, undefined, 'playback');
-      });
+      if (latest)
+        void applyImageAdjustment(key, latest, true).catch((error: unknown) => {
+          notify.error(
+            'Image Adjustment Failed',
+            getErrorMessage(error, `Could not apply ${key}.`),
+            undefined,
+            undefined,
+            'playback',
+          );
+        });
     }, delay);
   };
 
@@ -119,24 +164,37 @@ export function ImageControls() {
       updateSetting(slider.key, DEFAULT_IMAGE_ADJUSTMENTS[slider.key]);
     }
     void applyImageAdjustments(DEFAULT_IMAGE_ADJUSTMENTS, true).catch((error: unknown) => {
-      notify.error('Image Reset Failed', getErrorMessage(error, 'Could not reset the image adjustments.'), undefined, undefined, 'playback');
+      notify.error(
+        'Image Reset Failed',
+        getErrorMessage(error, 'Could not reset the image adjustments.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     });
   };
 
   return (
     <div className={styles.popoverContainer} data-popover>
-      <button type="button"
+      <button
+        type="button"
         className={`${styles.iconBtn} ${isModified ? styles.activeIcon : ''}`}
         onClick={() => setActivePopover(isOpen ? null : 'image')}
         aria-label={t('Image Adjustments')}
       >
-        <StateIcon icons={{ line: RiEqualizer3Line, fill: RiEqualizer3Fill }} active={isModified} size={20} />
+        <StateIcon
+          icons={{ line: RiEqualizer3Line, fill: RiEqualizer3Fill }}
+          active={isModified}
+          size={20}
+        />
       </button>
 
       {isOpen && (
         <div className={`${styles.popoverMenu} ${styles.imagePanel} subtle-scrollbar`}>
           <div className={styles.imagePanelHeader}>
-            <span className={styles.popoverTitle} style={{ padding: 0, margin: 0 }}>{t('Image')}</span>
+            <span className={styles.popoverTitle} style={{ padding: 0, margin: 0 }}>
+              {t('Image')}
+            </span>
             <button
               type="button"
               className={styles.imageResetBtn}

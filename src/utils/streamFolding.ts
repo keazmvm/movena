@@ -5,12 +5,12 @@ import { mergeMediaTags } from './mediaTags';
 const QUALITY_RANK: Record<string, number> = {
   '8K': 100,
   '4K': 90,
-  'RAW': 80,
-  'FHD': 70,
+  RAW: 80,
+  FHD: 70,
   '1080P': 70,
-  'HD': 50,
+  HD: 50,
   '720P': 50,
-  'SD': 30,
+  SD: 30,
   '480P': 30,
 };
 
@@ -48,12 +48,14 @@ export function foldLiveChannels(items: readonly MediaItem[]): MediaItem[] {
   for (const item of items) {
     if (item.type !== 'live') {
       const key = `non-live::${item.id}`;
-      groups.set(key, [{
-        item,
-        parsedTitle: parseLiveChannelTitle(item.title),
-        qualityBadges: item.tags ?? [],
-        rank: 0,
-      }]);
+      groups.set(key, [
+        {
+          item,
+          parsedTitle: parseLiveChannelTitle(item.title),
+          qualityBadges: item.tags ?? [],
+          rank: 0,
+        },
+      ]);
       continue;
     }
 
@@ -100,13 +102,19 @@ export function foldLiveChannels(items: readonly MediaItem[]): MediaItem[] {
     const allBadges = mergeMediaTags(...group.flatMap((g) => g.qualityBadges));
 
     // Assemble ordered fallbacks from other quality streams
-    const alternativeFallbacks: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> = [];
+    const alternativeFallbacks: Array<{
+      streamUrl: string;
+      httpHeaders?: Record<string, string> | undefined;
+    }> = [];
     const seenUrls = new Set<string>();
     if (primary.item.streamUrl) {
       seenUrls.add(primary.item.streamUrl);
     }
 
-    const addFallback = (fallback: { streamUrl: string; httpHeaders?: Record<string, string> | undefined }) => {
+    const addFallback = (fallback: {
+      streamUrl: string;
+      httpHeaders?: Record<string, string> | undefined;
+    }) => {
       if (!fallback.streamUrl || seenUrls.has(fallback.streamUrl)) return;
       seenUrls.add(fallback.streamUrl);
       alternativeFallbacks.push(fallback);

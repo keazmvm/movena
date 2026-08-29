@@ -17,7 +17,9 @@ describe('M3uEditorSettings', () => {
 
     fireEvent.click(screen.getByLabelText('Autosave M3U editor drafts'));
     fireEvent.click(screen.getByLabelText('Preserve unknown M3U tags'));
-    fireEvent.change(screen.getByLabelText('Stream probe timeout in seconds'), { target: { value: '12' } });
+    fireEvent.change(screen.getByLabelText('Stream probe timeout in seconds'), {
+      target: { value: '12' },
+    });
     fireEvent.change(screen.getByLabelText('Parallel stream probes'), { target: { value: '8' } });
 
     const state = useSettingsStore.getState();

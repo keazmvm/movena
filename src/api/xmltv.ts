@@ -19,7 +19,6 @@ export type { XmltvGuide } from './xmltvNormalizer';
  * Worth it when there is nothing else, wasteful when there is.
  */
 
-
 /**
  * Read the body as text, transparently handling a gzipped file.
  *
@@ -107,8 +106,11 @@ export async function settleWithConcurrency<T, R>(
       }
     }
   };
-  await Promise.all(Array.from({ length: Math.min(Math.max(1, concurrency), values.length) }, worker));
-  if (signal.aborted) throw signal.reason ?? new DOMException('The operation was aborted.', 'AbortError');
+  await Promise.all(
+    Array.from({ length: Math.min(Math.max(1, concurrency), values.length) }, worker),
+  );
+  if (signal.aborted)
+    throw signal.reason ?? new DOMException('The operation was aborted.', 'AbortError');
   return results;
 }
 
@@ -123,10 +125,13 @@ export function mergeXmltvGuides(
   for (const { sourceId, guide } of guides) {
     for (const [channelId, programmes] of guide.byChannel) {
       const scopedId = `${sourceId}::${channelId}`;
-      byChannel.set(scopedId, programmes.map((programme) => ({
-        ...programme,
-        id: `${sourceId}::${programme.id}`,
-      })));
+      byChannel.set(
+        scopedId,
+        programmes.map((programme) => ({
+          ...programme,
+          id: `${sourceId}::${programme.id}`,
+        })),
+      );
       programmeCount += programmes.length;
     }
     for (const [name, channelId] of guide.idByName) {
@@ -152,15 +157,28 @@ export function useXmltvGuide(enabled = true) {
   const sources = useEnabledSources();
   const fallbackUrl = sourceSetting === 'xmltv' ? configuredUrl.trim() : '';
   const descriptors = [
-    ...sources.availableXtreamSources.flatMap((source) => (source.credentials?.epgUrl || fallbackUrl)
-      ? [{ sourceId: source.id, url: source.credentials?.epgUrl || fallbackUrl, headers: undefined }]
-      : []),
+    ...sources.availableXtreamSources.flatMap((source) =>
+      source.credentials?.epgUrl || fallbackUrl
+        ? [
+            {
+              sourceId: source.id,
+              url: source.credentials?.epgUrl || fallbackUrl,
+              headers: undefined,
+            },
+          ]
+        : [],
+    ),
     ...sources.availableM3uSources.flatMap((source) => {
-      const playlistUrl = source.runtime?.connection?.epgUrl
-        || source.runtime?.playlist?.epgUrls[0]
-        || fallbackUrl;
+      const playlistUrl =
+        source.runtime?.connection?.epgUrl || source.runtime?.playlist?.epgUrls[0] || fallbackUrl;
       return playlistUrl.trim()
-        ? [{ sourceId: source.id, url: playlistUrl.trim(), headers: source.runtime?.connection?.headers }]
+        ? [
+            {
+              sourceId: source.id,
+              url: playlistUrl.trim(),
+              headers: source.runtime?.connection?.headers,
+            },
+          ]
         : [];
     }),
   ];
@@ -172,17 +190,25 @@ export function useXmltvGuide(enabled = true) {
   return useQuery({
     queryKey: ['xmltv_guides', sources.queryScope, descriptorScope],
     queryFn: async ({ signal }) => {
-      const requests = new Map<string, {
-        url: string;
-        headers?: Record<string, string> | undefined;
-        sourceIds: string[];
-      }>();
+      const requests = new Map<
+        string,
+        {
+          url: string;
+          headers?: Record<string, string> | undefined;
+          sourceIds: string[];
+        }
+      >();
       for (const descriptor of descriptors) {
         const headerKey = JSON.stringify(Object.entries(descriptor.headers ?? {}).sort());
         const key = `${descriptor.url}\n${headerKey}`;
         const request = requests.get(key);
         if (request) request.sourceIds.push(descriptor.sourceId);
-        else requests.set(key, { url: descriptor.url, headers: descriptor.headers, sourceIds: [descriptor.sourceId] });
+        else
+          requests.set(key, {
+            url: descriptor.url,
+            headers: descriptor.headers,
+            sourceIds: [descriptor.sourceId],
+          });
       }
       const results = await settleWithConcurrency(
         [...requests.values()],
@@ -193,11 +219,18 @@ export function useXmltvGuide(enabled = true) {
           guide: await fetchXmltvGuide(request.url, signal, request.headers),
         }),
       );
-      const loaded = results.flatMap((result) => result.status === 'fulfilled'
-        ? result.value.request.sourceIds.map((sourceId) => ({ sourceId, guide: result.value.guide }))
-        : []);
+      const loaded = results.flatMap((result) =>
+        result.status === 'fulfilled'
+          ? result.value.request.sourceIds.map((sourceId) => ({
+              sourceId,
+              guide: result.value.guide,
+            }))
+          : [],
+      );
       if (loaded.length === 0) {
-        const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+        const failure = results.find(
+          (result): result is PromiseRejectedResult => result.status === 'rejected',
+        );
         if (failure) throw failure.reason;
       }
       return mergeXmltvGuides(loaded);
@@ -230,7 +263,8 @@ export function lookupXmltvChannel(
     if (direct?.length) return direct;
   }
   const normalizedTitle = title.trim().toLowerCase();
-  const byName = (sourceId ? guide.idByName.get(`${sourceId}::${normalizedTitle}`) : undefined)
-    || guide.idByName.get(normalizedTitle);
+  const byName =
+    (sourceId ? guide.idByName.get(`${sourceId}::${normalizedTitle}`) : undefined) ||
+    guide.idByName.get(normalizedTitle);
   return byName ? guide.byChannel.get(byName) : undefined;
 }

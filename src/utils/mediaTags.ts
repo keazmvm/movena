@@ -6,7 +6,7 @@ export type TagCategory = 'resolution' | 'fps' | 'audio' | 'edition' | 'format';
 const TAG_PATTERN_SOURCE = [
   '(?:GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)\\s+RAW',
   'RAW\\s+(?:GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)',
-  'DIRECTOR[\'’]?S?\\s+CUT',
+  "DIRECTOR['’]?S?\\s+CUT",
   'EXTENDED(?:\\s+CUT|\\s+EDITION)?',
   'THEATRICAL(?:\\s+CUT)?',
   'SPECIAL\\s+EDITION',
@@ -40,44 +40,141 @@ const TAG_PATTERN_SOURCE = [
   'DUBBED',
   'SUBBED',
   '24\\s*[/\\\\]\\s*7',
-  '4320P', '3840P', '2160P', '1080P', '720P', '480P',
-  '60\\s*FPS', '50\\s*FPS',
-  'BLU[\\s_-]*RAY', 'BDRIP', 'BRRIP',
-  'WEB[\\s_-]*DL', 'WEBDL', 'WEBRIP', 'WEB',
-  'HDTV', 'DVDRIP', 'DVD', 'REMUX',
+  '4320P',
+  '3840P',
+  '2160P',
+  '1080P',
+  '720P',
+  '480P',
+  '60\\s*FPS',
+  '50\\s*FPS',
+  'BLU[\\s_-]*RAY',
+  'BDRIP',
+  'BRRIP',
+  'WEB[\\s_-]*DL',
+  'WEBDL',
+  'WEBRIP',
+  'WEB',
+  'HDTV',
+  'DVDRIP',
+  'DVD',
+  'REMUX',
   '10[\\s_-]*BIT',
-  'H\\.?26[45]', 'X26[45]',
-  'DD\\+', '7\\.1', '5\\.1',
-  'DOVI', 'DV', '8K', '4K', 'UHD', 'FHD', 'HD', 'SD',
-  'ATMOS', 'DOLBY',
-  'HEVC', 'AV1', 'AVC', 'AC3', 'AAC',
-  'RAW', 'VIP', 'PPV', '3D',
-  'GOLD', 'SILVER', 'PLATINUM', 'PREMIUM', 'ULTRA', 'PRO',
-  'VOD', 'IPTV', 'EPG',
+  'H\\.?26[45]',
+  'X26[45]',
+  'DD\\+',
+  '7\\.1',
+  '5\\.1',
+  'DOVI',
+  'DV',
+  '8K',
+  '4K',
+  'UHD',
+  'FHD',
+  'HD',
+  'SD',
+  'ATMOS',
+  'DOLBY',
+  'HEVC',
+  'AV1',
+  'AVC',
+  'AC3',
+  'AAC',
+  'RAW',
+  'VIP',
+  'PPV',
+  '3D',
+  'GOLD',
+  'SILVER',
+  'PLATINUM',
+  'PREMIUM',
+  'ULTRA',
+  'PRO',
+  'VOD',
+  'IPTV',
+  'EPG',
 ].join('|');
 
 /** Standalone provider marker, protected from matching inside ordinary words. */
 const TAG_PATTERN = new RegExp(`(?<![A-Z0-9])(${TAG_PATTERN_SOURCE})(?![A-Z0-9])`, 'gi');
 
 const NON_DISPLAY_MARKERS = new Set([
-  'VOD', 'IPTV', 'EPG',
-  'GOLD', 'SILVER', 'PLATINUM', 'VIP', 'PREMIUM', 'ULTRA', 'PRO',
+  'VOD',
+  'IPTV',
+  'EPG',
+  'GOLD',
+  'SILVER',
+  'PLATINUM',
+  'VIP',
+  'PREMIUM',
+  'ULTRA',
+  'PRO',
 ]);
 
 const TAG_PRIORITY = [
-  '8K', '4K', 'FHD', 'HD', 'SD',
-  'DV', 'HDR10+', 'HDR10', 'HDR', 'HLG', '10-Bit',
-  'ATMOS', 'DOLBY', 'TrueHD', 'DTS:X', 'DTS-HD', 'DTS', 'DD+', '7.1', '5.1', 'AC3', 'AAC',
-  'Multi-Audio', 'Multi-Sub', 'OmU', 'OmeU', 'OV', 'VOSTFR', 'Dubbed', 'Subbed',
-  'Director\'s Cut', 'Extended Cut', 'IMAX', 'Theatrical', 'Special Edition', 'Remastered', 'Final Cut', 'Ultimate Edition', 'Unrated', 'Criterion',
-  'BluRay', 'WEB-DL', 'WEBRip', 'Remux', 'HDTV', 'DVD',
-  'HEVC', 'AV1', 'AVC',
-  '60FPS', '50FPS', '3D', '24/7', 'RAW', 'PPV',
+  '8K',
+  '4K',
+  'FHD',
+  'HD',
+  'SD',
+  'DV',
+  'HDR10+',
+  'HDR10',
+  'HDR',
+  'HLG',
+  '10-Bit',
+  'ATMOS',
+  'DOLBY',
+  'TrueHD',
+  'DTS:X',
+  'DTS-HD',
+  'DTS',
+  'DD+',
+  '7.1',
+  '5.1',
+  'AC3',
+  'AAC',
+  'Multi-Audio',
+  'Multi-Sub',
+  'OmU',
+  'OmeU',
+  'OV',
+  'VOSTFR',
+  'Dubbed',
+  'Subbed',
+  "Director's Cut",
+  'Extended Cut',
+  'IMAX',
+  'Theatrical',
+  'Special Edition',
+  'Remastered',
+  'Final Cut',
+  'Ultimate Edition',
+  'Unrated',
+  'Criterion',
+  'BluRay',
+  'WEB-DL',
+  'WEBRip',
+  'Remux',
+  'HDTV',
+  'DVD',
+  'HEVC',
+  'AV1',
+  'AVC',
+  '60FPS',
+  '50FPS',
+  '3D',
+  '24/7',
+  'RAW',
+  'PPV',
 ];
 
 export function normalizeMediaTag(value: string): string | null {
   const normalizedValue = normalizeFancyUnicode(value);
-  const compact = normalizedValue.trim().toUpperCase().replace(/[\s_.-]+/g, '');
+  const compact = normalizedValue
+    .trim()
+    .toUpperCase()
+    .replace(/[\s_.-]+/g, '');
 
   if (/^(24\/?7|247)$/.test(compact)) return '24/7';
 
@@ -103,10 +200,14 @@ export function normalizeMediaTag(value: string): string | null {
   if (/^(H264|X264|AVC)$/.test(compact)) return 'AVC';
   if (/^60FPS$/.test(compact)) return '60FPS';
   if (/^50FPS$/.test(compact)) return '50FPS';
-  if (/^(GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)RAW$/.test(compact) || /^RAW(GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)$/.test(compact)) return 'RAW';
+  if (
+    /^(GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)RAW$/.test(compact) ||
+    /^RAW(GOLD|SILVER|PLATINUM|VIP|PREMIUM|PRO|ULTRA)$/.test(compact)
+  )
+    return 'RAW';
 
   // Editions
-  if (/^DIRECTOR'?S?CUT$/.test(compact)) return 'Director\'s Cut';
+  if (/^DIRECTOR'?S?CUT$/.test(compact)) return "Director's Cut";
   if (/^EXTENDED(CUT|EDITION)?$/.test(compact)) return 'Extended Cut';
   if (/^IMAX(ENHANCED)?$/.test(compact)) return 'IMAX';
   if (compact === 'REMASTERED') return 'Remastered';
@@ -136,8 +237,24 @@ export function normalizeMediaTag(value: string): string | null {
   if (compact === 'SUBBED') return 'Subbed';
 
   const canonical = [
-    '7.1', '5.1', 'AV1', 'AC3', 'AAC', 'RAW', 'VIP', 'PPV', '3D',
-    'GOLD', 'SILVER', 'PLATINUM', 'PREMIUM', 'ULTRA', 'PRO', 'VOD', 'IPTV', 'EPG',
+    '7.1',
+    '5.1',
+    'AV1',
+    'AC3',
+    'AAC',
+    'RAW',
+    'VIP',
+    'PPV',
+    '3D',
+    'GOLD',
+    'SILVER',
+    'PLATINUM',
+    'PREMIUM',
+    'ULTRA',
+    'PRO',
+    'VOD',
+    'IPTV',
+    'EPG',
   ].find((tag) => tag.replace('.', '') === compact.replace('.', ''));
   return canonical ?? null;
 }
@@ -150,10 +267,18 @@ export function getMediaTagCategory(tag: string): TagCategory {
   const normalized = normalizeMediaTag(tag) ?? tag;
   if (/^(8K|4K|FHD|HD|SD)$/.test(normalized)) return 'resolution';
   if (/^(60FPS|50FPS)$/.test(normalized)) return 'fps';
-  if (/^(ATMOS|TrueHD|DTS:X|DTS-HD|DTS|DOLBY|DD\+|7\.1|5\.1|AC3|AAC|Multi-Audio|Multi-Sub|OmU|OmeU|OV|VOSTFR|Dubbed|Subbed)$/.test(normalized)) {
+  if (
+    /^(ATMOS|TrueHD|DTS:X|DTS-HD|DTS|DOLBY|DD\+|7\.1|5\.1|AC3|AAC|Multi-Audio|Multi-Sub|OmU|OmeU|OV|VOSTFR|Dubbed|Subbed)$/.test(
+      normalized,
+    )
+  ) {
     return 'audio';
   }
-  if (/^(Director's Cut|Extended Cut|IMAX|Remastered|Unrated|Theatrical|Special Edition|Criterion|Final Cut|Ultimate Edition)$/.test(normalized)) {
+  if (
+    /^(Director's Cut|Extended Cut|IMAX|Remastered|Unrated|Theatrical|Special Edition|Criterion|Final Cut|Ultimate Edition)$/.test(
+      normalized,
+    )
+  ) {
     return 'edition';
   }
   return 'format';
@@ -180,12 +305,14 @@ export function extractMediaTags(value: string): { cleanText: string; tags: stri
 }
 
 export function mergeMediaTags(...values: Array<string | null | undefined>): string[] {
-  const tags = values.flatMap((value) => value ? extractMediaTags(value).tags : []);
+  const tags = values.flatMap((value) => (value ? extractMediaTags(value).tags : []));
   return [...new Set(tags)].sort((left, right) => {
     const leftIndex = TAG_PRIORITY.indexOf(left);
     const rightIndex = TAG_PRIORITY.indexOf(right);
-    return (leftIndex < 0 ? TAG_PRIORITY.length : leftIndex) -
-      (rightIndex < 0 ? TAG_PRIORITY.length : rightIndex);
+    return (
+      (leftIndex < 0 ? TAG_PRIORITY.length : leftIndex) -
+      (rightIndex < 0 ? TAG_PRIORITY.length : rightIndex)
+    );
   });
 }
 
@@ -222,11 +349,45 @@ export function getPrimaryMediaTags(tags: readonly string[], limit = 2): string[
 
 export function getTagColorType(tag: string): TagColorType {
   const normalized = normalizeMediaTag(tag) ?? tag.trim().toUpperCase();
-  if (normalized === '8K' || normalized === '4K' || normalized === 'IMAX' || normalized === 'Ultimate Edition') return 'gold';
-  if (normalized === 'FHD' || normalized === 'HD' || normalized === 'Extended Cut' || normalized === 'Remastered' || normalized === 'BluRay' || normalized === 'Remux') return 'cyan';
-  if (normalized === 'DV' || normalized === 'ATMOS' || normalized === 'DOLBY' || normalized === "Director's Cut" || normalized === 'Final Cut' || normalized === 'Criterion') return 'purple';
-  if (normalized.startsWith('HDR') || normalized === 'HLG' || normalized === '24/7' || normalized === 'WEB-DL' || normalized === 'WEBRip') return 'blue';
-  if (/^(DTS:X|DTS-HD|DTS|TrueHD|DD\+|7\.1|5\.1|AC3|AAC|Multi-Audio|Multi-Sub|OmU|OmeU|OV|VOSTFR|Dubbed|Subbed)$/.test(normalized)) return 'green';
+  if (
+    normalized === '8K' ||
+    normalized === '4K' ||
+    normalized === 'IMAX' ||
+    normalized === 'Ultimate Edition'
+  )
+    return 'gold';
+  if (
+    normalized === 'FHD' ||
+    normalized === 'HD' ||
+    normalized === 'Extended Cut' ||
+    normalized === 'Remastered' ||
+    normalized === 'BluRay' ||
+    normalized === 'Remux'
+  )
+    return 'cyan';
+  if (
+    normalized === 'DV' ||
+    normalized === 'ATMOS' ||
+    normalized === 'DOLBY' ||
+    normalized === "Director's Cut" ||
+    normalized === 'Final Cut' ||
+    normalized === 'Criterion'
+  )
+    return 'purple';
+  if (
+    normalized.startsWith('HDR') ||
+    normalized === 'HLG' ||
+    normalized === '24/7' ||
+    normalized === 'WEB-DL' ||
+    normalized === 'WEBRip'
+  )
+    return 'blue';
+  if (
+    /^(DTS:X|DTS-HD|DTS|TrueHD|DD\+|7\.1|5\.1|AC3|AAC|Multi-Audio|Multi-Sub|OmU|OmeU|OV|VOSTFR|Dubbed|Subbed)$/.test(
+      normalized,
+    )
+  )
+    return 'green';
   if (/^(RAW|60FPS|50FPS|PPV|3D|Unrated|10-Bit)$/.test(normalized)) return 'coral';
   return 'silver';
 }

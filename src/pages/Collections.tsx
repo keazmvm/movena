@@ -31,13 +31,8 @@ export function Collections() {
     [updateSetting],
   );
 
-  const {
-    selectedMovie,
-    selectedSeries,
-    handleCloseMovie,
-    handleCloseSeries,
-    handleItemClick,
-  } = useMediaDetailState({ enableSourceOnOpen: true });
+  const { selectedMovie, selectedSeries, handleCloseMovie, handleCloseSeries, handleItemClick } =
+    useMediaDetailState({ enableSourceOnOpen: true });
 
   // Modal states for Create, Rename, Delete
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -113,7 +108,7 @@ export function Collections() {
           count={collections.length}
           width={sidebarWidth}
           onWidthChange={(width) => updateSetting('sidebarWidth', width)}
-          headerAction={(
+          headerAction={
             <Button
               size="sm"
               onClick={openCreateModal}
@@ -124,14 +119,15 @@ export function Collections() {
               <Plus size={13} />
               <span>{t('New')}</span>
             </Button>
-          )}
+          }
         >
           {collections.length === 0 ? (
             <p className={styles.emptySidebarText}>{t('No custom collections.')}</p>
           ) : (
             <>
               {collections.map((c) => (
-                <button type="button"
+                <button
+                  type="button"
                   key={c.id}
                   onClick={() => setActiveCollectionId(c.id)}
                   className={`${styles.collectionRow} ${activeCollectionId === c.id ? styles.active : ''}`}
@@ -149,37 +145,43 @@ export function Collections() {
         <div className={appStyles.catalogMain}>
           <CatalogPageHeader
             title={activeCollection ? activeCollection.name : 'Collections'}
-            meta={activeCollection
-              ? tn('{count} item', '{count} items', activeCollection.items.length, { count: number(activeCollection.items.length) })
-              : t('Create collections to group your content')}
-            titleActions={activeCollection ? (
-              <div className={styles.collectionActions}>
-                <IconButton
-                  size="sm"
-                  onClick={openRenameModal}
-                  title="Rename Collection"
-                  aria-label="Rename Collection"
-                  className={styles.actionBtn}
-                >
-                  <Edit2 size={13} />
-                </IconButton>
-                <IconButton
-                  size="sm"
-                  onClick={openDeleteModal}
-                  title="Delete Collection"
-                  aria-label="Delete Collection"
-                  className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                >
-                  <Trash2 size={13} />
-                </IconButton>
-              </div>
-            ) : undefined}
-            actions={(
+            meta={
+              activeCollection
+                ? tn('{count} item', '{count} items', activeCollection.items.length, {
+                    count: number(activeCollection.items.length),
+                  })
+                : t('Create collections to group your content')
+            }
+            titleActions={
+              activeCollection ? (
+                <div className={styles.collectionActions}>
+                  <IconButton
+                    size="sm"
+                    onClick={openRenameModal}
+                    title="Rename Collection"
+                    aria-label="Rename Collection"
+                    className={styles.actionBtn}
+                  >
+                    <Edit2 size={13} />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    onClick={openDeleteModal}
+                    title="Delete Collection"
+                    aria-label="Delete Collection"
+                    className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                  >
+                    <Trash2 size={13} />
+                  </IconButton>
+                </div>
+              ) : undefined
+            }
+            actions={
               <>
                 <HeaderSearch onItemClick={handleItemClick} />
                 <CatalogViewToggle />
               </>
-            )}
+            }
           />
 
           {activeCollection && activeCollection.items.length > 0 ? (
@@ -196,7 +198,10 @@ export function Collections() {
               title={activeCollection ? 'Collection Empty' : 'No Collections Found'}
               description={
                 activeCollection
-                  ? t('"{name}" has no items yet. Add movies or series from their detail modals or context menus.', { name: activeCollection.name })
+                  ? t(
+                      '"{name}" has no items yet. Add movies or series from their detail modals or context menus.',
+                      { name: activeCollection.name },
+                    )
                   : 'Group your favorite movies and shows into custom playlists and collections.'
               }
               actionLabel={!activeCollection ? 'Create Collection' : undefined}
@@ -215,87 +220,89 @@ export function Collections() {
 
         {/* Create Collection Modal */}
         {isCreateOpen && (
-          <ModalShell onClose={closeCreateModal} className={styles.modalContent} ariaLabel={t('Create new collection')} initialFocusSelector="[data-modal-initial-focus]">
-              <div className={styles.modalHeader}>
-                <h3 className={styles.modalTitle}>{t('Create New Collection')}</h3>
-                <IconButton
-                  size="sm"
-                  className={styles.modalCloseBtn}
-                  onClick={closeCreateModal}
-                  aria-label="Close"
-                >
-                  <X size={16} />
-                </IconButton>
+          <ModalShell
+            onClose={closeCreateModal}
+            className={styles.modalContent}
+            ariaLabel={t('Create new collection')}
+            initialFocusSelector="[data-modal-initial-focus]"
+          >
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{t('Create New Collection')}</h3>
+              <IconButton
+                size="sm"
+                className={styles.modalCloseBtn}
+                onClick={closeCreateModal}
+                aria-label="Close"
+              >
+                <X size={16} />
+              </IconButton>
+            </div>
+            <form onSubmit={handleCreateSubmit} className={styles.modalForm}>
+              <input
+                type="text"
+                placeholder={t('Collection Name (e.g. Marvel Movies)')}
+                value={newCollectionName}
+                onChange={(e) => setNewCollectionName(e.target.value)}
+                className={`${styles.modalInput} uiField`}
+                data-modal-initial-focus
+                aria-label={t('Collection name')}
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="off"
+              />
+              <div className={styles.modalFooter}>
+                <Button type="button" className={styles.modalCancelBtn} onClick={closeCreateModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" className={styles.modalSubmitBtn}>
+                  Create Collection
+                </Button>
               </div>
-              <form onSubmit={handleCreateSubmit} className={styles.modalForm}>
-                <input
-                  type="text"
-                  placeholder={t('Collection Name (e.g. Marvel Movies)')}
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                  className={`${styles.modalInput} uiField`}
-                  data-modal-initial-focus
-                  aria-label={t('Collection name')}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                />
-                <div className={styles.modalFooter}>
-                  <Button
-                    type="button"
-                    className={styles.modalCancelBtn}
-                    onClick={closeCreateModal}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" className={styles.modalSubmitBtn}>
-                    Create Collection
-                  </Button>
-                </div>
-              </form>
+            </form>
           </ModalShell>
         )}
 
         {/* Rename Collection Modal */}
         {isRenameOpen && activeCollection && (
-          <ModalShell onClose={closeRenameModal} className={styles.modalContent} ariaLabel={t('Rename {name}', { name: activeCollection.name })} initialFocusSelector="[data-modal-initial-focus]">
-              <div className={styles.modalHeader}>
-                <h3 className={styles.modalTitle}>{t('Rename Collection')}</h3>
-                <IconButton
-                  size="sm"
-                  className={styles.modalCloseBtn}
-                  onClick={closeRenameModal}
-                  aria-label="Close"
-                >
-                  <X size={16} />
-                </IconButton>
+          <ModalShell
+            onClose={closeRenameModal}
+            className={styles.modalContent}
+            ariaLabel={t('Rename {name}', { name: activeCollection.name })}
+            initialFocusSelector="[data-modal-initial-focus]"
+          >
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{t('Rename Collection')}</h3>
+              <IconButton
+                size="sm"
+                className={styles.modalCloseBtn}
+                onClick={closeRenameModal}
+                aria-label="Close"
+              >
+                <X size={16} />
+              </IconButton>
+            </div>
+            <form onSubmit={handleRenameSubmit} className={styles.modalForm}>
+              <input
+                type="text"
+                placeholder={t('Collection Name')}
+                value={renameCollectionName}
+                onChange={(e) => setRenameCollectionName(e.target.value)}
+                className={`${styles.modalInput} uiField`}
+                data-modal-initial-focus
+                aria-label={t('Collection name')}
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="off"
+              />
+              <div className={styles.modalFooter}>
+                <Button type="button" className={styles.modalCancelBtn} onClick={closeRenameModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" className={styles.modalSubmitBtn}>
+                  Save Changes
+                </Button>
               </div>
-              <form onSubmit={handleRenameSubmit} className={styles.modalForm}>
-                <input
-                  type="text"
-                  placeholder={t('Collection Name')}
-                  value={renameCollectionName}
-                  onChange={(e) => setRenameCollectionName(e.target.value)}
-                  className={`${styles.modalInput} uiField`}
-                  data-modal-initial-focus
-                  aria-label={t('Collection name')}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                />
-                <div className={styles.modalFooter}>
-                  <Button
-                    type="button"
-                    className={styles.modalCancelBtn}
-                    onClick={closeRenameModal}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" className={styles.modalSubmitBtn}>
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
+            </form>
           </ModalShell>
         )}
 
@@ -303,7 +310,10 @@ export function Collections() {
         {isDeleteOpen && activeCollection && (
           <ConfirmDialog
             title="Delete Collection?"
-            description={t('This removes “{name}” and its list. Media items and files are not deleted.', { name: activeCollection.name })}
+            description={t(
+              'This removes “{name}” and its list. Media items and files are not deleted.',
+              { name: activeCollection.name },
+            )}
             confirmLabel="Delete Collection"
             danger
             onCancel={() => setIsDeleteOpen(false)}

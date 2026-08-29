@@ -37,19 +37,68 @@ export const SETTINGS_NAV_GROUPS = [
         id: 'sources',
         label: 'Sources',
         description: 'Connect Xtream and M3U sources, then enable any combination.',
-        keywords: ['provider', 'account', 'connection', 'credentials', 'xtream', 'server', 'login', 'disconnect', 'm3u', 'm3u8', 'playlist', 'source', 'import', 'url', 'local file', 'refresh', 'epg', 'programme', 'listings', 'xmltv', 'provider guide'],
+        keywords: [
+          'provider',
+          'account',
+          'connection',
+          'credentials',
+          'xtream',
+          'server',
+          'login',
+          'disconnect',
+          'm3u',
+          'm3u8',
+          'playlist',
+          'source',
+          'import',
+          'url',
+          'local file',
+          'refresh',
+          'epg',
+          'programme',
+          'listings',
+          'xmltv',
+          'provider guide',
+        ],
       },
       {
         id: 'library-metadata',
         label: 'Library & Metadata',
         description: 'Configure stream badges, TMDB enrichment, and smart library features.',
-        keywords: ['tmdb', 'metadata', 'posters', 'cast', 'genres', 'enrichment', 'movie details', 'series details', 'badges', 'resolution', 'stream folding', 'logo', 'quality'],
+        keywords: [
+          'tmdb',
+          'metadata',
+          'posters',
+          'cast',
+          'genres',
+          'enrichment',
+          'movie details',
+          'series details',
+          'badges',
+          'resolution',
+          'stream folding',
+          'logo',
+          'quality',
+        ],
       },
       {
         id: 'coming-up',
         label: 'Coming Up',
-        description: 'Control release schedules, announced episodes, countdowns, and calendar for your favorites.',
-        keywords: ['tvmaze', 'upcoming', 'release', 'schedule', 'calendar', 'countdown', 'airtime', 'discover', 'coming up', 'next episode', 'announced episode'],
+        description:
+          'Control release schedules, announced episodes, countdowns, and calendar for your favorites.',
+        keywords: [
+          'tvmaze',
+          'upcoming',
+          'release',
+          'schedule',
+          'calendar',
+          'countdown',
+          'airtime',
+          'discover',
+          'coming up',
+          'next episode',
+          'announced episode',
+        ],
       },
     ],
   },
@@ -61,7 +110,18 @@ export const SETTINGS_NAV_GROUPS = [
         id: 'general',
         label: 'General',
         description: 'Language, window behavior, sidebar, and accessibility preferences.',
-        keywords: ['language', 'locale', 'window', 'always on top', 'sidebar', 'badges', 'motion', 'accessibility', 'reduced motion', 'preferences'],
+        keywords: [
+          'language',
+          'locale',
+          'window',
+          'always on top',
+          'sidebar',
+          'badges',
+          'motion',
+          'accessibility',
+          'reduced motion',
+          'preferences',
+        ],
       },
       {
         id: 'appearance',
@@ -79,13 +139,37 @@ export const SETTINGS_NAV_GROUPS = [
         id: 'storage',
         label: 'Storage',
         description: 'Recording and download folders, queue behavior, and file management.',
-        keywords: ['recording', 'record', 'download', 'save', 'folder', 'location', 'disk', 'queue', 'concurrent', 'parallel', 'quick record', 'offline'],
+        keywords: [
+          'recording',
+          'record',
+          'download',
+          'save',
+          'folder',
+          'location',
+          'disk',
+          'queue',
+          'concurrent',
+          'parallel',
+          'quick record',
+          'offline',
+        ],
       },
       {
         id: 'config',
         label: 'Import & Export',
         description: 'Back up, restore, and move portable application preferences.',
-        keywords: ['backup', 'restore', 'settings', 'preferences', 'configuration', 'config', 'import', 'export', 'transfer', 'json'],
+        keywords: [
+          'backup',
+          'restore',
+          'settings',
+          'preferences',
+          'configuration',
+          'config',
+          'import',
+          'export',
+          'transfer',
+          'json',
+        ],
       },
       {
         id: 'shortcuts',
@@ -97,7 +181,19 @@ export const SETTINGS_NAV_GROUPS = [
         id: 'home',
         label: 'Home Layout',
         description: 'Choose which rows appear on the Home page, and in what order.',
-        keywords: ['discover', 'home', 'homepage', 'layout', 'rows', 'sections', 'reorder', 'continue watching', 'recently added', 'popular', 'live tv'],
+        keywords: [
+          'discover',
+          'home',
+          'homepage',
+          'layout',
+          'rows',
+          'sections',
+          'reorder',
+          'continue watching',
+          'recently added',
+          'popular',
+          'live tv',
+        ],
       },
     ],
   },
@@ -109,19 +205,53 @@ export const SETTINGS_NAV_GROUPS = [
         id: 'playback',
         label: 'Player & Video',
         description: 'Video output, buffering, seeking, connection recovery, and episode behavior.',
-        keywords: ['engine', 'player', 'gpu', 'hardware', 'aspect', 'hdr', 'tone mapping', 'seek', 'buffer', 'autoplay', 'intro', 'failover', 'timeout'],
+        keywords: [
+          'engine',
+          'player',
+          'gpu',
+          'hardware',
+          'aspect',
+          'hdr',
+          'tone mapping',
+          'seek',
+          'buffer',
+          'autoplay',
+          'intro',
+          'failover',
+          'timeout',
+        ],
       },
       {
         id: 'subtitles-audio',
         label: 'Subtitles & Audio',
         description: 'Default subtitle appearance, audio sync, and playback speed.',
-        keywords: ['subtitle', 'captions', 'font', 'opacity', 'border', 'shadow', 'audio delay', 'speed', 'playback speed'],
+        keywords: [
+          'subtitle',
+          'captions',
+          'font',
+          'opacity',
+          'border',
+          'shadow',
+          'audio delay',
+          'speed',
+          'playback speed',
+        ],
       },
       {
         id: 'picture',
         label: 'Picture',
         description: 'Sharpness, brightness, contrast, saturation, and color adjustments.',
-        keywords: ['picture', 'image', 'brightness', 'contrast', 'saturation', 'hue', 'gamma', 'sharpness', 'dark scene'],
+        keywords: [
+          'picture',
+          'image',
+          'brightness',
+          'contrast',
+          'saturation',
+          'hue',
+          'gamma',
+          'sharpness',
+          'dark scene',
+        ],
       },
     ],
   },
@@ -145,9 +275,8 @@ export const SETTINGS_NAV_GROUPS = [
   },
 ] as const satisfies readonly SettingsNavGroup[];
 
-export const SETTINGS_SECTIONS: readonly SettingsNavItem[] = SETTINGS_NAV_GROUPS.flatMap<SettingsNavItem>(
-  (group) => [...group.items],
-);
+export const SETTINGS_SECTIONS: readonly SettingsNavItem[] =
+  SETTINGS_NAV_GROUPS.flatMap<SettingsNavItem>((group) => [...group.items]);
 
 const DEFAULT_SETTINGS_SECTION: SettingsSectionId = 'general';
 
@@ -171,11 +300,12 @@ export function filterSettingsSections(
   const normalizedQuery = query.trim().toLocaleLowerCase();
   if (!normalizedQuery) return [...SETTINGS_SECTIONS];
 
-  return SETTINGS_SECTIONS.filter((item) => (
-    item.label.toLocaleLowerCase().includes(normalizedQuery)
-    || item.description.toLocaleLowerCase().includes(normalizedQuery)
-    || localize(item.label).toLocaleLowerCase().includes(normalizedQuery)
-    || localize(item.description).toLocaleLowerCase().includes(normalizedQuery)
-    || item.keywords.some((keyword) => keyword.includes(normalizedQuery))
-  ));
+  return SETTINGS_SECTIONS.filter(
+    (item) =>
+      item.label.toLocaleLowerCase().includes(normalizedQuery) ||
+      item.description.toLocaleLowerCase().includes(normalizedQuery) ||
+      localize(item.label).toLocaleLowerCase().includes(normalizedQuery) ||
+      localize(item.description).toLocaleLowerCase().includes(normalizedQuery) ||
+      item.keywords.some((keyword) => keyword.includes(normalizedQuery)),
+  );
 }

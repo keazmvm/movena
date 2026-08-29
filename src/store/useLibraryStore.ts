@@ -116,15 +116,17 @@ export interface WatchProgress {
    * this episode turns out to be finished, Continue Watching advances to
    * this instead of just dropping the show.
    */
-  nextEpisode?: {
-    id: string;
-    seasonNum: string | number;
-    episodeNum: string | number;
-    episodeTitle?: string | undefined;
-    streamUrl?: string | undefined;
-    httpHeaders?: Record<string, string> | undefined;
-    sourceId?: string | undefined;
-  } | undefined;
+  nextEpisode?:
+    | {
+        id: string;
+        seasonNum: string | number;
+        episodeNum: string | number;
+        episodeTitle?: string | undefined;
+        streamUrl?: string | undefined;
+        httpHeaders?: Record<string, string> | undefined;
+        sourceId?: string | undefined;
+      }
+    | undefined;
 }
 
 /**
@@ -149,11 +151,11 @@ interface LibraryState {
   collections: Collection[];
   history: HistoryItem[];
   watched: string[];
-  
+
   addFavorite: (item: MediaItem) => void;
   removeFavorite: (id: string) => void;
   isFavorite: (id: string) => boolean;
-  
+
   toggleWatched: (id: string) => void;
   isWatched: (id: string) => boolean;
 
@@ -178,7 +180,9 @@ function withoutPlaybackTransport<T extends MediaItem>(item: T): T {
   return safe as T;
 }
 
-function sanitizedLibraryData(state: Pick<LibraryState, 'favorites' | 'collections' | 'history' | 'watched'>) {
+function sanitizedLibraryData(
+  state: Pick<LibraryState, 'favorites' | 'collections' | 'history' | 'watched'>,
+) {
   return {
     favorites: state.favorites.map(withoutPlaybackTransport),
     collections: state.collections.map((collection) => ({
@@ -207,7 +211,6 @@ export function migrateLibraryState(persistedState: unknown): LibraryState {
   return { ...normalized, ...sanitizedLibraryData(normalized) };
 }
 
-
 import { notify } from './useNotificationStore';
 import { debugLog } from './useDebugStore';
 
@@ -220,18 +223,33 @@ export const useLibraryStore = create<LibraryState>()(
       watched: [],
 
       addFavorite: (item) => {
-        const exists = get().favorites.some(f => f.id === item.id);
+        const exists = get().favorites.some((f) => f.id === item.id);
         if (!exists) {
           set((state) => ({ favorites: [...state.favorites, item] }));
-          notify.success('Added to Favorites', getDisplayTitle(item.title, item.type), undefined, undefined, 'library');
-          debugLog.info('library', `Added favorite: ${item.title}`, { id: item.id, type: item.type });
+          notify.success(
+            'Added to Favorites',
+            getDisplayTitle(item.title, item.type),
+            undefined,
+            undefined,
+            'library',
+          );
+          debugLog.info('library', `Added favorite: ${item.title}`, {
+            id: item.id,
+            type: item.type,
+          });
         }
       },
 
       removeFavorite: (id) => {
-        const item = get().favorites.find(f => f.id === id);
+        const item = get().favorites.find((f) => f.id === id);
         set((state) => ({ favorites: state.favorites.filter((f) => f.id !== id) }));
-        notify.info('Removed from Favorites', item ? getDisplayTitle(item.title, item.type) : 'Item removed', undefined, undefined, 'library');
+        notify.info(
+          'Removed from Favorites',
+          item ? getDisplayTitle(item.title, item.type) : 'Item removed',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Removed favorite`, { id });
       },
 
@@ -242,9 +260,15 @@ export const useLibraryStore = create<LibraryState>()(
         set((state) => ({
           watched: isCurrentlyWatched
             ? (state.watched || []).filter((wId) => wId !== id)
-            : [...(state.watched || []), id]
+            : [...(state.watched || []), id],
         }));
-        notify.info(isCurrentlyWatched ? 'Marked as Unwatched' : 'Marked as Watched', undefined, undefined, undefined, 'library');
+        notify.info(
+          isCurrentlyWatched ? 'Marked as Unwatched' : 'Marked as Watched',
+          undefined,
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Toggled watched status`, { id, watched: !isCurrentlyWatched });
       },
 
@@ -253,175 +277,238 @@ export const useLibraryStore = create<LibraryState>()(
       createCollection: (name) => {
         const newCol = { id: crypto.randomUUID(), name, items: [] };
         set((state) => ({ collections: [...state.collections, newCol] }));
-        notify.success('Collection Created', `Collection "${name}" ready.`, undefined, undefined, 'library');
+        notify.success(
+          'Collection Created',
+          `Collection "${name}" ready.`,
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Created collection: ${name}`, { id: newCol.id });
       },
 
       renameCollection: (id, newName) => {
-        const targetCol = get().collections.find(c => c.id === id);
+        const targetCol = get().collections.find((c) => c.id === id);
         if (targetCol) {
           set((state) => ({
-            collections: state.collections.map(c =>
-              c.id === id ? { ...c, name: newName } : c
-            )
+            collections: state.collections.map((c) => (c.id === id ? { ...c, name: newName } : c)),
           }));
-          notify.success('Collection Renamed', `Renamed to "${newName}".`, undefined, undefined, 'library');
+          notify.success(
+            'Collection Renamed',
+            `Renamed to "${newName}".`,
+            undefined,
+            undefined,
+            'library',
+          );
           debugLog.info('library', `Renamed collection`, { id, newName });
         }
       },
 
       deleteCollection: (id) => {
-        const targetCol = get().collections.find(c => c.id === id);
+        const targetCol = get().collections.find((c) => c.id === id);
         set((state) => ({
-          collections: state.collections.filter(c => c.id !== id)
+          collections: state.collections.filter((c) => c.id !== id),
         }));
-        notify.info('Collection Deleted', targetCol ? `"${targetCol.name}" removed.` : 'Collection removed.', undefined, undefined, 'library');
+        notify.info(
+          'Collection Deleted',
+          targetCol ? `"${targetCol.name}" removed.` : 'Collection removed.',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Deleted collection`, { id });
       },
 
       addToCollection: (collectionId, item) => {
-        const targetCol = get().collections.find(c => c.id === collectionId);
-        if (targetCol && !targetCol.items.some(i => i.id === item.id)) {
+        const targetCol = get().collections.find((c) => c.id === collectionId);
+        if (targetCol && !targetCol.items.some((i) => i.id === item.id)) {
           set((state) => ({
-            collections: state.collections.map(c => 
-              c.id === collectionId ? { ...c, items: [...c.items, item] } : c
-            )
+            collections: state.collections.map((c) =>
+              c.id === collectionId ? { ...c, items: [...c.items, item] } : c,
+            ),
           }));
-          notify.success('Added to Collection', `"${getDisplayTitle(item.title, item.type)}" added to ${targetCol.name}`, undefined, undefined, 'library');
+          notify.success(
+            'Added to Collection',
+            `"${getDisplayTitle(item.title, item.type)}" added to ${targetCol.name}`,
+            undefined,
+            undefined,
+            'library',
+          );
           debugLog.info('library', `Added item to collection`, { collectionId, itemId: item.id });
         }
       },
 
       removeFromCollection: (collectionId, itemId) => {
-        const targetCol = get().collections.find(c => c.id === collectionId);
+        const targetCol = get().collections.find((c) => c.id === collectionId);
         set((state) => ({
-          collections: state.collections.map(c =>
-            c.id === collectionId ? { ...c, items: c.items.filter(i => i.id !== itemId) } : c
-          )
+          collections: state.collections.map((c) =>
+            c.id === collectionId ? { ...c, items: c.items.filter((i) => i.id !== itemId) } : c,
+          ),
         }));
-        notify.info('Removed from Collection', targetCol ? `Removed from ${targetCol.name}` : undefined, undefined, undefined, 'library');
+        notify.info(
+          'Removed from Collection',
+          targetCol ? `Removed from ${targetCol.name}` : undefined,
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Removed item from collection`, { collectionId, itemId });
       },
 
-      updateHistory: (progress) => set((state) => {
-        const { currentTime, duration } = progress;
-        if (!(duration > 0) || !(currentTime > 0)) return state;
+      updateHistory: (progress) =>
+        set((state) => {
+          const { currentTime, duration } = progress;
+          if (!(duration > 0) || !(currentTime > 0)) return state;
 
-        // A series is tracked under its *series* id, not the episode's. Both
-        // readers — the series modal and the in-player episode drawer — look the
-        // entry up by series id, while this used to store it under the episode
-        // id, so nothing ever matched and series never resumed. It also keeps
-        // Continue Watching to one card per show instead of one per episode.
-        const historyId = progress.type === 'series'
-          ? (progress.seriesId ?? progress.id)
-          : progress.id;
+          // A series is tracked under its *series* id, not the episode's. Both
+          // readers — the series modal and the in-player episode drawer — look the
+          // entry up by series id, while this used to store it under the episode
+          // id, so nothing ever matched and series never resumed. It also keeps
+          // Continue Watching to one card per show instead of one per episode.
+          const historyId =
+            progress.type === 'series' ? (progress.seriesId ?? progress.id) : progress.id;
 
-        const others = state.history.filter(h => h.id !== historyId);
-        const watched = state.watched || [];
-        const remaining = duration - currentTime;
+          const others = state.history.filter((h) => h.id !== historyId);
+          const watched = state.watched || [];
+          const remaining = duration - currentTime;
 
-        // Finished: remember it as watched. Watched is recorded per episode,
-        // so finishing one does not mark a whole series. For a series with a
-        // next episode already known, Continue Watching advances to that
-        // episode instead of just dropping the show — otherwise finishing
-        // the episode you're watching removed all trace of the show from
-        // Continue Watching, so there was nothing to click to keep going.
-        if (remaining <= FINISHED_TAIL_SECONDS) {
-          const nextWatched = watched.includes(progress.id) ? watched : [...watched, progress.id];
+          // Finished: remember it as watched. Watched is recorded per episode,
+          // so finishing one does not mark a whole series. For a series with a
+          // next episode already known, Continue Watching advances to that
+          // episode instead of just dropping the show — otherwise finishing
+          // the episode you're watching removed all trace of the show from
+          // Continue Watching, so there was nothing to click to keep going.
+          if (remaining <= FINISHED_TAIL_SECONDS) {
+            const nextWatched = watched.includes(progress.id) ? watched : [...watched, progress.id];
 
-          if (progress.type === 'series' && progress.nextEpisode) {
-            const next = progress.nextEpisode;
-            const nextEntry: HistoryItem = {
-              id: historyId,
-              title: progress.title,
-              // Series cover, not the next episode's still — same reasoning
-              // as the currently-playing entry below: the card stands for
-              // the whole show.
-              posterUrl: progress.posterUrl,
-              type: 'series',
-              progressPercentage: 0,
-              lastWatchedAt: Date.now(),
-              currentTime: 0,
-              duration: 0,
-              seriesId: progress.seriesId,
-              sourceItemId: progress.seriesSourceItemId,
-              seriesSourceItemId: progress.seriesSourceItemId,
-              seasonNum: next.seasonNum,
-              episodeNum: next.episodeNum,
-              episodeId: next.id,
-              episodeTitle: next.episodeTitle,
-              tags: progress.tags,
-              country: progress.country,
-              streamUrl: next.streamUrl,
-              httpHeaders: next.httpHeaders,
-              sourceId: next.sourceId || progress.sourceId,
-            };
-            return { history: [nextEntry, ...others].slice(0, MAX_HISTORY_ITEMS), watched: nextWatched };
+            if (progress.type === 'series' && progress.nextEpisode) {
+              const next = progress.nextEpisode;
+              const nextEntry: HistoryItem = {
+                id: historyId,
+                title: progress.title,
+                // Series cover, not the next episode's still — same reasoning
+                // as the currently-playing entry below: the card stands for
+                // the whole show.
+                posterUrl: progress.posterUrl,
+                type: 'series',
+                progressPercentage: 0,
+                lastWatchedAt: Date.now(),
+                currentTime: 0,
+                duration: 0,
+                seriesId: progress.seriesId,
+                sourceItemId: progress.seriesSourceItemId,
+                seriesSourceItemId: progress.seriesSourceItemId,
+                seasonNum: next.seasonNum,
+                episodeNum: next.episodeNum,
+                episodeId: next.id,
+                episodeTitle: next.episodeTitle,
+                tags: progress.tags,
+                country: progress.country,
+                streamUrl: next.streamUrl,
+                httpHeaders: next.httpHeaders,
+                sourceId: next.sourceId || progress.sourceId,
+              };
+              return {
+                history: [nextEntry, ...others].slice(0, MAX_HISTORY_ITEMS),
+                watched: nextWatched,
+              };
+            }
+
+            return { history: others, watched: nextWatched };
           }
 
-          return { history: others, watched: nextWatched };
-        }
+          // Too early to be worth resuming. Leave any existing entry untouched
+          // rather than overwriting a real position with a near-zero one.
+          if (currentTime < MIN_RESUMABLE_SECONDS) return state;
 
-        // Too early to be worth resuming. Leave any existing entry untouched
-        // rather than overwriting a real position with a near-zero one.
-        if (currentTime < MIN_RESUMABLE_SECONDS) return state;
+          const entry: HistoryItem = {
+            id: historyId,
+            title: progress.title,
+            posterUrl: progress.posterUrl,
+            type: progress.type,
+            progressPercentage: (currentTime / duration) * 100,
+            lastWatchedAt: Date.now(),
+            currentTime,
+            duration,
+            seriesId: progress.seriesId,
+            sourceItemId:
+              progress.type === 'series' ? progress.seriesSourceItemId : progress.sourceItemId,
+            seriesSourceItemId: progress.seriesSourceItemId,
+            seasonNum: progress.seasonNum,
+            episodeNum: progress.episodeNum,
+            episodeId:
+              progress.type === 'series' ? (progress.sourceItemId ?? progress.id) : undefined,
+            episodeTitle: progress.episodeTitle,
+            tags: progress.tags,
+            country: progress.country,
+            streamUrl: progress.streamUrl,
+            httpHeaders: progress.httpHeaders,
+            sourceId: progress.sourceId,
+          };
 
-        const entry: HistoryItem = {
-          id: historyId,
-          title: progress.title,
-          posterUrl: progress.posterUrl,
-          type: progress.type,
-          progressPercentage: (currentTime / duration) * 100,
-          lastWatchedAt: Date.now(),
-          currentTime,
-          duration,
-          seriesId: progress.seriesId,
-          sourceItemId: progress.type === 'series' ? progress.seriesSourceItemId : progress.sourceItemId,
-          seriesSourceItemId: progress.seriesSourceItemId,
-          seasonNum: progress.seasonNum,
-          episodeNum: progress.episodeNum,
-          episodeId: progress.type === 'series' ? (progress.sourceItemId ?? progress.id) : undefined,
-          episodeTitle: progress.episodeTitle,
-          tags: progress.tags,
-          country: progress.country,
-          streamUrl: progress.streamUrl,
-          httpHeaders: progress.httpHeaders,
-          sourceId: progress.sourceId,
-        };
-
-        return { history: [entry, ...others].slice(0, MAX_HISTORY_ITEMS) };
-      }),
+          return { history: [entry, ...others].slice(0, MAX_HISTORY_ITEMS) };
+        }),
 
       removeFromHistory: (id) => {
-        const item = get().history.find(h => h.id === id);
+        const item = get().history.find((h) => h.id === id);
         set((state) => ({
-          history: state.history.filter(h => h.id !== id)
+          history: state.history.filter((h) => h.id !== id),
         }));
-        notify.info('Removed from Watch History', item ? getDisplayTitle(item.title, item.type) : 'Item removed', undefined, undefined, 'library');
+        notify.info(
+          'Removed from Watch History',
+          item ? getDisplayTitle(item.title, item.type) : 'Item removed',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', `Removed item from history`, { id });
       },
 
       clearHistory: () => {
         set({ history: [] });
-        notify.info('Watch History Cleared', 'All watch history and progress removed.', undefined, undefined, 'library');
+        notify.info(
+          'Watch History Cleared',
+          'All watch history and progress removed.',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', 'Cleared all watch history');
       },
 
       clearFavorites: () => {
         set({ favorites: [] });
-        notify.info('Favorites Cleared', 'All saved favorites removed.', undefined, undefined, 'library');
+        notify.info(
+          'Favorites Cleared',
+          'All saved favorites removed.',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', 'Cleared all favorites');
       },
 
       clearCollections: () => {
         set({ collections: [] });
-        notify.info('Collections Cleared', 'All user created collections removed.', undefined, undefined, 'library');
+        notify.info(
+          'Collections Cleared',
+          'All user created collections removed.',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.info('library', 'Cleared all collections');
       },
 
       clearAllData: () => {
         set({ favorites: [], collections: [], history: [], watched: [] });
-        notify.warning('Library Reset', 'All history, favorites, collections, and watched state cleared.', undefined, undefined, 'library');
+        notify.warning(
+          'Library Reset',
+          'All history, favorites, collections, and watched state cleared.',
+          undefined,
+          undefined,
+          'library',
+        );
         debugLog.warn('library', 'Cleared all library data');
       },
     }),
@@ -431,6 +518,6 @@ export const useLibraryStore = create<LibraryState>()(
       migrate: migrateLibraryState,
       storage: createDebouncedStorage<LibraryState>(),
       partialize: (state) => ({ ...state, ...sanitizedLibraryData(state) }),
-    }
-  )
+    },
+  ),
 );

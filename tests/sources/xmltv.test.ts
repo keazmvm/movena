@@ -45,8 +45,10 @@ describe('XMLTV parsing', () => {
     expect(guide.programmeCount).toBe(2);
     expect(guide.idByName.get('example tv')).toBe('channel.de');
     expect(guide.nameById.get('channel.de')).toBe('Example TV');
-    expect(guide.byChannel.get('channel.de')?.map((programme) => programme.title))
-      .toEqual(['Earlier', 'Later']);
+    expect(guide.byChannel.get('channel.de')?.map((programme) => programme.title)).toEqual([
+      'Earlier',
+      'Later',
+    ]);
   });
 
   it('rejects malformed XML', () => {
@@ -71,10 +73,12 @@ describe('XMLTV parsing', () => {
 
     expect(merged.channelCount).toBe(2);
     expect(merged.programmeCount).toBe(4);
-    expect(lookupXmltvChannel(merged, 'channel.de', 'Example TV', 'm3u-one')?.[0]!.id)
-      .toMatch(/^m3u-one::/);
-    expect(lookupXmltvChannel(merged, 'missing', 'Example TV', 'm3u-two')?.[0]!.id)
-      .toMatch(/^m3u-two::/);
+    expect(lookupXmltvChannel(merged, 'channel.de', 'Example TV', 'm3u-one')?.[0]!.id).toMatch(
+      /^m3u-one::/,
+    );
+    expect(lookupXmltvChannel(merged, 'missing', 'Example TV', 'm3u-two')?.[0]!.id).toMatch(
+      /^m3u-two::/,
+    );
   });
 
   it('hydrates normalized native payloads with first-name matching and sorted IDs', () => {
@@ -83,16 +87,21 @@ describe('XMLTV parsing', () => {
         { id: 'one', names: ['Shared', 'One'] },
         { id: 'two', names: ['Shared', 'Two'] },
       ],
-      programmeGroups: [{
-        channelId: 'one',
-        programmes: [
-          { start: 20, end: 30, title: 'Later', description: '' },
-          { start: 10, end: 20, title: 'Earlier', description: '' },
-        ],
-      }],
+      programmeGroups: [
+        {
+          channelId: 'one',
+          programmes: [
+            { start: 20, end: 30, title: 'Later', description: '' },
+            { start: 10, end: 20, title: 'Earlier', description: '' },
+          ],
+        },
+      ],
     });
     expect(guide.idByName.get('shared')).toBe('one');
-    expect(guide.byChannel.get('one')?.map((programme) => programme.title)).toEqual(['Earlier', 'Later']);
+    expect(guide.byChannel.get('one')?.map((programme) => programme.title)).toEqual([
+      'Earlier',
+      'Later',
+    ]);
     expect(guide.byChannel.get('one')?.[0]!.id).toBe('one-10');
   });
 
@@ -112,11 +121,13 @@ describe('XMLTV parsing', () => {
 
     const controller = new AbortController();
     const started: number[] = [];
-    await expect(settleWithConcurrency([1, 2, 3], 2, controller.signal, async (value) => {
-      started.push(value);
-      controller.abort();
-      return value;
-    })).rejects.toThrow();
+    await expect(
+      settleWithConcurrency([1, 2, 3], 2, controller.signal, async (value) => {
+        started.push(value);
+        controller.abort();
+        return value;
+      }),
+    ).rejects.toThrow();
     expect(started).toEqual([1]);
   });
 });

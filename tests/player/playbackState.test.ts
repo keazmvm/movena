@@ -6,23 +6,22 @@ import {
   reducePlaybackState,
 } from '../../src/utils/playbackState';
 
-const started = (generation = 1, at = 1_000) => reducePlaybackState(
-  createIdlePlaybackState(),
-  { type: 'session-started', generation, at },
-).state;
+const started = (generation = 1, at = 1_000) =>
+  reducePlaybackState(createIdlePlaybackState(), { type: 'session-started', generation, at }).state;
 
 const property = (
   state: ReturnType<typeof started>,
   name: 'vo-configured' | 'pause' | 'paused-for-cache' | 'seeking' | 'time-pos' | 'eof-reached',
   value: unknown,
   at = 1_100,
-) => reducePlaybackState(state, {
-  type: 'mpv-property',
-  generation: state.generation!,
-  name,
-  value,
-  at,
-}).state;
+) =>
+  reducePlaybackState(state, {
+    type: 'mpv-property',
+    generation: state.generation!,
+    name,
+    value,
+    at,
+  }).state;
 
 describe('playback state machine', () => {
   it('starts in idle and enters loading for a new session', () => {
@@ -159,12 +158,14 @@ describe('playback state machine', () => {
       at: 2_000,
     });
 
-    expect(acceptsPlaybackObservation(current, {
-      type: 'mpv-property',
-      generation: 7,
-      name: 'time-pos',
-      value: 20,
-    })).toBe(false);
+    expect(
+      acceptsPlaybackObservation(current, {
+        type: 'mpv-property',
+        generation: 7,
+        name: 'time-pos',
+        value: 20,
+      }),
+    ).toBe(false);
     expect(stale).toEqual({
       accepted: false,
       rejection: 'stale-session',
@@ -174,16 +175,20 @@ describe('playback state machine', () => {
 
   it('accepts a newer session and rejects a repeated or older session start', () => {
     const current = started(10);
-    expect(reducePlaybackState(current, {
-      type: 'session-started',
-      generation: 9,
-      at: 2_000,
-    }).accepted).toBe(false);
-    expect(reducePlaybackState(current, {
-      type: 'session-started',
-      generation: 10,
-      at: 2_000,
-    }).accepted).toBe(false);
+    expect(
+      reducePlaybackState(current, {
+        type: 'session-started',
+        generation: 9,
+        at: 2_000,
+      }).accepted,
+    ).toBe(false);
+    expect(
+      reducePlaybackState(current, {
+        type: 'session-started',
+        generation: 10,
+        at: 2_000,
+      }).accepted,
+    ).toBe(false);
 
     const next = reducePlaybackState(current, {
       type: 'session-started',
@@ -193,4 +198,3 @@ describe('playback state machine', () => {
     expect(next).toMatchObject({ accepted: true, state: { generation: 11, status: 'loading' } });
   });
 });
-

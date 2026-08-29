@@ -29,7 +29,13 @@ import {
   parseEpisodeTitle,
 } from '../../utils/titleParser';
 import { mergeMediaTags } from '../../utils/mediaTags';
-import { VolumeControl, AudioPopover, SubtitlePopover, AspectRatioControl, FullscreenButton } from './SharedControls';
+import {
+  VolumeControl,
+  AudioPopover,
+  SubtitlePopover,
+  AspectRatioControl,
+  FullscreenButton,
+} from './SharedControls';
 import { ImageControls } from './ImageControls';
 import styles from './PlayerControls.module.css';
 import { resolveEpisodePlayback } from '../../utils/playback';
@@ -46,23 +52,78 @@ import { useI18n } from '../../i18n';
 
 // ── Custom skip icons ─────────────────────────────────────────
 
-function RotateCcw({ size = 20, seconds = 10 }: { size?: number | undefined; seconds?: number | undefined }) {
+function RotateCcw({
+  size = 20,
+  seconds = 10,
+}: {
+  size?: number | undefined;
+  seconds?: number | undefined;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: 'block' }}
+    >
       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
       <path d="M3 3v5h5" />
-      <text x="12" y="13.2" fontSize="7.5" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif" fill="currentColor" stroke="none" textAnchor="middle" dominantBaseline="middle">{seconds}</text>
+      <text
+        x="12"
+        y="13.2"
+        fontSize="7.5"
+        fontWeight="800"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fill="currentColor"
+        stroke="none"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {seconds}
+      </text>
     </svg>
   );
 }
 
-
-function RotateCw({ size = 20, seconds = 10 }: { size?: number | undefined; seconds?: number | undefined }) {
+function RotateCw({
+  size = 20,
+  seconds = 10,
+}: {
+  size?: number | undefined;
+  seconds?: number | undefined;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: 'block' }}
+    >
       <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
       <path d="M21 3v5h-5" />
-      <text x="12" y="13.2" fontSize="7.5" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif" fill="currentColor" stroke="none" textAnchor="middle" dominantBaseline="middle">{seconds}</text>
+      <text
+        x="12"
+        y="13.2"
+        fontSize="7.5"
+        fontWeight="800"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fill="currentColor"
+        stroke="none"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {seconds}
+      </text>
     </svg>
   );
 }
@@ -75,13 +136,17 @@ function VodTimeline() {
   const [hoverData, setHoverData] = useState<{ time: number; percent: number } | null>(null);
 
   const displayTime = scrubTime !== null ? scrubTime : currentTime;
-  const progressPercent = duration > 0 ? Math.max(0, Math.min(100, (displayTime / duration) * 100)) : 0;
+  const progressPercent =
+    duration > 0 ? Math.max(0, Math.min(100, (displayTime / duration) * 100)) : 0;
 
   const performSeek = useCallback((targetTime: number) => {
     setScrubTime(null);
     usePlayerStore.setState({ currentTime: targetTime, isBuffering: true });
     void tauriApi.mpvSeek(targetTime).catch((error: unknown) => {
-      notify.error('Seek Failed', getUserFacingErrorMessage(error, 'Could not seek to that position.'));
+      notify.error(
+        'Seek Failed',
+        getUserFacingErrorMessage(error, 'Could not seek to that position.'),
+      );
     });
   }, []);
 
@@ -105,7 +170,7 @@ function VodTimeline() {
     const thumbWidth = 16;
     const thumbRadius = thumbWidth / 2;
     const effectiveWidth = Math.max(1, rect.width - thumbWidth);
-    const offsetX = Math.max(0, Math.min(effectiveWidth, (e.clientX - rect.left) - thumbRadius));
+    const offsetX = Math.max(0, Math.min(effectiveWidth, e.clientX - rect.left - thumbRadius));
     const ratio = offsetX / effectiveWidth;
     const time = ratio * duration;
     const thumbCenterPx = thumbRadius + ratio * effectiveWidth;
@@ -143,9 +208,7 @@ function VodTimeline() {
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           aria-label={t('Playback position')}
-          style={
-            { '--progress': `${progressPercent}%` } as React.CSSProperties
-          }
+          style={{ '--progress': `${progressPercent}%` } as React.CSSProperties}
         />
       </div>
       <span className={styles.timeText}>{formatTime(duration)}</span>
@@ -169,13 +232,17 @@ export function VodControls() {
   // Playing straight from a completed download already — its `streamUrl` is
   // the local file path, not a fetchable source, so offering to download it
   // again would just fail. See playableFromDownloadedItem in utils/playback.
-  const isPlayingDownload = useDownloadStore((s) => activeStream ? Boolean(s.downloadedByLibraryId[String(activeStream.id)]) : false);
+  const isPlayingDownload = useDownloadStore((s) =>
+    activeStream ? Boolean(s.downloadedByLibraryId[String(activeStream.id)]) : false,
+  );
 
   const seekJumpSecs = useSettingsStore((s) => s.seekJumpSecs);
 
-  const credentials = useAuthStore((s) => (
-    activeStream?.sourceId ? s.runtimes[activeStream.sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((s) =>
+    activeStream?.sourceId
+      ? (s.runtimes[activeStream.sourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
   const [is3dMode, setIs3dMode] = useState(false);
 
   const reportControlError = useCallback((error: unknown, fallback: string) => {
@@ -205,12 +272,15 @@ export function VodControls() {
     setIs3dMode(enabled);
 
     try {
-      await applySbsTo2d(
-        enabled,
-        enabled ? '16:9' : useSettingsStore.getState().aspectRatio,
-      );
+      await applySbsTo2d(enabled, enabled ? '16:9' : useSettingsStore.getState().aspectRatio);
     } catch (error) {
-      notify.error('3D Mode Failed', getErrorMessage(error, 'mpv video filter update failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        '3D Mode Failed',
+        getErrorMessage(error, 'mpv video filter update failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   }, []);
 
@@ -231,9 +301,10 @@ export function VodControls() {
       if (!activeStream?.seriesId) return;
       const playback = resolveEpisodePlayback(episode, credentials);
       if (!playback) return;
-      const seriesTitle = getSeriesBaseTitle(
-        seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
-      ) || 'Series';
+      const seriesTitle =
+        getSeriesBaseTitle(
+          seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
+        ) || 'Series';
       const parsedEpisode = parseEpisodeTitle(episode.title, {
         seriesTitle,
         seasonNum,
@@ -265,30 +336,43 @@ export function VodControls() {
         country: activeStream.country ?? parsedEpisode.country,
       });
     },
-    [credentials, activeStream, seriesData, playStream]
+    [credentials, activeStream, seriesData, playStream],
   );
 
   // ── Play next episode ───────────────────────────────────────
 
   const playNextEpisode = useCallback(() => {
     if (!seriesData?.episodes || !activeStream) return;
-    const next = findNextEpisode(seriesData.episodes, activeStream.sourceItemId || activeStream.id, activeStream.seasonNum);
+    const next = findNextEpisode(
+      seriesData.episodes,
+      activeStream.sourceItemId || activeStream.id,
+      activeStream.seasonNum,
+    );
     if (next) playEpisode(next.episode, next.seasonNum);
   }, [seriesData, activeStream, playEpisode]);
 
-  const seekRelative = useCallback((seconds: number) => {
-    const cur = usePlayerStore.getState().currentTime;
-    const dur = usePlayerStore.getState().duration;
-    const target = Math.max(0, dur > 0 ? Math.min(dur, cur + seconds) : cur + seconds);
-    usePlayerStore.setState({ currentTime: target, isBuffering: true });
-    void tauriApi.mpvSeekRelative(seconds).catch((error: unknown) => {
-      reportControlError(error, seconds < 0 ? 'Could not seek backward.' : 'Could not seek forward.');
-    });
-  }, [reportControlError]);
+  const seekRelative = useCallback(
+    (seconds: number) => {
+      const cur = usePlayerStore.getState().currentTime;
+      const dur = usePlayerStore.getState().duration;
+      const target = Math.max(0, dur > 0 ? Math.min(dur, cur + seconds) : cur + seconds);
+      usePlayerStore.setState({ currentTime: target, isBuffering: true });
+      void tauriApi.mpvSeekRelative(seconds).catch((error: unknown) => {
+        reportControlError(
+          error,
+          seconds < 0 ? 'Could not seek backward.' : 'Could not seek forward.',
+        );
+      });
+    },
+    [reportControlError],
+  );
 
   const setSpeed = (speed: number) => {
     void tauriApi.mpvSetSpeed(speed).catch((error: unknown) => {
-      notify.error('Speed Change Failed', getUserFacingErrorMessage(error, 'Could not change playback speed.'));
+      notify.error(
+        'Speed Change Failed',
+        getUserFacingErrorMessage(error, 'Could not change playback speed.'),
+      );
     });
     setActivePopover(null);
   };
@@ -302,8 +386,11 @@ export function VodControls() {
     }
     const fileName = sanitizeDownloadFileName(`${activeStream.title}.mp4`);
     setIsDownloading(true);
-    void startMediaDownload({ url: activeStream.streamUrl, fileName, headers: activeStream.httpHeaders })
-      .finally(() => setIsDownloading(false));
+    void startMediaDownload({
+      url: activeStream.streamUrl,
+      fileName,
+      headers: activeStream.httpHeaders,
+    }).finally(() => setIsDownloading(false));
   }, [activeStream]);
 
   // ── Render ──────────────────────────────────────────────────
@@ -318,18 +405,22 @@ export function VodControls() {
         {/* Left side: Playback controls & Volume */}
         <div className={styles.leftControls}>
           {/* Play / Pause */}
-          <button type="button"
+          <button
+            type="button"
             className={styles.iconBtn}
-            onClick={() => void tauriApi.mpvPlayPause().catch((error: unknown) => {
-              reportControlError(error, 'Could not change playback state.');
-            })}
+            onClick={() =>
+              void tauriApi.mpvPlayPause().catch((error: unknown) => {
+                reportControlError(error, 'Could not change playback state.');
+              })
+            }
             aria-label={t(isPlaying ? 'Pause (Space)' : 'Play (Space)')}
           >
             {isPlaying ? <RiPauseFill size={24} /> : <RiPlayFill size={24} />}
           </button>
 
           {/* Skip back 10s */}
-          <button type="button"
+          <button
+            type="button"
             className={styles.iconBtn}
             onClick={() => seekRelative(-seekJumpSecs)}
             aria-label={t('Rewind {seconds} seconds', { seconds: seekJumpSecs })}
@@ -338,7 +429,8 @@ export function VodControls() {
           </button>
 
           {/* Skip forward 10s */}
-          <button type="button"
+          <button
+            type="button"
             className={styles.iconBtn}
             onClick={() => seekRelative(seekJumpSecs)}
             aria-label={t('Forward {seconds} seconds', { seconds: seekJumpSecs })}
@@ -348,7 +440,8 @@ export function VodControls() {
 
           {/* Next episode (series only) */}
           {isSeries && seriesData?.episodes && (
-            <button type="button"
+            <button
+              type="button"
               className={styles.iconBtn}
               onClick={playNextEpisode}
               aria-label={t('Next Episode')}
@@ -369,11 +462,10 @@ export function VodControls() {
 
           {/* Speed selector popover */}
           <div className={styles.popoverContainer} data-popover>
-            <button type="button"
+            <button
+              type="button"
               className={`${styles.iconBtn} ${playbackSpeed !== 1 ? styles.activeIcon : ''}`}
-              onClick={() =>
-                setActivePopover(activePopover === 'speed' ? null : 'speed')
-              }
+              onClick={() => setActivePopover(activePopover === 'speed' ? null : 'speed')}
               aria-label={t('Playback Speed')}
             >
               <StateIcon
@@ -384,10 +476,14 @@ export function VodControls() {
             </button>
 
             {activePopover === 'speed' && (
-              <div className={`${styles.popoverMenu} subtle-scrollbar`} style={{ minWidth: '140px' }}>
+              <div
+                className={`${styles.popoverMenu} subtle-scrollbar`}
+                style={{ minWidth: '140px' }}
+              >
                 <div className={styles.popoverTitle}>{t('Speed')}</div>
                 {speeds.map((s) => (
-                  <button type="button"
+                  <button
+                    type="button"
                     key={s}
                     className={`${styles.popoverItem} ${playbackSpeed === s ? styles.popoverItemActive : ''}`}
                     onClick={() => setSpeed(s)}
@@ -402,7 +498,8 @@ export function VodControls() {
 
           {/* Episodes drawer toggle (series only) */}
           {isSeries && activeStream.seriesId && (
-            <button type="button"
+            <button
+              type="button"
               className={`${styles.iconBtn} ${showEpisodesDrawer ? styles.activeIcon : ''}`}
               onClick={() => {
                 setShowEpisodesDrawer(!showEpisodesDrawer);
@@ -419,13 +516,20 @@ export function VodControls() {
           )}
 
           {!isPlayingDownload && (
-            <button type="button" className={styles.iconBtn} onClick={downloadCurrent} disabled={isDownloading} aria-label={t(isDownloading ? 'Downloading current media' : 'Download current media')}>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={downloadCurrent}
+              disabled={isDownloading}
+              aria-label={t(isDownloading ? 'Downloading current media' : 'Download current media')}
+            >
               <Download size={19} />
             </button>
           )}
 
           {/* Side-by-side 3D → flat 2D */}
-          <button type="button"
+          <button
+            type="button"
             className={styles.iconBtn}
             onClick={() => setSbsTo2d(!is3dMode)}
             aria-label={

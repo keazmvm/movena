@@ -56,7 +56,7 @@ describe('logoAspectDetector', () => {
         for (let x = 6; x <= 58; x++) {
           const idx = (y * size + x) * 4;
           // Dense vertical stripes: alternating white and black stripes create huge gradX
-          const isStripe = (x % 4) < 2;
+          const isStripe = x % 4 < 2;
           const val = isStripe ? 255 : 30;
           data[idx] = val;
           data[idx + 1] = val;
@@ -85,7 +85,7 @@ describe('logoAspectDetector', () => {
       for (let y = 8; y <= 56; y++) {
         for (let x = 8; x <= 56; x++) {
           const idx = (y * size + x) * 4;
-          const isStripe = (x % 3) === 0;
+          const isStripe = x % 3 === 0;
           if (isStripe) {
             data[idx] = 255;
             data[idx + 1] = 220;
@@ -158,10 +158,7 @@ describe('logoAspectDetector', () => {
 
       try {
         const url = 'https://example.com/shared-logo.png';
-        const [first, second] = await Promise.all([
-          detectLogoAspect(url),
-          detectLogoAspect(url),
-        ]);
+        const [first, second] = await Promise.all([detectLogoAspect(url), detectLogoAspect(url)]);
         expect(first).toBe('original');
         expect(second).toBe('original');
         expect(imageCount).toBe(1);

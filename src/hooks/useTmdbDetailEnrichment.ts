@@ -27,9 +27,8 @@ export function useTmdbDetailEnrichment(
       setEnriched(null);
       return;
     }
-    const language = configuredLanguage === 'auto'
-      ? uiLanguageDefinition(appLanguage).locale
-      : configuredLanguage;
+    const language =
+      configuredLanguage === 'auto' ? uiLanguageDefinition(appLanguage).locale : configuredLanguage;
     const options = { language, includeAdult, imageSize } as const;
     const controller = new AbortController();
 
@@ -42,18 +41,17 @@ export function useTmdbDetailEnrichment(
           ? await getTmdbMovie(apiKey, match.id, controller.signal, options)
           : await getTmdbTv(apiKey, match.id, controller.signal, options);
       if (!controller.signal.aborted) setEnriched(result);
-    })()
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setEnriched(null);
-        notify.warning(
-          'TMDB Enrichment Failed',
-          getErrorMessage(error, 'TMDB enrichment failed without an error message.'),
-          undefined,
-          undefined,
-          'connection',
-        );
-      });
+    })().catch((error: unknown) => {
+      if (controller.signal.aborted) return;
+      setEnriched(null);
+      notify.warning(
+        'TMDB Enrichment Failed',
+        getErrorMessage(error, 'TMDB enrichment failed without an error message.'),
+        undefined,
+        undefined,
+        'connection',
+      );
+    });
 
     return () => controller.abort();
   }, [apiKey, appLanguage, configuredLanguage, enabled, imageSize, includeAdult, mediaType, title]);

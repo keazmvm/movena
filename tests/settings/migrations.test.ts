@@ -17,9 +17,42 @@ describe('persisted-state migrations', () => {
 
   it('removes sensitive playback transport from persisted library items', () => {
     const migrated = migrateLibraryState({
-      favorites: [{ id: 'one', title: 'One', type: 'live', posterUrl: '', streamUrl: 'https://secret.test', httpHeaders: { Cookie: 'token' } }],
-      collections: [{ id: 'collection', name: 'Saved', items: [{ id: 'two', title: 'Two', type: 'vod', posterUrl: '', streamUrl: 'https://secret.test/two' }] }],
-      history: [{ id: 'three', title: 'Three', type: 'vod', posterUrl: '', streamUrl: 'https://secret.test/three', progressPercentage: 50, lastWatchedAt: 1 }],
+      favorites: [
+        {
+          id: 'one',
+          title: 'One',
+          type: 'live',
+          posterUrl: '',
+          streamUrl: 'https://secret.test',
+          httpHeaders: { Cookie: 'token' },
+        },
+      ],
+      collections: [
+        {
+          id: 'collection',
+          name: 'Saved',
+          items: [
+            {
+              id: 'two',
+              title: 'Two',
+              type: 'vod',
+              posterUrl: '',
+              streamUrl: 'https://secret.test/two',
+            },
+          ],
+        },
+      ],
+      history: [
+        {
+          id: 'three',
+          title: 'Three',
+          type: 'vod',
+          posterUrl: '',
+          streamUrl: 'https://secret.test/three',
+          progressPercentage: 50,
+          lastWatchedAt: 1,
+        },
+      ],
       watched: [],
     });
 
@@ -88,9 +121,11 @@ describe('persisted-state migrations', () => {
   });
 
   it('moves the legacy relative recording folder under the new Downloads-based default', () => {
-    expect(migrateSettingsState({ recordingPath: 'Downloads/IPTV_Recordings' }).recordingPath)
-      .toBe('Movena Recordings');
-    expect(migrateSettingsState({ recordingPath: 'D:\\Recordings' }).recordingPath)
-      .toBe('D:\\Recordings');
+    expect(migrateSettingsState({ recordingPath: 'Downloads/IPTV_Recordings' }).recordingPath).toBe(
+      'Movena Recordings',
+    );
+    expect(migrateSettingsState({ recordingPath: 'D:\\Recordings' }).recordingPath).toBe(
+      'D:\\Recordings',
+    );
   });
 });

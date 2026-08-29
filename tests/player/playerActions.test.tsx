@@ -17,8 +17,18 @@ import { usePlayerActions } from '../../src/components/player/usePlayerActions';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
-const vod = { id: 'vod-1', title: 'Movie', type: 'vod' as const, streamUrl: 'https://media.test/movie' };
-const live = { id: 'live-1', title: 'Channel', type: 'live' as const, streamUrl: 'https://media.test/live' };
+const vod = {
+  id: 'vod-1',
+  title: 'Movie',
+  type: 'vod' as const,
+  streamUrl: 'https://media.test/movie',
+};
+const live = {
+  id: 'live-1',
+  title: 'Channel',
+  type: 'live' as const,
+  streamUrl: 'https://media.test/live',
+};
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -37,7 +47,10 @@ describe('player keyboard and pointer actions', () => {
   it('seeks VOD with the configured jump but never seeks live channels', async () => {
     const save = vi.fn();
     act(() => usePlayerStore.getState().playStream(vod));
-    const { rerender } = renderHook(({ stream }: { stream: typeof vod | typeof live }) => usePlayerActions(stream, save), { initialProps: { stream: vod as typeof vod | typeof live } });
+    const { rerender } = renderHook(
+      ({ stream }: { stream: typeof vod | typeof live }) => usePlayerActions(stream, save),
+      { initialProps: { stream: vod as typeof vod | typeof live } },
+    );
 
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     fireEvent.keyDown(window, { key: 'ArrowLeft' });

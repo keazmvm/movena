@@ -20,7 +20,10 @@
   font-size: var(--font-size-control);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-standard), border-color var(--duration-normal) var(--ease-standard), box-shadow var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard);
   text-align: left;
 }
 
@@ -91,7 +94,9 @@
 
 .chevron {
   color: var(--text-muted);
-  transition: transform var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
   flex-shrink: 0;
 }
 
@@ -142,7 +147,9 @@
   border: 0;
   background: transparent;
   text-align: left;
-  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
   white-space: nowrap;
 }
 

@@ -165,9 +165,18 @@ describe('SeriesDetailModal Component', () => {
       numberOfSeasons: 5,
       numberOfEpisodes: 62,
       genres: [{ name: 'Crime' }],
-      credits: { cast: [{ name: 'TMDB Cast' }], crew: [{ name: 'TMDB Director', job: 'Director', jobs: [] }] },
+      credits: {
+        cast: [{ name: 'TMDB Cast' }],
+        crew: [{ name: 'TMDB Director', job: 'Director', jobs: [] }],
+      },
     });
-    vi.spyOn(useDetailsModule, 'useSeriesInfo').mockReturnValue({ data: mockSeriesData as any, isLoading: false, error: null, isFetching: false, refetch: vi.fn() } as any);
+    vi.spyOn(useDetailsModule, 'useSeriesInfo').mockReturnValue({
+      data: mockSeriesData as any,
+      isLoading: false,
+      error: null,
+      isFetching: false,
+      refetch: vi.fn(),
+    } as any);
 
     useSettingsStore.setState({ tmdbEnabled: true });
     renderWithRouter(<SeriesDetailModal {...defaultProps} />);
@@ -175,7 +184,10 @@ describe('SeriesDetailModal Component', () => {
     await waitFor(() => {
       expect(screen.getByText('A localized TMDB synopsis.')).toBeTruthy();
     });
-    expect(screen.getByAltText('Breaking Bad')).toHaveProperty('src', 'https://image.test/tv-poster.jpg');
+    expect(screen.getByAltText('Breaking Bad')).toHaveProperty(
+      'src',
+      'https://image.test/tv-poster.jpg',
+    );
     expect(screen.getByText('9.1')).toBeTruthy();
     expect(screen.getByText('TMDB Director')).toBeTruthy();
     expect(screen.getByText('TMDB Cast')).toBeTruthy();
@@ -218,18 +230,23 @@ describe('SeriesDetailModal Component', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Season 2' })).toBeTruthy();
-    expect(screen.getByRole('button', { current: true }).getAttribute('aria-label')).toMatch(/Season 2, episode 1/);
+    expect(screen.getByRole('button', { current: true }).getAttribute('aria-label')).toMatch(
+      /Season 2, episode 1/,
+    );
     expect(screen.getByText('Seven Thirty-Seven')).toBeTruthy();
     expect(screen.queryByText("Cat's in the Bag...")).toBeNull();
   });
 
   it('groups M3U episodes by season and opens the requested one', () => {
-    const playlist = parseM3u(`#EXTM3U
+    const playlist = parseM3u(
+      `#EXTM3U
 #EXTINF:-1 group-title="Series",Northern Lights S01E01 - Pilot
 https://media.test/northern/s01e01.mkv
 #EXTINF:-1 group-title="Series",Northern Lights S02E01 - Return
 https://media.test/northern/s02e01.mkv
-`, { sourceId: 'm3u-series-source' });
+`,
+      { sourceId: 'm3u-series-source' },
+    );
     const series = mapM3uCatalog(playlist, 'series')[0]!;
     useSourceStore.setState({
       runtimes: {
@@ -257,7 +274,9 @@ https://media.test/northern/s02e01.mkv
     );
 
     expect(screen.getByRole('button', { name: 'Season 2' })).toBeTruthy();
-    expect(screen.getByRole('button', { current: true }).getAttribute('aria-label')).toBe('Play season 2, episode 1');
+    expect(screen.getByRole('button', { current: true }).getAttribute('aria-label')).toBe(
+      'Play season 2, episode 1',
+    );
     expect(screen.getByRole('button', { name: 'Start Watching' })).toBeTruthy();
     expect(screen.getByText('Return')).toBeTruthy();
     expect(screen.queryByText('Pilot')).toBeNull();
@@ -265,12 +284,15 @@ https://media.test/northern/s02e01.mkv
 
   it('resumes the saved M3U episode from its saved position', async () => {
     const user = userEvent.setup();
-    const playlist = parseM3u(`#EXTM3U
+    const playlist = parseM3u(
+      `#EXTM3U
 #EXTINF:-1 group-title="Series",Northern Lights S01E01 - Pilot
 https://media.test/northern/s01e01.mkv
 #EXTINF:-1 group-title="Series",Northern Lights S02E01 - Return
 https://media.test/northern/s02e01.mkv
-`, { sourceId: 'm3u-resume-source' });
+`,
+      { sourceId: 'm3u-resume-source' },
+    );
     const series = mapM3uCatalog(playlist, 'series')[0]!;
     const savedEpisode = playlist.entries[1]!;
     const playStream = vi.fn();
@@ -286,19 +308,21 @@ https://media.test/northern/s02e01.mkv
       },
     });
     useLibraryStore.setState({
-      history: [{
-        id: series.id,
-        title: series.title,
-        posterUrl: '',
-        type: 'series',
-        progressPercentage: 25,
-        lastWatchedAt: Date.now(),
-        currentTime: 300,
-        duration: 1200,
-        episodeId: savedEpisode.id,
-        seasonNum: 2,
-        episodeNum: 1,
-      }],
+      history: [
+        {
+          id: series.id,
+          title: series.title,
+          posterUrl: '',
+          type: 'series',
+          progressPercentage: 25,
+          lastWatchedAt: Date.now(),
+          currentTime: 300,
+          duration: 1200,
+          episodeId: savedEpisode.id,
+          seasonNum: 2,
+          episodeNum: 1,
+        },
+      ],
     });
     usePlayerStore.setState({ playStream });
 
@@ -315,13 +339,15 @@ https://media.test/northern/s02e01.mkv
 
     expect(screen.getByRole('button', { name: 'Season 2' })).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Resume S2:E1' }));
-    expect(playStream).toHaveBeenCalledWith(expect.objectContaining({
-      id: savedEpisode.id,
-      seasonNum: '2',
-      episodeNum: 1,
-      startPosition: 300,
-      knownDuration: 1200,
-    }));
+    expect(playStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: savedEpisode.id,
+        seasonNum: '2',
+        episodeNum: 1,
+        startPosition: 300,
+        knownDuration: 1200,
+      }),
+    );
   });
 
   it('keeps long seasons focused on navigation and the ordered episode list', () => {
@@ -355,7 +381,12 @@ https://media.test/northern/s02e01.mkv
 
   it('appends announced episodes that are not playable from the provider yet', async () => {
     const user = userEvent.setup();
-    const favorite = { id: 'series-123', title: 'Breaking Bad', posterUrl: 'poster.jpg', type: 'series' as const };
+    const favorite = {
+      id: 'series-123',
+      title: 'Breaking Bad',
+      posterUrl: 'poster.jpg',
+      type: 'series' as const,
+    };
     useLibraryStore.setState({ favorites: [favorite] });
     useSettingsStore.setState({ upcomingEnabled: true, upcomingCountdownEnabled: false });
     upcoming.useUpcomingReleases.mockReturnValue({
@@ -410,25 +441,32 @@ https://media.test/northern/s02e01.mkv
   });
 
   it('marks an aired but missing episode as waiting for the provider', () => {
-    const favorite = { id: 'series-123', title: 'Breaking Bad', posterUrl: 'poster.jpg', type: 'series' as const };
+    const favorite = {
+      id: 'series-123',
+      title: 'Breaking Bad',
+      posterUrl: 'poster.jpg',
+      type: 'series' as const,
+    };
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const airDate = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
     useLibraryStore.setState({ favorites: [favorite] });
     useSettingsStore.setState({ upcomingEnabled: true, upcomingCountdownEnabled: false });
     upcoming.useUpcomingReleases.mockReturnValue({
-      data: [{
-        favorite,
-        tmdbId: 99,
-        airDate,
-        kind: 'episode',
-        title: 'Late Arrival',
-        seasonNumber: 1,
-        episodeNumber: 3,
-        artworkUrl: null,
-        exactAirTime: null,
-        timeSource: 'tmdb',
-      }],
+      data: [
+        {
+          favorite,
+          tmdbId: 99,
+          airDate,
+          kind: 'episode',
+          title: 'Late Arrival',
+          seasonNumber: 1,
+          episodeNumber: 3,
+          artworkUrl: null,
+          exactAirTime: null,
+          timeSource: 'tmdb',
+        },
+      ],
       isEnabled: true,
       isLoading: false,
       isError: false,
@@ -522,7 +560,9 @@ https://media.test/northern/s02e01.mkv
 
     renderWithRouter(<SeriesDetailModal {...defaultProps} sourceId="xtream-missing" />);
 
-    expect(screen.getByText('No credentials are loaded for Xtream source "xtream-missing".')).toBeTruthy();
+    expect(
+      screen.getByText('No credentials are loaded for Xtream source "xtream-missing".'),
+    ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Open Settings' })).toBeTruthy();
   });
 

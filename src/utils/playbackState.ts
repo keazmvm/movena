@@ -6,19 +6,9 @@
  * lifecycle: a paused, ready session is still the current playing session.
  */
 
-type PlaybackStatus =
-  | 'idle'
-  | 'loading'
-  | 'playing'
-  | 'buffering'
-  | 'seeking'
-  | 'ended'
-  | 'error';
+type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'buffering' | 'seeking' | 'ended' | 'error';
 
-type PlaybackErrorCode =
-  | 'startup-timeout'
-  | 'startup-failed'
-  | 'playback-failed';
+type PlaybackErrorCode = 'startup-timeout' | 'startup-failed' | 'playback-failed';
 
 export interface PlaybackError {
   code: PlaybackErrorCode;
@@ -224,14 +214,16 @@ export function reducePlaybackState(
   }
 
   if (observation.type === 'error') {
-    return accepted(withStatus({
-      ...state,
-      error: {
-        code: observation.phase === 'startup' ? 'startup-failed' : 'playback-failed',
-        message: observation.message,
-        at,
-      },
-    }));
+    return accepted(
+      withStatus({
+        ...state,
+        error: {
+          code: observation.phase === 'startup' ? 'startup-failed' : 'playback-failed',
+          message: observation.message,
+          at,
+        },
+      }),
+    );
   }
 
   if (observation.type === 'end-file') {
@@ -241,14 +233,16 @@ export function reducePlaybackState(
     if (observation.reason === 'stop') {
       return accepted({ ...state, status: 'idle', error: null });
     }
-    return accepted(withStatus({
-      ...state,
-      error: {
-        code: 'playback-failed',
-        message: observation.message ?? 'MPV ended playback unexpectedly.',
-        at,
-      },
-    }));
+    return accepted(
+      withStatus({
+        ...state,
+        error: {
+          code: 'playback-failed',
+          message: observation.message ?? 'MPV ended playback unexpectedly.',
+          at,
+        },
+      }),
+    );
   }
 
   const next = { ...state };
@@ -284,4 +278,3 @@ export function reducePlaybackState(
 }
 
 /** Convenience alias for callers that prefer reducer terminology. */
-

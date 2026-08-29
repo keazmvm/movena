@@ -3,7 +3,9 @@ import { formatTrackLabel } from '../../src/utils/trackLabel';
 
 describe('track labels', () => {
   it('keeps language visible when tracks share a provider title', () => {
-    expect(formatTrackLabel({ title: 'Surround', lang: 'de-DE' }, 'Audio #1')).toBe('DE · Surround');
+    expect(formatTrackLabel({ title: 'Surround', lang: 'de-DE' }, 'Audio #1')).toBe(
+      'DE · Surround',
+    );
     expect(formatTrackLabel({ title: 'Surround', lang: 'en' }, 'Audio #2')).toBe('EN · Surround');
   });
 

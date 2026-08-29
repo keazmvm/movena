@@ -6,12 +6,13 @@ export interface RecordingOutput {
 }
 
 export function createRecordingFileName(title: string, now = new Date()): string {
-  const safeTitle = title
-    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/[. ]+$/g, '')
-    .slice(0, 80) || 'Live stream';
+  const safeTitle =
+    title
+      .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/[. ]+$/g, '')
+      .slice(0, 80) || 'Live stream';
   const timestamp = now.toISOString().replace(/[:.]/g, '-');
 
   return `${safeTitle}_${timestamp}.ts`;
@@ -19,7 +20,8 @@ export function createRecordingFileName(title: string, now = new Date()): string
 
 export function joinRecordingPath(directory: string, fileName: string): string {
   const resolvedDirectory = directory.trim() || DEFAULT_RECORDING_DIRECTORY;
-  const separator = resolvedDirectory.includes('\\') && !resolvedDirectory.includes('/') ? '\\' : '/';
+  const separator =
+    resolvedDirectory.includes('\\') && !resolvedDirectory.includes('/') ? '\\' : '/';
   const base = resolvedDirectory.replace(/[\\/]+$/, '');
   return `${base}${separator}${fileName}`;
 }

@@ -37,7 +37,13 @@ function m3uSnapshot(): EnabledSourcesSnapshot {
     error: null,
     revision: 1,
   };
-  const source = { id: sourceId, profile, runtime, queryScope: 'playlist-prefetch-1', isAvailable: true };
+  const source = {
+    id: sourceId,
+    profile,
+    runtime,
+    queryScope: 'playlist-prefetch-1',
+    isAvailable: true,
+  };
   return {
     enabledSourceIds: [sourceId],
     xtreamEnabled: false,
@@ -60,10 +66,12 @@ describe('navigation prefetching', () => {
     await prefetchNavigationData('/live', m3uSnapshot());
 
     expect(preloadRouteModule).toHaveBeenCalledWith('/live');
-    expect(queryClient.getQueryData(queryKeys.catalog('live', queryScope)))
-      .toEqual([expect.objectContaining({ title: 'Example TV', sourceId })]);
-    expect(queryClient.getQueryData(queryKeys.categories('live', queryScope)))
-      .toEqual([expect.objectContaining({ category_name: 'News' })]);
+    expect(queryClient.getQueryData(queryKeys.catalog('live', queryScope))).toEqual([
+      expect.objectContaining({ title: 'Example TV', sourceId }),
+    ]);
+    expect(queryClient.getQueryData(queryKeys.categories('live', queryScope))).toEqual([
+      expect.objectContaining({ category_name: 'News' }),
+    ]);
     expect(queryClient.getQueryCache().findAll({ queryKey: ['xmltv_guides'] })).toHaveLength(0);
   });
 });

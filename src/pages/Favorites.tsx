@@ -14,13 +14,8 @@ export function Favorites() {
   const { tn, number } = useI18n();
   const favorites = useLibraryStore((state) => state.favorites);
 
-  const {
-    selectedMovie,
-    selectedSeries,
-    handleCloseMovie,
-    handleCloseSeries,
-    handleItemClick,
-  } = useMediaDetailState({ enableSourceOnOpen: true });
+  const { selectedMovie, selectedSeries, handleCloseMovie, handleCloseSeries, handleItemClick } =
+    useMediaDetailState({ enableSourceOnOpen: true });
 
   return (
     <>

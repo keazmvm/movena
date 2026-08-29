@@ -27,8 +27,12 @@ describe('color contrast helpers', () => {
   });
 
   it('moves hover accents toward the active theme contrast direction', () => {
-    expect(relativeLuminance(accentHoverColor('#0672e5', 'dark'))!).toBeGreaterThan(relativeLuminance('#0672e5')!);
-    expect(relativeLuminance(accentHoverColor('#ffcc00', 'light'))!).toBeLessThan(relativeLuminance('#ffcc00')!);
+    expect(relativeLuminance(accentHoverColor('#0672e5', 'dark'))!).toBeGreaterThan(
+      relativeLuminance('#0672e5')!,
+    );
+    expect(relativeLuminance(accentHoverColor('#ffcc00', 'light'))!).toBeLessThan(
+      relativeLuminance('#ffcc00')!,
+    );
     expect(accentHoverColor('not-a-color')).toBe('not-a-color');
   });
 

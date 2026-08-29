@@ -80,13 +80,17 @@ describe('header search suggestions', () => {
     expect(within(suggestion).getByText('The Stranger')).toBeTruthy();
     expect(within(suggestion).queryByText('The Stranger (2022)')).toBeNull();
     expect(within(suggestion).getByText('2022')).toBeTruthy();
-    expect(screen.getByRole('button', {
-      name: 'View all results for “stranger”',
-    })).toBeTruthy();
+    expect(
+      screen.getByRole('button', {
+        name: 'View all results for “stranger”',
+      }),
+    ).toBeTruthy();
 
-    await user.click(within(suggestion).getByRole('button', {
-      name: /The Stranger Movie 2022 7\.4/i,
-    }));
+    await user.click(
+      within(suggestion).getByRole('button', {
+        name: /The Stranger Movie 2022 7\.4/i,
+      }),
+    );
     expect(onItemClick).toHaveBeenCalledWith(movie);
   });
 
@@ -192,8 +196,16 @@ describe('header search suggestions', () => {
 
     expect(useLibraryStore.getState().favorites).toEqual([movie]);
     expect(useLibraryStore.getState().watched).toEqual([movie.id]);
-    expect(within(suggestion).getByRole('button', { name: 'Remove from favorites' }).getAttribute('aria-pressed')).toBe('true');
-    expect(within(suggestion).getByRole('button', { name: 'Mark Unwatched' }).getAttribute('aria-pressed')).toBe('true');
+    expect(
+      within(suggestion)
+        .getByRole('button', { name: 'Remove from favorites' })
+        .getAttribute('aria-pressed'),
+    ).toBe('true');
+    expect(
+      within(suggestion)
+        .getByRole('button', { name: 'Mark Unwatched' })
+        .getAttribute('aria-pressed'),
+    ).toBe('true');
     expect(onItemClick).not.toHaveBeenCalled();
     expect(screen.getByRole('grid', { name: 'Search suggestions' })).toBeTruthy();
   });

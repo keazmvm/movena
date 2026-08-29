@@ -58,8 +58,12 @@
   font-size: var(--font-size-small);
 }
 
-.status { color: var(--color-success); }
-.statusError { color: var(--color-error); }
+.status {
+  color: var(--color-success);
+}
+.statusError {
+  color: var(--color-error);
+}
 
 .details {
   width: 100%;
@@ -89,7 +93,14 @@
 }
 
 @media (max-width: 560px) {
-  .page { padding: var(--space-3); }
-  .card { padding: var(--space-5); }
-  .actions { flex-direction: column; width: 100%; }
+  .page {
+    padding: var(--space-3);
+  }
+  .card {
+    padding: var(--space-5);
+  }
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
 }

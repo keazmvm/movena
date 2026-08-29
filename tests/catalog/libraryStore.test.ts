@@ -8,8 +8,13 @@ import { useSettingsStore } from '../../src/store/useSettingsStore';
 const movie = { id: 'movie-1', title: 'Movie', posterUrl: 'poster', type: 'vod' as const };
 
 const progress = (overrides: Partial<WatchProgress> = {}): WatchProgress => ({
-  id: 'movie-1', title: 'Movie', posterUrl: 'poster', type: 'vod',
-  currentTime: 200, duration: 1000, ...overrides,
+  id: 'movie-1',
+  title: 'Movie',
+  posterUrl: 'poster',
+  type: 'vod',
+  currentTime: 200,
+  duration: 1000,
+  ...overrides,
 });
 
 beforeEach(() => {
@@ -38,7 +43,9 @@ describe('library store', () => {
     useLibraryStore.getState().updateHistory(progress({ currentTime: 10 }));
 
     expect(useLibraryStore.getState().history[0]).toMatchObject({
-      id: 'movie-1', currentTime: 200, progressPercentage: 20,
+      id: 'movie-1',
+      currentTime: 200,
+      progressPercentage: 20,
     });
   });
 
@@ -51,27 +58,41 @@ describe('library store', () => {
   });
 
   it('groups series history by series and advances completed episodes', () => {
-    useLibraryStore.getState().updateHistory(progress({
-      id: 'episode-1', seriesId: 'series-1', type: 'series', title: 'Series',
-      seasonNum: 1, episodeNum: 1, episodeTitle: 'Pilot', currentTime: 900,
-      nextEpisode: { id: 'episode-2', seasonNum: 1, episodeNum: 2, episodeTitle: 'Next' },
-    }));
+    useLibraryStore.getState().updateHistory(
+      progress({
+        id: 'episode-1',
+        seriesId: 'series-1',
+        type: 'series',
+        title: 'Series',
+        seasonNum: 1,
+        episodeNum: 1,
+        episodeTitle: 'Pilot',
+        currentTime: 900,
+        nextEpisode: { id: 'episode-2', seasonNum: 1, episodeNum: 2, episodeTitle: 'Next' },
+      }),
+    );
 
     expect(useLibraryStore.getState().history).toHaveLength(1);
     expect(useLibraryStore.getState().history[0]).toMatchObject({
-      id: 'series-1', episodeId: 'episode-2', seasonNum: 1, episodeNum: 2,
-      currentTime: 0, progressPercentage: 0,
+      id: 'series-1',
+      episodeId: 'episode-2',
+      seasonNum: 1,
+      episodeNum: 2,
+      currentTime: 0,
+      progressPercentage: 0,
     });
     expect(useLibraryStore.getState().watched).toContain('episode-1');
   });
 
   it('retains direct playlist playback data without leaking it into identifiers', () => {
-    useLibraryStore.getState().updateHistory(progress({
-      id: 'm3u-item',
-      streamUrl: 'https://stream.test/movie?token=secret',
-      httpHeaders: { Referer: 'https://portal.test/' },
-      sourceId: 'm3u-source',
-    }));
+    useLibraryStore.getState().updateHistory(
+      progress({
+        id: 'm3u-item',
+        streamUrl: 'https://stream.test/movie?token=secret',
+        httpHeaders: { Referer: 'https://portal.test/' },
+        sourceId: 'm3u-source',
+      }),
+    );
 
     expect(useLibraryStore.getState().history[0]).toMatchObject({
       id: 'm3u-item',
@@ -87,12 +108,14 @@ describe('library store', () => {
 
   it('caps history items to MAX_HISTORY_ITEMS (200) to prevent unbounded memory growth', () => {
     for (let i = 0; i < 250; i++) {
-      useLibraryStore.getState().updateHistory(progress({
-        id: `movie-${i}`,
-        title: `Movie ${i}`,
-        currentTime: 50,
-        duration: 1000,
-      }));
+      useLibraryStore.getState().updateHistory(
+        progress({
+          id: `movie-${i}`,
+          title: `Movie ${i}`,
+          currentTime: 50,
+          duration: 1000,
+        }),
+      );
     }
 
     expect(useLibraryStore.getState().history).toHaveLength(200);

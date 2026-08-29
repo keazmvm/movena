@@ -35,7 +35,12 @@ export function SegmentedControl<T extends string | number>({
 }: SegmentedControlProps<T>) {
   const { t } = useI18n();
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (disabled || options.length === 0 || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    if (
+      disabled ||
+      options.length === 0 ||
+      !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+    )
+      return;
     event.preventDefault();
     const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
     const current = options.findIndex((option) => option.value === value);
@@ -69,9 +74,7 @@ export function SegmentedControl<T extends string | number>({
             aria-checked={isActive}
             tabIndex={isActive ? 0 : -1}
           >
-            {Icon && (
-              <Icon size={size === 'sm' ? 13 : 14} className={styles.icon ?? ''} />
-            )}
+            {Icon && <Icon size={size === 'sm' ? 13 : 14} className={styles.icon ?? ''} />}
             <span className={styles.label}>{t(opt.label)}</span>
           </button>
         );

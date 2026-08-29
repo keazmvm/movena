@@ -29,49 +29,51 @@ export interface SelectedSettingsConfig extends ParsedSettingsConfig {
   fileName: string;
 }
 
-const oneOf = <T extends string | number>(value: unknown, values: readonly T[], fallback: T): T => (
-  values.includes(value as T) ? value as T : fallback
-);
+const oneOf = <T extends string | number>(value: unknown, values: readonly T[], fallback: T): T =>
+  values.includes(value as T) ? (value as T) : fallback;
 
-const booleanOr = (value: unknown, fallback: boolean): boolean => (
-  typeof value === 'boolean' ? value : fallback
-);
+const booleanOr = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback;
 
-const numberOr = (
-  value: unknown,
-  fallback: number,
-  minimum: number,
-  maximum: number,
-): number => (
+const numberOr = (value: unknown, fallback: number, minimum: number, maximum: number): number =>
   typeof value === 'number' && Number.isFinite(value)
     ? Math.max(minimum, Math.min(maximum, value))
-    : fallback
-);
+    : fallback;
 
-const stringOr = (value: unknown, fallback: string, maximumLength: number): string => (
-  typeof value === 'string' ? value.slice(0, maximumLength) : fallback
-);
+const stringOr = (value: unknown, fallback: string, maximumLength: number): string =>
+  typeof value === 'string' ? value.slice(0, maximumLength) : fallback;
 
 /**
  * Import validation is deliberately stricter than Zustand hydration. Values
  * outside the controls Movena exposes fall back to a known-safe equivalent.
  */
 export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
-  const source = value && typeof value === 'object'
-    ? value as Record<string, unknown>
-    : {};
+  const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
   const migrated = migrateSettingsState(source);
 
   return {
     hardwareAcceleration: booleanOr(source.hardwareAcceleration, true),
     hwdecMode: oneOf(source.hwdecMode, ['auto', 'auto-safe', 'no'] as const, 'auto-safe'),
-    demuxerMaxBytes: oneOf(source.demuxerMaxBytes, ['50MiB', '150MiB', '300MiB', '500MiB'] as const, '150MiB'),
+    demuxerMaxBytes: oneOf(
+      source.demuxerMaxBytes,
+      ['50MiB', '150MiB', '300MiB', '500MiB'] as const,
+      '150MiB',
+    ),
     cacheSecs: oneOf(source.cacheSecs, [3, 5, 10, 15, 30] as const, 30),
     seekJumpSecs: oneOf(source.seekJumpSecs, [5, 10, 15, 30, 60] as const, 10),
-    aspectRatio: oneOf(source.aspectRatio, ['auto', 'fit100', 'stretch', 'zoom', 'fitScreen', '16:9', '4:3', '1:1', '5:4'] as const, 'auto'),
+    aspectRatio: oneOf(
+      source.aspectRatio,
+      ['auto', 'fit100', 'stretch', 'zoom', 'fitScreen', '16:9', '4:3', '1:1', '5:4'] as const,
+      'auto',
+    ),
     rememberedVolume: numberOr(source.rememberedVolume, migrated.rememberedVolume, 0, 100),
     lastAudibleVolume: numberOr(source.lastAudibleVolume, migrated.lastAudibleVolume, 1, 100),
-    rememberedPlaybackSpeed: numberOr(source.rememberedPlaybackSpeed, migrated.rememberedPlaybackSpeed, 0.5, 2),
+    rememberedPlaybackSpeed: numberOr(
+      source.rememberedPlaybackSpeed,
+      migrated.rememberedPlaybackSpeed,
+      0.5,
+      2,
+    ),
     subtitlesEnabled: booleanOr(source.subtitlesEnabled, migrated.subtitlesEnabled),
     autoPlayNextEpisode: booleanOr(source.autoPlayNextEpisode, true),
     skipIntroEnabled: booleanOr(source.skipIntroEnabled, true),
@@ -83,7 +85,12 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     subtitleFontFamily: stringOr(source.subtitleFontFamily, migrated.subtitleFontFamily, 80),
     subtitleOpacity: numberOr(source.subtitleOpacity, migrated.subtitleOpacity, 0, 100),
     subtitleBorderSize: numberOr(source.subtitleBorderSize, migrated.subtitleBorderSize, 0, 12),
-    subtitleShadowOffset: numberOr(source.subtitleShadowOffset, migrated.subtitleShadowOffset, 0, 12),
+    subtitleShadowOffset: numberOr(
+      source.subtitleShadowOffset,
+      migrated.subtitleShadowOffset,
+      0,
+      12,
+    ),
     startupTimeoutMs: numberOr(source.startupTimeoutMs, migrated.startupTimeoutMs, 5000, 120000),
     streamFailoverEnabled: booleanOr(source.streamFailoverEnabled, migrated.streamFailoverEnabled),
     maxStreamFailovers: numberOr(source.maxStreamFailovers, migrated.maxStreamFailovers, 0, 5),
@@ -94,17 +101,38 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     tmdbIncludeAdult: booleanOr(source.tmdbIncludeAdult, false),
     upcomingEnabled: booleanOr(source.upcomingEnabled, migrated.upcomingEnabled),
     upcomingHomeEnabled: booleanOr(source.upcomingHomeEnabled, migrated.upcomingHomeEnabled),
-    upcomingCountdownEnabled: booleanOr(source.upcomingCountdownEnabled, migrated.upcomingCountdownEnabled),
-    upcomingCalendarEnabled: booleanOr(source.upcomingCalendarEnabled, migrated.upcomingCalendarEnabled),
-    upcomingExactTimesEnabled: booleanOr(source.upcomingExactTimesEnabled, migrated.upcomingExactTimesEnabled),
-    upcomingHistoryDays: oneOf(source.upcomingHistoryDays, [3, 7, 14, 30] as const, migrated.upcomingHistoryDays),
+    upcomingCountdownEnabled: booleanOr(
+      source.upcomingCountdownEnabled,
+      migrated.upcomingCountdownEnabled,
+    ),
+    upcomingCalendarEnabled: booleanOr(
+      source.upcomingCalendarEnabled,
+      migrated.upcomingCalendarEnabled,
+    ),
+    upcomingExactTimesEnabled: booleanOr(
+      source.upcomingExactTimesEnabled,
+      migrated.upcomingExactTimesEnabled,
+    ),
+    upcomingHistoryDays: oneOf(
+      source.upcomingHistoryDays,
+      [3, 7, 14, 30] as const,
+      migrated.upcomingHistoryDays,
+    ),
     homeSections: migrated.homeSections,
     streamFoldingEnabled: booleanOr(source.streamFoldingEnabled, migrated.streamFoldingEnabled),
     customTitleRules: migrated.customTitleRules,
     badgeVisibility: migrated.badgeVisibility,
-    smartLogoAspectMode: oneOf(source.smartLogoAspectMode, ['auto', 'force-16:9', 'off'] as const, migrated.smartLogoAspectMode),
+    smartLogoAspectMode: oneOf(
+      source.smartLogoAspectMode,
+      ['auto', 'force-16:9', 'off'] as const,
+      migrated.smartLogoAspectMode,
+    ),
     hdrMode: oneOf(source.hdrMode, ['auto', 'off'] as const, migrated.hdrMode),
-    toneMappingMode: oneOf(source.toneMappingMode, ['auto', 'hable', 'reinhard', 'mobius', 'bt.2446a'] as const, 'auto'),
+    toneMappingMode: oneOf(
+      source.toneMappingMode,
+      ['auto', 'hable', 'reinhard', 'mobius', 'bt.2446a'] as const,
+      'auto',
+    ),
     imageSharpness: numberOr(source.imageSharpness, migrated.imageSharpness, 0, 100),
     imageBrightness: numberOr(source.imageBrightness, migrated.imageBrightness, 0, 200),
     imageContrast: numberOr(source.imageContrast, migrated.imageContrast, -100, 100),
@@ -112,7 +140,11 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     imageHue: numberOr(source.imageHue, migrated.imageHue, -100, 100),
     imageGamma: numberOr(source.imageGamma, migrated.imageGamma, -100, 100),
     epgSource: oneOf(source.epgSource, ['provider', 'xmltv'] as const, 'provider'),
-    m3uEditorDensity: oneOf(source.m3uEditorDensity, ['compact', 'comfortable'] as const, 'comfortable'),
+    m3uEditorDensity: oneOf(
+      source.m3uEditorDensity,
+      ['compact', 'comfortable'] as const,
+      'comfortable',
+    ),
     m3uEditorAutosaveDrafts: booleanOr(source.m3uEditorAutosaveDrafts, true),
     m3uEditorConfirmDestructive: booleanOr(source.m3uEditorConfirmDestructive, true),
     m3uEditorRememberFilters: booleanOr(source.m3uEditorRememberFilters, true),
@@ -126,15 +158,28 @@ export function sanitizeSettingsConfig(value: unknown): SettingsSnapshot {
     alwaysOnTop: booleanOr(source.alwaysOnTop, false),
     accentColor: migrated.accentColor,
     themePreference: oneOf(source.themePreference, ['dark', 'light'] as const, 'dark'),
-    motionPreference: oneOf(source.motionPreference, ['system', 'reduced', 'full'] as const, 'system'),
+    motionPreference: oneOf(
+      source.motionPreference,
+      ['system', 'reduced', 'full'] as const,
+      'system',
+    ),
     showCollapsedSidebarBadges: booleanOr(source.showCollapsedSidebarBadges, true),
     recordingPath: stringOr(migrated.recordingPath, 'Movena Recordings', 4096),
     instantRecord: booleanOr(source.instantRecord, false),
     downloadDirectory: stringOr(migrated.downloadDirectory, '', 4096),
-    maxConcurrentDownloads: numberOr(source.maxConcurrentDownloads, migrated.maxConcurrentDownloads, 1, 8),
+    maxConcurrentDownloads: numberOr(
+      source.maxConcurrentDownloads,
+      migrated.maxConcurrentDownloads,
+      1,
+      8,
+    ),
     autoStartDownloads: booleanOr(source.autoStartDownloads, true),
     enableNotifications: booleanOr(source.enableNotifications, true),
-    toastPosition: oneOf(source.toastPosition, ['top-right', 'top-left', 'bottom-right', 'bottom-left'] as const, 'top-right'),
+    toastPosition: oneOf(
+      source.toastPosition,
+      ['top-right', 'top-left', 'bottom-right', 'bottom-left'] as const,
+      'top-right',
+    ),
     toastDurationSecs: oneOf(source.toastDurationSecs, [3, 4.5, 7, 10] as const, 4.5),
     dndDuringPlayback: booleanOr(source.dndDuringPlayback, true),
     notifyPlaybackEvents: booleanOr(source.notifyPlaybackEvents, true),
@@ -181,20 +226,28 @@ export function parseSettingsConfig(text: string): ParsedSettingsConfig {
   if (candidate.format !== SETTINGS_CONFIG_FORMAT) {
     throw new Error('This file is not a Movena settings backup.');
   }
-  if (typeof candidate.version !== 'number' || !Number.isInteger(candidate.version) || candidate.version < 1) {
+  if (
+    typeof candidate.version !== 'number' ||
+    !Number.isInteger(candidate.version) ||
+    candidate.version < 1
+  ) {
     throw new Error('This settings file has an invalid format version.');
   }
   if (candidate.version > SETTINGS_CONFIG_VERSION) {
     throw new Error('This settings file was created by a newer version of Movena.');
   }
-  if (!candidate.settings || typeof candidate.settings !== 'object' || Array.isArray(candidate.settings)) {
+  if (
+    !candidate.settings ||
+    typeof candidate.settings !== 'object' ||
+    Array.isArray(candidate.settings)
+  ) {
     throw new Error('This settings file is missing its preferences.');
   }
 
-  const exportedAt = typeof candidate.exportedAt === 'string'
-    && Number.isFinite(Date.parse(candidate.exportedAt))
-    ? new Date(candidate.exportedAt).toISOString()
-    : new Date(0).toISOString();
+  const exportedAt =
+    typeof candidate.exportedAt === 'string' && Number.isFinite(Date.parse(candidate.exportedAt))
+      ? new Date(candidate.exportedAt).toISOString()
+      : new Date(0).toISOString();
   const rawSettings = candidate.settings as Record<string, unknown>;
   const knownKeys = new Set<string>(SETTINGS_SNAPSHOT_KEYS);
 
@@ -211,9 +264,9 @@ export function parseSettingsConfig(text: string): ParsedSettingsConfig {
 
 export function countChangedSettings(current: SettingsState, imported: SettingsSnapshot): number {
   const currentSnapshot = getSettingsSnapshot(current);
-  return SETTINGS_SNAPSHOT_KEYS.filter((key) => (
-    JSON.stringify(currentSnapshot[key]) !== JSON.stringify(imported[key])
-  )).length;
+  return SETTINGS_SNAPSHOT_KEYS.filter(
+    (key) => JSON.stringify(currentSnapshot[key]) !== JSON.stringify(imported[key]),
+  ).length;
 }
 
 function backupFileName(date = new Date()): string {

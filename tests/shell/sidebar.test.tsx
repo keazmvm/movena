@@ -12,14 +12,16 @@ describe('Sidebar library counts', () => {
 
   beforeEach(() => {
     useLibraryStore.setState({
-      history: [{
-        id: 'history-1',
-        title: 'Movie',
-        type: 'vod',
-        posterUrl: '',
-        progressPercentage: 42,
-        lastWatchedAt: 1,
-      }],
+      history: [
+        {
+          id: 'history-1',
+          title: 'Movie',
+          type: 'vod',
+          posterUrl: '',
+          progressPercentage: 42,
+          lastWatchedAt: 1,
+        },
+      ],
       favorites: [],
       collections: [],
     });
@@ -28,7 +30,11 @@ describe('Sidebar library counts', () => {
   it('shows a collapsed library count while announcing its full label', () => {
     useSettingsStore.setState({ sidebarCollapsed: true, showCollapsedSidebarBadges: true });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     const link = screen.getByRole('link', { name: 'Continue Watching, 1 item' });
     expect(link.getAttribute('title')).toBe('Continue Watching (1)');
@@ -38,7 +44,11 @@ describe('Sidebar library counts', () => {
   it('can hide collapsed library counts without changing their accessible labels', () => {
     useSettingsStore.setState({ sidebarCollapsed: true, showCollapsedSidebarBadges: false });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     const link = screen.getByRole('link', { name: 'Continue Watching, 1 item' });
     expect(link.getAttribute('title')).toBe('Continue Watching (1)');
@@ -48,7 +58,11 @@ describe('Sidebar library counts', () => {
   it('shows the restrained inline count when the sidebar is expanded', () => {
     useSettingsStore.setState({ sidebarCollapsed: false });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByRole('link', { name: /Continue Watching/ }).textContent).toContain('1');
   });
@@ -56,7 +70,11 @@ describe('Sidebar library counts', () => {
   it('keeps collapsed navigation links accessible after their labels leave the rail', () => {
     useSettingsStore.setState({ sidebarCollapsed: true });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByRole('link', { name: 'Home' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();
@@ -65,7 +83,11 @@ describe('Sidebar library counts', () => {
   it('uses one explicit sidebar toggle and keeps the wordmark decorative', () => {
     useSettingsStore.setState({ sidebarCollapsed: false });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByRole('complementary', { name: 'Primary navigation' })).toBeTruthy();
     expect(screen.getAllByRole('button', { name: 'Collapse sidebar' })).toHaveLength(1);
@@ -102,7 +124,11 @@ describe('Sidebar library counts', () => {
   it('hides the Coming Up workspace when its master preference is disabled', () => {
     useSettingsStore.setState({ upcomingEnabled: false, sidebarCollapsed: false });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     expect(screen.queryByRole('link', { name: 'Coming Up' })).toBeNull();
   });
@@ -111,11 +137,21 @@ describe('Sidebar library counts', () => {
     setCompactViewport(true);
     useSettingsStore.setState({ sidebarCollapsed: false });
 
-    render(<MemoryRouter><Sidebar /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
 
     expect(document.querySelector('aside')?.className).toContain('collapsed');
     expect(screen.getByRole('link', { name: 'Home' }).getAttribute('title')).toBe('Home');
-    expect((screen.getByRole('button', { name: 'Sidebar stays compact in narrow layouts' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Sidebar stays compact in narrow layouts',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
     expect(useSettingsStore.getState().sidebarCollapsed).toBe(false);
   });
 });

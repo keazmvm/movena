@@ -22,7 +22,9 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .nowBtn {
@@ -92,7 +94,9 @@
   border-radius: var(--radius-full);
   background: var(--text-primary);
   box-shadow: var(--shadow-control);
-  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .zoomSlider:hover::-webkit-slider-thumb {
@@ -388,19 +392,18 @@
   position: absolute;
   inset: var(--space-2) 0;
   border-radius: var(--radius-md);
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    var(--surface-shimmer) 50%,
-    transparent 75%
-  );
+  background: linear-gradient(90deg, transparent 25%, var(--surface-shimmer) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: laneShimmer var(--duration-loop-slow) infinite;
 }
 
 @keyframes laneShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .laneEmptyRow {
@@ -446,7 +449,10 @@
   color: var(--text-primary);
   cursor: pointer;
   text-align: left;
-  transition: background var(--duration-normal) var(--ease-standard), border-color var(--duration-normal) var(--ease-standard), box-shadow var(--duration-normal) var(--ease-standard);
+  transition:
+    background var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard);
 }
 
 .programme:hover {
@@ -683,7 +689,9 @@
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-standard), border-color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
 }
 
 .watchBtn:hover {
@@ -706,7 +714,9 @@
   background: var(--surface-control);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .closeBtn:hover {

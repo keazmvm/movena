@@ -5,7 +5,10 @@ import { MOTION_DURATION } from '../../design/motion';
 import { useContextMenu } from '../../hooks/useContextMenu';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { formatVerifiedResolution, useStreamVerificationStore } from '../../store/useStreamVerificationStore';
+import {
+  formatVerifiedResolution,
+  useStreamVerificationStore,
+} from '../../store/useStreamVerificationStore';
 import {
   formatEpisodePlaybackTitle,
   getSeriesBaseTitle,
@@ -54,13 +57,17 @@ export function PlayerShell() {
 
   const { errorMessage, retryPlayback, isRetrying } = useMpvSession();
   const saveCurrentProgress = useWatchProgress();
-  const { handleClose, handleOverlayClick } = usePlayerActions(activeStream, saveCurrentProgress, Boolean(errorMessage));
+  const { handleClose, handleOverlayClick } = usePlayerActions(
+    activeStream,
+    saveCurrentProgress,
+    Boolean(errorMessage),
+  );
   const { setPointerOverChrome, cursorStyle } = usePlayerChrome(Boolean(activeStream));
 
   const customRules = useSettingsStore((s) => s.customTitleRules);
   const badgeVisibility = useSettingsStore((s) => s.badgeVisibility);
-  const verifiedMeta = useStreamVerificationStore(
-    (s) => (activeStream ? s.verifiedStreams[String(activeStream.id)] : undefined),
+  const verifiedMeta = useStreamVerificationStore((s) =>
+    activeStream ? s.verifiedStreams[String(activeStream.id)] : undefined,
   );
 
   if (!activeStream) return null;
@@ -68,12 +75,14 @@ export function PlayerShell() {
   const isLive = activeStream.type === 'live';
   const isRadio = Boolean(activeStream.radio);
   const outputReady = isVideoReady || isRadio;
-  const isTwitchAdBreak = resolverStatus?.provider === 'twitch' && resolverStatus.phase === 'ad-break';
+  const isTwitchAdBreak =
+    resolverStatus?.provider === 'twitch' && resolverStatus.phase === 'ad-break';
   const parsedLiveTitle = isLive ? parseLiveChannelTitle(activeStream.title, customRules) : null;
   const parsedMediaTitle = isLive ? null : parseMediaTitle(activeStream.title, customRules);
-  const verifiedBadge = badgeVisibility?.verified && verifiedMeta
-    ? formatVerifiedResolution(verifiedMeta.width, verifiedMeta.height, verifiedMeta.fps)
-    : null;
+  const verifiedBadge =
+    badgeVisibility?.verified && verifiedMeta
+      ? formatVerifiedResolution(verifiedMeta.width, verifiedMeta.height, verifiedMeta.fps)
+      : null;
   const badges = mergeMediaTags(
     ...(parsedLiveTitle?.qualityBadges ?? parsedMediaTitle?.tags ?? []),
     ...(activeStream.tags ?? []),
@@ -82,7 +91,7 @@ export function PlayerShell() {
   const filteredBadges = filterMediaTagsByVisibility(badges, badgeVisibility);
   const visibleBadges = getPrimaryMediaTags(filteredBadges);
   const displayTitle = isLive
-    ? parsedLiveTitle?.cleanTitle ?? activeStream.title
+    ? (parsedLiveTitle?.cleanTitle ?? activeStream.title)
     : activeStream.type === 'series'
       ? formatEpisodePlaybackTitle(
           activeStream.seriesTitle || getSeriesBaseTitle(activeStream.title),
@@ -90,7 +99,7 @@ export function PlayerShell() {
           activeStream.episodeNum,
           activeStream.episodeTitle || activeStream.title,
         )
-      : parsedMediaTitle?.cleanTitle ?? activeStream.title;
+      : (parsedMediaTitle?.cleanTitle ?? activeStream.title);
 
   return (
     <AnimatePresence>
@@ -130,7 +139,11 @@ export function PlayerShell() {
               className={`${styles.loadingOverlay} ${outputReady ? styles.loadingOverlayBuffering : ''}`}
               onClick={(event) => event.stopPropagation()}
             >
-              <div className={styles.loadingContent} role={isTwitchAdBreak ? 'status' : undefined} aria-live={isTwitchAdBreak ? 'polite' : undefined}>
+              <div
+                className={styles.loadingContent}
+                role={isTwitchAdBreak ? 'status' : undefined}
+                aria-live={isTwitchAdBreak ? 'polite' : undefined}
+              >
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: MOTION_DURATION.loop, ease: 'linear' }}
@@ -171,45 +184,63 @@ export function PlayerShell() {
               <span className={styles.radioEyebrow}>{t('RADIO')}</span>
               <strong>{activeStream.radioMetadata?.title || displayTitle}</strong>
               {(activeStream.radioMetadata?.artist || activeStream.radioMetadata?.album) && (
-                <span>{[activeStream.radioMetadata.artist, activeStream.radioMetadata.album].filter(Boolean).join(' · ')}</span>
+                <span>
+                  {[activeStream.radioMetadata.artist, activeStream.radioMetadata.album]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </span>
               )}
             </div>
           </div>
         )}
 
-        {!errorMessage && <div className={`${styles.controlsContainer} ${showControls ? styles.showControls : ''}`} data-ui-layer="player-controls">
+        {!errorMessage && (
           <div
-            className={styles.topBar}
-            data-tauri-drag-region
-            onClick={(event) => event.stopPropagation()}
-            onMouseEnter={() => setPointerOverChrome(true)}
-            onMouseLeave={() => setPointerOverChrome(false)}
+            className={`${styles.controlsContainer} ${showControls ? styles.showControls : ''}`}
+            data-ui-layer="player-controls"
           >
-            <div className={styles.titleGroup}>
-              <h2 className={styles.title}>{displayTitle}</h2>
-              {visibleBadges.length > 0 && (
-                <div className={styles.badgeGroup}>
-                  {visibleBadges.map((badge) => (
-                    <span key={badge} className={styles.badge} data-tag-type={getTagColorType(badge)}>
-                      {badge === 'DV' ? 'DOLBY VISION' : badge}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div
+              className={styles.topBar}
+              data-tauri-drag-region
+              onClick={(event) => event.stopPropagation()}
+              onMouseEnter={() => setPointerOverChrome(true)}
+              onMouseLeave={() => setPointerOverChrome(false)}
+            >
+              <div className={styles.titleGroup}>
+                <h2 className={styles.title}>{displayTitle}</h2>
+                {visibleBadges.length > 0 && (
+                  <div className={styles.badgeGroup}>
+                    {visibleBadges.map((badge) => (
+                      <span
+                        key={badge}
+                        className={styles.badge}
+                        data-tag-type={getTagColorType(badge)}
+                      >
+                        {badge === 'DV' ? 'DOLBY VISION' : badge}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                className={controlStyles.iconBtn}
+                onClick={handleClose}
+                aria-label={t('Close player')}
+              >
+                <X size={24} />
+              </button>
             </div>
-            <button type="button" className={controlStyles.iconBtn} onClick={handleClose} aria-label={t('Close player')}>
-              <X size={24} />
-            </button>
-          </div>
 
-          <div
-            onClick={(event) => event.stopPropagation()}
-            onMouseEnter={() => setPointerOverChrome(true)}
-            onMouseLeave={() => setPointerOverChrome(false)}
-          >
-            {isLive ? <LiveControls /> : <VodControls />}
+            <div
+              onClick={(event) => event.stopPropagation()}
+              onMouseEnter={() => setPointerOverChrome(true)}
+              onMouseLeave={() => setPointerOverChrome(false)}
+            >
+              {isLive ? <LiveControls /> : <VodControls />}
+            </div>
           </div>
-        </div>}
+        )}
 
         {!errorMessage && (
           <>

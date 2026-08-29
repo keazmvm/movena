@@ -48,7 +48,9 @@
   align-items: center;
   justify-content: space-between;
   border-radius: var(--radius-sm);
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
   position: relative;
   min-height: var(--control-height-md);
   content-visibility: auto;
@@ -186,8 +188,17 @@
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
   color: var(--badge-accent, rgba(var(--neutral-white-rgb), var(--alpha-75)));
-  background: color-mix(in srgb, var(--badge-accent, rgba(var(--neutral-white-rgb), var(--alpha-75))) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--badge-accent, rgba(var(--neutral-white-rgb), var(--alpha-75))) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--badge-accent, rgba(var(--neutral-white-rgb), var(--alpha-75))) 16%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--badge-accent, rgba(var(--neutral-white-rgb), var(--alpha-75))) 32%,
+      transparent
+    );
 }
 
 .count {
@@ -351,7 +362,10 @@
   color: var(--text-muted);
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .row:hover .rowMenuButton,
@@ -459,7 +473,9 @@
 }
 
 @keyframes categoryRetrySpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @container (max-width: 230px) {
@@ -486,7 +502,9 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .hiddenToggle:hover {

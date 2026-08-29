@@ -51,8 +51,9 @@ export async function clearAllAppData(): Promise<void> {
   const m3uSourceIds = useSourceStore.getState().profiles.map((profile) => profile.id);
   const xtreamSourceIds = useAuthStore.getState().profiles.map((profile) => profile.id);
   const sourceIds = [...new Set([...m3uSourceIds, ...xtreamSourceIds])];
-  const activeDownloadIds = useDownloadStore.getState().jobs
-    .filter((job) => ['downloading', 'paused'].includes(job.state))
+  const activeDownloadIds = useDownloadStore
+    .getState()
+    .jobs.filter((job) => ['downloading', 'paused'].includes(job.state))
     .map((job) => job.id);
 
   await queryClient.cancelQueries();

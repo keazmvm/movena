@@ -14,7 +14,12 @@ interface SettingsGroupProps {
   danger?: boolean | undefined;
 }
 
-export function SettingsGroup({ title, description, children, danger = false }: SettingsGroupProps) {
+export function SettingsGroup({
+  title,
+  description,
+  children,
+  danger = false,
+}: SettingsGroupProps) {
   const { t } = useI18n();
   return (
     <section className={`${styles.group} ${danger ? styles.groupDanger : ''}`}>
@@ -46,10 +51,16 @@ export function SettingsRow({
 }: SettingsRowProps) {
   const { t } = useI18n();
   return (
-    <div className={`${styles.row} ${disabled ? styles.rowDisabled : ''} ${alignStart ? styles.rowAlignStart : ''} ${wideControl ? styles.rowWideControl : ''}`}>
+    <div
+      className={`${styles.row} ${disabled ? styles.rowDisabled : ''} ${alignStart ? styles.rowAlignStart : ''} ${wideControl ? styles.rowWideControl : ''}`}
+    >
       <div className={styles.rowInfo}>
         <span className={styles.rowTitle}>{t(title)}</span>
-        {description && <span className={styles.rowDescription}>{typeof description === 'string' ? t(description) : description}</span>}
+        {description && (
+          <span className={styles.rowDescription}>
+            {typeof description === 'string' ? t(description) : description}
+          </span>
+        )}
       </div>
       <div className={styles.rowControl}>{children}</div>
     </div>
@@ -63,7 +74,12 @@ interface SettingsToggleProps {
   disabled?: boolean | undefined;
 }
 
-export function SettingsToggle({ checked, onChange, label, disabled = false }: SettingsToggleProps) {
+export function SettingsToggle({
+  checked,
+  onChange,
+  label,
+  disabled = false,
+}: SettingsToggleProps) {
   const id = useId();
   const { t } = useI18n();
   return (
@@ -128,7 +144,11 @@ interface SettingsRangeProps extends InputHTMLAttributes<HTMLInputElement> {
   formatValue?: ((value: number) => string) | undefined;
 }
 
-export function SettingsRange({ formatValue = (value) => String(value), className = '', ...props }: SettingsRangeProps) {
+export function SettingsRange({
+  formatValue = (value) => String(value),
+  className = '',
+  ...props
+}: SettingsRangeProps) {
   const numericValue = typeof props.value === 'number' ? props.value : Number(props.value ?? 0);
   const { t } = useI18n();
   const label = props['aria-label'];

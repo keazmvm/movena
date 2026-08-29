@@ -652,7 +652,6 @@
 }
 
 @container (max-width: 560px) {
-
   .metricGrid,
   .signalList,
   .definitionGrid,

@@ -11,11 +11,23 @@ export function ConnectionStatus() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      notify.success(translateNow('Connection Restored'), translateNow('Movena is reconnecting to your sources.'), 3500, undefined, 'connection');
+      notify.success(
+        translateNow('Connection Restored'),
+        translateNow('Movena is reconnecting to your sources.'),
+        3500,
+        undefined,
+        'connection',
+      );
     };
     const handleOffline = () => {
       setIsOnline(false);
-      notify.warning(translateNow('Connection Lost'), translateNow('Movena will reconnect automatically when your connection returns.'), 6000, undefined, 'connection');
+      notify.warning(
+        translateNow('Connection Lost'),
+        translateNow('Movena will reconnect automatically when your connection returns.'),
+        6000,
+        undefined,
+        'connection',
+      );
     };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -29,7 +41,9 @@ export function ConnectionStatus() {
 
   return (
     <div className={styles.banner} role="status" aria-live="assertive">
-      <span className={styles.iconBadge}><WifiOff size={16} /></span>
+      <span className={styles.iconBadge}>
+        <WifiOff size={16} />
+      </span>
       <span className={styles.copy}>
         <strong>{t('You’re offline')}</strong>
         <span>{t('Movena will resume requests when the connection returns.')}</span>

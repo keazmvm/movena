@@ -7,12 +7,16 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../src/api/useCatalog', async () => {
-  const actual = await vi.importActual<typeof import('../../src/api/useCatalog')>('../../src/api/useCatalog');
+  const actual = await vi.importActual<typeof import('../../src/api/useCatalog')>(
+    '../../src/api/useCatalog',
+  );
   return { ...actual, useLiveStreams: vi.fn() };
 });
 
 vi.mock('../../src/api/useCategories', async () => {
-  const actual = await vi.importActual<typeof import('../../src/api/useCategories')>('../../src/api/useCategories');
+  const actual = await vi.importActual<typeof import('../../src/api/useCategories')>(
+    '../../src/api/useCategories',
+  );
   return { ...actual, useCategories: vi.fn(), useHiddenCategoryIds: vi.fn() };
 });
 
@@ -27,10 +31,42 @@ const categories = [
 ];
 
 const channels = [
-  { id: 'ch-1', title: 'BBC One', posterUrl: '', type: 'live' as const, categoryId: 'uk', channelNum: 1, streamUrl: 'http://x/1' },
-  { id: 'ch-2', title: 'CNN International', posterUrl: '', type: 'live' as const, categoryId: 'news', channelNum: 2, streamUrl: 'http://x/2' },
-  { id: 'ch-3', title: 'Hidden Channel', posterUrl: '', type: 'live' as const, categoryId: 'hidden', channelNum: 3, streamUrl: 'http://x/3' },
-  { id: 'ch-4', title: 'ITV', posterUrl: '', type: 'live' as const, categoryId: 'uk', channelNum: 4, streamUrl: 'http://x/4' },
+  {
+    id: 'ch-1',
+    title: 'BBC One',
+    posterUrl: '',
+    type: 'live' as const,
+    categoryId: 'uk',
+    channelNum: 1,
+    streamUrl: 'http://x/1',
+  },
+  {
+    id: 'ch-2',
+    title: 'CNN International',
+    posterUrl: '',
+    type: 'live' as const,
+    categoryId: 'news',
+    channelNum: 2,
+    streamUrl: 'http://x/2',
+  },
+  {
+    id: 'ch-3',
+    title: 'Hidden Channel',
+    posterUrl: '',
+    type: 'live' as const,
+    categoryId: 'hidden',
+    channelNum: 3,
+    streamUrl: 'http://x/3',
+  },
+  {
+    id: 'ch-4',
+    title: 'ITV',
+    posterUrl: '',
+    type: 'live' as const,
+    categoryId: 'uk',
+    channelNum: 4,
+    streamUrl: 'http://x/4',
+  },
 ];
 
 function renderDrawer() {
@@ -52,8 +88,12 @@ beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 600 });
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, value: 380 });
 
-  vi.mocked(useLiveStreams).mockReturnValue({ data: channels } as ReturnType<typeof useLiveStreams>);
-  vi.mocked(useCategories).mockReturnValue({ data: categories } as ReturnType<typeof useCategories>);
+  vi.mocked(useLiveStreams).mockReturnValue({ data: channels } as ReturnType<
+    typeof useLiveStreams
+  >);
+  vi.mocked(useCategories).mockReturnValue({ data: categories } as ReturnType<
+    typeof useCategories
+  >);
   vi.mocked(useHiddenCategoryIds).mockReturnValue(new Set(['hidden']));
   usePlayerStore.setState({
     activeStream: {

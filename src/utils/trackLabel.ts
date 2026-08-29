@@ -18,7 +18,10 @@ export function formatTrackLabel(track: TrackLabelInput, fallback: string): stri
   const language = clean(track.lang);
   if (title && language) {
     const code = languageCode(language);
-    if (title.toLocaleLowerCase() === language.toLocaleLowerCase() || title.toLocaleLowerCase() === code.toLocaleLowerCase()) {
+    if (
+      title.toLocaleLowerCase() === language.toLocaleLowerCase() ||
+      title.toLocaleLowerCase() === code.toLocaleLowerCase()
+    ) {
       return code;
     }
     return `${code} · ${title}`;

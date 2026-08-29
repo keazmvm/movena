@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, ChevronLeft, FileText, Radio } from 'lucide-react';
-import { RiTv2Line, RiMovie2Line, RiSlideshow3Line, RiHome5Line, type RemixiconComponentType } from '../shared/icons';
+import {
+  RiTv2Line,
+  RiMovie2Line,
+  RiSlideshow3Line,
+  RiHome5Line,
+  type RemixiconComponentType,
+} from '../shared/icons';
 import { AccountConnectionForm } from '../forms/AccountConnectionForm';
 import { M3uSourceForm } from '../forms/M3uSourceForm';
 import { Button } from '../common/Button';
@@ -58,15 +64,26 @@ export function OnboardingFlow({ onDone }: { onDone: () => void }) {
                 <li
                   key={n}
                   aria-current={n === step ? 'step' : undefined}
-                  aria-label={t('Step {step} of {total}, {state}', { step: number(n), total: number(3), state: t(n < step ? 'complete' : n === step ? 'current' : 'upcoming') })}
+                  aria-label={t('Step {step} of {total}, {state}', {
+                    step: number(n),
+                    total: number(3),
+                    state: t(n < step ? 'complete' : n === step ? 'current' : 'upcoming'),
+                  })}
                   className={`${styles.stepItem} ${n === step ? styles.stepItemActive : ''} ${n < step ? styles.stepItemDone : ''}`}
                 >
-                  <span className={styles.stepNumber}>{n < step ? <Check size={13} aria-hidden="true" /> : n}</span>
+                  <span className={styles.stepNumber}>
+                    {n < step ? <Check size={13} aria-hidden="true" /> : n}
+                  </span>
                 </li>
               ))}
             </ol>
             {step === 1 && (
-              <Button variant="ghost" size="sm" className={styles.skipLink} onClick={() => finish(null)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={styles.skipLink}
+                onClick={() => finish(null)}
+              >
                 {t('Set up later')}
               </Button>
             )}
@@ -87,34 +104,55 @@ export function OnboardingFlow({ onDone }: { onDone: () => void }) {
                     <div className={styles.heading}>
                       <h2 className={styles.title}>{t('Connect a source')}</h2>
                       <p className={styles.subtitle}>
-                        {t('Choose the connection details your provider gave you. You can add more sources anytime in Settings.')}
+                        {t(
+                          'Choose the connection details your provider gave you. You can add more sources anytime in Settings.',
+                        )}
                       </p>
                       <p className={styles.subtitle}>
-                        {t('Movena provides no channels, subscriptions, playlists, or media. Connect only sources you are authorized to access.')}
+                        {t(
+                          'Movena provides no channels, subscriptions, playlists, or media. Connect only sources you are authorized to access.',
+                        )}
                       </p>
                     </div>
                   )}
 
                   {sourceKind === 'choose' ? (
                     <div className={styles.sourceChoices}>
-                      <button type="button" className={styles.sourceChoice} onClick={() => setSourceKind('xtream')}>
+                      <button
+                        type="button"
+                        className={styles.sourceChoice}
+                        onClick={() => setSourceKind('xtream')}
+                      >
                         <Radio size={22} aria-hidden="true" />
                         <span>
                           <strong>{t('Xtream account')}</strong>
-                          <small>{t('Use a server address, username, and password from your provider.')}</small>
+                          <small>
+                            {t('Use a server address, username, and password from your provider.')}
+                          </small>
                         </span>
                       </button>
-                      <button type="button" className={styles.sourceChoice} onClick={() => setSourceKind('m3u')}>
+                      <button
+                        type="button"
+                        className={styles.sourceChoice}
+                        onClick={() => setSourceKind('m3u')}
+                      >
                         <FileText size={22} aria-hidden="true" />
                         <span>
                           <strong>{t('M3U playlist')}</strong>
-                          <small>{t('Add a remote playlist URL or select a local M3U file.')}</small>
+                          <small>
+                            {t('Add a remote playlist URL or select a local M3U file.')}
+                          </small>
                         </span>
                       </button>
                     </div>
                   ) : (
                     <div className={styles.formPanel}>
-                      <Button variant="ghost" size="sm" className={styles.backLink} onClick={() => setSourceKind('choose')}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={styles.backLink}
+                        onClick={() => setSourceKind('choose')}
+                      >
                         <ChevronLeft size={16} aria-hidden="true" /> {t('Change source type')}
                       </Button>
                       {sourceKind === 'xtream' ? (
@@ -140,42 +178,56 @@ export function OnboardingFlow({ onDone }: { onDone: () => void }) {
                 <>
                   <div className={styles.heading}>
                     <h2 className={styles.title}>{t('Where should we start?')}</h2>
-                    <p className={styles.subtitle}>{t('This only sets your first destination. You can switch sections whenever you like.')}</p>
+                    <p className={styles.subtitle}>
+                      {t(
+                        'This only sets your first destination. You can switch sections whenever you like.',
+                      )}
+                    </p>
                   </div>
-                <div className={styles.destinationGrid}>
-                  {DESTINATIONS.map((d) => (
-                    <button type="button"
-                      key={d.path}
-                      className={styles.destinationTile}
-                      aria-label={`${t(d.label)} ${t(d.description)}`}
-                      onClick={() => {
-                        setDestination(d);
-                        setStep(3);
-                      }}
-                    >
-                      <d.icon size={26} />
-                      <strong>{t(d.label)}</strong>
-                      <small>{t(d.description)}</small>
-                    </button>
-                  ))}
-                </div>
+                  <div className={styles.destinationGrid}>
+                    {DESTINATIONS.map((d) => (
+                      <button
+                        type="button"
+                        key={d.path}
+                        className={styles.destinationTile}
+                        aria-label={`${t(d.label)} ${t(d.description)}`}
+                        onClick={() => {
+                          setDestination(d);
+                          setStep(3);
+                        }}
+                      >
+                        <d.icon size={26} />
+                        <strong>{t(d.label)}</strong>
+                        <small>{t(d.description)}</small>
+                      </button>
+                    ))}
+                  </div>
                 </>
               )}
 
               {step === 3 && (
                 <div className={styles.successContent}>
-                <div className={styles.successIcon}>
-                  <Check size={28} />
-                </div>
+                  <div className={styles.successIcon}>
+                    <Check size={28} />
+                  </div>
                   <div className={styles.heading}>
                     <h2 className={styles.title}>{t('You’re ready to watch.')}</h2>
                     <p className={styles.subtitle}>
-                      {destination ? t('Your source is connected. Start exploring {destination}.', { destination: t(destination.label) }) : t('Your source is connected and ready.')}
+                      {destination
+                        ? t('Your source is connected. Start exploring {destination}.', {
+                            destination: t(destination.label),
+                          })
+                        : t('Your source is connected and ready.')}
                     </p>
                   </div>
-                <Button variant="primary" size="lg" className={styles.primaryBtn} onClick={() => finish(destination)}>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className={styles.primaryBtn}
+                    onClick={() => finish(destination)}
+                  >
                     {t('Start watching')} <ArrowRight size={17} aria-hidden="true" />
-                </Button>
+                  </Button>
                 </div>
               )}
             </motion.div>

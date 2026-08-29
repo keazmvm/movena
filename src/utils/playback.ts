@@ -1,14 +1,19 @@
 import type { MediaItem } from '../components/catalog/MediaCard';
 import { getStreamUrl, type XCEpisode } from '../api/xc';
-import { getXtreamCredentials, resolveXtreamSourceId, type XCCredentials } from '../store/useAuthStore';
+import {
+  getXtreamCredentials,
+  resolveXtreamSourceId,
+  type XCCredentials,
+} from '../store/useAuthStore';
 import type { PlayableStream } from '../store/usePlayerStore';
 import { useSourceStore } from '../store/useSourceStore';
 import type { DownloadedItem } from '../utils/downloads';
 
 function cachedM3uTransport(id: string | number, sourceId: string | undefined) {
   if (!sourceId?.startsWith('m3u-')) return null;
-  const entry = useSourceStore.getState().runtimes[sourceId]?.playlist?.entries
-    .find((candidate) => candidate.id === String(id));
+  const entry = useSourceStore
+    .getState()
+    .runtimes[sourceId]?.playlist?.entries.find((candidate) => candidate.id === String(id));
   return entry ? { streamUrl: entry.url, httpHeaders: entry.headers } : null;
 }
 
@@ -20,18 +25,29 @@ export function playableFromMediaItem(
   if (item.type !== 'live' && item.type !== 'vod') return null;
   const streamType = item.type;
   const providerId = item.sourceItemId || item.id;
-  const resolvedSourceId = item.sourceId === 'xtream' ? resolveXtreamSourceId(item.sourceId) : item.sourceId;
+  const resolvedSourceId =
+    item.sourceId === 'xtream' ? resolveXtreamSourceId(item.sourceId) : item.sourceId;
   const cached = cachedM3uTransport(providerId, item.sourceId);
   const resolvedCredentials = resolvedSourceId
-    ? (resolvedSourceId.startsWith('xtream-') ? getXtreamCredentials(resolvedSourceId) : null)
+    ? resolvedSourceId.startsWith('xtream-')
+      ? getXtreamCredentials(resolvedSourceId)
+      : null
     : credentials || getXtreamCredentials();
-  const streamUrl = item.streamUrl || cached?.streamUrl || (resolvedCredentials
-    ? getStreamUrl(resolvedCredentials, item.type, providerId, item.containerExtension)
-    : '');
+  const streamUrl =
+    item.streamUrl ||
+    cached?.streamUrl ||
+    (resolvedCredentials
+      ? getStreamUrl(resolvedCredentials, item.type, providerId, item.containerExtension)
+      : '');
   if (!streamUrl) return null;
   const alternativeFallbacks = resolvedCredentials
     ? (resolvedCredentials.alternativeUrls ?? []).map((url) => ({
-        streamUrl: getStreamUrl({ ...resolvedCredentials, url }, streamType, providerId, item.containerExtension),
+        streamUrl: getStreamUrl(
+          { ...resolvedCredentials, url },
+          streamType,
+          providerId,
+          item.containerExtension,
+        ),
       }))
     : [];
   return {
@@ -64,7 +80,10 @@ export function playableFromMediaItem(
  * file path as `streamUrl`, no headers, no provider/network access at all.
  * mpv plays a local path exactly like a URL, so nothing else is needed.
  */
-export function playableFromDownloadedItem(item: DownloadedItem, resumeSeconds?: number): PlayableStream {
+export function playableFromDownloadedItem(
+  item: DownloadedItem,
+  resumeSeconds?: number,
+): PlayableStream {
   return {
     id: item.id,
     sourceItemId: item.id,
@@ -88,15 +107,33 @@ export function playableFromDownloadedItem(item: DownloadedItem, resumeSeconds?:
 export function resolveEpisodePlayback(
   episode: XCEpisode,
   credentials: XCCredentials | null,
-): { streamUrl: string; httpHeaders?: Record<string, string> | undefined; sourceId?: string | undefined } | null {
+): {
+  streamUrl: string;
+  httpHeaders?: Record<string, string> | undefined;
+  sourceId?: string | undefined;
+} | null {
   const cached = cachedM3uTransport(episode.id, episode.source_id);
   const resolvedCredentials = episode.source_id
-    ? (episode.source_id.startsWith('xtream-') ? getXtreamCredentials(episode.source_id) : null)
+    ? episode.source_id.startsWith('xtream-')
+      ? getXtreamCredentials(episode.source_id)
+      : null
     : credentials || getXtreamCredentials();
-  const streamUrl = episode.stream_url || cached?.streamUrl || (resolvedCredentials
-    ? getStreamUrl(resolvedCredentials, 'series', episode.id, episode.container_extension || 'mp4')
-    : '');
+  const streamUrl =
+    episode.stream_url ||
+    cached?.streamUrl ||
+    (resolvedCredentials
+      ? getStreamUrl(
+          resolvedCredentials,
+          'series',
+          episode.id,
+          episode.container_extension || 'mp4',
+        )
+      : '');
   return streamUrl
-    ? { streamUrl, httpHeaders: episode.http_headers || cached?.httpHeaders, sourceId: episode.source_id }
+    ? {
+        streamUrl,
+        httpHeaders: episode.http_headers || cached?.httpHeaders,
+        sourceId: episode.source_id,
+      }
     : null;
 }

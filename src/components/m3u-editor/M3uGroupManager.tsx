@@ -20,7 +20,11 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
   const [mergingGroup, setMergingGroup] = useState<string | null>(null);
   const [mergeTargetGroup, setMergeTargetGroup] = useState('');
   const [deletingGroup, setDeletingGroup] = useState<string | null>(null);
-  const categoryId = (entry: M3uEntry, groupTitle: string) => `m3u-category-${entry.type}-${groupTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+  const categoryId = (entry: M3uEntry, groupTitle: string) =>
+    `m3u-category-${entry.type}-${groupTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')}`;
 
   // Group statistics
   const groupStats = useMemo(() => {
@@ -34,10 +38,12 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
       else existing.live++;
       stats.set(g, existing);
     }
-    return Array.from(stats.entries()).map(([name, counts]) => ({
-      name,
-      ...counts,
-    })).sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(stats.entries())
+      .map(([name, counts]) => ({
+        name,
+        ...counts,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [entries]);
 
   const allGroupNames = useMemo(() => groupStats.map((g) => g.name), [groupStats]);
@@ -54,9 +60,11 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
     }
     const oldName = editingGroup;
     const newName = renameValue.trim();
-    const updated = entries.map((entry) => ((entry.groupTitle || 'General') === oldName
-      ? { ...entry, groupTitle: newName, categoryId: categoryId(entry, newName) }
-      : entry));
+    const updated = entries.map((entry) =>
+      (entry.groupTitle || 'General') === oldName
+        ? { ...entry, groupTitle: newName, categoryId: categoryId(entry, newName) }
+        : entry,
+    );
     onUpdateEntries(updated);
     setEditingGroup(null);
   };
@@ -74,9 +82,11 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
     }
     const sourceGroup = mergingGroup;
     const target = mergeTargetGroup;
-    const updated = entries.map((entry) => ((entry.groupTitle || 'General') === sourceGroup
-      ? { ...entry, groupTitle: target, categoryId: categoryId(entry, target) }
-      : entry));
+    const updated = entries.map((entry) =>
+      (entry.groupTitle || 'General') === sourceGroup
+        ? { ...entry, groupTitle: target, categoryId: categoryId(entry, target) }
+        : entry,
+    );
     onUpdateEntries(updated);
     setMergingGroup(null);
   };
@@ -91,16 +101,34 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
 
   return (
     <div className={styles.groupManager}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 'var(--space-2)',
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: 'var(--font-size-title)', fontWeight: 'var(--font-weight-semibold)' }}>
+          <h2
+            style={{
+              fontSize: 'var(--font-size-title)',
+              fontWeight: 'var(--font-weight-semibold)',
+            }}
+          >
             {t('Category & Group Manager')}
           </h2>
           <span style={{ fontSize: 'var(--font-size-small)', color: 'var(--text-muted)' }}>
-            {t('{count} categories across {entries} channels', { count: number(groupStats.length), entries: number(entries.length) })}
+            {t('{count} categories across {entries} channels', {
+              count: number(groupStats.length),
+              entries: number(entries.length),
+            })}
           </span>
         </div>
-        <span className={styles.sectionDescription}>{t('Create a category by assigning channels from the Channels view.')}</span>
+        <span className={styles.sectionDescription}>
+          {t('Create a category by assigning channels from the Channels view.')}
+        </span>
       </div>
 
       <div className={styles.groupGrid}>
@@ -110,7 +138,15 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
           return (
             <div key={group.name} className={styles.groupCard}>
               <div className={styles.groupCardHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minWidth: 0, flex: 1 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    minWidth: 0,
+                    flex: 1,
+                  }}
+                >
                   <Folder size={16} style={{ color: 'var(--accent-foreground)', flexShrink: 0 }} />
                   {isEditing ? (
                     <div style={{ display: 'flex', gap: 'var(--space-1)', flex: 1 }}>
@@ -121,31 +157,59 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
                         onChange={(e) => setRenameValue(e.target.value)}
                         autoFocus
                       />
-                      <IconButton size="sm" type="button" onClick={handleConfirmRename} aria-label={t('Save rename')}>
+                      <IconButton
+                        size="sm"
+                        type="button"
+                        onClick={handleConfirmRename}
+                        aria-label={t('Save rename')}
+                      >
                         <Check size={14} />
                       </IconButton>
                     </div>
                   ) : (
-                    <span className={styles.groupCardTitle} title={group.name}>{group.name}</span>
+                    <span className={styles.groupCardTitle} title={group.name}>
+                      {group.name}
+                    </span>
                   )}
                 </div>
               </div>
 
               <div className={styles.groupCardStats}>
                 <span>{t('{count} channels', { count: number(group.total) })}</span>
-                {group.live > 0 && <span>· {t('{count} live', { count: number(group.live) })}</span>}
-                {group.vod > 0 && <span>· {t('{count} movies', { count: number(group.vod) })}</span>}
-                {group.series > 0 && <span>· {t('{count} series', { count: number(group.series) })}</span>}
+                {group.live > 0 && (
+                  <span>· {t('{count} live', { count: number(group.live) })}</span>
+                )}
+                {group.vod > 0 && (
+                  <span>· {t('{count} movies', { count: number(group.vod) })}</span>
+                )}
+                {group.series > 0 && (
+                  <span>· {t('{count} series', { count: number(group.series) })}</span>
+                )}
               </div>
 
               <div className={styles.groupCardActions}>
-                <IconButton size="sm" type="button" onClick={() => handleStartRename(group.name)} aria-label={t('Rename category')}>
+                <IconButton
+                  size="sm"
+                  type="button"
+                  onClick={() => handleStartRename(group.name)}
+                  aria-label={t('Rename category')}
+                >
                   <Edit2 size={13} />
                 </IconButton>
-                <IconButton size="sm" type="button" onClick={() => handleStartMerge(group.name)} aria-label={t('Merge into another category')}>
+                <IconButton
+                  size="sm"
+                  type="button"
+                  onClick={() => handleStartMerge(group.name)}
+                  aria-label={t('Merge into another category')}
+                >
                   <Combine size={13} />
                 </IconButton>
-                <IconButton size="sm" type="button" onClick={() => setDeletingGroup(group.name)} aria-label={t('Delete category')}>
+                <IconButton
+                  size="sm"
+                  type="button"
+                  onClick={() => setDeletingGroup(group.name)}
+                  aria-label={t('Delete category')}
+                >
                   <Trash2 size={13} />
                 </IconButton>
               </div>
@@ -162,38 +226,54 @@ export function M3uGroupManager({ entries, onUpdateEntries }: M3uGroupManagerPro
           ariaLabel={t('Merge Category')}
           initialFocusSelector="button"
         >
-            <div className={styles.modalHeader}>
-              <h3 className={styles.drawerHeaderTitle}>{t('Merge Category: {name}', { name: mergingGroup })}</h3>
+          <div className={styles.modalHeader}>
+            <h3 className={styles.drawerHeaderTitle}>
+              {t('Merge Category: {name}', { name: mergingGroup })}
+            </h3>
+          </div>
+          <div className={styles.modalBody}>
+            <p style={{ color: 'var(--text-secondary)' }}>
+              {t('All channels currently under "{name}" will be moved to the target category.', {
+                name: mergingGroup,
+              })}
+            </p>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>{t('Target Category')}</label>
+              <Select
+                value={mergeTargetGroup}
+                options={allGroupNames
+                  .filter((g) => g !== mergingGroup)
+                  .map((g) => ({ value: g, label: g }))}
+                onChange={setMergeTargetGroup}
+                width="100%"
+                variant="settings"
+                ariaLabel={t('Target Category')}
+              />
             </div>
-            <div className={styles.modalBody}>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                {t('All channels currently under "{name}" will be moved to the target category.', { name: mergingGroup })}
-              </p>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>{t('Target Category')}</label>
-                <Select
-                  value={mergeTargetGroup}
-                  options={allGroupNames.filter((g) => g !== mergingGroup).map((g) => ({ value: g, label: g }))}
-                  onChange={setMergeTargetGroup}
-                  width="100%"
-                  variant="settings"
-                  ariaLabel={t('Target Category')}
-                />
-              </div>
-            </div>
-            <div className={styles.modalFooter}>
-              <Button variant="ghost" type="button" onClick={() => setMergingGroup(null)}>{t('Cancel')}</Button>
-              <Button variant="primary" type="button" onClick={handleConfirmMerge} disabled={!mergeTargetGroup}>
-                {t('Merge Channels')}
-              </Button>
-            </div>
+          </div>
+          <div className={styles.modalFooter}>
+            <Button variant="ghost" type="button" onClick={() => setMergingGroup(null)}>
+              {t('Cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              type="button"
+              onClick={handleConfirmMerge}
+              disabled={!mergeTargetGroup}
+            >
+              {t('Merge Channels')}
+            </Button>
+          </div>
         </ModalShell>
       )}
 
       {deletingGroup && (
         <ConfirmDialog
           title={t('Delete Category "{name}"?', { name: deletingGroup })}
-          description={t('This will remove all channels in "{name}" from this playlist. This action can be undone by not saving changes.', { name: deletingGroup })}
+          description={t(
+            'This will remove all channels in "{name}" from this playlist. This action can be undone by not saving changes.',
+            { name: deletingGroup },
+          )}
           confirmLabel={t('Delete Category')}
           danger
           onConfirm={handleConfirmDelete}

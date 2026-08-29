@@ -84,7 +84,7 @@ export function usePlayerChrome(isActive: boolean) {
       pointerOverChrome.current = over;
       if (over) reveal();
     },
-    [reveal]
+    [reveal],
   );
 
   // The window itself moves and resizes on a fullscreen transition (macOS
@@ -135,6 +135,8 @@ export function usePlayerChrome(isActive: boolean) {
     setPointerOverChrome,
     /** CSS fallback for platforms without a native hide. */
     cursorStyle:
-      nativeCursor.current === false && cursorHidden.current ? ('none' as const) : ('default' as const),
+      nativeCursor.current === false && cursorHidden.current
+        ? ('none' as const)
+        : ('default' as const),
   };
 }

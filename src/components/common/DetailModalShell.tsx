@@ -58,13 +58,18 @@ export function DetailModalShell({
       >
         <div className={styles.headerDragArea} data-tauri-drag-region aria-hidden="true" />
 
-        <IconButton size="md" className={styles.closeBtn} onClick={onClose} aria-label="Close details">
+        <IconButton
+          size="md"
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Close details"
+        >
           <X size={24} />
         </IconButton>
 
         {children}
       </motion.div>
     </motion.div>,
-    document.body
+    document.body,
   );
 }

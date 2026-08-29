@@ -15,8 +15,14 @@ export function GeneralSettingsSection() {
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Language & Region" description="Set the interface language used across the application.">
-        <SettingsRow title="Interface Language" description="Supported screens and metadata requests use this preference.">
+      <SettingsGroup
+        title="Language & Region"
+        description="Set the interface language used across the application."
+      >
+        <SettingsRow
+          title="Interface Language"
+          description="Supported screens and metadata requests use this preference."
+        >
           <Select<UiLanguage>
             value={settings.language}
             onChange={(value) => {
@@ -34,7 +40,10 @@ export function GeneralSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Window & Navigation" description="Control desktop window behavior and sidebar display.">
+      <SettingsGroup
+        title="Window & Navigation"
+        description="Control desktop window behavior and sidebar display."
+      >
         <SettingsRow
           title="Keep Window on Top"
           description="Keep Movena above other desktop applications while active."
@@ -58,7 +67,10 @@ export function GeneralSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Motion & Accessibility" description="Control interface animations across navigation and overlays.">
+      <SettingsGroup
+        title="Motion & Accessibility"
+        description="Control interface animations across navigation and overlays."
+      >
         <SettingsRow
           title="Interface Motion"
           description="Respect operating-system preferences, reduce motion, or allow full animations."
@@ -75,7 +87,10 @@ export function GeneralSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Updates" description="Control automatic release checks and update notifications.">
+      <SettingsGroup
+        title="Updates"
+        description="Control automatic release checks and update notifications."
+      >
         <SettingsRow
           title="Automatic Updates"
           description="Check for new releases in the background on startup."

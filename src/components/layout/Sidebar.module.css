@@ -80,7 +80,8 @@
   letter-spacing: 0.18em;
   margin-left: 0.18em;
   margin-right: -0.18em;
-  transition: max-width var(--duration-normal) var(--ease-standard),
+  transition:
+    max-width var(--duration-normal) var(--ease-standard),
     margin-left var(--duration-normal) var(--ease-standard);
 }
 
@@ -105,7 +106,9 @@
 }
 
 .sidebar.collapsed .bottomBar {
-  height: calc(var(--control-height-md) + var(--control-height-md) + var(--space-2) + var(--space-3));
+  height: calc(
+    var(--control-height-md) + var(--control-height-md) + var(--space-2) + var(--space-3)
+  );
 }
 
 .bottomBar .settingsLink {
@@ -113,7 +116,8 @@
   left: 0;
   bottom: 0;
   width: calc(100% - var(--control-icon-size) - (var(--space-3) * 2) - var(--space-2));
-  transition: bottom var(--duration-slow) var(--ease-standard),
+  transition:
+    bottom var(--duration-slow) var(--ease-standard),
     width var(--duration-slow) var(--ease-standard);
 }
 
@@ -137,7 +141,8 @@
   cursor: pointer;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
-  transition: left var(--duration-slow) var(--ease-standard),
+  transition:
+    left var(--duration-slow) var(--ease-standard),
     width var(--duration-slow) var(--ease-standard),
     background-color var(--duration-normal) var(--ease-standard),
     color var(--duration-normal) var(--ease-standard);
@@ -172,7 +177,8 @@
 .toggleIconLayer {
   position: absolute;
   inset: 0;
-  transition: opacity var(--duration-normal) var(--ease-standard),
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
     transform var(--duration-normal) var(--ease-standard);
 }
 
@@ -198,13 +204,16 @@
   align-items: center;
   gap: var(--space-3);
   min-height: var(--control-height-md);
-  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + var(--control-icon-size) + var(--space-3));
+  padding: var(--space-2) var(--space-3) var(--space-2)
+    calc(var(--space-3) + var(--control-icon-size) + var(--space-3));
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   text-decoration: none;
   font-size: var(--font-size-control);
   font-weight: var(--font-weight-medium);
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
   cursor: pointer;
   -webkit-app-region: no-drag;
   overflow: hidden;
@@ -277,7 +286,8 @@
   opacity: 0;
   pointer-events: none;
   transform: scale(0.82);
-  transition: opacity var(--duration-normal) var(--ease-standard),
+  transition:
+    opacity var(--duration-normal) var(--ease-standard),
     transform var(--duration-normal) var(--ease-standard);
 }
 
@@ -339,7 +349,8 @@
   text-transform: uppercase;
   color: var(--text-muted);
   padding: 0 var(--space-3) var(--space-2);
-  transition: height var(--duration-slow) var(--ease-standard),
+  transition:
+    height var(--duration-slow) var(--ease-standard),
     max-width var(--duration-normal) var(--ease-standard),
     padding-inline var(--duration-normal) var(--ease-standard);
 }

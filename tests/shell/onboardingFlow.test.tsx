@@ -55,7 +55,11 @@ describe('first-run onboarding flow', () => {
   it('allows setup to be skipped and still latches the dismissed preference', async () => {
     const user = userEvent.setup();
     const onDone = vi.fn();
-    render(<MemoryRouter><OnboardingFlow onDone={onDone} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <OnboardingFlow onDone={onDone} />
+      </MemoryRouter>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Set up later' }));
     expect(onDone).toHaveBeenCalledTimes(1);
@@ -64,7 +68,11 @@ describe('first-run onboarding flow', () => {
 
   it('returns to the source chooser when an M3U connection is cancelled', async () => {
     const user = userEvent.setup();
-    render(<MemoryRouter><OnboardingFlow onDone={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <OnboardingFlow onDone={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     await user.click(screen.getByRole('button', { name: /M3U playlist/i }));
     await user.click(await screen.findByRole('button', { name: 'Mock cancel M3U' }));

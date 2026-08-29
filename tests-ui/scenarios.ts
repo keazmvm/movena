@@ -47,9 +47,10 @@ export const COMPONENT_UI_QA_SCENARIOS: readonly UiQaScenario[] = UI_QA_SURFACES
   componentSurface: surface,
 }));
 
-const PRODUCTION_SURFACES = README_SURFACES.filter((surface) => (
-  surface !== 'settings' && surface !== 'playback-settings' && surface !== 'light-theme'
-));
+const PRODUCTION_SURFACES = README_SURFACES.filter(
+  (surface) =>
+    surface !== 'settings' && surface !== 'playback-settings' && surface !== 'light-theme',
+);
 
 export const PRODUCTION_UI_QA_SCENARIOS: readonly UiQaScenario[] = [
   ...PRODUCTION_SURFACES.map((surface): UiQaScenario => {
@@ -62,23 +63,30 @@ export const PRODUCTION_UI_QA_SCENARIOS: readonly UiQaScenario[] = [
       state: 'populated',
       themes: isPlayer ? DARK_PLAYER_THEME : BOTH_THEMES,
       expectedLayers: isPlayer
-        ? ['player', 'player-controls', 'window-chrome', ...(surface === 'player-series' ? ['player-popover'] : [])]
+        ? [
+            'player',
+            'player-controls',
+            'window-chrome',
+            ...(surface === 'player-series' ? ['player-popover'] : []),
+          ]
         : [...(isDetail ? ['modal'] : []), 'window-chrome'],
       stableScreenshot: STABLE_PRODUCTION_SCREENSHOTS.has(surface) ? 'baseline' : 'geometry-only',
       productionSurface: surface,
     };
   }),
-  ...SETTINGS_SECTIONS.map((section): UiQaScenario => ({
-    id: `settings-${section.id}`,
-    fixtureSetup: 'populated-library',
-    route: `/?readme=settings&settingsSection=${section.id}`,
-    state: 'populated',
-    themes: BOTH_THEMES,
-    expectedLayers: ['window-chrome'],
-    stableScreenshot: STABLE_SETTINGS_SCREENSHOTS.has(section.id) ? 'baseline' : 'geometry-only',
-    productionSurface: 'settings',
-    settingsSection: section.id,
-  })),
+  ...SETTINGS_SECTIONS.map(
+    (section): UiQaScenario => ({
+      id: `settings-${section.id}`,
+      fixtureSetup: 'populated-library',
+      route: `/?readme=settings&settingsSection=${section.id}`,
+      state: 'populated',
+      themes: BOTH_THEMES,
+      expectedLayers: ['window-chrome'],
+      stableScreenshot: STABLE_SETTINGS_SCREENSHOTS.has(section.id) ? 'baseline' : 'geometry-only',
+      productionSurface: 'settings',
+      settingsSection: section.id,
+    }),
+  ),
 ];
 
 export const UI_QA_SCENARIOS: readonly UiQaScenario[] = [

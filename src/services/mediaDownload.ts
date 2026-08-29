@@ -105,9 +105,21 @@ export function downloadSeriesSeason(seasonLabel: string, episodes: Downloadable
     queued += 1;
   }
   if (queued > 0) {
-    notify.info('Download Started', `${queued} episode${queued === 1 ? '' : 's'} from ${seasonLabel} queued for download.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Download Started',
+      `${queued} episode${queued === 1 ? '' : 's'} from ${seasonLabel} queued for download.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
   } else {
-    notify.info('Nothing to Download', `Every downloadable episode in ${seasonLabel} is already saved.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Nothing to Download',
+      `Every downloadable episode in ${seasonLabel} is already saved.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
   }
 }
 
@@ -121,12 +133,27 @@ export async function deleteDownloadedItem(id: string): Promise<boolean> {
   if (!item) return false;
   const settings = useSettingsStore.getState();
   try {
-    await tauriApi.downloadMediaDelete({ path: item.filePath, directory: settings.downloadDirectory || undefined });
+    await tauriApi.downloadMediaDelete({
+      path: item.filePath,
+      directory: settings.downloadDirectory || undefined,
+    });
     useDownloadStore.getState().removeDownloadedItem(id);
-    notify.success('Download Removed', `${item.title} was deleted from your device.`, undefined, undefined, 'downloads');
+    notify.success(
+      'Download Removed',
+      `${item.title} was deleted from your device.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
     return true;
   } catch (error: unknown) {
-    notify.error('Could Not Remove Download', getUserFacingErrorMessage(error, 'The file could not be deleted.'), undefined, undefined, 'downloads');
+    notify.error(
+      'Could Not Remove Download',
+      getUserFacingErrorMessage(error, 'The file could not be deleted.'),
+      undefined,
+      undefined,
+      'downloads',
+    );
     return false;
   }
 }
@@ -139,16 +166,33 @@ function createDownloadId() {
 export async function startMediaDownload(request: MediaDownloadRequest): Promise<string | null> {
   const url = request.url.trim();
   if (!url) {
-    notify.warning('Download Unavailable', 'This media does not have a downloadable source URL.', undefined, undefined, 'downloads');
+    notify.warning(
+      'Download Unavailable',
+      'This media does not have a downloadable source URL.',
+      undefined,
+      undefined,
+      'downloads',
+    );
     return null;
   }
 
   const store = useDownloadStore.getState();
   const duplicate = request.id
     ? undefined
-    : store.jobs.find((job) => job.sourceUrl === url && job.fileName === request.fileName && ['queued', 'downloading', 'paused'].includes(job.state));
+    : store.jobs.find(
+        (job) =>
+          job.sourceUrl === url &&
+          job.fileName === request.fileName &&
+          ['queued', 'downloading', 'paused'].includes(job.state),
+      );
   if (duplicate) {
-    notify.info('Download Already Queued', `${request.fileName} is already in Downloads.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Download Already Queued',
+      `${request.fileName} is already in Downloads.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
     return null;
   }
   const id = request.id ?? createDownloadId();
@@ -158,24 +202,50 @@ export async function startMediaDownload(request: MediaDownloadRequest): Promise
   }
 
   const settings = useSettingsStore.getState();
-  const activeCount = useDownloadStore.getState().jobs.filter((job) => job.state === 'downloading').length;
+  const activeCount = useDownloadStore
+    .getState()
+    .jobs.filter((job) => job.state === 'downloading').length;
   if (activeCount >= settings.maxConcurrentDownloads) {
-    notify.info('Download Queued', `${request.fileName} will start when a download slot is available.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Download Queued',
+      `${request.fileName} will start when a download slot is available.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
     return null;
   }
   if (!request.force && !settings.autoStartDownloads) {
-    notify.info('Download Queued', `${request.fileName} will start when you choose Start.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Download Queued',
+      `${request.fileName} will start when you choose Start.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
     return null;
   }
 
   useDownloadStore.getState().start(id);
   const startedJob = useDownloadStore.getState().jobs.find((job) => job.id === id);
   if (startedJob?.state !== 'downloading') {
-    notify.info('Download Already Active', `${request.fileName} is already in Downloads.`, undefined, undefined, 'downloads');
+    notify.info(
+      'Download Already Active',
+      `${request.fileName} is already in Downloads.`,
+      undefined,
+      undefined,
+      'downloads',
+    );
     return null;
   }
 
-  notify.info('Download Started', `${request.fileName} is being saved to Downloads.`, undefined, undefined, 'downloads');
+  notify.info(
+    'Download Started',
+    `${request.fileName} is being saved to Downloads.`,
+    undefined,
+    undefined,
+    'downloads',
+  );
   try {
     await tauriApi.downloadMediaStart({
       id,
@@ -197,7 +267,8 @@ export function startQueuedDownloads() {
   const settings = useSettingsStore.getState();
   if (!settings.autoStartDownloads) return;
   const jobs = useDownloadStore.getState().jobs;
-  let slots = settings.maxConcurrentDownloads - jobs.filter((job) => job.state === 'downloading').length;
+  let slots =
+    settings.maxConcurrentDownloads - jobs.filter((job) => job.state === 'downloading').length;
   for (const job of jobs.filter((candidate) => candidate.state === 'queued')) {
     if (slots <= 0) break;
     slots -= 1;

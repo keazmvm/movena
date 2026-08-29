@@ -13,7 +13,9 @@ const appUpdater = vi.hoisted(() => ({
 
 vi.mock('../../src/services/appDataReset', () => ({ clearAllAppData: clearAllAppDataMock }));
 vi.mock('../../src/services/appUpdater', () => appUpdater);
-vi.mock('../../src/services/tmdbCredentialVault', () => ({ deleteTmdbApiKey: deleteTmdbApiKeyMock }));
+vi.mock('../../src/services/tmdbCredentialVault', () => ({
+  deleteTmdbApiKey: deleteTmdbApiKeyMock,
+}));
 
 import { AboutSettingsSection } from '../../src/components/settings/AboutSettingsSection';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
@@ -102,7 +104,11 @@ describe('all-data deletion settings control', () => {
 describe('update download and install flow', () => {
   it('never installs on its own — checking only reveals a Download & Install button', async () => {
     const user = userEvent.setup();
-    appUpdater.checkForAppUpdates.mockResolvedValue({ available: true, updateInfo, update: updateHandle });
+    appUpdater.checkForAppUpdates.mockResolvedValue({
+      available: true,
+      updateInfo,
+      update: updateHandle,
+    });
     render(<AboutSettingsSection />);
 
     await user.click(screen.getByRole('button', { name: /Check for Updates/ }));
@@ -118,21 +124,38 @@ describe('update download and install flow', () => {
 
     await user.click(screen.getByRole('button', { name: /Check for Updates/ }));
 
-    await waitFor(() => expect(useNotificationStore.getState().notifications[0]).toMatchObject({ type: 'info', title: 'Up to Date' }));
+    await waitFor(() =>
+      expect(useNotificationStore.getState().notifications[0]).toMatchObject({
+        type: 'info',
+        title: 'Up to Date',
+      }),
+    );
     expect(screen.queryByRole('button', { name: /Download & Install/ })).toBeNull();
   });
 
   it('shows download progress and never leaves the button silently finishing', async () => {
     const user = userEvent.setup();
     let releaseInstall!: () => void;
-    appUpdater.installAppUpdate.mockImplementation((_handle: unknown, options: {
-      onProgress?: (p: { downloaded: number; total: number | null }) => void;
-    }) => new Promise<void>((resolve) => {
-      options.onProgress?.({ downloaded: 0, total: 200 });
-      options.onProgress?.({ downloaded: 100, total: 200 });
-      releaseInstall = resolve;
-    }));
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    appUpdater.installAppUpdate.mockImplementation(
+      (
+        _handle: unknown,
+        options: {
+          onProgress?: (p: { downloaded: number; total: number | null }) => void;
+        },
+      ) =>
+        new Promise<void>((resolve) => {
+          options.onProgress?.({ downloaded: 0, total: 200 });
+          options.onProgress?.({ downloaded: 100, total: 200 });
+          releaseInstall = resolve;
+        }),
+    );
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: updateHandle,
+      progress: null,
+      error: null,
+    });
     render(<AboutSettingsSection />);
 
     await user.click(screen.getByRole('button', { name: /Download & Install/ }));
@@ -145,18 +168,34 @@ describe('update download and install flow', () => {
   it('surfaces an install failure instead of leaving the UI stuck mid-download', async () => {
     const user = userEvent.setup();
     appUpdater.installAppUpdate.mockRejectedValue(new Error('disk full'));
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: updateHandle,
+      progress: null,
+      error: null,
+    });
     render(<AboutSettingsSection />);
 
     await user.click(screen.getByRole('button', { name: /Download & Install/ }));
 
     expect(await screen.findByRole('button', { name: /Check for Updates/ })).toBeTruthy();
-    expect(useNotificationStore.getState().notifications[0]).toMatchObject({ type: 'error', title: 'Update Failed', message: 'disk full' });
+    expect(useNotificationStore.getState().notifications[0]).toMatchObject({
+      type: 'error',
+      title: 'Update Failed',
+      message: 'disk full',
+    });
   });
 
   it('lets the user dismiss an available update instead of forcing the install', async () => {
     const user = userEvent.setup();
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: updateHandle, progress: null, error: null });
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: updateHandle,
+      progress: null,
+      error: null,
+    });
     render(<AboutSettingsSection />);
 
     await user.click(screen.getByRole('button', { name: 'Later' }));

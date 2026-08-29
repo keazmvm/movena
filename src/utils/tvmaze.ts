@@ -26,11 +26,12 @@ export interface NormalizedTvmazeEpisode {
   airstamp: string;
 }
 
-const ISO_AIRSTAMP = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-](\d{2}):?(\d{2}))$/;
+const ISO_AIRSTAMP =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-](\d{2}):?(\d{2}))$/;
 
 function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? value as Record<string, unknown>
+    ? (value as Record<string, unknown>)
     : null;
 }
 
@@ -45,7 +46,9 @@ function text(value: unknown): string | null {
 }
 
 function integer(value: unknown, minimum = 0): number | null {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum ? value : null;
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum
+    ? value
+    : null;
 }
 
 function externalImdbId(value: unknown): string | null {
@@ -74,15 +77,16 @@ export function normalizeTvmazeAirstamp(value: unknown): string | null {
   const offsetMinute = match[8] === 'Z' ? 0 : Number(match[10]);
   const calendarDate = new Date(Date.UTC(year, month - 1, day));
   if (
-    calendarDate.getUTCFullYear() !== year
-    || calendarDate.getUTCMonth() !== month - 1
-    || calendarDate.getUTCDate() !== day
-    || hour > 23
-    || minute > 59
-    || second > 59
-    || offsetHour > 23
-    || offsetMinute > 59
-  ) return null;
+    calendarDate.getUTCFullYear() !== year ||
+    calendarDate.getUTCMonth() !== month - 1 ||
+    calendarDate.getUTCDate() !== day ||
+    hour > 23 ||
+    minute > 59 ||
+    second > 59 ||
+    offsetHour > 23 ||
+    offsetMinute > 59
+  )
+    return null;
 
   return Number.isFinite(Date.parse(airstamp)) ? airstamp : null;
 }
@@ -149,19 +153,25 @@ function normalizeTvmazeEpisodes(payload: unknown): NormalizedTvmazeEpisode[] {
 
 /** Return every normalized episode ordered by its exact broadcast instant. */
 export function findTvmazeEpisodes(payload: unknown): NormalizedTvmazeEpisode[] {
-  return normalizeTvmazeEpisodes(payload)
-    .sort((left, right) => Date.parse(left.airstamp) - Date.parse(right.airstamp));
+  return normalizeTvmazeEpisodes(payload).sort(
+    (left, right) => Date.parse(left.airstamp) - Date.parse(right.airstamp),
+  );
 }
 
 /** Return every exact episode instant after `now`, in chronological order. */
-export function findFutureTvmazeEpisodes(payload: unknown, now: Date = new Date()): NormalizedTvmazeEpisode[] {
+export function findFutureTvmazeEpisodes(
+  payload: unknown,
+  now: Date = new Date(),
+): NormalizedTvmazeEpisode[] {
   const nowTime = now.getTime();
   if (!Number.isFinite(nowTime)) return [];
-  return findTvmazeEpisodes(payload)
-    .filter((episode) => Date.parse(episode.airstamp) > nowTime);
+  return findTvmazeEpisodes(payload).filter((episode) => Date.parse(episode.airstamp) > nowTime);
 }
 
 /** Return the chronologically first exact episode instant after `now`. */
-export function findNextTvmazeEpisode(payload: unknown, now: Date = new Date()): NormalizedTvmazeEpisode | null {
+export function findNextTvmazeEpisode(
+  payload: unknown,
+  now: Date = new Date(),
+): NormalizedTvmazeEpisode | null {
   return findFutureTvmazeEpisodes(payload, now)[0] ?? null;
 }

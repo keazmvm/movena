@@ -25,7 +25,9 @@ beforeEach(() => {
   vi.spyOn(tauriApi, 'sourceSecretStore').mockImplementation(async (sourceId, value) => {
     secrets.set(sourceId, value);
   });
-  vi.spyOn(tauriApi, 'sourceSecretLoad').mockImplementation(async (sourceId) => secrets.get(sourceId) ?? null);
+  vi.spyOn(tauriApi, 'sourceSecretLoad').mockImplementation(
+    async (sourceId) => secrets.get(sourceId) ?? null,
+  );
   vi.spyOn(tauriApi, 'sourceSecretDelete').mockImplementation(async (sourceId) => {
     secrets.delete(sourceId);
   });
@@ -37,10 +39,18 @@ beforeEach(() => {
   localStorage.clear();
   queryClient.clear();
   useSettingsStore.getState().resetSettings();
-  useSourceStore.setState({ profiles: [], runtimes: {}, enabledSourceIds: [], isInitializing: false, initializationError: null });
+  useSourceStore.setState({
+    profiles: [],
+    runtimes: {},
+    enabledSourceIds: [],
+    isInitializing: false,
+    initializationError: null,
+  });
   useAuthStore.setState({
-    profiles: [], runtimes: {},
-    isInitializing: false, initializationError: null,
+    profiles: [],
+    runtimes: {},
+    isInitializing: false,
+    initializationError: null,
   });
   useLibraryStore.setState({ favorites: [], collections: [], history: [], watched: [] });
   useDownloadStore.setState({ jobs: [] });
@@ -72,25 +82,86 @@ describe('clearAllAppData', () => {
     });
     useSettingsStore.getState().updateSetting('accentColor', '#af52de');
     useSourceStore.setState({
-      profiles: [{
-        id: m3uId, kind: 'm3u', name: 'Playlist', locationType: 'remote', locationLabel: 'list.test',
-        refreshIntervalMinutes: 360, lastRefreshAt: 0, entryCount: 1, liveCount: 1, vodCount: 0, seriesCount: 0, hasEpg: false,
-      }],
+      profiles: [
+        {
+          id: m3uId,
+          kind: 'm3u',
+          name: 'Playlist',
+          locationType: 'remote',
+          locationLabel: 'list.test',
+          refreshIntervalMinutes: 360,
+          lastRefreshAt: 0,
+          entryCount: 1,
+          liveCount: 1,
+          vodCount: 0,
+          seriesCount: 0,
+          hasEpg: false,
+        },
+      ],
       enabledSourceIds: [m3uId],
     });
     useAuthStore.setState({
-      profiles: [{
-        id: xtreamId, kind: 'xtream', name: 'Provider', locationLabel: 'provider.test', username: 'alice',
-        userInfo: { username: 'alice', message: '', auth: 1, status: 'Active', exp_date: '0', is_trial: '0', active_cons: '0', created_at: '0', max_connections: '1', allowed_output_formats: [] },
-        serverInfo: { url: 'https://provider.test', port: '80', https_port: '443', server_protocol: 'https', rtmp_port: '0', timestamp_now: 0, time_now: '', timezone: 'UTC' },
-        createdAt: 0, updatedAt: 0,
-      }],
+      profiles: [
+        {
+          id: xtreamId,
+          kind: 'xtream',
+          name: 'Provider',
+          locationLabel: 'provider.test',
+          username: 'alice',
+          userInfo: {
+            username: 'alice',
+            message: '',
+            auth: 1,
+            status: 'Active',
+            exp_date: '0',
+            is_trial: '0',
+            active_cons: '0',
+            created_at: '0',
+            max_connections: '1',
+            allowed_output_formats: [],
+          },
+          serverInfo: {
+            url: 'https://provider.test',
+            port: '80',
+            https_port: '443',
+            server_protocol: 'https',
+            rtmp_port: '0',
+            timestamp_now: 0,
+            time_now: '',
+            timezone: 'UTC',
+          },
+          createdAt: 0,
+          updatedAt: 0,
+        },
+      ],
     });
-    useLibraryStore.setState({ history: [{ id: 'movie-1', title: 'Movie', posterUrl: '', type: 'vod', progressPercentage: 50, lastWatchedAt: 1 }] as never });
-    useDownloadStore.getState().enqueue({ id: 'download-1', sourceUrl: 'https://media.test/movie.mp4' });
+    useLibraryStore.setState({
+      history: [
+        {
+          id: 'movie-1',
+          title: 'Movie',
+          posterUrl: '',
+          type: 'vod',
+          progressPercentage: 50,
+          lastWatchedAt: 1,
+        },
+      ] as never,
+    });
+    useDownloadStore
+      .getState()
+      .enqueue({ id: 'download-1', sourceUrl: 'https://media.test/movie.mp4' });
     useSearchStore.getState().addRecentSearch('private query');
-    useStreamVerificationStore.getState().recordVerification('private-stream', { width: 1920, height: 1080 });
-    writePlaybackRecovery({ streamId: 'private-stream', title: 'Private', type: 'vod', currentTime: 2, duration: 10, savedAt: Date.now() });
+    useStreamVerificationStore
+      .getState()
+      .recordVerification('private-stream', { width: 1920, height: 1080 });
+    writePlaybackRecovery({
+      streamId: 'private-stream',
+      title: 'Private',
+      type: 'vod',
+      currentTime: 2,
+      duration: 10,
+      savedAt: Date.now(),
+    });
     localStorage.setItem(`movena-m3u-editor-draft-v1:${m3uId}`, 'private playlist');
     localStorage.setItem('movena-m3u-editor-filters-v1', 'private filter');
     queryClient.setQueryData(['catalog', 'private-source'], [{ id: 'movie-1' }]);

@@ -49,9 +49,13 @@ describe('Developer HUD', () => {
     expect(hud.style.height).toBe('520px');
 
     let capturedPointer: number | null = null;
-    resizeHandle.setPointerCapture = (pointerId) => { capturedPointer = pointerId; };
+    resizeHandle.setPointerCapture = (pointerId) => {
+      capturedPointer = pointerId;
+    };
     resizeHandle.hasPointerCapture = (pointerId) => capturedPointer === pointerId;
-    resizeHandle.releasePointerCapture = () => { capturedPointer = null; };
+    resizeHandle.releasePointerCapture = () => {
+      capturedPointer = null;
+    };
     fireEvent.pointerDown(resizeHandle, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
     fireEvent.pointerMove(resizeHandle, { pointerId: 1, clientX: 132, clientY: 148 });
     fireEvent.pointerUp(resizeHandle, { pointerId: 1, clientX: 132, clientY: 148 });
@@ -111,7 +115,12 @@ describe('Developer HUD', () => {
 
   it('shows bounded native playback quality and pipeline diagnostics', async () => {
     const player = usePlayerStore.getState();
-    player.playStream({ id: 'movie', title: 'Movie', type: 'vod', streamUrl: 'https://example.test' });
+    player.playStream({
+      id: 'movie',
+      title: 'Movie',
+      type: 'vod',
+      streamUrl: 'https://example.test',
+    });
     player.setTrackList([
       { id: 1, type: 'video', selected: true, codec: 'hevc', 'codec-profile': 'Main 10' },
       { id: 2, type: 'audio', selected: true, codec: 'aac' },

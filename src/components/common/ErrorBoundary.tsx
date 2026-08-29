@@ -29,7 +29,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    debugLog.error('system', 'Uncaught React render error', { error, componentStack: info.componentStack });
+    debugLog.error('system', 'Uncaught React render error', {
+      error,
+      componentStack: info.componentStack,
+    });
     this.setState({ componentStack: info.componentStack ?? null });
   }
 

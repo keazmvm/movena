@@ -39,11 +39,16 @@ describe('stream verification store', () => {
 
   it('rejects malformed/stale hydration and caps persisted verification records', () => {
     const now = 10_000_000_000;
-    const values: Record<string, unknown> = Object.fromEntries(Array.from({ length: 520 }, (_, index) => [`stream-${index}`, {
-      width: 1920,
-      height: 1080,
-      verifiedAt: now - index,
-    }]));
+    const values: Record<string, unknown> = Object.fromEntries(
+      Array.from({ length: 520 }, (_, index) => [
+        `stream-${index}`,
+        {
+          width: 1920,
+          height: 1080,
+          verifiedAt: now - index,
+        },
+      ]),
+    );
     values.bad = { width: 0, height: 0, verifiedAt: now };
     values.stale = { width: 1920, height: 1080, verifiedAt: 0 };
 

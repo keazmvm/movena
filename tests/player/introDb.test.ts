@@ -89,28 +89,47 @@ describe('IntroDB API client & normalization', () => {
     it('returns empty segments on invalid IMDb ID or non-positive season/episode without calling the backend', async () => {
       introDbFetchSegments.mockClear();
 
-      expect(await fetchIntroDbSegments('invalid', 1, 1)).toEqual({ intro: null, recap: null, outro: null });
-      expect(await fetchIntroDbSegments('tt1234567', 0, 1)).toEqual({ intro: null, recap: null, outro: null });
-      expect(await fetchIntroDbSegments('tt1234567', 1, -1)).toEqual({ intro: null, recap: null, outro: null });
+      expect(await fetchIntroDbSegments('invalid', 1, 1)).toEqual({
+        intro: null,
+        recap: null,
+        outro: null,
+      });
+      expect(await fetchIntroDbSegments('tt1234567', 0, 1)).toEqual({
+        intro: null,
+        recap: null,
+        outro: null,
+      });
+      expect(await fetchIntroDbSegments('tt1234567', 1, -1)).toEqual({
+        intro: null,
+        recap: null,
+        outro: null,
+      });
       expect(introDbFetchSegments).not.toHaveBeenCalled();
     });
 
     it('safely handles a rejected IPC call', async () => {
       introDbFetchSegments.mockRejectedValue(new Error('IPC error'));
-      expect(await fetchIntroDbSegments('tt0944947', 1, 1)).toEqual({ intro: null, recap: null, outro: null });
+      expect(await fetchIntroDbSegments('tt0944947', 1, 1)).toEqual({
+        intro: null,
+        recap: null,
+        outro: null,
+      });
     });
   });
 
   describe('normalizeTmdbExternalIds', () => {
     it('extracts valid IMDb ID from TMDB external_ids response', () => {
-      expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: 'tt0944947', tvdb_id: 121361 }))
-        .toEqual({ imdbId: 'tt0944947' });
+      expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: 'tt0944947', tvdb_id: 121361 })).toEqual(
+        { imdbId: 'tt0944947' },
+      );
     });
 
     it('returns null if imdb_id is null, missing, or malformed', () => {
       expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: null })).toEqual({ imdbId: null });
       expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: '' })).toEqual({ imdbId: null });
-      expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: 'not-an-imdb-id' })).toEqual({ imdbId: null });
+      expect(normalizeTmdbExternalIds({ id: 1399, imdb_id: 'not-an-imdb-id' })).toEqual({
+        imdbId: null,
+      });
       expect(normalizeTmdbExternalIds(null)).toEqual({ imdbId: null });
       expect(normalizeTmdbExternalIds(undefined)).toEqual({ imdbId: null });
       expect(normalizeTmdbExternalIds('garbage')).toEqual({ imdbId: null });

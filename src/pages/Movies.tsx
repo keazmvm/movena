@@ -6,15 +6,14 @@ import { MediaDetailModals } from '../components/modals/MediaDetailModals';
 import { useMediaDetailState } from '../hooks/useMediaDetailState';
 
 export function Movies() {
-  const {
-    selectedMovie,
-    setSelectedMovie,
-    handleCloseMovie,
-  } = useMediaDetailState();
+  const { selectedMovie, setSelectedMovie, handleCloseMovie } = useMediaDetailState();
 
-  const handleItemClick = useCallback((item: MediaItem) => {
-    setSelectedMovie(item);
-  }, [setSelectedMovie]);
+  const handleItemClick = useCallback(
+    (item: MediaItem) => {
+      setSelectedMovie(item);
+    },
+    [setSelectedMovie],
+  );
 
   return (
     <>
@@ -28,10 +27,7 @@ export function Movies() {
         onItemClick={handleItemClick}
       />
 
-      <MediaDetailModals
-        selectedMovie={selectedMovie}
-        onCloseMovie={handleCloseMovie}
-      />
+      <MediaDetailModals selectedMovie={selectedMovie} onCloseMovie={handleCloseMovie} />
     </>
   );
 }

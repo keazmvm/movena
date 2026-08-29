@@ -51,7 +51,10 @@ function SubmenuItem({ item, onClose }: SubmenuItemProps) {
     const submenuRect = submenuRef.current.getBoundingClientRect();
     const viewportMargin = 12;
     const naturalTop = parentRect.top - 6;
-    const latestTop = Math.max(viewportMargin, window.innerHeight - submenuRect.height - viewportMargin);
+    const latestTop = Math.max(
+      viewportMargin,
+      window.innerHeight - submenuRect.height - viewportMargin,
+    );
     const viewportTop = Math.min(Math.max(naturalTop, viewportMargin), latestTop);
     setSubmenuTop(viewportTop - parentRect.top);
 
@@ -112,7 +115,8 @@ function SubmenuItem({ item, onClose }: SubmenuItemProps) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <button type="button"
+      <button
+        type="button"
         role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
         aria-label={item.localize === false ? item.label : t(item.label)}
         aria-checked={item.checked === undefined ? undefined : item.checked}
@@ -169,7 +173,10 @@ export const ContextMenu: React.FC = () => {
   const { isOpen, x, y, items, focusOnOpen, closeContextMenu } = useContextMenuStore();
   const menuRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
-  const [adjustedPos, setAdjustedPos] = useState<{ left: number; top: number }>({ left: x, top: y });
+  const [adjustedPos, setAdjustedPos] = useState<{ left: number; top: number }>({
+    left: x,
+    top: y,
+  });
 
   // Calculate position with screen boundary collision checks
   useEffect(() => {
@@ -199,9 +206,8 @@ export const ContextMenu: React.FC = () => {
 
   useEffect(() => {
     if (!isOpen || !focusOnOpen) return;
-    returnFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    returnFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const frameId = requestAnimationFrame(() => {
       menuRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
     });
@@ -224,19 +230,24 @@ export const ContextMenu: React.FC = () => {
       }
 
       if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
-      const buttons = [...(menuRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])];
+      const buttons = [
+        ...(menuRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []),
+      ];
       if (buttons.length === 0) return;
       e.preventDefault();
       const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
-      const nextIndex = e.key === 'Home'
-        ? 0
-        : e.key === 'End'
-          ? buttons.length - 1
-          : e.key === 'ArrowDown'
-            ? (currentIndex < 0 ? 0 : (currentIndex + 1) % buttons.length)
-            : (currentIndex < 0
+      const nextIndex =
+        e.key === 'Home'
+          ? 0
+          : e.key === 'End'
+            ? buttons.length - 1
+            : e.key === 'ArrowDown'
+              ? currentIndex < 0
+                ? 0
+                : (currentIndex + 1) % buttons.length
+              : currentIndex < 0
                 ? buttons.length - 1
-                : (currentIndex - 1 + buttons.length) % buttons.length);
+                : (currentIndex - 1 + buttons.length) % buttons.length;
       buttons[nextIndex]?.focus();
     };
 
@@ -266,7 +277,14 @@ export const ContextMenu: React.FC = () => {
   if (!isOpen || items.length === 0) return null;
 
   return createPortal(
-    <div className={styles.overlay} data-ui-layer="context-menu" onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+    <div
+      className={styles.overlay}
+      data-ui-layer="context-menu"
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <div
         ref={menuRef}
         role="menu"
@@ -283,6 +301,6 @@ export const ContextMenu: React.FC = () => {
         ))}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

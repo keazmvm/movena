@@ -14,7 +14,7 @@ describe('playback domain logic', () => {
         '2': [{ id: 20, episode_num: 1 }],
       },
       10,
-      1
+      1,
     );
 
     expect(result).toEqual({ episode: { id: 20, episode_num: 1 }, seasonNum: '2' });
@@ -65,12 +65,14 @@ describe('playback domain logic', () => {
   });
 
   it('rejects malformed track entries from native events', () => {
-    usePlayerStore.getState().setTrackList([
-      null,
-      { id: 'wrong', type: 'audio' },
-      { id: 2, type: 'audio', selected: true },
-      { id: 3, type: 'sub', selected: true },
-    ]);
+    usePlayerStore
+      .getState()
+      .setTrackList([
+        null,
+        { id: 'wrong', type: 'audio' },
+        { id: 2, type: 'audio', selected: true },
+        { id: 3, type: 'sub', selected: true },
+      ]);
 
     const state = usePlayerStore.getState();
     expect(state.audioTracks.map((track) => track.id)).toEqual([2]);
@@ -81,12 +83,24 @@ describe('playback domain logic', () => {
 
   it('normalizes video and codec metadata from native track nodes', () => {
     usePlayerStore.getState().setTrackList([
-      { id: 1, type: 'video', selected: true, codec: 'h264', 'codec-desc': 'H.264', 'codec-profile': 'High' },
+      {
+        id: 1,
+        type: 'video',
+        selected: true,
+        codec: 'h264',
+        'codec-desc': 'H.264',
+        'codec-profile': 'High',
+      },
       { id: 2, type: 'audio', codec: 'aac', 'decoder-desc': 'AAC decoder' },
     ]);
 
     expect(usePlayerStore.getState().videoTracks).toEqual([
-      expect.objectContaining({ id: 1, codec: 'h264', codecDescription: 'H.264', codecProfile: 'High' }),
+      expect.objectContaining({
+        id: 1,
+        codec: 'h264',
+        codecDescription: 'H.264',
+        codecProfile: 'High',
+      }),
     ]);
     expect(usePlayerStore.getState().audioTracks[0]).toEqual(
       expect.objectContaining({ codec: 'aac', decoderDescription: 'AAC decoder' }),
@@ -97,7 +111,12 @@ describe('playback domain logic', () => {
     let now = 1_000;
     vi.spyOn(Date, 'now').mockImplementation(() => now);
     const store = usePlayerStore.getState();
-    store.playStream({ id: 'timed', title: 'Timed', type: 'vod', streamUrl: 'https://example.test' });
+    store.playStream({
+      id: 'timed',
+      title: 'Timed',
+      type: 'vod',
+      streamUrl: 'https://example.test',
+    });
 
     now = 1_120;
     store.markMpvStartCompleted();
@@ -146,7 +165,11 @@ describe('playback domain logic', () => {
     expect(diagnostics.samples).toHaveLength(60);
     expect(diagnostics.samples[0]!.cacheDurationSeconds).toBe(5);
     expect(diagnostics.hardwareDecoder).toBe('d3d11va');
-    expect(diagnostics.videoParams).toMatchObject({ width: 1920, height: 1080, pixelFormat: 'nv12' });
+    expect(diagnostics.videoParams).toMatchObject({
+      width: 1920,
+      height: 1080,
+      pixelFormat: 'nv12',
+    });
     expect(diagnostics.audioParams).toMatchObject({ sampleRate: 48000, channels: 'stereo' });
     expect(JSON.stringify(diagnostics)).not.toContain('must-not-be-stored');
   });
@@ -166,7 +189,12 @@ describe('playback domain logic', () => {
     store.updateFromMpvEvent('duration', 300);
     store.updateFromMpvEvent('speed', 1.5);
     store.updateFromMpvEvent('eof-reached', true);
-    store.playStream({ id: 'new', title: 'New', type: 'live', streamUrl: 'https://example.test/live' });
+    store.playStream({
+      id: 'new',
+      title: 'New',
+      type: 'live',
+      streamUrl: 'https://example.test/live',
+    });
 
     expect(usePlayerStore.getState()).toMatchObject({
       duration: 0,
@@ -179,9 +207,19 @@ describe('playback domain logic', () => {
 
   it('ignores native observations from the replaced session', () => {
     const store = usePlayerStore.getState();
-    store.playStream({ id: 'old', title: 'Old', type: 'vod', streamUrl: 'https://example.test/old' });
+    store.playStream({
+      id: 'old',
+      title: 'Old',
+      type: 'vod',
+      streamUrl: 'https://example.test/old',
+    });
     const oldSession = usePlayerStore.getState().sessionId!;
-    store.playStream({ id: 'new', title: 'New', type: 'vod', streamUrl: 'https://example.test/new' });
+    store.playStream({
+      id: 'new',
+      title: 'New',
+      type: 'vod',
+      streamUrl: 'https://example.test/new',
+    });
     const currentSession = usePlayerStore.getState().sessionId!;
 
     store.updateFromMpvEvent('time-pos', 99, oldSession);

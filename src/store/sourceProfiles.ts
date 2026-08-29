@@ -75,32 +75,38 @@ export function safeProfiles(): M3uSourceProfile[] {
       if (!value || typeof value !== 'object') return [];
       const profile = value as Partial<M3uSourceProfile>;
       if (
-        profile.kind !== 'm3u'
-        || typeof profile.id !== 'string'
-        || !/^m3u-[a-z0-9-]{8,}$/i.test(profile.id)
-        || typeof profile.name !== 'string'
-        || (profile.locationType !== 'remote' && profile.locationType !== 'local')
-      ) return [];
-      const finite = (number: unknown, fallback = 0) => typeof number === 'number' && Number.isFinite(number)
-        ? Math.max(0, number)
-        : fallback;
-      return [{
-        id: profile.id,
-        kind: 'm3u',
-        name: profile.name.trim().slice(0, 120) || 'M3U Playlist',
-        locationType: profile.locationType,
-        locationLabel: typeof profile.locationLabel === 'string' ? profile.locationLabel.slice(0, 200) : 'Playlist',
-        refreshIntervalMinutes: Math.max(15, finite(profile.refreshIntervalMinutes, 360)),
-        lastRefreshAt: finite(profile.lastRefreshAt),
-        entryCount: finite(profile.entryCount),
-        liveCount: finite(profile.liveCount),
-        vodCount: finite(profile.vodCount),
-        seriesCount: finite(profile.seriesCount),
-        hasEpg: profile.hasEpg === true,
-        hasLocalEdits: profile.hasLocalEdits === true,
-        editorRefreshPolicy: profile.editorRefreshPolicy === 'replace-edits' ? 'replace-edits' : 'preserve-edits',
-        editorWriteBack: profile.editorWriteBack === true,
-      }];
+        profile.kind !== 'm3u' ||
+        typeof profile.id !== 'string' ||
+        !/^m3u-[a-z0-9-]{8,}$/i.test(profile.id) ||
+        typeof profile.name !== 'string' ||
+        (profile.locationType !== 'remote' && profile.locationType !== 'local')
+      )
+        return [];
+      const finite = (number: unknown, fallback = 0) =>
+        typeof number === 'number' && Number.isFinite(number) ? Math.max(0, number) : fallback;
+      return [
+        {
+          id: profile.id,
+          kind: 'm3u',
+          name: profile.name.trim().slice(0, 120) || 'M3U Playlist',
+          locationType: profile.locationType,
+          locationLabel:
+            typeof profile.locationLabel === 'string'
+              ? profile.locationLabel.slice(0, 200)
+              : 'Playlist',
+          refreshIntervalMinutes: Math.max(15, finite(profile.refreshIntervalMinutes, 360)),
+          lastRefreshAt: finite(profile.lastRefreshAt),
+          entryCount: finite(profile.entryCount),
+          liveCount: finite(profile.liveCount),
+          vodCount: finite(profile.vodCount),
+          seriesCount: finite(profile.seriesCount),
+          hasEpg: profile.hasEpg === true,
+          hasLocalEdits: profile.hasLocalEdits === true,
+          editorRefreshPolicy:
+            profile.editorRefreshPolicy === 'replace-edits' ? 'replace-edits' : 'preserve-edits',
+          editorWriteBack: profile.editorWriteBack === true,
+        },
+      ];
     });
   } catch {
     return [];
@@ -112,9 +118,10 @@ export function writeProfiles(profiles: M3uSourceProfile[]): void {
 }
 
 export function readEnabledSourceIds(profiles: M3uSourceProfile[]): string[] {
-  const valid = (id: unknown): id is string => id === XTREAM_SOURCE_ID
-    || (typeof id === 'string' && /^xtream-[a-z0-9-]{6,}$/i.test(id))
-    || (typeof id === 'string' && profiles.some((profile) => profile.id === id));
+  const valid = (id: unknown): id is string =>
+    id === XTREAM_SOURCE_ID ||
+    (typeof id === 'string' && /^xtream-[a-z0-9-]{6,}$/i.test(id)) ||
+    (typeof id === 'string' && profiles.some((profile) => profile.id === id));
   const stored = localStorage.getItem(ENABLED_SOURCE_IDS_STORAGE_KEY);
   if (stored !== null) {
     try {
@@ -136,9 +143,10 @@ export function writeEnabledSourceIds(ids: string[]): void {
 }
 
 export function sourceId(): string {
-  const uuid = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const uuid =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return `m3u-${uuid.toLowerCase().replace(/[^a-z0-9-]/g, '')}`;
 }
 
@@ -152,8 +160,13 @@ export function normalizedRemoteUrl(value: string): string {
   return parsed.toString();
 }
 
-function publicLocationLabel(locationType: M3uLocationType, location: string, fileName?: string): string {
-  if (locationType === 'local') return fileName || location.split(/[\\/]/).at(-1) || 'Local playlist';
+function publicLocationLabel(
+  locationType: M3uLocationType,
+  location: string,
+  fileName?: string,
+): string {
+  if (locationType === 'local')
+    return fileName || location.split(/[\\/]/).at(-1) || 'Local playlist';
   try {
     return new URL(location).host;
   } catch {

@@ -32,7 +32,9 @@ describe('upcoming release dates', () => {
     expect(countdownLabel('2026-08-14', today)).toBe('Tomorrow');
     expect(countdownLabel('2026-08-20', today)).toBe('In 7 days');
     expect(countdownLabel('2026-08-12', today)).toBe('Released');
-    expect(releaseCountdown('2026-08-14', new Date(2026, 7, 13, 12, 34, 56))).toBe('0d 11h 25m 04s');
+    expect(releaseCountdown('2026-08-14', new Date(2026, 7, 13, 12, 34, 56))).toBe(
+      '0d 11h 25m 04s',
+    );
     expect(releaseCountdown('2026-08-13', today)).toBe('Today');
   });
 
@@ -41,7 +43,9 @@ describe('upcoming release dates', () => {
 
     // Midnight in New York is 04:00 UTC; the viewer's timezone must not
     // affect this elapsed duration.
-    expect(exactTimestampDate('2026-08-14T00:00:00-04:00')?.toISOString()).toBe('2026-08-14T04:00:00.000Z');
+    expect(exactTimestampDate('2026-08-14T00:00:00-04:00')?.toISOString()).toBe(
+      '2026-08-14T04:00:00.000Z',
+    );
     expect(timestampCountdown('2026-08-14T00:00:00-04:00', now)).toBe('0d 09h 25m 04s');
     expect(timestampCountdown('2026-08-15T18:34:56Z', now)).toBe('2d 00h 00m 00s');
   });
@@ -54,25 +58,60 @@ describe('upcoming release dates', () => {
     expect(timestampCountdown('2026-08-14T00:00:00', now)).toBeNull();
     expect(exactTimestampDate('2026-02-30T00:00:00Z')).toBeNull();
     expect(exactTimestampDate('not-a-timestamp')).toBeNull();
-    expect(releaseCountdown('2026-08-14', new Date(2026, 7, 13, 23, 59, 59))).toBe('0d 00h 00m 01s');
+    expect(releaseCountdown('2026-08-14', new Date(2026, 7, 13, 23, 59, 59))).toBe(
+      '0d 00h 00m 01s',
+    );
   });
 
   it('provides stable numeric parts for a segmented countdown', () => {
-    expect(countdownParts(
-      new Date('2026-08-15T20:35:01Z'),
-      new Date('2026-08-13T18:34:56Z'),
-    )).toEqual({ days: 2, hours: 2, minutes: 0, seconds: 5, elapsed: false });
-    expect(countdownParts(new Date('2026-08-13T18:34:55Z'), new Date('2026-08-13T18:34:56Z')))
-      .toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0, elapsed: true });
+    expect(
+      countdownParts(new Date('2026-08-15T20:35:01Z'), new Date('2026-08-13T18:34:56Z')),
+    ).toEqual({ days: 2, hours: 2, minutes: 0, seconds: 5, elapsed: false });
+    expect(
+      countdownParts(new Date('2026-08-13T18:34:55Z'), new Date('2026-08-13T18:34:56Z')),
+    ).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0, elapsed: true });
     expect(countdownParts(new Date(Number.NaN))).toBeNull();
   });
 
   it('groups multiple episodes for the same show on the same date cleanly', () => {
     const favorite = { id: 'show-1', title: 'Outer Banks', posterUrl: '', type: 'series' as const };
     const releases = [
-      { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'Ep 1', seasonNumber: 4, episodeNumber: 1, artworkUrl: null, exactAirTime: '2026-10-20T14:00:00Z', timeSource: 'tvmaze' as const },
-      { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'Ep 2', seasonNumber: 4, episodeNumber: 2, artworkUrl: null, exactAirTime: '2026-10-20T14:00:00Z', timeSource: 'tvmaze' as const },
-      { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'Ep 10', seasonNumber: 4, episodeNumber: 10, artworkUrl: null, exactAirTime: '2026-10-20T14:00:00Z', timeSource: 'tvmaze' as const },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-10-20',
+        kind: 'episode' as const,
+        title: 'Ep 1',
+        seasonNumber: 4,
+        episodeNumber: 1,
+        artworkUrl: null,
+        exactAirTime: '2026-10-20T14:00:00Z',
+        timeSource: 'tvmaze' as const,
+      },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-10-20',
+        kind: 'episode' as const,
+        title: 'Ep 2',
+        seasonNumber: 4,
+        episodeNumber: 2,
+        artworkUrl: null,
+        exactAirTime: '2026-10-20T14:00:00Z',
+        timeSource: 'tvmaze' as const,
+      },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-10-20',
+        kind: 'episode' as const,
+        title: 'Ep 10',
+        seasonNumber: 4,
+        episodeNumber: 10,
+        artworkUrl: null,
+        exactAirTime: '2026-10-20T14:00:00Z',
+        timeSource: 'tvmaze' as const,
+      },
     ];
 
     const empty = groupUpcomingReleases([]);
@@ -85,10 +124,37 @@ describe('upcoming release dates', () => {
   });
 
   it('does not repeat the episode count when episode numbers are unavailable', () => {
-    const favorite = { id: 'show-undated', title: 'Mystery Drop', posterUrl: '', type: 'series' as const };
+    const favorite = {
+      id: 'show-undated',
+      title: 'Mystery Drop',
+      posterUrl: '',
+      type: 'series' as const,
+    };
     const grouped = groupUpcomingReleases([
-      { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'One', seasonNumber: null, episodeNumber: null, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const },
-      { favorite, tmdbId: 1, airDate: '2026-10-20', kind: 'episode' as const, title: 'Two', seasonNumber: null, episodeNumber: null, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-10-20',
+        kind: 'episode' as const,
+        title: 'One',
+        seasonNumber: null,
+        episodeNumber: null,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb' as const,
+      },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-10-20',
+        kind: 'episode' as const,
+        title: 'Two',
+        seasonNumber: null,
+        episodeNumber: null,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb' as const,
+      },
     ]);
     expect(grouped[0]!.summarySubtitle).toBe('2 episodes');
   });
@@ -96,9 +162,69 @@ describe('upcoming release dates', () => {
   it('groups releases into chronological horizons', () => {
     const favorite = { id: 'show-1', title: 'Outer Banks', posterUrl: '', type: 'series' as const };
     const groups = [
-      { favorite, airDate: '2026-08-15', exactAirTime: null, kind: 'episode' as const, primaryRelease: { favorite, tmdbId: 1, airDate: '2026-08-15', kind: 'episode' as const, title: 'Ep 1', seasonNumber: 1, episodeNumber: 1, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const }, episodeCount: 1, summarySubtitle: 'S1 E1', releases: [] },
-      { favorite, airDate: '2026-08-25', exactAirTime: null, kind: 'episode' as const, primaryRelease: { favorite, tmdbId: 1, airDate: '2026-08-25', kind: 'episode' as const, title: 'Ep 2', seasonNumber: 1, episodeNumber: 2, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const }, episodeCount: 1, summarySubtitle: 'S1 E2', releases: [] },
-      { favorite, airDate: '2026-09-10', exactAirTime: null, kind: 'episode' as const, primaryRelease: { favorite, tmdbId: 1, airDate: '2026-09-10', kind: 'episode' as const, title: 'Ep 3', seasonNumber: 1, episodeNumber: 3, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' as const }, episodeCount: 1, summarySubtitle: 'S1 E3', releases: [] },
+      {
+        favorite,
+        airDate: '2026-08-15',
+        exactAirTime: null,
+        kind: 'episode' as const,
+        primaryRelease: {
+          favorite,
+          tmdbId: 1,
+          airDate: '2026-08-15',
+          kind: 'episode' as const,
+          title: 'Ep 1',
+          seasonNumber: 1,
+          episodeNumber: 1,
+          artworkUrl: null,
+          exactAirTime: null,
+          timeSource: 'tmdb' as const,
+        },
+        episodeCount: 1,
+        summarySubtitle: 'S1 E1',
+        releases: [],
+      },
+      {
+        favorite,
+        airDate: '2026-08-25',
+        exactAirTime: null,
+        kind: 'episode' as const,
+        primaryRelease: {
+          favorite,
+          tmdbId: 1,
+          airDate: '2026-08-25',
+          kind: 'episode' as const,
+          title: 'Ep 2',
+          seasonNumber: 1,
+          episodeNumber: 2,
+          artworkUrl: null,
+          exactAirTime: null,
+          timeSource: 'tmdb' as const,
+        },
+        episodeCount: 1,
+        summarySubtitle: 'S1 E2',
+        releases: [],
+      },
+      {
+        favorite,
+        airDate: '2026-09-10',
+        exactAirTime: null,
+        kind: 'episode' as const,
+        primaryRelease: {
+          favorite,
+          tmdbId: 1,
+          airDate: '2026-09-10',
+          kind: 'episode' as const,
+          title: 'Ep 3',
+          seasonNumber: 1,
+          episodeNumber: 3,
+          artworkUrl: null,
+          exactAirTime: null,
+          timeSource: 'tmdb' as const,
+        },
+        episodeCount: 1,
+        summarySubtitle: 'S1 E3',
+        releases: [],
+      },
     ];
 
     const horizons = groupReleasesByHorizon(groups, today);
@@ -114,7 +240,18 @@ describe('upcoming release dates', () => {
       airDate,
       exactAirTime,
       kind: 'episode' as const,
-      primaryRelease: { favorite, tmdbId: 1, airDate, kind: 'episode' as const, title: 'Episode', seasonNumber: 1, episodeNumber: 1, artworkUrl: null, exactAirTime, timeSource: 'tmdb' as const },
+      primaryRelease: {
+        favorite,
+        tmdbId: 1,
+        airDate,
+        kind: 'episode' as const,
+        title: 'Episode',
+        seasonNumber: 1,
+        episodeNumber: 1,
+        artworkUrl: null,
+        exactAirTime,
+        timeSource: 'tmdb' as const,
+      },
       episodeCount: 1,
       summarySubtitle: 'S1 E1',
       releases: [],
@@ -140,29 +277,101 @@ describe('upcoming release dates', () => {
     const favorite = { id: 'show-1', title: 'Outer Banks', posterUrl: '', type: 'series' as const };
     const movie = { id: 'movie-1', title: 'Film', posterUrl: '', type: 'vod' as const };
     const groups = groupUpcomingReleases([
-      { favorite, tmdbId: 1, airDate: '2026-08-20', kind: 'episode', title: 'Episode', seasonNumber: 1, episodeNumber: 1, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
-      { favorite: movie, tmdbId: 2, airDate: '2026-08-21', kind: 'movie', title: 'Film', seasonNumber: null, episodeNumber: null, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
+      {
+        favorite,
+        tmdbId: 1,
+        airDate: '2026-08-20',
+        kind: 'episode',
+        title: 'Episode',
+        seasonNumber: 1,
+        episodeNumber: 1,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
+      {
+        favorite: movie,
+        tmdbId: 2,
+        airDate: '2026-08-21',
+        kind: 'movie',
+        title: 'Film',
+        seasonNumber: null,
+        episodeNumber: null,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
     ]);
 
-    expect(filterUpcomingByKind(groups, 'episode').map((group) => group.favorite.id)).toEqual(['show-1']);
-    expect(filterUpcomingByKind(groups, 'movie').map((group) => group.favorite.id)).toEqual(['movie-1']);
+    expect(filterUpcomingByKind(groups, 'episode').map((group) => group.favorite.id)).toEqual([
+      'show-1',
+    ]);
+    expect(filterUpcomingByKind(groups, 'movie').map((group) => group.favorite.id)).toEqual([
+      'movie-1',
+    ]);
   });
 
   it('keeps one nearest future release per favorite and summarizes later dates', () => {
     const show = { id: 'show-1', title: 'Show', posterUrl: '', type: 'series' as const };
     const other = { id: 'show-2', title: 'Other', posterUrl: '', type: 'series' as const };
     const grouped = groupUpcomingReleases([
-      { favorite: show, tmdbId: 1, airDate: '2026-08-20', kind: 'episode', title: 'Next', seasonNumber: 2, episodeNumber: 3, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
-      { favorite: show, tmdbId: 1, airDate: '2026-08-27', kind: 'episode', title: 'Later', seasonNumber: 2, episodeNumber: 4, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
-      { favorite: show, tmdbId: 1, airDate: '2026-08-12', kind: 'episode', title: 'Past', seasonNumber: 2, episodeNumber: 2, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
-      { favorite: other, tmdbId: 2, airDate: '2026-08-21', kind: 'episode', title: 'Other next', seasonNumber: 1, episodeNumber: 1, artworkUrl: null, exactAirTime: null, timeSource: 'tmdb' },
+      {
+        favorite: show,
+        tmdbId: 1,
+        airDate: '2026-08-20',
+        kind: 'episode',
+        title: 'Next',
+        seasonNumber: 2,
+        episodeNumber: 3,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
+      {
+        favorite: show,
+        tmdbId: 1,
+        airDate: '2026-08-27',
+        kind: 'episode',
+        title: 'Later',
+        seasonNumber: 2,
+        episodeNumber: 4,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
+      {
+        favorite: show,
+        tmdbId: 1,
+        airDate: '2026-08-12',
+        kind: 'episode',
+        title: 'Past',
+        seasonNumber: 2,
+        episodeNumber: 2,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
+      {
+        favorite: other,
+        tmdbId: 2,
+        airDate: '2026-08-21',
+        kind: 'episode',
+        title: 'Other next',
+        seasonNumber: 1,
+        episodeNumber: 1,
+        artworkUrl: null,
+        exactAirTime: null,
+        timeSource: 'tmdb',
+      },
     ]);
 
-    expect(nextReleasePerFavorite(grouped, today).map((group) => ({
-      id: group.favorite.id,
-      airDate: group.airDate,
-      following: group.followingReleaseCount,
-    }))).toEqual([
+    expect(
+      nextReleasePerFavorite(grouped, today).map((group) => ({
+        id: group.favorite.id,
+        airDate: group.airDate,
+        following: group.followingReleaseCount,
+      })),
+    ).toEqual([
       { id: 'show-1', airDate: '2026-08-20', following: 1 },
       { id: 'show-2', airDate: '2026-08-21', following: 0 },
     ]);

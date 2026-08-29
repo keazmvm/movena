@@ -4,7 +4,20 @@ import { testServerLatency } from '../../api/xc';
 import { notify } from '../../store/useNotificationStore';
 import { debugLog } from '../../store/useDebugStore';
 import { getUserFacingErrorMessage } from '../../utils/error';
-import { Globe, User, Lock, Loader2, ArrowRight, AlertCircle, Plus, Trash2, Zap, X, Tag, CalendarDays } from 'lucide-react';
+import {
+  Globe,
+  User,
+  Lock,
+  Loader2,
+  ArrowRight,
+  AlertCircle,
+  Plus,
+  Trash2,
+  Zap,
+  X,
+  Tag,
+  CalendarDays,
+} from 'lucide-react';
 import { Button, IconButton } from '../common/Button';
 import styles from './AccountConnectionForm.module.css';
 import { useI18n } from '../../i18n';
@@ -41,9 +54,9 @@ export function AccountConnectionForm({
   const usernameId = `${fieldId}-username`;
   const passwordId = `${fieldId}-password`;
   const epgUrlId = `${fieldId}-epg-url`;
-  const credentials = useAuthStore((state) => sourceId
-    ? state.runtimes[sourceId]?.credentials ?? null
-    : null);
+  const credentials = useAuthStore((state) =>
+    sourceId ? (state.runtimes[sourceId]?.credentials ?? null) : null,
+  );
   const addSource = useAuthStore((state) => state.addSource);
   const updateSource = useAuthStore((state) => state.updateSource);
 
@@ -108,13 +121,19 @@ export function AccountConnectionForm({
 
   const handleSpeedTest = async () => {
     if (!username || !password) {
-      notify.warning('Credentials Required', 'Enter your username and password before testing the connection.');
+      notify.warning(
+        'Credentials Required',
+        'Enter your username and password before testing the connection.',
+      );
       return;
     }
 
     const allUrls = [primaryUrl, ...alternativeUrls].map(normalizeUrl).filter(Boolean);
     if (allUrls.length === 0) {
-      notify.warning('No Server Addresses', 'Enter at least one server address before running the speed test.');
+      notify.warning(
+        'No Server Addresses',
+        'Enter at least one server address before running the speed test.',
+      );
       return;
     }
 
@@ -149,7 +168,7 @@ export function AccountConnectionForm({
             [idx]: { status: 'error', errorMsg: message },
           }));
         }
-      })
+      }),
     );
 
     setIsTestingSpeed(false);
@@ -160,11 +179,17 @@ export function AccountConnectionForm({
       const remainingUrls = allUrls.filter((_, i) => i !== fastestIndex);
       setPrimaryUrl(fastestUrl);
       setAlternativeUrls(remainingUrls);
-      notify.success('Speed Test Complete', `Promoted fastest server (${fastestUrl}) to Primary (${minLatency} ms)`);
+      notify.success(
+        'Speed Test Complete',
+        `Promoted fastest server (${fastestUrl}) to Primary (${minLatency} ms)`,
+      );
     } else if (fastestIndex === 0) {
       notify.success('Speed Test Complete', `Primary server responded fastest (${minLatency} ms)`);
     } else {
-      notify.error('Speed Test Failed', failures.filter(Boolean).join('\n') || 'Every server test failed without an error message.');
+      notify.error(
+        'Speed Test Failed',
+        failures.filter(Boolean).join('\n') || 'Every server test failed without an error message.',
+      );
     }
   };
 
@@ -180,7 +205,9 @@ export function AccountConnectionForm({
       return;
     }
 
-    const formattedAlternatives = alternativeUrls.map(normalizeUrl).filter((u) => u && u !== formattedPrimary);
+    const formattedAlternatives = alternativeUrls
+      .map(normalizeUrl)
+      .filter((u) => u && u !== formattedPrimary);
 
     setIsLoading(true);
     try {
@@ -194,12 +221,10 @@ export function AccountConnectionForm({
         epgUrl: epgUrl.trim() || undefined,
       };
 
-      const profile = sourceId
-        ? await updateSource(sourceId, creds)
-        : await addSource(creds);
+      const profile = sourceId ? await updateSource(sourceId, creds) : await addSource(creds);
       notify.success(
         sourceId ? 'Xtream Source Updated' : 'Xtream Source Connected',
-        `${profile.name} authenticated as ${profile.username}`
+        `${profile.name} authenticated as ${profile.username}`,
       );
       debugLog.info('auth', 'Successfully connected provider account', {
         username: creds.username,
@@ -208,7 +233,10 @@ export function AccountConnectionForm({
       });
       onSuccess?.();
     } catch (error: unknown) {
-      const errMsg = getUserFacingErrorMessage(error, t('We couldn’t verify these account details. Check them and try again.'));
+      const errMsg = getUserFacingErrorMessage(
+        error,
+        t('We couldn’t verify these account details. Check them and try again.'),
+      );
       setError(errMsg);
       notify.error('Connection Error', errMsg);
       debugLog.error('auth', 'Account authentication error', { error: errMsg });
@@ -222,7 +250,9 @@ export function AccountConnectionForm({
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h2 className={styles.title}>{t(title)}</h2>
-          <p className={styles.subtitle}>{t('Your password is kept in the operating system credential vault.')}</p>
+          <p className={styles.subtitle}>
+            {t('Your password is kept in the operating system credential vault.')}
+          </p>
         </div>
         {onCancel && (
           <IconButton size="sm" className={styles.closeBtn} onClick={onCancel} aria-label="Close">
@@ -234,7 +264,9 @@ export function AccountConnectionForm({
       <form onSubmit={handleSubmit} className={`${styles.form} ${compact ? styles.compact : ''}`}>
         {/* Display Name Field */}
         <div className={styles.inputGroup}>
-          <label className={styles.label} htmlFor={displayNameId}>{t('Display Name')}</label>
+          <label className={styles.label} htmlFor={displayNameId}>
+            {t('Display Name')}
+          </label>
           <div className={styles.inputWrapper}>
             <Tag className={styles.fieldIcon} size={15} />
             <input
@@ -270,7 +302,9 @@ export function AccountConnectionForm({
                   {latencies[0].status === 'testing' ? (
                     <Loader2 size={11} className={styles.spinner} />
                   ) : latencies[0].status === 'success' ? (
-                    <span className={styles.latencySuccess}>{number(latencies[0].latencyMs ?? 0)} ms</span>
+                    <span className={styles.latencySuccess}>
+                      {number(latencies[0].latencyMs ?? 0)} ms
+                    </span>
                   ) : (
                     <span className={styles.latencyError}>{t('Offline')}</span>
                   )}
@@ -313,7 +347,9 @@ export function AccountConnectionForm({
                       {latencyInfo.status === 'testing' ? (
                         <Loader2 size={11} className={styles.spinner} />
                       ) : latencyInfo.status === 'success' ? (
-                        <span className={styles.latencySuccess}>{number(latencyInfo.latencyMs ?? 0)} ms</span>
+                        <span className={styles.latencySuccess}>
+                          {number(latencyInfo.latencyMs ?? 0)} ms
+                        </span>
                       ) : (
                         <span className={styles.latencyError}>{t('Offline')}</span>
                       )}
@@ -412,7 +448,9 @@ export function AccountConnectionForm({
         </div>
 
         <div className={styles.inputGroup}>
-          <label className={styles.label} htmlFor={epgUrlId}>{t('XMLTV Override (Optional)')}</label>
+          <label className={styles.label} htmlFor={epgUrlId}>
+            {t('XMLTV Override (Optional)')}
+          </label>
           <div className={styles.inputWrapper}>
             <CalendarDays className={styles.fieldIcon} size={15} />
             <input
@@ -471,7 +509,12 @@ export function AccountConnectionForm({
               <span>{t('Speed Test')}</span>
             </Button>
 
-            <Button type="submit" variant="primary" className={styles.submitBtn} disabled={isLoading}>
+            <Button
+              type="submit"
+              variant="primary"
+              className={styles.submitBtn}
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 size={15} className={styles.spinner} />

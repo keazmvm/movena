@@ -28,9 +28,14 @@ describe('download domain helpers', () => {
     });
     useDownloadStore.getState().start('job-race');
     useDownloadStore.getState().sync({ id: 'job-race', state: 'cancelled' });
-    useDownloadStore.getState().sync({ id: 'job-race', state: 'completed', downloadedBytes: 100, totalBytes: 100 });
+    useDownloadStore
+      .getState()
+      .sync({ id: 'job-race', state: 'completed', downloadedBytes: 100, totalBytes: 100 });
 
-    expect(useDownloadStore.getState().jobs[0]).toMatchObject({ state: 'cancelled', progress: null });
+    expect(useDownloadStore.getState().jobs[0]).toMatchObject({
+      state: 'cancelled',
+      progress: null,
+    });
   });
 
   it('sanitizes path separators, controls, trailing dots, and reserved names', () => {
@@ -47,8 +52,9 @@ describe('download domain helpers', () => {
   });
 
   it('generates case-insensitive collision-safe names without filesystem access', () => {
-    expect(createCollisionSafeFileName('Movie.mp4', ['movie.mp4', 'Movie (1).mp4']))
-      .toBe('Movie (2).mp4');
+    expect(createCollisionSafeFileName('Movie.mp4', ['movie.mp4', 'Movie (1).mp4'])).toBe(
+      'Movie (2).mp4',
+    );
     expect(createCollisionSafeFileName('Episode.mkv', ['other.mkv'])).toBe('Episode.mkv');
   });
 
@@ -73,18 +79,21 @@ describe('download domain helpers', () => {
   it('rejects malformed required job identity and repairs optional fields', () => {
     expect(createDownloadJob({ sourceUrl: 'https://example.test/file' })).toBeNull();
 
-    const job = normalizeDownloadJob({
-      id: ' job-1 ',
-      sourceUrl: ' https://example.test/file ',
-      fileName: 'bad/name.mp4',
-      state: 'not-a-state',
-      downloadedBytes: 12,
-      totalBytes: 100,
-      maxAttempts: -4,
-      attempts: 99,
-      createdAt: 'bad',
-      updatedAt: Number.NaN,
-    }, 1234);
+    const job = normalizeDownloadJob(
+      {
+        id: ' job-1 ',
+        sourceUrl: ' https://example.test/file ',
+        fileName: 'bad/name.mp4',
+        state: 'not-a-state',
+        downloadedBytes: 12,
+        totalBytes: 100,
+        maxAttempts: -4,
+        attempts: 99,
+        createdAt: 'bad',
+        updatedAt: Number.NaN,
+      },
+      1234,
+    );
 
     expect(job).toMatchObject({
       id: 'job-1',
@@ -100,7 +109,11 @@ describe('download domain helpers', () => {
   });
 
   it('enforces the safe state machine and does not mutate jobs', () => {
-    const queued = createDownloadJob({ id: 'job-1', sourceUrl: 'https://example.test', fileName: 'video.mp4' });
+    const queued = createDownloadJob({
+      id: 'job-1',
+      sourceUrl: 'https://example.test',
+      fileName: 'video.mp4',
+    });
     expect(queued).not.toBeNull();
     if (!queued) return;
 
@@ -115,24 +128,42 @@ describe('download domain helpers', () => {
 
     const paused = transitionDownloadJob(downloading, { type: 'pause' }, 30);
     expect(paused?.state).toBe('paused');
-    expect(transitionDownloadJob(paused, { type: 'progress', downloadedBytes: 4, totalBytes: 10 }, 40))
-      .toEqual(paused);
+    expect(
+      transitionDownloadJob(paused, { type: 'progress', downloadedBytes: 4, totalBytes: 10 }, 40),
+    ).toEqual(paused);
   });
 
   it('normalizes progress through the downloading state and completes at 100%', () => {
-    const created = createDownloadJob({ id: 'job-2', sourceUrl: 'https://example.test', fileName: 'video.mp4' });
+    const created = createDownloadJob({
+      id: 'job-2',
+      sourceUrl: 'https://example.test',
+      fileName: 'video.mp4',
+    });
     const downloading = transitionDownloadJob(created, { type: 'start' }, 100);
     const progressing = updateDownloadProgress(downloading!, 25, 100, 110);
     expect(progressing).toMatchObject({ downloadedBytes: 25, totalBytes: 100, progress: 0.25 });
 
     const completed = transitionDownloadJob(progressing, { type: 'complete' }, 120);
-    expect(completed).toMatchObject({ state: 'completed', downloadedBytes: 100, progress: 1, error: undefined });
+    expect(completed).toMatchObject({
+      state: 'completed',
+      downloadedBytes: 100,
+      progress: 1,
+      error: undefined,
+    });
   });
 
   it('supports bounded retry and cancellation transitions', () => {
-    const created = createDownloadJob({ id: 'job-3', sourceUrl: 'https://example.test', maxAttempts: 2 });
+    const created = createDownloadJob({
+      id: 'job-3',
+      sourceUrl: 'https://example.test',
+      maxAttempts: 2,
+    });
     const downloading = transitionDownloadJob(created, { type: 'start' }, 100);
-    const failed = transitionDownloadJob(downloading, { type: 'fail', error: { message: 'Server unavailable' } }, 110);
+    const failed = transitionDownloadJob(
+      downloading,
+      { type: 'fail', error: { message: 'Server unavailable' } },
+      110,
+    );
     expect(failed).toMatchObject({ state: 'failed', error: 'Server unavailable' });
 
     const retry = retryDownloadJob(failed!, 120);
@@ -148,14 +179,24 @@ describe('download domain helpers', () => {
   it('returns null for malformed transition jobs and actions without throwing', () => {
     expect(transitionDownloadJob(null, { type: 'start' })).toBeNull();
     expect(transitionDownloadJob({ id: 'x' }, null)).toBeNull();
-    expect(transitionDownloadJob({ id: 'x', sourceUrl: 'url' }, { type: 'unknown' })).toMatchObject({ state: 'queued' });
+    expect(transitionDownloadJob({ id: 'x', sourceUrl: 'url' }, { type: 'unknown' })).toMatchObject(
+      { state: 'queued' },
+    );
   });
 
   it('drops persisted native jobs so media URLs and headers never survive restart', () => {
-    const migrated = migrateDownloadState({ jobs: [{
-      id: 'job-1', sourceUrl: 'https://example.test/movie.mp4', fileName: 'movie.mp4',
-      state: 'downloading', downloadedBytes: 12, totalBytes: 100,
-    }] });
+    const migrated = migrateDownloadState({
+      jobs: [
+        {
+          id: 'job-1',
+          sourceUrl: 'https://example.test/movie.mp4',
+          fileName: 'movie.mp4',
+          state: 'downloading',
+          downloadedBytes: 12,
+          totalBytes: 100,
+        },
+      ],
+    });
     expect(migrated.jobs).toEqual([]);
   });
 
@@ -165,9 +206,23 @@ describe('download domain helpers', () => {
 
     const migrated = migrateDownloadState({
       jobs: [],
-      downloadedByLibraryId: { 'movie-1': { id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Movie.mp4', fileName: 'Movie.mp4', type: 'vod', title: 'Movie', sizeBytes: 100, downloadedAt: 1 } },
+      downloadedByLibraryId: {
+        'movie-1': {
+          id: 'movie-1',
+          jobId: 'job-1',
+          filePath: 'C:\\Movie.mp4',
+          fileName: 'Movie.mp4',
+          type: 'vod',
+          title: 'Movie',
+          sizeBytes: 100,
+          downloadedAt: 1,
+        },
+      },
     });
-    expect(migrated.downloadedByLibraryId['movie-1']).toMatchObject({ id: 'movie-1', title: 'Movie' });
+    expect(migrated.downloadedByLibraryId['movie-1']).toMatchObject({
+      id: 'movie-1',
+      title: 'Movie',
+    });
   });
 });
 
@@ -209,7 +264,11 @@ describe('downloaded item normalization', () => {
   });
 
   it('never resurrects provider headers or a raw stream url smuggled onto a persisted record', () => {
-    const normalized = normalizeDownloadedItem({ ...validItem, headers: { Authorization: 'secret' }, sourceUrl: 'https://provider.test/stream' });
+    const normalized = normalizeDownloadedItem({
+      ...validItem,
+      headers: { Authorization: 'secret' },
+      sourceUrl: 'https://provider.test/stream',
+    });
     expect(normalized).not.toHaveProperty('headers');
     expect(normalized).not.toHaveProperty('sourceUrl');
   });
@@ -226,25 +285,51 @@ describe('downloaded item normalization', () => {
 
 describe('groupDownloadedSeries', () => {
   const episode = (overrides: Partial<DownloadedItem>): DownloadedItem => ({
-    id: 'ep-1', jobId: 'job-1', filePath: 'C:\\ep.mp4', fileName: 'ep.mp4',
-    type: 'series', title: 'Show S1E1', sizeBytes: 1, downloadedAt: 1,
+    id: 'ep-1',
+    jobId: 'job-1',
+    filePath: 'C:\\ep.mp4',
+    fileName: 'ep.mp4',
+    type: 'series',
+    title: 'Show S1E1',
+    sizeBytes: 1,
+    downloadedAt: 1,
     ...overrides,
   });
 
   it('groups episodes by seriesId and ignores movies', () => {
     const groups = groupDownloadedSeries([
-      episode({ id: 'ep-1', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 1, downloadedAt: 10 }),
-      episode({ id: 'ep-2', seriesId: 'show-1', seriesTitle: 'Show', seasonNum: 1, episodeNum: 2, downloadedAt: 20 }),
+      episode({
+        id: 'ep-1',
+        seriesId: 'show-1',
+        seriesTitle: 'Show',
+        seasonNum: 1,
+        episodeNum: 1,
+        downloadedAt: 10,
+      }),
+      episode({
+        id: 'ep-2',
+        seriesId: 'show-1',
+        seriesTitle: 'Show',
+        seasonNum: 1,
+        episodeNum: 2,
+        downloadedAt: 20,
+      }),
       episode({ id: 'movie-1', type: 'vod', title: 'A Movie' }),
     ]);
     expect(groups).toHaveLength(1);
-    expect(groups[0]).toMatchObject({ seriesId: 'show-1', seriesTitle: 'Show', latestDownloadedAt: 20 });
+    expect(groups[0]).toMatchObject({
+      seriesId: 'show-1',
+      seriesTitle: 'Show',
+      latestDownloadedAt: 20,
+    });
     expect(groups[0]!.episodes).toHaveLength(2);
   });
 
   it('falls back to its own id for an episode downloaded without series linkage', () => {
     const groups = groupDownloadedSeries([episode({ id: 'ep-orphan', title: 'Orphan Episode' })]);
-    expect(groups).toEqual([expect.objectContaining({ seriesId: 'ep-orphan', seriesTitle: 'Orphan Episode' })]);
+    expect(groups).toEqual([
+      expect.objectContaining({ seriesId: 'ep-orphan', seriesTitle: 'Orphan Episode' }),
+    ]);
   });
 
   it('orders groups by most recently downloaded episode', () => {

@@ -18,7 +18,11 @@ import { useEnabledSources } from '../../hooks/useEnabledSources';
 import { useCatalogCategorySelection } from '../../hooks/useCatalogCategorySelection';
 import { useCatalogByType } from '../../api/useCatalog';
 import { useCategories, useHiddenCategoryIds } from '../../api/useCategories';
-import { filterItemsBySmartCategory, filterItemsByGenre, sortCatalogItems } from '../../utils/smartCatalogFilter';
+import {
+  filterItemsBySmartCategory,
+  filterItemsByGenre,
+  sortCatalogItems,
+} from '../../utils/smartCatalogFilter';
 import { getCombinedErrorMessage, getErrorPresentation } from '../../utils/error';
 import { useI18n } from '../../i18n';
 import styles from '../layout/AppLayout.module.css';
@@ -95,7 +99,7 @@ export function CatalogPage({
       activeCategoryId,
       hiddenCategoryIds,
       favorites,
-      categories
+      categories,
     );
   }, [allItems, activeCategoryId, hiddenCategoryIds, favorites, categories]);
 
@@ -197,11 +201,7 @@ export function CatalogPage({
                 categoryNameMap={categoryNameMap}
               />
             )}
-            <EmptyState
-              icon={EmptyIcon}
-              title={emptyTitle}
-              description={emptyDescription}
-            />
+            <EmptyState icon={EmptyIcon} title={emptyTitle} description={emptyDescription} />
           </div>
         ) : (
           <div className={styles.catalogContent}>

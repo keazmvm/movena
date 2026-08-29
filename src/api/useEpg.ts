@@ -55,14 +55,10 @@ const asMillis = (value: number | string | undefined): number => {
  * actually looking at rather than for a few thousand channels up front. React
  * Query keeps each channel's answer, so scrolling back is instant.
  */
-export function useChannelEpg(
-  streamId: string | undefined,
-  enabled = true,
-  sourceId?: string,
-) {
-  const credentials = useAuthStore((state) => (
-    sourceId ? state.runtimes[sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+export function useChannelEpg(streamId: string | undefined, enabled = true, sourceId?: string) {
+  const credentials = useAuthStore((state) =>
+    sourceId ? (state.runtimes[sourceId]?.credentials ?? null) : getXtreamCredentials(),
+  );
   const authScope = getXtreamQueryScope(sourceId, credentials);
 
   const canFetch = Boolean(credentials && streamId);

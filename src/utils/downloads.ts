@@ -84,16 +84,24 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function safeHeaders(value: unknown): Record<string, string> | undefined {
   if (!isRecord(value)) return undefined;
   const entries = Object.entries(value)
-    .filter(([name, headerValue]) => name.length > 0 && name.length <= 128 && typeof headerValue === 'string' && headerValue.length <= 4096)
+    .filter(
+      ([name, headerValue]) =>
+        name.length > 0 &&
+        name.length <= 128 &&
+        typeof headerValue === 'string' &&
+        headerValue.length <= 4096,
+    )
     .slice(0, 16)
     .map(([name, headerValue]) => [name, headerValue as string] as const);
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }
 
 function isIterable(value: unknown): value is Iterable<unknown> {
-  return value !== null
-    && value !== undefined
-    && typeof (value as { [Symbol.iterator]?: unknown | undefined })[Symbol.iterator] === 'function';
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof (value as { [Symbol.iterator]?: unknown | undefined })[Symbol.iterator] === 'function'
+  );
 }
 
 function finiteNumber(value: unknown): number | null {
@@ -139,14 +147,18 @@ function truncateFileName(fileName: string, maxLength: number): string {
   const { stem, extension } = splitFileName(fileName);
   if (extension.length >= maxLength) return extension.slice(0, maxLength) || '_';
   const stemLength = Math.max(1, maxLength - extension.length);
-  return `${stem.slice(0, stemLength)}${extension}`.replace(TRAILING_DOTS_AND_SPACES, '') || DEFAULT_FILE_NAME;
+  return (
+    `${stem.slice(0, stemLength)}${extension}`.replace(TRAILING_DOTS_AND_SPACES, '') ||
+    DEFAULT_FILE_NAME
+  );
 }
 
 /** Converts arbitrary input into a portable, single-component filename. */
 export function sanitizeDownloadFileName(value: unknown, options: FilenameOptions = {}): string {
-  const fallback = typeof options.fallback === 'string' && options.fallback.trim()
-    ? options.fallback.trim()
-    : DEFAULT_FILE_NAME;
+  const fallback =
+    typeof options.fallback === 'string' && options.fallback.trim()
+      ? options.fallback.trim()
+      : DEFAULT_FILE_NAME;
   const maxLength = positiveInteger(options.maxLength, DEFAULT_MAX_FILENAME_LENGTH);
   const raw = typeof value === 'string' ? value : '';
   let safe = raw
@@ -188,7 +200,10 @@ export function createCollisionSafeFileName(
 }
 
 /** Normalizes byte counts to a safe bounded progress value. */
-export function normalizeDownloadProgress(downloadedBytes: unknown, totalBytes: unknown): DownloadProgress {
+export function normalizeDownloadProgress(
+  downloadedBytes: unknown,
+  totalBytes: unknown,
+): DownloadProgress {
   const downloaded = nonNegativeInteger(downloadedBytes);
   const rawTotal = finiteNumber(totalBytes);
   const total = rawTotal !== null && rawTotal > 0 ? Math.floor(rawTotal) : null;
@@ -237,7 +252,9 @@ export function normalizeDownloadJob(input: unknown, now = Date.now()): Download
   const progress = normalizeDownloadProgress(input.downloadedBytes, totalBytes);
   const state = isDownloadJobState(input.state)
     ? input.state
-    : (isDownloadJobState(input.status) ? input.status : 'queued');
+    : isDownloadJobState(input.status)
+      ? input.status
+      : 'queued';
   const createdAt = safeTimestamp(input.createdAt, safeNow);
   const updatedAt = safeTimestamp(input.updatedAt, createdAt);
   const error = safeError(input.error);
@@ -246,11 +263,14 @@ export function normalizeDownloadJob(input: unknown, now = Date.now()): Download
     id,
     sourceUrl,
     ...(safeHeaders(input.headers) ? { headers: safeHeaders(input.headers) } : {}),
-    ...(typeof input.filePath === 'string' && input.filePath.trim() ? { filePath: input.filePath.trim() } : {}),
+    ...(typeof input.filePath === 'string' && input.filePath.trim()
+      ? { filePath: input.filePath.trim() }
+      : {}),
     fileName: sanitizeDownloadFileName(input.fileName),
     state,
     progress: state === 'completed' ? 1 : progress.ratio,
-    downloadedBytes: state === 'completed' && totalBytes !== null ? totalBytes : progress.downloadedBytes,
+    downloadedBytes:
+      state === 'completed' && totalBytes !== null ? totalBytes : progress.downloadedBytes,
     totalBytes,
     attempts,
     maxAttempts,
@@ -262,13 +282,16 @@ export function normalizeDownloadJob(input: unknown, now = Date.now()): Download
 
 /** Creates a queued job, or null when required input is malformed. */
 export function createDownloadJob(input: CreateDownloadJobInput | unknown): DownloadJob | null {
-  return normalizeDownloadJob({
-    ...(isRecord(input) ? input : {}),
-    state: 'queued',
-    attempts: 0,
-    downloadedBytes: 0,
-    now: isRecord(input) ? input.now : undefined,
-  }, isRecord(input) ? safeTimestamp(input.now, Date.now()) : Date.now());
+  return normalizeDownloadJob(
+    {
+      ...(isRecord(input) ? input : {}),
+      state: 'queued',
+      attempts: 0,
+      downloadedBytes: 0,
+      now: isRecord(input) ? input.now : undefined,
+    },
+    isRecord(input) ? safeTimestamp(input.now, Date.now()) : Date.now(),
+  );
 }
 
 function withUpdatedAt(job: DownloadJob, now: number): DownloadJob {
@@ -279,17 +302,29 @@ function isAction(value: unknown): value is DownloadJobAction {
   return isRecord(value) && typeof value.type === 'string';
 }
 
-export function canTransitionDownloadJob(state: DownloadJobState, action: DownloadJobAction['type']): boolean {
+export function canTransitionDownloadJob(
+  state: DownloadJobState,
+  action: DownloadJobAction['type'],
+): boolean {
   switch (action) {
-    case 'start': return state === 'queued';
-    case 'pause': return state === 'downloading';
-    case 'resume': return state === 'paused';
-    case 'progress': return state === 'downloading';
-    case 'complete': return state === 'downloading';
-    case 'fail': return state === 'downloading';
-    case 'retry': return state === 'failed' || state === 'cancelled';
-    case 'cancel': return state === 'queued' || state === 'downloading' || state === 'paused';
-    default: return false;
+    case 'start':
+      return state === 'queued';
+    case 'pause':
+      return state === 'downloading';
+    case 'resume':
+      return state === 'paused';
+    case 'progress':
+      return state === 'downloading';
+    case 'complete':
+      return state === 'downloading';
+    case 'fail':
+      return state === 'downloading';
+    case 'retry':
+      return state === 'failed' || state === 'cancelled';
+    case 'cancel':
+      return state === 'queued' || state === 'downloading' || state === 'paused';
+    default:
+      return false;
   }
 }
 
@@ -300,7 +335,11 @@ export function transitionDownloadJob(
   now = Date.now(),
 ): DownloadJob | null {
   const job = normalizeDownloadJob(inputJob, now);
-  if (!job || !isAction(inputAction) || !canTransitionDownloadJob(job.state, inputAction.type as DownloadJobAction['type'])) {
+  if (
+    !job ||
+    !isAction(inputAction) ||
+    !canTransitionDownloadJob(job.state, inputAction.type as DownloadJobAction['type'])
+  ) {
     return job;
   }
 
@@ -310,49 +349,70 @@ export function transitionDownloadJob(
   switch (action.type) {
     case 'start':
       if (job.attempts >= job.maxAttempts) return job;
-      return withUpdatedAt({ ...job, state: 'downloading', attempts: job.attempts + 1, error: undefined }, updatedAt);
+      return withUpdatedAt(
+        { ...job, state: 'downloading', attempts: job.attempts + 1, error: undefined },
+        updatedAt,
+      );
     case 'pause':
       return withUpdatedAt({ ...job, state: 'paused' }, updatedAt);
     case 'resume':
       return withUpdatedAt({ ...job, state: 'downloading' }, updatedAt);
     case 'progress': {
-      const progress = normalizeDownloadProgress(action.downloadedBytes, action.totalBytes ?? job.totalBytes);
-      return withUpdatedAt({
-        ...job,
-        downloadedBytes: progress.downloadedBytes,
-        totalBytes: progress.totalBytes,
-        progress: progress.ratio,
-        error: undefined,
-      }, updatedAt);
+      const progress = normalizeDownloadProgress(
+        action.downloadedBytes,
+        action.totalBytes ?? job.totalBytes,
+      );
+      return withUpdatedAt(
+        {
+          ...job,
+          downloadedBytes: progress.downloadedBytes,
+          totalBytes: progress.totalBytes,
+          progress: progress.ratio,
+          error: undefined,
+        },
+        updatedAt,
+      );
     }
     case 'complete': {
       const progress = normalizeDownloadProgress(
         action.totalBytes ?? job.totalBytes ?? job.downloadedBytes,
         action.totalBytes ?? job.totalBytes,
       );
-      return withUpdatedAt({
-        ...job,
-        state: 'completed',
-        downloadedBytes: progress.totalBytes ?? progress.downloadedBytes,
-        totalBytes: progress.totalBytes,
-        progress: 1,
-        error: undefined,
-      }, updatedAt);
+      return withUpdatedAt(
+        {
+          ...job,
+          state: 'completed',
+          downloadedBytes: progress.totalBytes ?? progress.downloadedBytes,
+          totalBytes: progress.totalBytes,
+          progress: 1,
+          error: undefined,
+        },
+        updatedAt,
+      );
     }
     case 'fail':
-      return withUpdatedAt({ ...job, state: 'failed', error: safeError(action.error) || 'Download failed' }, updatedAt);
+      return withUpdatedAt(
+        { ...job, state: 'failed', error: safeError(action.error) || 'Download failed' },
+        updatedAt,
+      );
     case 'retry':
       if (job.attempts >= job.maxAttempts) return job;
-      return withUpdatedAt({
-        ...job,
-        state: 'queued',
-        progress: 0,
-        downloadedBytes: 0,
-        totalBytes: null,
-        error: undefined,
-      }, updatedAt);
+      return withUpdatedAt(
+        {
+          ...job,
+          state: 'queued',
+          progress: 0,
+          downloadedBytes: 0,
+          totalBytes: null,
+          error: undefined,
+        },
+        updatedAt,
+      );
     case 'cancel':
-      return withUpdatedAt({ ...job, state: 'cancelled', error: safeError(action.reason) }, updatedAt);
+      return withUpdatedAt(
+        { ...job, state: 'cancelled', error: safeError(action.reason) },
+        updatedAt,
+      );
     default:
       return job;
   }
@@ -364,18 +424,26 @@ export function updateDownloadProgress(
   totalBytes?: unknown,
   now = Date.now(),
 ): DownloadJob | null {
-  return transitionDownloadJob(job, {
-    type: 'progress',
-    downloadedBytes,
-    totalBytes: totalBytes ?? job.totalBytes,
-  }, now);
+  return transitionDownloadJob(
+    job,
+    {
+      type: 'progress',
+      downloadedBytes,
+      totalBytes: totalBytes ?? job.totalBytes,
+    },
+    now,
+  );
 }
 
 export function retryDownloadJob(job: DownloadJob, now = Date.now()): DownloadJob | null {
   return transitionDownloadJob(job, { type: 'retry' }, now);
 }
 
-export function cancelDownloadJob(job: DownloadJob, reason?: unknown, now = Date.now()): DownloadJob | null {
+export function cancelDownloadJob(
+  job: DownloadJob,
+  reason?: unknown,
+  now = Date.now(),
+): DownloadJob | null {
   return transitionDownloadJob(job, { type: 'cancel', reason }, now);
 }
 
@@ -464,23 +532,40 @@ export function normalizeDownloadedItem(input: unknown): DownloadedItem | null {
     type,
     title,
     ...(safeText(input.posterUrl, 2048) ? { posterUrl: safeText(input.posterUrl, 2048) } : {}),
-    ...(safeText(input.description, 2000) ? { description: safeText(input.description, 2000) } : {}),
+    ...(safeText(input.description, 2000)
+      ? { description: safeText(input.description, 2000) }
+      : {}),
     ...(safeStringArray(input.tags) ? { tags: safeStringArray(input.tags) } : {}),
-    ...(input.country === null ? { country: null } : (safeText(input.country, 100) ? { country: safeText(input.country, 100) } : {})),
+    ...(input.country === null
+      ? { country: null }
+      : safeText(input.country, 100)
+        ? { country: safeText(input.country, 100) }
+        : {}),
     sizeBytes,
     downloadedAt,
     ...(safeText(input.seriesId, 200) ? { seriesId: safeText(input.seriesId, 200) } : {}),
-    ...(safeText(input.seriesSourceItemId, 200) ? { seriesSourceItemId: safeText(input.seriesSourceItemId, 200) } : {}),
+    ...(safeText(input.seriesSourceItemId, 200)
+      ? { seriesSourceItemId: safeText(input.seriesSourceItemId, 200) }
+      : {}),
     ...(safeText(input.seriesTitle) ? { seriesTitle: safeText(input.seriesTitle) } : {}),
-    ...(safeText(input.seriesPosterUrl, 2048) ? { seriesPosterUrl: safeText(input.seriesPosterUrl, 2048) } : {}),
-    ...(safeSeasonOrEpisodeNum(input.seasonNum) !== undefined ? { seasonNum: safeSeasonOrEpisodeNum(input.seasonNum) } : {}),
-    ...(safeSeasonOrEpisodeNum(input.episodeNum) !== undefined ? { episodeNum: safeSeasonOrEpisodeNum(input.episodeNum) } : {}),
+    ...(safeText(input.seriesPosterUrl, 2048)
+      ? { seriesPosterUrl: safeText(input.seriesPosterUrl, 2048) }
+      : {}),
+    ...(safeSeasonOrEpisodeNum(input.seasonNum) !== undefined
+      ? { seasonNum: safeSeasonOrEpisodeNum(input.seasonNum) }
+      : {}),
+    ...(safeSeasonOrEpisodeNum(input.episodeNum) !== undefined
+      ? { episodeNum: safeSeasonOrEpisodeNum(input.episodeNum) }
+      : {}),
     ...(safeText(input.episodeTitle) ? { episodeTitle: safeText(input.episodeTitle) } : {}),
   };
 }
 
 /** The catalog snapshot captured *before* a download completes — everything a `DownloadedItem` needs except transport/completion facts only the finished job can supply. */
-export type DownloadItemMetadata = Omit<DownloadedItem, 'jobId' | 'filePath' | 'fileName' | 'sizeBytes' | 'downloadedAt'>;
+export type DownloadItemMetadata = Omit<
+  DownloadedItem,
+  'jobId' | 'filePath' | 'fileName' | 'sizeBytes' | 'downloadedAt'
+>;
 
 /** Normalizes a whole persisted map, dropping any record that fails validation. */
 export function normalizeDownloadedItems(input: unknown): Record<string, DownloadedItem> {
@@ -513,7 +598,8 @@ export function groupDownloadedSeries(items: Iterable<DownloadedItem>): Download
     if (existing) {
       existing.episodes.push(item);
       existing.latestDownloadedAt = Math.max(existing.latestDownloadedAt, item.downloadedAt);
-      if (!existing.seriesPosterUrl && item.seriesPosterUrl) existing.seriesPosterUrl = item.seriesPosterUrl;
+      if (!existing.seriesPosterUrl && item.seriesPosterUrl)
+        existing.seriesPosterUrl = item.seriesPosterUrl;
     } else {
       groups.set(key, {
         seriesId: key,

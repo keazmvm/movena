@@ -4,20 +4,18 @@ import { detailQueryKeys } from '../../api/useDetails';
 import { useLibraryStore, type WatchProgress } from '../../store/useLibraryStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { findNextEpisode, type SeriesEpisodesBySeason } from '../../utils/seriesNavigation';
-import {
-  getSeriesBaseTitle,
-  parseEpisodeTitle,
-  parseMediaTitle,
-} from '../../utils/titleParser';
+import { getSeriesBaseTitle, parseEpisodeTitle, parseMediaTitle } from '../../utils/titleParser';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
 import { getXtreamQueryScope } from '../../api/queryKeys';
 
 export function useWatchProgress() {
   const activeStream = usePlayerStore((state) => state.activeStream);
   const updateHistory = useLibraryStore((state) => state.updateHistory);
-  const credentials = useAuthStore((state) => (
-    activeStream?.sourceId ? state.runtimes[activeStream.sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((state) =>
+    activeStream?.sourceId
+      ? (state.runtimes[activeStream.sourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
   const queryClient = useQueryClient();
   const authScope = getXtreamQueryScope(activeStream?.sourceId, credentials);
   const lastSaveTimeRef = useRef(0);
@@ -25,14 +23,19 @@ export function useWatchProgress() {
   const saveCurrentProgress = useCallback(() => {
     const state = usePlayerStore.getState();
     const stream = state.activeStream;
-    if (!stream || (stream.type !== 'vod' && stream.type !== 'series') || state.duration <= 0) return;
+    if (!stream || (stream.type !== 'vod' && stream.type !== 'series') || state.duration <= 0)
+      return;
 
     let nextEpisode: WatchProgress['nextEpisode'];
     if (stream.type === 'series' && stream.seriesId) {
-      const seriesData = queryClient.getQueryData<{ episodes?: SeriesEpisodesBySeason | undefined }>(
-        detailQueryKeys.series(stream.seriesSourceItemId || stream.seriesId, authScope)
+      const seriesData = queryClient.getQueryData<{
+        episodes?: SeriesEpisodesBySeason | undefined;
+      }>(detailQueryKeys.series(stream.seriesSourceItemId || stream.seriesId, authScope));
+      const next = findNextEpisode(
+        seriesData?.episodes,
+        stream.sourceItemId || stream.id,
+        stream.seasonNum,
       );
-      const next = findNextEpisode(seriesData?.episodes, stream.sourceItemId || stream.id, stream.seasonNum);
       if (next) {
         const parsedNextEpisode = parseEpisodeTitle(next.episode.title, {
           seriesTitle: stream.seriesTitle || getSeriesBaseTitle(stream.title),
@@ -52,9 +55,10 @@ export function useWatchProgress() {
     }
 
     const cleanPlaybackTitle = parseMediaTitle(stream.title).cleanTitle;
-    const seriesTitle = stream.type === 'series'
-      ? stream.seriesTitle || getSeriesBaseTitle(stream.title)
-      : cleanPlaybackTitle;
+    const seriesTitle =
+      stream.type === 'series'
+        ? stream.seriesTitle || getSeriesBaseTitle(stream.title)
+        : cleanPlaybackTitle;
     updateHistory({
       id: stream.id.toString(),
       seriesId: stream.seriesId?.toString(),
@@ -73,13 +77,15 @@ export function useWatchProgress() {
       seriesSourceItemId: stream.seriesSourceItemId?.toString(),
       seasonNum: stream.seasonNum,
       episodeNum: stream.episodeNum,
-      episodeTitle: stream.type === 'series'
-        ? stream.episodeTitle || parseEpisodeTitle(stream.title, {
-            seriesTitle,
-            seasonNum: stream.seasonNum,
-            episodeNum: stream.episodeNum,
-          }).cleanTitle
-        : undefined,
+      episodeTitle:
+        stream.type === 'series'
+          ? stream.episodeTitle ||
+            parseEpisodeTitle(stream.title, {
+              seriesTitle,
+              seasonNum: stream.seasonNum,
+              episodeNum: stream.episodeNum,
+            }).cleanTitle
+          : undefined,
       nextEpisode,
     });
   }, [authScope, queryClient, updateHistory]);

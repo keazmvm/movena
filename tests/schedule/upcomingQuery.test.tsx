@@ -24,15 +24,11 @@ import { useLibraryStore } from '../../src/store/useLibraryStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 
 it('selects the matching TMDB title and year instead of the first result', () => {
-  const match = selectUpcomingTmdbMatch(
-    { title: 'The Office', year: '2005' },
-    'tv',
-    [
-      { id: 1, mediaType: 'tv', title: 'The Office', releaseYear: '2001' },
-      { id: 2, mediaType: 'tv', title: 'The Office', releaseYear: '2005' },
-      { id: 3, mediaType: 'movie', title: 'The Office', releaseYear: '2005' },
-    ],
-  );
+  const match = selectUpcomingTmdbMatch({ title: 'The Office', year: '2005' }, 'tv', [
+    { id: 1, mediaType: 'tv', title: 'The Office', releaseYear: '2001' },
+    { id: 2, mediaType: 'tv', title: 'The Office', releaseYear: '2005' },
+    { id: 3, mediaType: 'movie', title: 'The Office', releaseYear: '2005' },
+  ]);
   expect(match?.id).toBe(2);
 });
 
@@ -46,7 +42,9 @@ function wrapperFactory() {
 beforeEach(() => {
   vi.clearAllMocks();
   useLibraryStore.setState({
-    favorites: [{ id: 'series-1', title: 'Example Show', posterUrl: 'favorite.jpg', type: 'series' }],
+    favorites: [
+      { id: 'series-1', title: 'Example Show', posterUrl: 'favorite.jpg', type: 'series' },
+    ],
     collections: [],
     history: [],
     watched: [],
@@ -61,12 +59,26 @@ beforeEach(() => {
     upcomingEnabled: true,
     upcomingExactTimesEnabled: true,
   });
-  tmdb.searchTmdb.mockResolvedValue({ results: [{ id: 77, mediaType: 'tv', title: 'Example Show' }] });
+  tmdb.searchTmdb.mockResolvedValue({
+    results: [{ id: 77, mediaType: 'tv', title: 'Example Show' }],
+  });
   tmdb.getTmdbTv.mockResolvedValue({ posterUrl: 'tmdb.jpg', nextEpisodeToAir: null });
   tvmaze.searchTvmazeShows.mockResolvedValue([{ id: 9, name: 'Example Show', externals: {} }]);
   tvmaze.getTvmazeEpisodes.mockResolvedValue([
-    { id: 101, name: 'First', seasonNumber: 2, episodeNumber: 1, airstamp: '2030-01-02T20:00:00+01:00' },
-    { id: 102, name: 'Second', seasonNumber: 2, episodeNumber: 2, airstamp: '2030-01-09T20:00:00+01:00' },
+    {
+      id: 101,
+      name: 'First',
+      seasonNumber: 2,
+      episodeNumber: 1,
+      airstamp: '2030-01-02T20:00:00+01:00',
+    },
+    {
+      id: 102,
+      name: 'Second',
+      seasonNumber: 2,
+      episodeNumber: 2,
+      airstamp: '2030-01-09T20:00:00+01:00',
+    },
   ]);
 });
 
@@ -79,14 +91,18 @@ describe('upcoming release query', () => {
       ],
     });
 
-    const { result } = renderHook(
-      () => useUpcomingReleases({ favoriteIds: ['series-1'] }),
-      { wrapper: wrapperFactory() },
-    );
+    const { result } = renderHook(() => useUpcomingReleases({ favoriteIds: ['series-1'] }), {
+      wrapper: wrapperFactory(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(tmdb.searchTmdb).toHaveBeenCalledTimes(1);
-    expect(tmdb.searchTmdb).toHaveBeenCalledWith('test-key', 'Example Show', undefined, expect.any(Object));
+    expect(tmdb.searchTmdb).toHaveBeenCalledWith(
+      'test-key',
+      'Example Show',
+      undefined,
+      expect.any(Object),
+    );
   });
 
   it('expands one favorite into every announced future TVmaze episode', async () => {
@@ -94,8 +110,18 @@ describe('upcoming release query', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject([
-      { title: 'First', seasonNumber: 2, episodeNumber: 1, exactAirTime: '2030-01-02T20:00:00+01:00' },
-      { title: 'Second', seasonNumber: 2, episodeNumber: 2, exactAirTime: '2030-01-09T20:00:00+01:00' },
+      {
+        title: 'First',
+        seasonNumber: 2,
+        episodeNumber: 1,
+        exactAirTime: '2030-01-02T20:00:00+01:00',
+      },
+      {
+        title: 'Second',
+        seasonNumber: 2,
+        episodeNumber: 2,
+        exactAirTime: '2030-01-09T20:00:00+01:00',
+      },
     ]);
     expect(tvmaze.getTvmazeEpisodes).toHaveBeenCalledTimes(1);
   });
@@ -105,18 +131,22 @@ describe('upcoming release query', () => {
     yesterday.setDate(yesterday.getDate() - 1);
     yesterday.setHours(20, 0, 0, 0);
     const airDate = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-    tvmaze.getTvmazeEpisodes.mockResolvedValue([{
-      id: 100,
-      name: 'Just Aired',
-      seasonNumber: 2,
-      episodeNumber: 0,
-      airstamp: yesterday.toISOString(),
-    }]);
+    tvmaze.getTvmazeEpisodes.mockResolvedValue([
+      {
+        id: 100,
+        name: 'Just Aired',
+        seasonNumber: 2,
+        episodeNumber: 0,
+        airstamp: yesterday.toISOString(),
+      },
+    ]);
 
     const { result } = renderHook(() => useUpcomingReleases(), { wrapper: wrapperFactory() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject([{ title: 'Just Aired', airDate, timeSource: 'tvmaze' }]);
+    expect(result.current.data).toMatchObject([
+      { title: 'Just Aired', airDate, timeSource: 'tvmaze' },
+    ]);
   });
 
   it('keeps the TMDB next-episode fallback when exact schedules are disabled', async () => {
@@ -124,13 +154,19 @@ describe('upcoming release query', () => {
     tmdb.getTmdbTv.mockResolvedValue({
       posterUrl: 'tmdb.jpg',
       nextEpisodeToAir: {
-        name: 'TMDB Next', airDate: '2030-03-04', seasonNumber: 3, episodeNumber: 1, stillUrl: null,
+        name: 'TMDB Next',
+        airDate: '2030-03-04',
+        seasonNumber: 3,
+        episodeNumber: 1,
+        stillUrl: null,
       },
     });
     const { result } = renderHook(() => useUpcomingReleases(), { wrapper: wrapperFactory() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject([{ title: 'TMDB Next', exactAirTime: null, timeSource: 'tmdb' }]);
+    expect(result.current.data).toMatchObject([
+      { title: 'TMDB Next', exactAirTime: null, timeSource: 'tmdb' },
+    ]);
     expect(tvmaze.searchTvmazeShows).not.toHaveBeenCalled();
     expect(tvmaze.getTvmazeEpisodes).not.toHaveBeenCalled();
   });
@@ -156,6 +192,8 @@ describe('upcoming release query', () => {
     const { result } = renderHook(() => useUpcomingReleases(), { wrapper: wrapperFactory() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject([{ title: 'Just Aired', airDate, timeSource: 'tmdb' }]);
+    expect(result.current.data).toMatchObject([
+      { title: 'Just Aired', airDate, timeSource: 'tmdb' },
+    ]);
   });
 });

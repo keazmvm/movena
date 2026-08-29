@@ -1,7 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Pipette } from 'lucide-react';
-import { DEFAULT_ACCENT_COLOR, hexToHsl, hslToHex, isLightColor, isValidHex } from '../../utils/color';
+import {
+  DEFAULT_ACCENT_COLOR,
+  hexToHsl,
+  hslToHex,
+  isLightColor,
+  isValidHex,
+} from '../../utils/color';
 import styles from './AccentColorPicker.module.css';
 import { useI18n } from '../../i18n';
 
@@ -118,11 +124,17 @@ export function AccentColorPicker({ value, onChange }: AccentColorPickerProps) {
         }`}
         style={!isPreset ? { backgroundColor: value } : undefined}
         onClick={() => setIsOpen((open) => !open)}
-        title={isPreset ? t('Custom color') : t('Custom color ({value})', { value: value.toUpperCase() })}
+        title={
+          isPreset ? t('Custom color') : t('Custom color ({value})', { value: value.toUpperCase() })
+        }
         aria-label={t('Choose a custom accent color')}
         aria-expanded={isOpen}
       >
-        {isPreset ? <Pipette size={13} strokeWidth={2.5} /> : <Check size={14} strokeWidth={3} className={glyphClass} />}
+        {isPreset ? (
+          <Pipette size={13} strokeWidth={2.5} />
+        ) : (
+          <Check size={14} strokeWidth={3} className={glyphClass} />
+        )}
       </button>
 
       {isOpen &&
@@ -206,7 +218,7 @@ export function AccentColorPicker({ value, onChange }: AccentColorPickerProps) {
               />
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

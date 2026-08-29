@@ -31,7 +31,13 @@ export async function setPlayerFullscreen(on: boolean): Promise<void> {
       const applied = await tauriApi.playerSetFullscreen(on);
       usePlayerStore.getState().setIsFullscreen(applied);
     } catch (error: unknown) {
-      notify.error('Fullscreen Failed', getErrorMessage(error, 'player_set_fullscreen failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        'Fullscreen Failed',
+        getErrorMessage(error, 'player_set_fullscreen failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   })();
   pending = run;

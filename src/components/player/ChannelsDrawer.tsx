@@ -26,9 +26,22 @@ import { useLogoAspect } from '../../hooks/useLogoAspect';
  */
 const ROW_HEIGHT = 46;
 
-function DrawerChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string | undefined; channelKey: string; sourceId?: string | undefined }) {
+function DrawerChannelLogo({
+  posterUrl,
+  channelKey,
+  sourceId,
+}: {
+  posterUrl?: string | undefined;
+  channelKey: string;
+  sourceId?: string | undefined;
+}) {
   const logoAspect = useLogoAspect(posterUrl, channelKey, sourceId);
-  const aspectClass = logoAspect === '16:9' ? styles.logoUnsquish169 : (logoAspect === '4:3' ? styles.logoUnsquish43 : '');
+  const aspectClass =
+    logoAspect === '16:9'
+      ? styles.logoUnsquish169
+      : logoAspect === '4:3'
+        ? styles.logoUnsquish43
+        : '';
 
   return (
     <div className={styles.channelLogo}>
@@ -72,9 +85,11 @@ export function ChannelsDrawer() {
   const setShowChannelsDrawer = usePlayerStore((s) => s.setShowChannelsDrawer);
   const activeStream = usePlayerStore((s) => s.activeStream);
   const playStream = usePlayerStore((s) => s.playStream);
-  const credentials = useAuthStore((s) => (
-    activeStream?.sourceId ? s.runtimes[activeStream.sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((s) =>
+    activeStream?.sourceId
+      ? (s.runtimes[activeStream.sourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
 
   const [query, setQuery] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
@@ -135,21 +150,27 @@ export function ChannelsDrawer() {
   // ever runs on the true transition, and cleans itself up on the way out.
   useEffect(() => {
     if (!shouldShow) return;
-    const timer = window.setTimeout(() => searchInputRef.current?.focus(), MOTION_DURATION.normal * 1000);
+    const timer = window.setTimeout(
+      () => searchInputRef.current?.focus(),
+      MOTION_DURATION.normal * 1000,
+    );
     return () => window.clearTimeout(timer);
   }, [shouldShow]);
 
   useEffect(() => {
     if (!shouldShow || !isLive || !activeStream) return;
     const playByIndex = (delta: number) => {
-      const current = channels.findIndex((channel) => (channel.sourceItemId || channel.id).toString() === activeKey);
+      const current = channels.findIndex(
+        (channel) => (channel.sourceItemId || channel.id).toString() === activeKey,
+      );
       const next = channels[(current + delta + channels.length) % channels.length];
       if (!next) return;
       const playable = playableFromMediaItem({ ...next, type: 'live' }, credentials);
       if (playable) playStream(playable);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
+        return;
       if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         event.preventDefault();
         playByIndex(event.key === 'ArrowUp' ? -1 : 1);
@@ -162,7 +183,9 @@ export function ChannelsDrawer() {
       numberTimerRef.current = setTimeout(() => {
         const number = numberBufferRef.current;
         numberBufferRef.current = '';
-        const target = channels.find((channel) => String(channel.channelNum ?? '').replace(/^#/, '') === number);
+        const target = channels.find(
+          (channel) => String(channel.channelNum ?? '').replace(/^#/, '') === number,
+        );
         if (target) {
           const playable = playableFromMediaItem({ ...target, type: 'live' }, credentials);
           if (playable) playStream(playable);
@@ -196,7 +219,8 @@ export function ChannelsDrawer() {
           <div className={drawerStyles.header}>
             <div className={drawerStyles.headerTitleRow}>
               <span className={drawerStyles.headerTitle}>{categoryLabel ?? t('Channels')}</span>
-              <button type="button"
+              <button
+                type="button"
                 className={drawerStyles.iconBtn}
                 onClick={() => setShowChannelsDrawer(false)}
                 aria-label={t('Close Channels')}
@@ -222,7 +246,13 @@ export function ChannelsDrawer() {
             {channels.length === 0 ? (
               <div className={styles.channelsEmpty}>{t('No channels found.')}</div>
             ) : (
-              <div style={{ position: 'relative', height: rowVirtualizer.getTotalSize(), width: '100%' }}>
+              <div
+                style={{
+                  position: 'relative',
+                  height: rowVirtualizer.getTotalSize(),
+                  width: '100%',
+                }}
+              >
                 {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                   const channel = channels[virtualRow.index];
                   if (!channel) return null;
@@ -247,7 +277,13 @@ export function ChannelsDrawer() {
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                       onClick={() => playChannel(channel)}
-                      onContextMenu={(e) => handleMediaCardContextMenu(e, { ...channel, type: 'live' }, { onPlay: () => playChannel(channel) })}
+                      onContextMenu={(e) =>
+                        handleMediaCardContextMenu(
+                          e,
+                          { ...channel, type: 'live' },
+                          { onPlay: () => playChannel(channel) },
+                        )
+                      }
                     >
                       {channel.channelNum !== undefined && (
                         <span className={drawerStyles.rowIndex}>{channel.channelNum}</span>
@@ -257,13 +293,23 @@ export function ChannelsDrawer() {
                         channelKey={(channel.sourceItemId || channel.id).toString()}
                         sourceId={channel.sourceId}
                       />
-                      <span className={drawerStyles.rowTitle}>{parsed.cleanTitle || channel.title}</span>
+                      <span className={drawerStyles.rowTitle}>
+                        {parsed.cleanTitle || channel.title}
+                      </span>
                       {badges.length > 0 && (
-                        <span className={styles.channelBadge} data-tag-type={getTagColorType(badges[0]!)}>
+                        <span
+                          className={styles.channelBadge}
+                          data-tag-type={getTagColorType(badges[0]!)}
+                        >
                           {badges[0]}
                         </span>
                       )}
-                      {isActive && <span className={drawerStyles.nowPlayingDot} aria-label={t('Now playing')} />}
+                      {isActive && (
+                        <span
+                          className={drawerStyles.nowPlayingDot}
+                          aria-label={t('Now playing')}
+                        />
+                      )}
                     </button>
                   );
                 })}

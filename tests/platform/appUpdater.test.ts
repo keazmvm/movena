@@ -48,10 +48,13 @@ describe('app updater service', () => {
     const progress = vi.fn();
     const installed = vi.fn();
     const update = {
-      version: '0.1.9', currentVersion: '0.1.8',
-      downloadAndInstall: vi.fn(async (onProgress?: (value: { downloaded: number; total: number | null }) => void) => {
-        onProgress?.({ downloaded: 10, total: 20 });
-      }),
+      version: '0.1.9',
+      currentVersion: '0.1.8',
+      downloadAndInstall: vi.fn(
+        async (onProgress?: (value: { downloaded: number; total: number | null }) => void) => {
+          onProgress?.({ downloaded: 10, total: 20 });
+        },
+      ),
       close: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -65,7 +68,8 @@ describe('app updater service', () => {
 
   it('always closes a failed update and does not relaunch', async () => {
     const update = {
-      version: '0.1.9', currentVersion: '0.1.8',
+      version: '0.1.9',
+      currentVersion: '0.1.8',
       downloadAndInstall: vi.fn().mockRejectedValue(new Error('signature mismatch')),
       close: vi.fn().mockResolvedValue(undefined),
     };

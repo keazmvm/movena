@@ -30,7 +30,12 @@ import { useContextMenuStore, type ContextMenuItem } from '../../store/useContex
 import { CategorySkeleton } from '../shared/Skeleton';
 import { useCatalogByType } from '../../api/useCatalog';
 import { useCategories, useHiddenCategoryIds } from '../../api/useCategories';
-import { countryName, hasCountryFlag, isCountryOnlyLabel, parseCategoryName } from '../../utils/categoryName';
+import {
+  countryName,
+  hasCountryFlag,
+  isCountryOnlyLabel,
+  parseCategoryName,
+} from '../../utils/categoryName';
 import { countHiddenCategories, isCategoryHidden } from '../../utils/categorySidebar';
 import { getPrimaryMediaTags, getTagColorType, mergeMediaTags } from '../../utils/mediaTags';
 import { CountryFlag } from '../shared/CountryFlag';
@@ -88,13 +93,18 @@ function isDirectCountryGroup(group: CountryGroup): boolean {
   return Boolean(group.country && group.rows.length > 0 && countryChildRows(group).length === 0);
 }
 
-export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: CategorySidebarProps) {
+export function CategorySidebar({
+  type,
+  activeCategoryId,
+  onSelectCategory,
+}: CategorySidebarProps) {
   const { t, tn, number, language } = useI18n();
-  const itemCountLabel = (count: number) => type === 'live'
-    ? tn('{count} channel', '{count} channels', count, { count: number(count) })
-    : type === 'series'
-      ? tn('{count} series', '{count} series', count, { count: number(count) })
-      : tn('{count} title', '{count} titles', count, { count: number(count) });
+  const itemCountLabel = (count: number) =>
+    type === 'live'
+      ? tn('{count} channel', '{count} channels', count, { count: number(count) })
+      : type === 'series'
+        ? tn('{count} series', '{count} series', count, { count: number(count) })
+        : tn('{count} title', '{count} titles', count, { count: number(count) });
   const categoryPrefs = useSettingsStore((s) => s.categoryPrefs);
   const toggleCategoryPref = useSettingsStore((s) => s.toggleCategoryPref);
   const setCollapsedCategories = useSettingsStore((s) => s.setCollapsedCategories);
@@ -108,13 +118,26 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
   const pinned = useMemo(() => categoryPrefs?.pinned?.[type] ?? [], [categoryPrefs, type]);
   const hidden = useMemo(() => categoryPrefs?.hidden?.[type] ?? [], [categoryPrefs, type]);
   const collapsed = useMemo(() => categoryPrefs?.collapsed?.[type] ?? [], [categoryPrefs, type]);
-  const pinnedCountries = useMemo(() => categoryPrefs?.pinnedCountries?.[type] ?? [], [categoryPrefs, type]);
-  const hiddenCountries = useMemo(() => categoryPrefs?.hiddenCountries?.[type] ?? [], [categoryPrefs, type]);
+  const pinnedCountries = useMemo(
+    () => categoryPrefs?.pinnedCountries?.[type] ?? [],
+    [categoryPrefs, type],
+  );
+  const hiddenCountries = useMemo(
+    () => categoryPrefs?.hiddenCountries?.[type] ?? [],
+    [categoryPrefs, type],
+  );
   const pinnedSet = useMemo(() => new Set(pinned), [pinned]);
   const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
   const hiddenCountrySet = useMemo(() => new Set(hiddenCountries), [hiddenCountries]);
 
-  const { data: categories = [], isLoading, isError, error, isFetching, refetch } = useCategories(type);
+  const {
+    data: categories = [],
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useCategories(type);
 
   const { data: items = [] } = useCatalogByType(type);
 
@@ -143,9 +166,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
       if (favSet.has(item.id)) favCount += 1;
       if (item.added) recentCount += 1;
       if (typeof item.rating === 'number' && item.rating >= 7.0) topRatedCount += 1;
-      if (/\b(4k|uhd|2160p|8k)\b/i.test(item.title)
-        || (item.quality && /\b(4k|uhd|2160p|8k)\b/i.test(item.quality))
-        || item.tags?.some((tag: string) => /^(4K|8K|UHD)$/i.test(tag))) {
+      if (
+        /\b(4k|uhd|2160p|8k)\b/i.test(item.title) ||
+        (item.quality && /\b(4k|uhd|2160p|8k)\b/i.test(item.quality)) ||
+        item.tags?.some((tag: string) => /^(4K|8K|UHD)$/i.test(tag))
+      ) {
         fourKCount += 1;
       }
     }
@@ -255,9 +280,10 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
   const isRowActive = (row: Row) =>
     activeCategoryId === row.id || row.categoryIds.includes(activeCategoryId || '');
 
-  const isCategoryRowPinned = useCallback((row: Row) => (
-    pinnedSet.has(row.id) || row.categoryIds.some((id) => pinnedSet.has(id))
-  ), [pinnedSet]);
+  const isCategoryRowPinned = useCallback(
+    (row: Row) => pinnedSet.has(row.id) || row.categoryIds.some((id) => pinnedSet.has(id)),
+    [pinnedSet],
+  );
 
   const isCategoryRowDirectlyHidden = (row: Row) =>
     hiddenSet.has(row.id) || row.categoryIds.some((id) => hiddenSet.has(id));
@@ -336,23 +362,20 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
     setCollapsedCategories(type, allCollapsed ? [] : collapsibleGroups.map((group) => group.key));
   };
 
-  const pinnedRows = useMemo(
-    () => {
-      const seen = new Set<string>();
-      const result: Row[] = [];
-      for (const id of pinned) {
-        const row = filteredRowById.get(id);
-        if (row && !seen.has(row.id)) {
-          seen.add(row.id);
-          if (showHidden || !isCategoryHidden(row, hiddenSet, hiddenCountrySet)) {
-            result.push(row);
-          }
+  const pinnedRows = useMemo(() => {
+    const seen = new Set<string>();
+    const result: Row[] = [];
+    for (const id of pinned) {
+      const row = filteredRowById.get(id);
+      if (row && !seen.has(row.id)) {
+        seen.add(row.id);
+        if (showHidden || !isCategoryHidden(row, hiddenSet, hiddenCountrySet)) {
+          result.push(row);
         }
       }
-      return result;
-    },
-    [pinned, filteredRowById, showHidden, hiddenSet, hiddenCountrySet]
-  );
+    }
+    return result;
+  }, [pinned, filteredRowById, showHidden, hiddenSet, hiddenCountrySet]);
 
   // One category can be hidden directly and through its country. Count it once.
   const hiddenCount = countHiddenCategories(rows, hiddenSet, hiddenCountrySet);
@@ -360,15 +383,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
   const hiddenSearchMatchCount = hasSearch
     ? countHiddenCategories(filteredRows, hiddenSet, hiddenCountrySet)
     : 0;
-  const displayedCategoryCount = pinnedRows.length + groups.reduce(
-    (total, group) => total + Math.max(1, countryChildRows(group).length),
-    0,
-  );
+  const displayedCategoryCount =
+    pinnedRows.length +
+    groups.reduce((total, group) => total + Math.max(1, countryChildRows(group).length), 0);
 
-  const openActions = (
-    event: React.MouseEvent<HTMLElement>,
-    items: ContextMenuItem[],
-  ) => {
+  const openActions = (event: React.MouseEvent<HTMLElement>, items: ContextMenuItem[]) => {
     event.preventDefault();
     event.stopPropagation();
     const rect = event.currentTarget.getBoundingClientRect();
@@ -410,17 +429,17 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
       },
       {
         id: `hide-${row.id}`,
-        label: isHiddenWithCountry && !isDirectlyHidden
-          ? t('Hidden with {country}', { country: countryName(row.country, language) })
-          : isDirectlyHidden
-            ? 'Show category'
-            : 'Hide category',
+        label:
+          isHiddenWithCountry && !isDirectlyHidden
+            ? t('Hidden with {country}', { country: countryName(row.country, language) })
+            : isDirectlyHidden
+              ? 'Show category'
+              : 'Hide category',
         icon: isDirectlyHidden ? <Eye size={15} /> : <EyeOff size={15} />,
         checked: isDirectlyHidden || isHiddenWithCountry,
         disabled: isHiddenWithCountry && !isDirectlyHidden,
-        action: isHiddenWithCountry && !isDirectlyHidden
-          ? undefined
-          : () => toggleCategoryHidden(row),
+        action:
+          isHiddenWithCountry && !isDirectlyHidden ? undefined : () => toggleCategoryHidden(row),
       },
     ];
   };
@@ -445,10 +464,10 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
         action: () => {
           const willHide = !isHidden;
           const activeRow = activeCategoryId ? rowById.get(activeCategoryId) : undefined;
-          if (willHide && (
-            activeCategoryId === `country:${key}` ||
-            (activeRow?.country ?? 'other') === key
-          )) {
+          if (
+            willHide &&
+            (activeCategoryId === `country:${key}` || (activeRow?.country ?? 'other') === key)
+          ) {
             onSelectCategory(null);
           }
           toggleCategoryPref('hiddenCountries', type, key);
@@ -467,7 +486,9 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
     const isActive = isRowActive(row);
     const visibleTags = getPrimaryMediaTags(row.tags ?? [], 1);
     const menuItems = categoryActions(row);
-    const fullLabel = showCountry ? `${row.label}, ${countryName(row.country, language)}` : row.label;
+    const fullLabel = showCountry
+      ? `${row.label}, ${countryName(row.country, language)}`
+      : row.label;
 
     return (
       <div
@@ -477,18 +498,21 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
         } ${isHidden ? styles.hiddenRow : ''}`}
         onContextMenu={(event) => openActions(event, menuItems)}
       >
-        <button type="button"
+        <button
+          type="button"
           className={`${styles.rowMain} ${nested ? styles.nestedRowMain : ''}`}
           onClick={() => onSelectCategory(isActive ? null : row.id)}
           title={row.count > 0 ? `${fullLabel} (${number(row.count)})` : fullLabel}
           aria-label={`${fullLabel}${row.count > 0 ? `, ${itemCountLabel(row.count)}` : ''}${isPinned ? `, ${t('pinned')}` : ''}${isHidden ? `, ${t('hidden')}` : ''}`}
           aria-pressed={isActive}
         >
-          {showCountry && row.country && (
-            hasCountryFlag(row.country)
-              ? <CountryFlag code={row.country} className={styles.rowFlag} />
-              : <span className={styles.countryCode}>{row.country}</span>
-          )}
+          {showCountry &&
+            row.country &&
+            (hasCountryFlag(row.country) ? (
+              <CountryFlag code={row.country} className={styles.rowFlag} />
+            ) : (
+              <span className={styles.countryCode}>{row.country}</span>
+            ))}
           {isPinned && (
             <span className={styles.pinnedIndicator} title={t('Pinned')} aria-hidden="true">
               <Pin size={12} strokeWidth={2.25} />
@@ -507,7 +531,8 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
           )}
           {row.count > 0 && <span className={styles.count}>{number(row.count)}</span>}
         </button>
-        <button type="button"
+        <button
+          type="button"
           className={styles.rowMenuButton}
           onClick={(event) => openActions(event, menuItems)}
           aria-label={t('Actions for {name}', { name: fullLabel })}
@@ -523,53 +548,69 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
       width={storedWidth}
       onWidthChange={(width) => updateSetting('sidebarWidth', width)}
       ariaLabel="Categories"
-      headerContent={(
+      headerContent={
         <>
-        <WorkspaceSidebarSearch
+          <WorkspaceSidebarSearch
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search categories..."
             ariaLabel="Filter categories"
-        />
-        {hasSearch && (
-          <div className={styles.searchStatus} role="status" aria-live="polite">
-            <span>
-              {tn('{count} category', '{count} categories', displayedCategoryCount, { count: number(displayedCategoryCount) })}
-            </span>
-            {hiddenSearchMatchCount > 0 && (
-              <button type="button"
-                className={styles.searchHiddenToggle}
-                onClick={() => setShowHidden((value) => !value)}
-              >
-                {showHidden ? t('Hide hidden') : t('Show {count} hidden', { count: number(hiddenSearchMatchCount) })}
-              </button>
-            )}
-          </div>
-        )}
+          />
+          {hasSearch && (
+            <div className={styles.searchStatus} role="status" aria-live="polite">
+              <span>
+                {tn('{count} category', '{count} categories', displayedCategoryCount, {
+                  count: number(displayedCategoryCount),
+                })}
+              </span>
+              {hiddenSearchMatchCount > 0 && (
+                <button
+                  type="button"
+                  className={styles.searchHiddenToggle}
+                  onClick={() => setShowHidden((value) => !value)}
+                >
+                  {showHidden
+                    ? t('Hide hidden')
+                    : t('Show {count} hidden', { count: number(hiddenSearchMatchCount) })}
+                </button>
+              )}
+            </div>
+          )}
         </>
-      )}
+      }
     >
-
       {isLoading ? (
         <CategorySkeleton />
       ) : isError && categories.length === 0 ? (
         <div className={styles.categoryUnavailable} role="status" aria-live="polite">
-          <span><strong>{t('Categories unavailable')}</strong><small>{getErrorMessage(error, 'Category query failed without an error message.')}</small></span>
+          <span>
+            <strong>{t('Categories unavailable')}</strong>
+            <small>
+              {getErrorMessage(error, 'Category query failed without an error message.')}
+            </small>
+          </span>
           <button
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
             aria-label={t('Retry loading categories')}
           >
-            <RefreshCw size={14} className={isFetching ? styles.categoryRetrying : undefined} aria-hidden="true" />
+            <RefreshCw
+              size={14}
+              className={isFetching ? styles.categoryRetrying : undefined}
+              aria-hidden="true"
+            />
             <span>{t(isFetching ? 'Retrying' : 'Retry')}</span>
           </button>
         </div>
       ) : (
         <>
           {!hasSearch && (
-            <div className={`${styles.row} ${styles.allCategoriesRow} ${activeCategoryId === null ? styles.active : ''}`}>
-              <button type="button"
+            <div
+              className={`${styles.row} ${styles.allCategoriesRow} ${activeCategoryId === null ? styles.active : ''}`}
+            >
+              <button
+                type="button"
                 className={styles.rowMain}
                 onClick={() => onSelectCategory(null)}
                 aria-pressed={activeCategoryId === null}
@@ -582,12 +623,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                   className={styles.allCategoriesIcon}
                 />
                 <span className={styles.categoryLabel}>{t('All Categories')}</span>
-                {visibleTotal > 0 && (
-                  <span className={styles.count}>{number(visibleTotal)}</span>
-                )}
+                {visibleTotal > 0 && <span className={styles.count}>{number(visibleTotal)}</span>}
               </button>
               {collapsibleGroups.length > 0 && (
-                <button type="button"
+                <button
+                  type="button"
                   className={styles.rowMenuButton}
                   onClick={handleToggleCollapseAll}
                   aria-label={t(allCollapsed ? 'Expand all categories' : 'Collapse all categories')}
@@ -621,9 +661,7 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                         className={styles.smartHubIcon}
                       />
                       <span className={styles.categoryLabel}>{hub.label}</span>
-                      {hub.count > 0 && (
-                        <span className={styles.count}>{number(hub.count)}</span>
-                      )}
+                      {hub.count > 0 && <span className={styles.count}>{number(hub.count)}</span>}
                     </button>
                   </div>
                 );
@@ -659,11 +697,14 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                   onContextMenu={(event) => openActions(event, menuItems)}
                 >
                   {!isDirectCountry && (
-                    <button type="button"
+                    <button
+                      type="button"
                       className={styles.groupCollapseButton}
                       onClick={() => toggleCategoryPref('collapsed', type, key)}
                       aria-expanded={!isCollapsed}
-                      aria-label={t(isCollapsed ? 'Expand {name}' : 'Collapse {name}', { name: countryName(group.country, language) })}
+                      aria-label={t(isCollapsed ? 'Expand {name}' : 'Collapse {name}', {
+                        name: countryName(group.country, language),
+                      })}
                     >
                       <ChevronDown
                         size={13}
@@ -671,7 +712,8 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                       />
                     </button>
                   )}
-                  <button type="button"
+                  <button
+                    type="button"
                     className={`${styles.groupHeader} ${isDirectCountry ? styles.directCountryHeader : ''}`}
                     onClick={() => onSelectCategory(isActive ? null : countryId)}
                     aria-pressed={isActive}
@@ -683,7 +725,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                       group.country && <span className={styles.countryCode}>{group.country}</span>
                     )}
                     {isPinnedCountry && (
-                      <span className={styles.pinnedIndicator} title={t('Pinned')} aria-hidden="true">
+                      <span
+                        className={styles.pinnedIndicator}
+                        title={t('Pinned')}
+                        aria-hidden="true"
+                      >
                         <Pin size={12} strokeWidth={2.25} />
                       </span>
                     )}
@@ -691,12 +737,17 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
                     {group.total > 0 && (
                       <span className={styles.groupCount}>{number(group.total)}</span>
                     )}
-                    {isHiddenCountry && <EyeOff size={12} className={styles.hiddenIndicator} aria-hidden="true" />}
+                    {isHiddenCountry && (
+                      <EyeOff size={12} className={styles.hiddenIndicator} aria-hidden="true" />
+                    )}
                   </button>
-                  <button type="button"
+                  <button
+                    type="button"
                     className={styles.rowMenuButton}
                     onClick={(event) => openActions(event, menuItems)}
-                    aria-label={t('Actions for {name}', { name: countryName(group.country, language) })}
+                    aria-label={t('Actions for {name}', {
+                      name: countryName(group.country, language),
+                    })}
                     aria-haspopup="menu"
                   >
                     <MoreHorizontal size={16} />
@@ -733,7 +784,11 @@ export function CategorySidebar({ type, activeCategoryId, onSelectCategory }: Ca
           )}
 
           {!hasSearch && hiddenCount > 0 && (
-            <button type="button" className={styles.hiddenToggle} onClick={() => setShowHidden((v) => !v)}>
+            <button
+              type="button"
+              className={styles.hiddenToggle}
+              onClick={() => setShowHidden((v) => !v)}
+            >
               {showHidden ? <EyeOff size={12} /> : <Eye size={12} />}
               <span>
                 {showHidden ? t('Hide') : t('Show')} {number(hiddenCount)} {t('hidden')}

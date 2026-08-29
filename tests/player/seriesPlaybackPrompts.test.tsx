@@ -29,7 +29,7 @@ const mockSeriesData = {
   episodes: {
     '1': [
       { id: 101, episode_num: 1, title: 'Pilot' },
-      { id: 102, episode_num: 2, title: 'Cat\'s in the Bag...' },
+      { id: 102, episode_num: 2, title: "Cat's in the Bag..." },
     ],
   },
 };

@@ -2,7 +2,11 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { getLiveStreams, getSeries, getStreamUrl, getVodStreams } from './xc';
 import type { MediaItem } from '../components/catalog/MediaCard';
 import { queryKeys } from './queryKeys';
-import { parseLiveChannelTitle, parseMediaDisplayTitle, parseMediaTitle } from '../utils/titleParser';
+import {
+  parseLiveChannelTitle,
+  parseMediaDisplayTitle,
+  parseMediaTitle,
+} from '../utils/titleParser';
 import {
   useEnabledSources,
   type EnabledSourcesSnapshot,
@@ -20,18 +24,22 @@ export interface CatalogItem extends MediaItem {
   /** The source's guide id for a channel — how XMLTV listings are matched. */
   epgChannelId?: string | undefined;
   radio?: boolean | undefined;
-  radioMetadata?: {
-    title: string;
-    artist?: string | undefined;
-    album?: string | undefined;
-    genre?: string | undefined;
-    channelNumber?: string | undefined;
-    logoUrl?: string | undefined;
-  } | undefined;
+  radioMetadata?:
+    | {
+        title: string;
+        artist?: string | undefined;
+        album?: string | undefined;
+        genre?: string | undefined;
+        channelNumber?: string | undefined;
+        logoUrl?: string | undefined;
+      }
+    | undefined;
   catchup?: string | undefined;
   catchupSource?: string | undefined;
   catchupDays?: number | undefined;
-  fallbacks?: Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }> | undefined;
+  fallbacks?:
+    | Array<{ streamUrl: string; httpHeaders?: Record<string, string> | undefined }>
+    | undefined;
 }
 
 const foldedLiveCatalogs = new WeakMap<CatalogItem[], CatalogItem[]>();
@@ -81,7 +89,9 @@ export function mapM3uCatalog(
   sourceName?: string,
 ): CatalogItem[] {
   if (type !== 'series') {
-    return playlist.entries.filter((entry) => entry.type === type).map((entry) => m3uEntryItem(entry, sourceName));
+    return playlist.entries
+      .filter((entry) => entry.type === type)
+      .map((entry) => m3uEntryItem(entry, sourceName));
   }
   return [...getM3uSeriesGroups(playlist).entries()].map(([id, episodes]) => {
     const first = episodes[0]!;
@@ -112,20 +122,28 @@ export function catalogQueryOptions(
   return queryOptions({
     queryKey: queryKeys.catalog(type, sources.queryScope),
     queryFn: async ({ signal }): Promise<CatalogItem[]> => {
-      const playlistItems = sources.availableM3uSources.flatMap((source) => (
-        source.runtime?.playlist ? mapM3uCatalog(source.runtime.playlist, type, source.profile.name) : []
-      ));
-      const results = await Promise.allSettled(sources.availableXtreamSources.map((source) => (
-        type === 'live'
-          ? liveFromXtream(source, signal)
-          : type === 'vod'
-            ? vodFromXtream(source, signal)
-            : seriesFromXtream(source, signal)
-      )));
+      const playlistItems = sources.availableM3uSources.flatMap((source) =>
+        source.runtime?.playlist
+          ? mapM3uCatalog(source.runtime.playlist, type, source.profile.name)
+          : [],
+      );
+      const results = await Promise.allSettled(
+        sources.availableXtreamSources.map((source) =>
+          type === 'live'
+            ? liveFromXtream(source, signal)
+            : type === 'vod'
+              ? vodFromXtream(source, signal)
+              : seriesFromXtream(source, signal),
+        ),
+      );
       const providerItems = successful(results);
-      const providerFailures = results.flatMap((result, index) => result.status === 'rejected'
-        ? [`${sources.availableXtreamSources[index]?.profile.name ?? `Source ${index + 1}`}: ${getErrorMessage(result.reason, 'Request failed without an error message.')}`]
-        : []);
+      const providerFailures = results.flatMap((result, index) =>
+        result.status === 'rejected'
+          ? [
+              `${sources.availableXtreamSources[index]?.profile.name ?? `Source ${index + 1}`}: ${getErrorMessage(result.reason, 'Request failed without an error message.')}`,
+            ]
+          : [],
+      );
       const failedProviders = providerFailures.length;
       if (!playlistItems.length && results.length > 0 && failedProviders === results.length) {
         throw new Error(providerFailures.join('\n'));
@@ -158,44 +176,61 @@ export function isCatalogAvailable(
 }
 
 function successful<T>(results: PromiseSettledResult<T[]>[]): T[] {
-  return results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  return results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
 }
 
-async function liveFromXtream(source: EnabledXtreamSource, signal?: AbortSignal): Promise<CatalogItem[]> {
+async function liveFromXtream(
+  source: EnabledXtreamSource,
+  signal?: AbortSignal,
+): Promise<CatalogItem[]> {
   const credentials = source.credentials!;
   const response = await getLiveStreams(credentials, undefined, signal);
   if (!Array.isArray(response)) return [];
   return response.map((stream, index) => {
     const title = stream.name || 'Unknown Channel';
     const metadata = parseLiveChannelTitle(title);
-    const providerId = (stream.stream_id ?? stream.epg_channel_id ?? stream.num ?? `live-${index}`).toString();
+    const providerId = (
+      stream.stream_id ??
+      stream.epg_channel_id ??
+      stream.num ??
+      `live-${index}`
+    ).toString();
     return {
       id: xtreamItemId(source.id, 'live', providerId),
       sourceItemId: providerId,
       title,
       posterUrl: stream.stream_icon || '',
       type: 'live',
-      channelNum: stream.num ?? (index + 1),
+      channelNum: stream.num ?? index + 1,
       added: stream.added,
       categoryId: xtreamCategoryId(source.id, stream.category_id),
       epgChannelId: stream.epg_channel_id || undefined,
       tags: metadata.qualityBadges,
       country: metadata.country,
       streamUrl: stream.direct_source || getStreamUrl(credentials, 'live', providerId),
-      fallbacks: stream.direct_source ? [{ streamUrl: getStreamUrl(credentials, 'live', providerId) }] : undefined,
+      fallbacks: stream.direct_source
+        ? [{ streamUrl: getStreamUrl(credentials, 'live', providerId) }]
+        : undefined,
       catchup: stream.tv_archive === 1 ? 'xtream' : undefined,
       catchupDays: stream.tv_archive_duration,
       sourceId: source.id,
       subtitle: source.profile.name,
-      radio: stream.stream_type?.toLowerCase() === 'audio' || stream.stream_type?.toLowerCase() === 'radio',
-      radioMetadata: (stream.stream_type?.toLowerCase() === 'audio' || stream.stream_type?.toLowerCase() === 'radio')
-        ? { title }
-        : undefined,
+      radio:
+        stream.stream_type?.toLowerCase() === 'audio' ||
+        stream.stream_type?.toLowerCase() === 'radio',
+      radioMetadata:
+        stream.stream_type?.toLowerCase() === 'audio' ||
+        stream.stream_type?.toLowerCase() === 'radio'
+          ? { title }
+          : undefined,
     };
   });
 }
 
-async function vodFromXtream(source: EnabledXtreamSource, signal?: AbortSignal): Promise<CatalogItem[]> {
+async function vodFromXtream(
+  source: EnabledXtreamSource,
+  signal?: AbortSignal,
+): Promise<CatalogItem[]> {
   const credentials = source.credentials!;
   const streams = await getVodStreams(credentials, undefined, signal);
   if (!Array.isArray(streams)) return [];
@@ -222,7 +257,9 @@ async function vodFromXtream(source: EnabledXtreamSource, signal?: AbortSignal):
       categoryId: xtreamCategoryId(source.id, stream.category_id),
       tags: metadata.tags,
       country: metadata.country,
-      streamUrl: stream.direct_source || getStreamUrl(credentials, 'vod', providerId, stream.container_extension || 'mp4'),
+      streamUrl:
+        stream.direct_source ||
+        getStreamUrl(credentials, 'vod', providerId, stream.container_extension || 'mp4'),
       containerExtension: stream.container_extension,
       sourceId: source.id,
       subtitle: source.profile.name,
@@ -230,7 +267,10 @@ async function vodFromXtream(source: EnabledXtreamSource, signal?: AbortSignal):
   });
 }
 
-async function seriesFromXtream(source: EnabledXtreamSource, signal?: AbortSignal): Promise<CatalogItem[]> {
+async function seriesFromXtream(
+  source: EnabledXtreamSource,
+  signal?: AbortSignal,
+): Promise<CatalogItem[]> {
   const streams = await getSeries(source.credentials!, undefined, signal);
   if (!Array.isArray(streams)) return [];
   return streams.map((stream, index) => {

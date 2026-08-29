@@ -28,9 +28,11 @@ export function EpisodesDrawer() {
   const setShowEpisodesDrawer = usePlayerStore((s) => s.setShowEpisodesDrawer);
   const activeStream = usePlayerStore((s) => s.activeStream);
   const playStream = usePlayerStore((s) => s.playStream);
-  const credentials = useAuthStore((s) => (
-    activeStream?.sourceId ? s.runtimes[activeStream.sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((s) =>
+    activeStream?.sourceId
+      ? (s.runtimes[activeStream.sourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
 
   const [selectedSeason, setSelectedSeason] = useState<string>('');
 
@@ -68,12 +70,10 @@ export function EpisodesDrawer() {
 
   const seasons = seriesData?.episodes ? Object.keys(seriesData.episodes) : [];
   const currentEpisodes =
-    selectedSeason && seriesData?.episodes
-      ? seriesData.episodes[selectedSeason] || []
-      : [];
-  const cleanSeriesTitle = getSeriesBaseTitle(
-    seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
-  ) || t('Series');
+    selectedSeason && seriesData?.episodes ? seriesData.episodes[selectedSeason] || [] : [];
+  const cleanSeriesTitle =
+    getSeriesBaseTitle(seriesData?.info?.name || activeStream.seriesTitle || activeStream.title) ||
+    t('Series');
 
   // ── Play a specific episode ─────────────────────────────────
 
@@ -87,7 +87,9 @@ export function EpisodesDrawer() {
       episodeNum: episode.episode_num,
     });
 
-    const historyItem = useLibraryStore.getState().history.find((item) => item.id === activeStream.seriesId?.toString());
+    const historyItem = useLibraryStore
+      .getState()
+      .history.find((item) => item.id === activeStream.seriesId?.toString());
     const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
 
     playStream({
@@ -115,7 +117,7 @@ export function EpisodesDrawer() {
       episodeTitle: parsedEpisode.cleanTitle,
       tags: mergeMediaTags(...(activeStream.tags ?? []), ...parsedEpisode.tags),
       country: activeStream.country ?? parsedEpisode.country,
-      startPosition: isSavedEp ? (historyItem.currentTime || 0) : 0,
+      startPosition: isSavedEp ? historyItem.currentTime || 0 : 0,
       knownDuration: isSavedEp ? historyItem.duration : undefined,
     });
   };
@@ -137,7 +139,8 @@ export function EpisodesDrawer() {
           <div className={drawerStyles.header}>
             <div className={drawerStyles.headerTitleRow}>
               <span className={drawerStyles.headerTitle}>{cleanSeriesTitle}</span>
-              <button type="button"
+              <button
+                type="button"
                 className={drawerStyles.iconBtn}
                 onClick={() => setShowEpisodesDrawer(false)}
                 aria-label={t('Close Episodes')}
@@ -147,7 +150,10 @@ export function EpisodesDrawer() {
             </div>
             <Select
               value={selectedSeason}
-              options={seasons.map((season) => ({ value: season, label: t('Season {number}', { number: season }) }))}
+              options={seasons.map((season) => ({
+                value: season,
+                label: t('Season {number}', { number: season }),
+              }))}
               onChange={setSelectedSeason}
               disabled={seasons.length === 0}
               width="100%"
@@ -158,14 +164,14 @@ export function EpisodesDrawer() {
           {/* Episodes list */}
           <div className={`${drawerStyles.list} subtle-scrollbar`}>
             {isLoading ? (
-              <div className={styles.episodesLoading}>
-                {t('Loading episodes...')}
-              </div>
+              <div className={styles.episodesLoading}>{t('Loading episodes...')}</div>
             ) : currentEpisodes.length === 0 ? (
               <div className={styles.episodesEmpty}>{t('No episodes found.')}</div>
             ) : (
               currentEpisodes.map((episode) => {
-                const isActive = episode.id.toString() === (activeStream.sourceItemId || activeStream.id).toString();
+                const isActive =
+                  episode.id.toString() ===
+                  (activeStream.sourceItemId || activeStream.id).toString();
                 const parsedEpisode = parseEpisodeTitle(episode.title, {
                   seriesTitle: cleanSeriesTitle,
                   seasonNum: selectedSeason,
@@ -198,11 +204,16 @@ export function EpisodesDrawer() {
                     aria-current={isActive ? 'true' : undefined}
                     disabled={isActive}
                     onClick={isActive ? undefined : () => playEpisode(episode, selectedSeason)}
-                    onContextMenu={isActive ? undefined : (e) => handleMediaCardContextMenu(e, epItem, { onPlay: () => playEpisode(episode, selectedSeason) })}
+                    onContextMenu={
+                      isActive
+                        ? undefined
+                        : (e) =>
+                            handleMediaCardContextMenu(e, epItem, {
+                              onPlay: () => playEpisode(episode, selectedSeason),
+                            })
+                    }
                   >
-                    <span className={drawerStyles.rowIndex}>
-                      {episode.episode_num}
-                    </span>
+                    <span className={drawerStyles.rowIndex}>{episode.episode_num}</span>
                     <div className={styles.thumbnailContainer}>
                       <img
                         src={episode.info?.movie_image || activeStream.posterUrl}
@@ -214,14 +225,13 @@ export function EpisodesDrawer() {
                         }}
                       />
                     </div>
-                    <span className={drawerStyles.rowTitle}>
-                      {parsedEpisode.cleanTitle}
-                    </span>
-                    {(episode.info?.duration ||
-                      episode.info?.duration_secs) && (
+                    <span className={drawerStyles.rowTitle}>{parsedEpisode.cleanTitle}</span>
+                    {(episode.info?.duration || episode.info?.duration_secs) && (
                       <span className={drawerStyles.rowMeta}>
                         {episode.info.duration ||
-                          t('{count} min', { count: number(Math.round(episode.info.duration_secs! / 60)) })}
+                          t('{count} min', {
+                            count: number(Math.round(episode.info.duration_secs! / 60)),
+                          })}
                       </span>
                     )}
                     {isActive && (

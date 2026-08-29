@@ -18,14 +18,19 @@ describe('radio metadata helpers', () => {
   });
 
   it('normalizes audio display metadata from an EXTINF title and attributes', () => {
-    expect(normalizeRadioDisplayMetadata({
-      'tvg-name': 'Fallback Station',
-      artist: '  The\tNight\nShow ',
-      album: 'Late\u00a0Night',
-      genre: 'Jazz',
-      'tvg-chno': ' 42 ',
-      'tvg-logo': 'https://radio.example.test/logo.png',
-    }, '  Movena FM  ')).toEqual({
+    expect(
+      normalizeRadioDisplayMetadata(
+        {
+          'tvg-name': 'Fallback Station',
+          artist: '  The\tNight\nShow ',
+          album: 'Late\u00a0Night',
+          genre: 'Jazz',
+          'tvg-chno': ' 42 ',
+          'tvg-logo': 'https://radio.example.test/logo.png',
+        },
+        '  Movena FM  ',
+      ),
+    ).toEqual({
       title: 'Movena FM',
       artist: 'The Night Show',
       album: 'Late Night',
@@ -36,12 +41,18 @@ describe('radio metadata helpers', () => {
   });
 
   it('uses safe fallback fields and strips control or bidi characters', () => {
-    expect(normalizeRadioDisplayMetadata({
-      title: '\u202e\u0000',
-      'station-name': '  Safe\u0007 Station  ',
-      artist: 'Ignored\u202aArtist',
-      logo: 'javascript:alert(1)',
-    }, undefined, '  Default\nStation ')).toEqual({
+    expect(
+      normalizeRadioDisplayMetadata(
+        {
+          title: '\u202e\u0000',
+          'station-name': '  Safe\u0007 Station  ',
+          artist: 'Ignored\u202aArtist',
+          logo: 'javascript:alert(1)',
+        },
+        undefined,
+        '  Default\nStation ',
+      ),
+    ).toEqual({
       title: 'Safe Station',
       artist: 'IgnoredArtist',
     });
@@ -61,7 +72,8 @@ describe('radio metadata helpers', () => {
 
   it('accepts only absolute HTTP(S) logos', () => {
     expect(normalizeRadioDisplayMetadata({ logo: '/station.png' }).logoUrl).toBeUndefined();
-    expect(normalizeRadioDisplayMetadata({ logo: 'https://radio.example.test/logo.png' }).logoUrl)
-      .toBe('https://radio.example.test/logo.png');
+    expect(
+      normalizeRadioDisplayMetadata({ logo: 'https://radio.example.test/logo.png' }).logoUrl,
+    ).toBe('https://radio.example.test/logo.png');
   });
 });

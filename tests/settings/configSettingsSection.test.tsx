@@ -126,14 +126,18 @@ describe('import and export settings page', () => {
 
     expect(screen.getByText(/Valid configuration: will update 1 preference/i)).toBeTruthy();
 
-    const importButton = screen.getByRole('button', { name: 'Import Settings' }) as HTMLButtonElement;
+    const importButton = screen.getByRole('button', {
+      name: 'Import Settings',
+    }) as HTMLButtonElement;
     expect(importButton.disabled).toBe(false);
 
     await user.click(importButton);
 
     expect(useSettingsStore.getState().accentColor).toBe('#af52de');
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.getByRole('status').textContent).toContain('Imported 1 changed preference from pasted JSON');
+    expect(screen.getByRole('status').textContent).toContain(
+      'Imported 1 changed preference from pasted JSON',
+    );
   });
 
   it('shows validation error when pasting invalid settings JSON', async () => {
@@ -147,11 +151,12 @@ describe('import and export settings page', () => {
 
     expect(screen.getByText(/is not a valid JSON settings file/i)).toBeTruthy();
 
-    const importButton = screen.getByRole('button', { name: 'Import Settings' }) as HTMLButtonElement;
+    const importButton = screen.getByRole('button', {
+      name: 'Import Settings',
+    }) as HTMLButtonElement;
     expect(importButton.disabled).toBe(true);
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
-

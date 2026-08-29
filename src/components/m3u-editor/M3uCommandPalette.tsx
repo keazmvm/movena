@@ -23,7 +23,9 @@ export function M3uCommandPalette({ commands, onClose }: M3uCommandPaletteProps)
   const [query, setQuery] = useState('');
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return normalized ? commands.filter((command) => t(command.label).toLowerCase().includes(normalized)) : commands;
+    return normalized
+      ? commands.filter((command) => t(command.label).toLowerCase().includes(normalized))
+      : commands;
   }, [commands, query, t]);
 
   return (
@@ -33,29 +35,42 @@ export function M3uCommandPalette({ commands, onClose }: M3uCommandPaletteProps)
       ariaLabel={t('Editor Command Palette')}
       initialFocusSelector="input"
     >
-        <div className={styles.commandSearch}>
-          <Search size={15} aria-hidden="true" />
-          <input className="uiField" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search editor commands...')} aria-label={t('Search editor commands')} />
-          <IconButton size="sm" type="button" onClick={onClose} aria-label={t('Close')}><X size={15} /></IconButton>
-        </div>
-        <div className={styles.commandList} role="listbox" aria-label={t('Editor commands')}>
-          {filtered.map((command) => (
-            <button
-              key={command.id}
-              type="button"
-              role="option"
-              aria-selected="false"
-              className={styles.commandItem}
-              disabled={command.disabled}
-              onClick={() => { onClose(); command.run(); }}
-            >
-              <Command size={14} aria-hidden="true" />
-              <span>{t(command.label)}</span>
-              {command.shortcut && <kbd>{command.shortcut}</kbd>}
-            </button>
-          ))}
-          {filtered.length === 0 && <p className={styles.emptyNotice}>{t('No matching commands.')}</p>}
-        </div>
+      <div className={styles.commandSearch}>
+        <Search size={15} aria-hidden="true" />
+        <input
+          className="uiField"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t('Search editor commands...')}
+          aria-label={t('Search editor commands')}
+        />
+        <IconButton size="sm" type="button" onClick={onClose} aria-label={t('Close')}>
+          <X size={15} />
+        </IconButton>
+      </div>
+      <div className={styles.commandList} role="listbox" aria-label={t('Editor commands')}>
+        {filtered.map((command) => (
+          <button
+            key={command.id}
+            type="button"
+            role="option"
+            aria-selected="false"
+            className={styles.commandItem}
+            disabled={command.disabled}
+            onClick={() => {
+              onClose();
+              command.run();
+            }}
+          >
+            <Command size={14} aria-hidden="true" />
+            <span>{t(command.label)}</span>
+            {command.shortcut && <kbd>{command.shortcut}</kbd>}
+          </button>
+        ))}
+        {filtered.length === 0 && (
+          <p className={styles.emptyNotice}>{t('No matching commands.')}</p>
+        )}
+      </div>
     </ModalShell>
   );
 }

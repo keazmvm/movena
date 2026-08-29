@@ -1,8 +1,4 @@
-import {
-  parseM3u,
-  type M3uPlaylist,
-  type ParseM3uOptions,
-} from '../api/m3u';
+import { parseM3u, type M3uPlaylist, type ParseM3uOptions } from '../api/m3u';
 
 interface ParseResponse {
   id: number;
@@ -33,7 +29,9 @@ function getParserWorker(): Worker | null {
   if (typeof Worker === 'undefined') return null;
 
   try {
-    const worker = new Worker(new URL('../workers/m3uParser.worker.ts', import.meta.url), { type: 'module' });
+    const worker = new Worker(new URL('../workers/m3uParser.worker.ts', import.meta.url), {
+      type: 'module',
+    });
     worker.addEventListener('message', (event: MessageEvent<ParseResponse>) => {
       const pending = pendingParses.get(event.data.id);
       if (!pending) return;

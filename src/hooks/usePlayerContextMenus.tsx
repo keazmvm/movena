@@ -1,14 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Bug,
-  Gauge,
-  ListVideo,
-  MessageSquare,
-  Music,
-  RefreshCw,
-  X,
-} from 'lucide-react';
+import { Bug, Gauge, ListVideo, MessageSquare, Music, RefreshCw, X } from 'lucide-react';
 import {
   RiFolderLine,
   RiFullscreenExitFill,
@@ -70,10 +62,8 @@ export function usePlayerContextMenus() {
             id: `volume-${volume}`,
             label: volume === 0 ? t('Mute') : `${number(volume)}%`,
             checked: player.isMuted ? volume === 0 : Math.round(player.volume) === volume,
-            action: () => runPlayerCommand(
-              () => tauriApi.mpvSetVolume(volume),
-              'Could not change the volume.',
-            ),
+            action: () =>
+              runPlayerCommand(() => tauriApi.mpvSetVolume(volume), 'Could not change the volume.'),
           })),
         },
         {
@@ -84,14 +74,18 @@ export function usePlayerContextMenus() {
           icon: <Gauge size={16} />,
           submenu: speeds.map((speed) => ({
             id: `speed-${speed}`,
-            label: speed === 1
-              ? t('{speed} (Normal)', { speed: `${number(speed, { minimumFractionDigits: 1 })}×` })
-              : `${number(speed, { maximumFractionDigits: 2 })}×`,
+            label:
+              speed === 1
+                ? t('{speed} (Normal)', {
+                    speed: `${number(speed, { minimumFractionDigits: 1 })}×`,
+                  })
+                : `${number(speed, { maximumFractionDigits: 2 })}×`,
             checked: player.playbackSpeed === speed,
-            action: () => runPlayerCommand(
-              () => tauriApi.mpvSetSpeed(speed),
-              'Could not change the playback speed.',
-            ),
+            action: () =>
+              runPlayerCommand(
+                () => tauriApi.mpvSetSpeed(speed),
+                'Could not change the playback speed.',
+              ),
           })),
         },
         { id: 'tracks-divider', label: '', isDivider: true },
@@ -107,10 +101,11 @@ export function usePlayerContextMenus() {
             label: formatTrackLabel(track, t('Track {number}', { number: number(track.id) })),
             localize: false,
             checked: player.currentAudioTrack === track.id,
-            action: () => runPlayerCommand(
-              () => tauriApi.mpvSetAudioTrack(track.id),
-              'Could not switch the audio track.',
-            ),
+            action: () =>
+              runPlayerCommand(
+                () => tauriApi.mpvSetAudioTrack(track.id),
+                'Could not switch the audio track.',
+              ),
           })),
         });
       }
@@ -125,20 +120,19 @@ export function usePlayerContextMenus() {
               id: 'subtitle-off',
               label: t('Off'),
               checked: !player.subtitlesVisible || player.currentSubTrack === 0,
-              action: () => runPlayerCommand(
-                () => tauriApi.mpvSetSubTrack(0),
-                'Could not disable subtitles.',
-              ),
+              action: () =>
+                runPlayerCommand(() => tauriApi.mpvSetSubTrack(0), 'Could not disable subtitles.'),
             },
             ...player.subtitleTracks.map((track) => ({
               id: `subtitle-${track.id}`,
               label: formatTrackLabel(track, t('Track {number}', { number: number(track.id) })),
               localize: false,
               checked: player.subtitlesVisible && player.currentSubTrack === track.id,
-              action: () => runPlayerCommand(
-                () => tauriApi.mpvSetSubTrack(track.id),
-                'Could not switch the subtitle track.',
-              ),
+              action: () =>
+                runPlayerCommand(
+                  () => tauriApi.mpvSetSubTrack(track.id),
+                  'Could not switch the subtitle track.',
+                ),
             })),
           ],
         });
@@ -155,18 +149,21 @@ export function usePlayerContextMenus() {
 
       const settings = useSettingsStore.getState();
 
-      items.push(
-        {
-          id: 'fullscreen',
-          label: t(player.isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'),
-          icon: player.isFullscreen ? <RiFullscreenExitFill size={16} /> : <RiFullscreenLine size={16} />,
-          shortcut: 'F',
-          action: () => runPlayerCommand(async () => {
+      items.push({
+        id: 'fullscreen',
+        label: t(player.isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'),
+        icon: player.isFullscreen ? (
+          <RiFullscreenExitFill size={16} />
+        ) : (
+          <RiFullscreenLine size={16} />
+        ),
+        shortcut: 'F',
+        action: () =>
+          runPlayerCommand(async () => {
             const applied = await tauriApi.playerSetFullscreen(!player.isFullscreen);
             player.setIsFullscreen(applied);
           }, 'Could not change fullscreen mode.'),
-        },
-      );
+      });
 
       if (settings.debugMode) {
         items.push({
@@ -206,16 +203,62 @@ export function usePlayerContextMenus() {
       event.preventDefault();
       const settings = useSettingsStore.getState();
       const items: ContextMenuItem[] = [
-        { id: 'nav-home', label: t('Home'), icon: <RiHomeLine size={16} />, action: () => navigate('/') },
-        { id: 'nav-live', label: t('Live TV'), icon: <RiLiveLine size={16} />, action: () => navigate('/live') },
-        { id: 'nav-movies', label: t('Movies'), icon: <RiMovie2Line size={16} />, action: () => navigate('/movies') },
-        { id: 'nav-series', label: t('Series'), icon: <RiTv2Line size={16} />, action: () => navigate('/series') },
-        { id: 'nav-favorites', label: t('Favorites'), icon: <RiHeartLine size={16} />, action: () => navigate('/favorites') },
-        { id: 'nav-collections', label: t('Collections'), icon: <RiFolderLine size={16} />, action: () => navigate('/collections') },
+        {
+          id: 'nav-home',
+          label: t('Home'),
+          icon: <RiHomeLine size={16} />,
+          action: () => navigate('/'),
+        },
+        {
+          id: 'nav-live',
+          label: t('Live TV'),
+          icon: <RiLiveLine size={16} />,
+          action: () => navigate('/live'),
+        },
+        {
+          id: 'nav-movies',
+          label: t('Movies'),
+          icon: <RiMovie2Line size={16} />,
+          action: () => navigate('/movies'),
+        },
+        {
+          id: 'nav-series',
+          label: t('Series'),
+          icon: <RiTv2Line size={16} />,
+          action: () => navigate('/series'),
+        },
+        {
+          id: 'nav-favorites',
+          label: t('Favorites'),
+          icon: <RiHeartLine size={16} />,
+          action: () => navigate('/favorites'),
+        },
+        {
+          id: 'nav-collections',
+          label: t('Collections'),
+          icon: <RiFolderLine size={16} />,
+          action: () => navigate('/collections'),
+        },
         { id: 'navigation-divider', label: '', isDivider: true },
-        { id: 'nav-search', label: t('Search'), icon: <RiSearchLine size={16} />, shortcut: 'Ctrl+K', action: () => navigate('/search') },
-        { id: 'reload', label: t('Reload Interface'), icon: <RefreshCw size={16} />, action: () => window.location.reload() },
-        { id: 'settings', label: t('Settings'), icon: <RiSettings3Line size={16} />, action: () => navigate('/settings') },
+        {
+          id: 'nav-search',
+          label: t('Search'),
+          icon: <RiSearchLine size={16} />,
+          shortcut: 'Ctrl+K',
+          action: () => navigate('/search'),
+        },
+        {
+          id: 'reload',
+          label: t('Reload Interface'),
+          icon: <RefreshCw size={16} />,
+          action: () => window.location.reload(),
+        },
+        {
+          id: 'settings',
+          label: t('Settings'),
+          icon: <RiSettings3Line size={16} />,
+          action: () => navigate('/settings'),
+        },
       ];
 
       if (settings.debugMode) {

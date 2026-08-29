@@ -21,7 +21,13 @@ import {
   RiRecordCircleLine,
 } from '../shared/icons';
 import { StateIcon } from '../common/StateIcon';
-import { VolumeControl, AudioPopover, SubtitlePopover, AspectRatioControl, FullscreenButton } from './SharedControls';
+import {
+  VolumeControl,
+  AudioPopover,
+  SubtitlePopover,
+  AspectRatioControl,
+  FullscreenButton,
+} from './SharedControls';
 import { ImageControls } from './ImageControls';
 import { useI18n } from '../../i18n';
 import styles from './PlayerControls.module.css';
@@ -40,9 +46,9 @@ export function LiveControls() {
   const showChannelsDrawer = usePlayerStore((s) => s.showChannelsDrawer);
   const setShowChannelsDrawer = usePlayerStore((s) => s.setShowChannelsDrawer);
   const sourceId = usePlayerStore((s) => s.activeStream?.sourceId);
-  const credentials = useAuthStore((s) => (
-    sourceId ? s.runtimes[sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((s) =>
+    sourceId ? (s.runtimes[sourceId]?.credentials ?? null) : getXtreamCredentials(),
+  );
   const authScope = getXtreamQueryScope(sourceId, credentials);
   // Library entries saved before source-aware playback belong to Xtream.
   const activeSourceId = activeStream?.sourceId;
@@ -53,7 +59,13 @@ export function LiveControls() {
 
   const { data: epgData } = useQuery({
     queryKey: queryKeys.shortEpg(activeStream?.sourceItemId || activeStream?.id, authScope),
-    queryFn: ({ signal }) => getShortEPG(credentials!, (activeStream!.sourceItemId || activeStream!.id).toString(), 1, signal),
+    queryFn: ({ signal }) =>
+      getShortEPG(
+        credentials!,
+        (activeStream!.sourceItemId || activeStream!.id).toString(),
+        1,
+        signal,
+      ),
     enabled: !!credentials && !!activeStream?.id && activeStream.type === 'live',
     refetchInterval: 60000,
     retry: false,
@@ -64,7 +76,13 @@ export function LiveControls() {
       await tauriApi.mpvPlayPause();
       // mpv's `pause` property event is the authority for the UI state.
     } catch (error: unknown) {
-      notify.error('Playback Control Failed', getUserFacingErrorMessage(error, 'Could not change playback state.'), undefined, undefined, 'playback');
+      notify.error(
+        'Playback Control Failed',
+        getUserFacingErrorMessage(error, 'Could not change playback state.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   };
 
@@ -77,7 +95,13 @@ export function LiveControls() {
 
       try {
         await tauriApi.mpvSetRecording(output.path);
-        notify.success('Recording Started', `Saving ${output.fileName}`, undefined, undefined, 'playback');
+        notify.success(
+          'Recording Started',
+          `Saving ${output.fileName}`,
+          undefined,
+          undefined,
+          'playback',
+        );
       } catch (error: unknown) {
         const msg = getUserFacingErrorMessage(error, 'Could not start recording.');
         notify.error('Recording Failed', msg, undefined, undefined, 'playback');
@@ -85,7 +109,13 @@ export function LiveControls() {
     } else {
       try {
         await tauriApi.mpvSetRecording('');
-        notify.info('Recording Stopped', 'Stream recording completed and saved.', undefined, undefined, 'playback');
+        notify.info(
+          'Recording Stopped',
+          'Stream recording completed and saved.',
+          undefined,
+          undefined,
+          'playback',
+        );
       } catch (error: unknown) {
         const msg = getUserFacingErrorMessage(error, 'Could not stop recording.');
         notify.error('Recording Error', msg, undefined, undefined, 'playback');
@@ -101,7 +131,8 @@ export function LiveControls() {
     activeStream.title,
     activeSourceId,
   )?.find((programme) => programme.start <= Date.now() && programme.end > Date.now());
-  const rawEpgTitle = currentXmltvProgramme?.title || decodeEpgText(epgData?.epg_listings?.[0]?.title);
+  const rawEpgTitle =
+    currentXmltvProgramme?.title || decodeEpgText(epgData?.epg_listings?.[0]?.title);
   const parsedEpg = rawEpgTitle ? parseLiveChannelTitle(rawEpgTitle, customRules) : null;
   const epgTitle = parsedEpg?.cleanTitle || rawEpgTitle;
   const epgBadges = parsedEpg?.qualityBadges ?? [];
@@ -124,15 +155,25 @@ export function LiveControls() {
       <div className={styles.bottomBar}>
         {/* Left side: Play/Pause, LIVE badge & Volume */}
         <div className={styles.leftControls}>
-          <button type="button" className={styles.iconBtn} onClick={handlePlayPause} aria-label={t(isPlaying ? 'Pause' : 'Play')}>
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={handlePlayPause}
+            aria-label={t(isPlaying ? 'Pause' : 'Play')}
+          >
             {isPlaying ? <RiPauseFill size={24} /> : <RiPlayFill size={24} />}
           </button>
           <span className={styles.liveBadge}>{t('LIVE')}</span>
           {instantRecord && (
-            <button type="button"
+            <button
+              type="button"
               className={`${styles.iconBtn} ${isRecording ? styles.activeIcon : ''}`}
               onClick={handleToggleRecord}
-              aria-label={isRecording ? t('Stop Recording') : t('Quick Record ({path})', { path: recordingPath })}
+              aria-label={
+                isRecording
+                  ? t('Stop Recording')
+                  : t('Quick Record ({path})', { path: recordingPath })
+              }
               data-recording={isRecording || undefined}
             >
               <StateIcon
@@ -149,7 +190,8 @@ export function LiveControls() {
         <div className={styles.rightControls}>
           <AudioPopover />
           <SubtitlePopover />
-          <button type="button"
+          <button
+            type="button"
             className={`${styles.iconBtn} ${showChannelsDrawer ? styles.activeIcon : ''}`}
             onClick={() => setShowChannelsDrawer(!showChannelsDrawer)}
             aria-label={t('Channels List')}

@@ -44,14 +44,16 @@ export interface PlayableStream {
   tags?: string[] | undefined;
   country?: string | null | undefined;
   radio?: boolean | undefined;
-  radioMetadata?: {
-    title: string;
-    artist?: string | undefined;
-    album?: string | undefined;
-    genre?: string | undefined;
-    channelNumber?: string | undefined;
-    logoUrl?: string | undefined;
-  } | undefined;
+  radioMetadata?:
+    | {
+        title: string;
+        artist?: string | undefined;
+        album?: string | undefined;
+        genre?: string | undefined;
+        channelNumber?: string | undefined;
+        logoUrl?: string | undefined;
+      }
+    | undefined;
   /** Ordered stream-level fallbacks used when the primary URL cannot start. */
   fallbacks?: Array<Pick<PlayableStream, 'streamUrl' | 'httpHeaders'>> | undefined;
 }
@@ -157,7 +159,7 @@ function emptyDiagnostics(sessionStartedAt: number | null = null): PlayerDiagnos
 
 function recordValue(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
+    ? (value as Record<string, unknown>)
     : null;
 }
 
@@ -180,25 +182,29 @@ function parseDiagnosticSample(data: unknown): {
 
   const video = recordValue(value['video-params']);
   const audio = recordValue(value['audio-params']);
-  const videoParams = video ? {
-    width: finiteNumber(video.w),
-    height: finiteNumber(video.h),
-    displayWidth: finiteNumber(video.dw),
-    displayHeight: finiteNumber(video.dh),
-    pixelFormat: stringValue(video.pixelformat),
-    hardwarePixelFormat: stringValue(video['hw-pixelformat']),
-    colorPrimaries: stringValue(video.primaries),
-    colorTransfer: stringValue(video.gamma),
-    colorMatrix: stringValue(video.colormatrix),
-    maxCll: finiteNumber(video['max-cll']),
-    maxFall: finiteNumber(video['max-fall']),
-  } satisfies PlayerVideoParams : undefined;
-  const audioParams = audio ? {
-    format: stringValue(audio.format),
-    sampleRate: finiteNumber(audio.samplerate),
-    channels: stringValue(audio.channels),
-    channelCount: finiteNumber(audio['channel-count']),
-  } satisfies PlayerAudioParams : undefined;
+  const videoParams = video
+    ? ({
+        width: finiteNumber(video.w),
+        height: finiteNumber(video.h),
+        displayWidth: finiteNumber(video.dw),
+        displayHeight: finiteNumber(video.dh),
+        pixelFormat: stringValue(video.pixelformat),
+        hardwarePixelFormat: stringValue(video['hw-pixelformat']),
+        colorPrimaries: stringValue(video.primaries),
+        colorTransfer: stringValue(video.gamma),
+        colorMatrix: stringValue(video.colormatrix),
+        maxCll: finiteNumber(video['max-cll']),
+        maxFall: finiteNumber(video['max-fall']),
+      } satisfies PlayerVideoParams)
+    : undefined;
+  const audioParams = audio
+    ? ({
+        format: stringValue(audio.format),
+        sampleRate: finiteNumber(audio.samplerate),
+        channels: stringValue(audio.channels),
+        channelCount: finiteNumber(audio['channel-count']),
+      } satisfies PlayerAudioParams)
+    : undefined;
 
   return {
     hardwareDecoder: stringValue(value['hwdec-current']),
@@ -232,7 +238,7 @@ interface PlayerState {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
-  volume: number;         // 0–100 (MPV native scale)
+  volume: number; // 0–100 (MPV native scale)
   isMuted: boolean;
   playbackSpeed: number;
   isBuffering: boolean;
@@ -287,7 +293,6 @@ interface PlayerState {
   setShowChannelsDrawer: (show: boolean) => void;
   triggerFeedback: (type: 'play' | 'pause' | 'volume', value?: number) => void;
   clearFeedback: () => void;
-
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -432,8 +437,22 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   updateFromMpvEvent: (name, data, eventSessionId) => {
     if (eventSessionId && eventSessionId !== get().sessionId) return;
-    const playbackName = ['vo-configured', 'pause', 'paused-for-cache', 'seeking', 'time-pos', 'eof-reached']
-      .includes(name) ? name as 'vo-configured' | 'pause' | 'paused-for-cache' | 'seeking' | 'time-pos' | 'eof-reached' : null;
+    const playbackName = [
+      'vo-configured',
+      'pause',
+      'paused-for-cache',
+      'seeking',
+      'time-pos',
+      'eof-reached',
+    ].includes(name)
+      ? (name as
+          | 'vo-configured'
+          | 'pause'
+          | 'paused-for-cache'
+          | 'seeking'
+          | 'time-pos'
+          | 'eof-reached')
+      : null;
     if (playbackName) {
       set((state) => {
         if (state.playback.generation === null) return {};
@@ -447,7 +466,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         return {
           playback: transition.state,
           isVideoReady: transition.state.videoReady,
-          isBuffering: transition.state.status === 'buffering' || transition.state.status === 'loading' || transition.state.status === 'seeking',
+          isBuffering:
+            transition.state.status === 'buffering' ||
+            transition.state.status === 'loading' ||
+            transition.state.status === 'seeking',
           isPlaying: !transition.state.paused && transition.state.status === 'playing',
           eofReached: transition.state.status === 'ended',
         };
@@ -458,13 +480,18 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         if (typeof data === 'number') {
           set((state) => ({
             currentTime: data,
-            isBuffering: state.playback.status === 'buffering' || state.playback.status === 'loading' || state.playback.status === 'seeking',
-            diagnostics: state.diagnostics.firstPositionMs === null && state.diagnostics.sessionStartedAt !== null
-              ? {
-                  ...state.diagnostics,
-                  firstPositionMs: Date.now() - state.diagnostics.sessionStartedAt,
-                }
-              : state.diagnostics,
+            isBuffering:
+              state.playback.status === 'buffering' ||
+              state.playback.status === 'loading' ||
+              state.playback.status === 'seeking',
+            diagnostics:
+              state.diagnostics.firstPositionMs === null &&
+              state.diagnostics.sessionStartedAt !== null
+                ? {
+                    ...state.diagnostics,
+                    firstPositionMs: Date.now() - state.diagnostics.sessionStartedAt,
+                  }
+                : state.diagnostics,
           }));
         }
         break;
@@ -497,12 +524,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       case 'vo-configured':
         set((state) => ({
           isVideoReady: data === true,
-          diagnostics: data === true && state.diagnostics.videoReadyMs === null && state.diagnostics.sessionStartedAt !== null
-            ? {
-                ...state.diagnostics,
-                videoReadyMs: Date.now() - state.diagnostics.sessionStartedAt,
-              }
-            : state.diagnostics,
+          diagnostics:
+            data === true &&
+            state.diagnostics.videoReadyMs === null &&
+            state.diagnostics.sessionStartedAt !== null
+              ? {
+                  ...state.diagnostics,
+                  videoReadyMs: Date.now() - state.diagnostics.sessionStartedAt,
+                }
+              : state.diagnostics,
         }));
         break;
       case 'paused-for-cache':
@@ -524,7 +554,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
               isBuffering: false,
               diagnostics: {
                 ...state.diagnostics,
-                totalRebufferMs: state.diagnostics.totalRebufferMs + now - state.diagnostics.rebufferStartedAt,
+                totalRebufferMs:
+                  state.diagnostics.totalRebufferMs + now - state.diagnostics.rebufferStartedAt,
                 rebufferStartedAt: null,
               },
             };
@@ -566,7 +597,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           if (parsed.videoParams?.width && parsed.videoParams?.height) {
             const active = get().activeStream;
             if (active) {
-              const isHdr = parsed.videoParams.colorTransfer === 'pq' ||
+              const isHdr =
+                parsed.videoParams.colorTransfer === 'pq' ||
                 parsed.videoParams.colorTransfer === 'hlg' ||
                 parsed.videoParams.colorPrimaries === 'bt.2020';
               useStreamVerificationStore.getState().recordVerification(String(active.id), {
@@ -588,9 +620,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       case 'chapter-list':
         if (Array.isArray(data)) {
           const chapters = data
-            .filter((chapter): chapter is { title?: unknown | undefined; time: number } =>
-              !!chapter && typeof chapter === 'object' && 'time' in chapter &&
-              typeof (chapter as { time?: unknown | undefined }).time === 'number'
+            .filter(
+              (chapter): chapter is { title?: unknown | undefined; time: number } =>
+                !!chapter &&
+                typeof chapter === 'object' &&
+                'time' in chapter &&
+                typeof (chapter as { time?: unknown | undefined }).time === 'number',
             )
             .map((chapter) => ({
               title: typeof chapter.title === 'string' ? chapter.title : undefined,
@@ -607,22 +642,26 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const validTracks = tracks.flatMap((track): MpvTrack[] => {
       if (!track || typeof track !== 'object') return [];
       const candidate = track as Record<string, unknown>;
-      if (typeof candidate.id !== 'number' ||
-        (candidate.type !== 'video' && candidate.type !== 'audio' && candidate.type !== 'sub')) {
+      if (
+        typeof candidate.id !== 'number' ||
+        (candidate.type !== 'video' && candidate.type !== 'audio' && candidate.type !== 'sub')
+      ) {
         return [];
       }
-      return [{
-        id: candidate.id,
-        type: candidate.type,
-        title: stringValue(candidate.title),
-        lang: stringValue(candidate.lang),
-        selected: candidate.selected === true,
-        codec: stringValue(candidate.codec),
-        codecDescription: stringValue(candidate['codec-desc']),
-        codecProfile: stringValue(candidate['codec-profile']),
-        decoderDescription: stringValue(candidate['decoder-desc']),
-        default: candidate.default === true,
-      }];
+      return [
+        {
+          id: candidate.id,
+          type: candidate.type,
+          title: stringValue(candidate.title),
+          lang: stringValue(candidate.lang),
+          selected: candidate.selected === true,
+          codec: stringValue(candidate.codec),
+          codecDescription: stringValue(candidate['codec-desc']),
+          codecProfile: stringValue(candidate['codec-profile']),
+          decoderDescription: stringValue(candidate['decoder-desc']),
+          default: candidate.default === true,
+        },
+      ];
     });
     const videoTracks = validTracks.filter((track) => track.type === 'video');
     const audioTracks = validTracks.filter((track) => track.type === 'audio');
@@ -640,14 +679,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     });
   },
 
-  markMpvStartCompleted: () => set((state) => ({
-    diagnostics: state.diagnostics.mpvStartMs === null && state.diagnostics.sessionStartedAt !== null
-      ? {
-          ...state.diagnostics,
-          mpvStartMs: Date.now() - state.diagnostics.sessionStartedAt,
-        }
-      : state.diagnostics,
-  })),
+  markMpvStartCompleted: () =>
+    set((state) => ({
+      diagnostics:
+        state.diagnostics.mpvStartMs === null && state.diagnostics.sessionStartedAt !== null
+          ? {
+              ...state.diagnostics,
+              mpvStartMs: Date.now() - state.diagnostics.sessionStartedAt,
+            }
+          : state.diagnostics,
+    })),
 
   // ── UI state ────────────────────────────────────────────────
 
@@ -664,5 +705,4 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   clearFeedback: () => set({ feedback: null }),
-
 }));

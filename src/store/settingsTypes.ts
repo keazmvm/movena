@@ -51,18 +51,18 @@ export interface SettingsState {
   hardwareAcceleration: boolean;
   hwdecMode: HwdecMode; // fine-grained hwdec override
   demuxerMaxBytes: string; // e.g. '150MiB'
-  cacheSecs: number;       // mpv --cache-secs
-  seekJumpSecs: number;    // seconds to seek forward/backward
+  cacheSecs: number; // mpv --cache-secs
+  seekJumpSecs: number; // seconds to seek forward/backward
   aspectRatio: AspectMode; // how the picture meets the window, applied live
   rememberedVolume: number; // last event-confirmed native volume, including mute at 0
   lastAudibleVolume: number; // level restored when unmuting
   rememberedPlaybackSpeed: number;
   subtitlesEnabled: boolean;
   autoPlayNextEpisode: boolean; // countdown-and-advance when a series episode ends
-  skipIntroEnabled: boolean;    // show Skip Intro action
-  skipRecapEnabled: boolean;    // show Skip Recap action
-  autoSkipIntro: boolean;       // automatically seek past intros/recaps without clicking
-  introDbEnabled: boolean;      // enable crowdsourced timestamps lookup from IntroDB
+  skipIntroEnabled: boolean; // show Skip Intro action
+  skipRecapEnabled: boolean; // show Skip Recap action
+  autoSkipIntro: boolean; // automatically seek past intros/recaps without clicking
+  introDbEnabled: boolean; // enable crowdsourced timestamps lookup from IntroDB
   audioDelayMs: number;
   subtitleFontSize: number;
   subtitleFontFamily: string;
@@ -94,16 +94,16 @@ export interface SettingsState {
   badgeVisibility: BadgeVisibilitySettings;
 
   // HDR & Color
-  hdrMode: HdrMode;                           // HDR passthrough mode
-  toneMappingMode: ToneMappingMode;           // tone-mapping algorithm
+  hdrMode: HdrMode; // HDR passthrough mode
+  toneMappingMode: ToneMappingMode; // tone-mapping algorithm
 
   // Picture adjustments, applied live via mpv's video-equalizer properties.
-  imageSharpness: number;   // 0-100, 0 = off (mpv scale-blur pushed below neutral)
-  imageBrightness: number;  // 0-200%, 100 = neutral (mpv brightness -100..100)
-  imageContrast: number;    // -100..100, 0 = neutral (mpv contrast)
-  imageSaturation: number;  // -100..100, 0 = neutral (mpv saturation)
-  imageHue: number;         // -100..100, 0 = neutral (mpv hue)
-  imageGamma: number;       // -100..100, 0 = neutral (mpv gamma, "dark scene")
+  imageSharpness: number; // 0-100, 0 = off (mpv scale-blur pushed below neutral)
+  imageBrightness: number; // 0-200%, 100 = neutral (mpv brightness -100..100)
+  imageContrast: number; // -100..100, 0 = neutral (mpv contrast)
+  imageSaturation: number; // -100..100, 0 = neutral (mpv saturation)
+  imageHue: number; // -100..100, 0 = neutral (mpv hue)
+  imageGamma: number; // -100..100, 0 = neutral (mpv gamma, "dark scene")
 
   // Playlist & EPG
   epgSource: 'provider' | 'xmltv';
@@ -174,7 +174,28 @@ export interface SettingsState {
   channelLogoAspectOverrides: Record<string, ChannelLogoAspect>;
 
   // Actions
-  updateSetting: <K extends keyof Omit<SettingsState, 'updateSetting' | 'rememberPlayerVolume' | 'importSettings' | 'resetSettings' | 'toggleCategoryPref' | 'setCollapsedCategories' | 'setSelectedCategory' | 'setCatalogSort' | 'addCustomTitleRule' | 'removeCustomTitleRule' | 'toggleCustomTitleRule' | 'setBadgeVisibility' | 'setSmartLogoAspectMode' | 'setChannelLogoAspectOverride'>>(key: K, value: SettingsState[K]) => void;
+  updateSetting: <
+    K extends keyof Omit<
+      SettingsState,
+      | 'updateSetting'
+      | 'rememberPlayerVolume'
+      | 'importSettings'
+      | 'resetSettings'
+      | 'toggleCategoryPref'
+      | 'setCollapsedCategories'
+      | 'setSelectedCategory'
+      | 'setCatalogSort'
+      | 'addCustomTitleRule'
+      | 'removeCustomTitleRule'
+      | 'toggleCustomTitleRule'
+      | 'setBadgeVisibility'
+      | 'setSmartLogoAspectMode'
+      | 'setChannelLogoAspectOverride'
+    >,
+  >(
+    key: K,
+    value: SettingsState[K],
+  ) => void;
   rememberPlayerVolume: (volume: number) => void;
   toggleCategoryPref: (kind: keyof CategoryPrefs, type: CatalogType, id: string) => void;
   setCollapsedCategories: (type: CatalogType, ids: string[]) => void;
@@ -191,27 +212,87 @@ export interface SettingsState {
 }
 
 export const SETTINGS_SNAPSHOT_KEYS = [
-  'hardwareAcceleration', 'hwdecMode', 'demuxerMaxBytes', 'cacheSecs', 'seekJumpSecs',
-  'aspectRatio', 'rememberedVolume', 'lastAudibleVolume', 'rememberedPlaybackSpeed',
-  'subtitlesEnabled', 'autoPlayNextEpisode', 'skipIntroEnabled', 'skipRecapEnabled', 'autoSkipIntro', 'introDbEnabled', 'audioDelayMs', 'subtitleFontSize',
-  'subtitleFontFamily', 'subtitleOpacity', 'subtitleBorderSize', 'subtitleShadowOffset', 'startupTimeoutMs',
-  'streamFailoverEnabled', 'maxStreamFailovers', 'language', 'hdrMode', 'toneMappingMode',
-  'tmdbEnabled', 'tmdbLanguage', 'tmdbImageSize', 'tmdbIncludeAdult',
-  'upcomingEnabled', 'upcomingHomeEnabled', 'upcomingCountdownEnabled', 'upcomingCalendarEnabled', 'upcomingExactTimesEnabled',
-  'upcomingHistoryDays', 'homeSections',
-  'streamFoldingEnabled', 'customTitleRules', 'badgeVisibility',
+  'hardwareAcceleration',
+  'hwdecMode',
+  'demuxerMaxBytes',
+  'cacheSecs',
+  'seekJumpSecs',
+  'aspectRatio',
+  'rememberedVolume',
+  'lastAudibleVolume',
+  'rememberedPlaybackSpeed',
+  'subtitlesEnabled',
+  'autoPlayNextEpisode',
+  'skipIntroEnabled',
+  'skipRecapEnabled',
+  'autoSkipIntro',
+  'introDbEnabled',
+  'audioDelayMs',
+  'subtitleFontSize',
+  'subtitleFontFamily',
+  'subtitleOpacity',
+  'subtitleBorderSize',
+  'subtitleShadowOffset',
+  'startupTimeoutMs',
+  'streamFailoverEnabled',
+  'maxStreamFailovers',
+  'language',
+  'hdrMode',
+  'toneMappingMode',
+  'tmdbEnabled',
+  'tmdbLanguage',
+  'tmdbImageSize',
+  'tmdbIncludeAdult',
+  'upcomingEnabled',
+  'upcomingHomeEnabled',
+  'upcomingCountdownEnabled',
+  'upcomingCalendarEnabled',
+  'upcomingExactTimesEnabled',
+  'upcomingHistoryDays',
+  'homeSections',
+  'streamFoldingEnabled',
+  'customTitleRules',
+  'badgeVisibility',
   'smartLogoAspectMode',
-  'imageSharpness', 'imageBrightness', 'imageContrast', 'imageSaturation', 'imageHue', 'imageGamma',
-  'epgSource', 'm3uEditorDensity', 'm3uEditorAutosaveDrafts',
-  'm3uEditorConfirmDestructive', 'm3uEditorRememberFilters', 'm3uEditorSidebarWidth',
-  'm3uEditorInspectorWidth', 'm3uHealthTimeoutMs', 'm3uHealthConcurrency', 'm3uPreserveUnknownTags',
-  'sidebarWidth', 'viewMode', 'alwaysOnTop',
-  'accentColor', 'themePreference', 'motionPreference', 'showCollapsedSidebarBadges', 'recordingPath', 'instantRecord',
-  'downloadDirectory', 'maxConcurrentDownloads', 'autoStartDownloads',
-  'enableNotifications', 'toastPosition', 'toastDurationSecs', 'dndDuringPlayback',
-  'notifyPlaybackEvents', 'notifyConnectionStatus', 'notifyLibraryUpdates', 'notifyDownloadEvents', 'notifySound',
+  'imageSharpness',
+  'imageBrightness',
+  'imageContrast',
+  'imageSaturation',
+  'imageHue',
+  'imageGamma',
+  'epgSource',
+  'm3uEditorDensity',
+  'm3uEditorAutosaveDrafts',
+  'm3uEditorConfirmDestructive',
+  'm3uEditorRememberFilters',
+  'm3uEditorSidebarWidth',
+  'm3uEditorInspectorWidth',
+  'm3uHealthTimeoutMs',
+  'm3uHealthConcurrency',
+  'm3uPreserveUnknownTags',
+  'sidebarWidth',
+  'viewMode',
+  'alwaysOnTop',
+  'accentColor',
+  'themePreference',
+  'motionPreference',
+  'showCollapsedSidebarBadges',
+  'recordingPath',
+  'instantRecord',
+  'downloadDirectory',
+  'maxConcurrentDownloads',
+  'autoStartDownloads',
+  'enableNotifications',
+  'toastPosition',
+  'toastDurationSecs',
+  'dndDuringPlayback',
+  'notifyPlaybackEvents',
+  'notifyConnectionStatus',
+  'notifyLibraryUpdates',
+  'notifyDownloadEvents',
+  'notifySound',
   'autoCheckUpdates',
 ] as const satisfies readonly (keyof SettingsState)[];
 
-type SettingsSnapshotKey = typeof SETTINGS_SNAPSHOT_KEYS[number];
+type SettingsSnapshotKey = (typeof SETTINGS_SNAPSHOT_KEYS)[number];
 export type SettingsSnapshot = Pick<SettingsState, SettingsSnapshotKey>;

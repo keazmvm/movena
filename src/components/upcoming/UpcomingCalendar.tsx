@@ -21,10 +21,12 @@ interface UpcomingCalendarProps {
 
 function openContext(group: GroupedUpcomingRelease): MediaOpenContext | undefined {
   const { seasonNumber, episodeNumber } = group.primaryRelease;
-  return seasonNumber === null && episodeNumber === null ? undefined : {
-    seasonNumber: seasonNumber ?? undefined,
-    episodeNumber: episodeNumber ?? undefined,
-  };
+  return seasonNumber === null && episodeNumber === null
+    ? undefined
+    : {
+        seasonNumber: seasonNumber ?? undefined,
+        episodeNumber: episodeNumber ?? undefined,
+      };
 }
 
 const WEEKDAY_DATES = Array.from({ length: 7 }, (_, index) => new Date(2024, 0, index + 1));
@@ -33,7 +35,10 @@ function calendarDays(month: Date): Date[] {
   const first = new Date(month.getFullYear(), month.getMonth(), 1);
   const mondayOffset = (first.getDay() + 6) % 7;
   const start = new Date(first.getFullYear(), first.getMonth(), 1 - mondayOffset);
-  return Array.from({ length: 42 }, (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index));
+  return Array.from(
+    { length: 42 },
+    (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index),
+  );
 }
 
 function isoDay(date: Date): string {
@@ -63,59 +68,105 @@ export function UpcomingCalendar({ groups: groupedReleases, now, onOpen }: Upcom
   const monthReleases = useMemo(() => {
     return groupedReleases.filter((group) => group.airDate.startsWith(visibleMonth));
   }, [groupedReleases, visibleMonth]);
-  const changeMonth = (step: number) => setMonth((current) => new Date(current.getFullYear(), current.getMonth() + step, 1));
+  const changeMonth = (step: number) =>
+    setMonth((current) => new Date(current.getFullYear(), current.getMonth() + step, 1));
 
   return (
     <section className={styles.calendar} aria-labelledby="calendar-heading">
       <div className={styles.header}>
-        <h2 className={styles.title} id="calendar-heading">{t('Release calendar')}</h2>
+        <h2 className={styles.title} id="calendar-heading">
+          {t('Release calendar')}
+        </h2>
         <div className={styles.controls}>
-          <IconButton size="sm" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft size={18} /></IconButton>
+          <IconButton size="sm" onClick={() => changeMonth(-1)} aria-label="Previous month">
+            <ChevronLeft size={18} />
+          </IconButton>
           <span className={styles.month}>{date(month, { month: 'long', year: 'numeric' })}</span>
-          <IconButton size="sm" onClick={() => changeMonth(1)} aria-label="Next month"><ChevronRight size={18} /></IconButton>
+          <IconButton size="sm" onClick={() => changeMonth(1)} aria-label="Next month">
+            <ChevronRight size={18} />
+          </IconButton>
         </div>
       </div>
       <div className={styles.gridView}>
-            <div className={styles.weekdays}>{WEEKDAY_DATES.map((day) => <span className={styles.weekday} key={day.getDay()}>{date(day, { weekday: 'short' })}</span>)}</div>
-            <div className={styles.days}>
-              {days.map((day) => {
-                const key = isoDay(day);
-                const dayEvents = events.get(key) ?? [];
-                const isCurrentMonth = day.getMonth() === month.getMonth();
-                return <div className={`${styles.day} ${!isCurrentMonth ? styles.outside : ''} ${key === today ? styles.today : ''}`} key={key}>
-                  <span className={styles.dayNumber}>{date(day, { day: 'numeric' })}</span>
-                  <div className={styles.events}>{dayEvents.map((group) => {
-                    const airTime = group.exactAirTime ? exactTimestampDate(group.exactAirTime) : null;
-                    const time = airTime ? date(airTime, { hour: 'numeric', minute: '2-digit' }) : null;
+        <div className={styles.weekdays}>
+          {WEEKDAY_DATES.map((day) => (
+            <span className={styles.weekday} key={day.getDay()}>
+              {date(day, { weekday: 'short' })}
+            </span>
+          ))}
+        </div>
+        <div className={styles.days}>
+          {days.map((day) => {
+            const key = isoDay(day);
+            const dayEvents = events.get(key) ?? [];
+            const isCurrentMonth = day.getMonth() === month.getMonth();
+            return (
+              <div
+                className={`${styles.day} ${!isCurrentMonth ? styles.outside : ''} ${key === today ? styles.today : ''}`}
+                key={key}
+              >
+                <span className={styles.dayNumber}>{date(day, { day: 'numeric' })}</span>
+                <div className={styles.events}>
+                  {dayEvents.map((group) => {
+                    const airTime = group.exactAirTime
+                      ? exactTimestampDate(group.exactAirTime)
+                      : null;
+                    const time = airTime
+                      ? date(airTime, { hour: 'numeric', minute: '2-digit' })
+                      : null;
                     const title = displayTitle(group.favorite);
                     const isReleased = releasePhase(group, now) === 'released';
                     const scheduleText = isReleased
                       ? t(releaseStatusLabel(group, now) ?? 'Released')
                       : group.episodeCount > 1
-                        ? (time ? `${time} · ${tn('{count} ep', '{count} eps', group.episodeCount)}` : tn('{count} episode', '{count} episodes', group.episodeCount))
+                        ? time
+                          ? `${time} · ${tn('{count} ep', '{count} eps', group.episodeCount)}`
+                          : tn('{count} episode', '{count} episodes', group.episodeCount)
                         : (time ?? t('Date only'));
-                    return <button type="button" className={`${styles.event} ${isReleased ? styles.eventReleased : ''}`} key={`${group.favorite.id}-${group.airDate}`} onClick={() => onOpen(group.favorite, openContext(group))} aria-label={t('Open {title}', { title })}>
-                      <span className={styles.eventTitle}>{title}</span>
-                      <span className={styles.eventSchedule}>
-                        {time && !isReleased ? <Clock3 size={11} aria-hidden="true" /> : <CalendarDays size={11} aria-hidden="true" />}
-                        <span>{scheduleText}</span>
-                      </span>
-                    </button>;
-                  })}</div>
-                </div>;
-              })}
-            </div>
+                    return (
+                      <button
+                        type="button"
+                        className={`${styles.event} ${isReleased ? styles.eventReleased : ''}`}
+                        key={`${group.favorite.id}-${group.airDate}`}
+                        onClick={() => onOpen(group.favorite, openContext(group))}
+                        aria-label={t('Open {title}', { title })}
+                      >
+                        <span className={styles.eventTitle}>{title}</span>
+                        <span className={styles.eventSchedule}>
+                          {time && !isReleased ? (
+                            <Clock3 size={11} aria-hidden="true" />
+                          ) : (
+                            <CalendarDays size={11} aria-hidden="true" />
+                          )}
+                          <span>{scheduleText}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className={styles.agenda}>
-            {monthReleases.length === 0 ? (
-              <p className={styles.agendaEmpty}>{t('No releases this month.')}</p>
-            ) : monthReleases.map((group) => {
-              const releaseDate = localCalendarDate(group.airDate)!;
-              const airTime = group.exactAirTime ? exactTimestampDate(group.exactAirTime) : null;
-              const title = displayTitle(group.favorite);
-              const status = releaseStatusLabel(group, now);
-              return <button type="button" className={styles.agendaItem} key={`${group.favorite.id}-${group.airDate}`} onClick={() => onOpen(group.favorite, openContext(group))} aria-label={t('Open {title}', { title })}>
+        {monthReleases.length === 0 ? (
+          <p className={styles.agendaEmpty}>{t('No releases this month.')}</p>
+        ) : (
+          monthReleases.map((group) => {
+            const releaseDate = localCalendarDate(group.airDate)!;
+            const airTime = group.exactAirTime ? exactTimestampDate(group.exactAirTime) : null;
+            const title = displayTitle(group.favorite);
+            const status = releaseStatusLabel(group, now);
+            return (
+              <button
+                type="button"
+                className={styles.agendaItem}
+                key={`${group.favorite.id}-${group.airDate}`}
+                onClick={() => onOpen(group.favorite, openContext(group))}
+                aria-label={t('Open {title}', { title })}
+              >
                 <span className={styles.agendaDate}>
                   <strong>{date(releaseDate, { day: 'numeric' })}</strong>
                   <span>{date(releaseDate, { month: 'short' })}</span>
@@ -124,13 +175,17 @@ export function UpcomingCalendar({ groups: groupedReleases, now, onOpen }: Upcom
                   <strong>{title}</strong>
                   <span>{group.summarySubtitle}</span>
                 </span>
-                <span className={styles.agendaTime}>{releasePhase(group, now) === 'released'
-                  ? t(status ?? 'Released')
-                  : airTime
-                    ? date(airTime, { hour: 'numeric', minute: '2-digit' })
-                    : t('Date only')}</span>
-              </button>;
-            })}
+                <span className={styles.agendaTime}>
+                  {releasePhase(group, now) === 'released'
+                    ? t(status ?? 'Released')
+                    : airTime
+                      ? date(airTime, { hour: 'numeric', minute: '2-digit' })
+                      : t('Date only')}
+                </span>
+              </button>
+            );
+          })
+        )}
       </div>
     </section>
   );

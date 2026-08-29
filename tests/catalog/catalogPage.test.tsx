@@ -62,7 +62,7 @@ describe('CatalogPage component', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>{ui}</BrowserRouter>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
   };
 
@@ -101,7 +101,7 @@ describe('CatalogPage component', () => {
         emptyDescription="There are no movies in this category."
         noSourceDescription="Add a source to view movies."
         onItemClick={onItemClick}
-      />
+      />,
     );
 
     expect(screen.getByRole('heading', { level: 1, name: 'Movies' })).toBeTruthy();
@@ -138,7 +138,7 @@ describe('CatalogPage component', () => {
         emptyDescription="There are no movies in this category."
         noSourceDescription="Add a source to view movies."
         onItemClick={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('No Movies Found')).toBeTruthy();
@@ -187,7 +187,7 @@ describe('CatalogPage component', () => {
         emptyDescription="There are no movies in this category."
         noSourceDescription="Add a source to view movies."
         onItemClick={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('No Source Available')).toBeTruthy();
@@ -225,7 +225,7 @@ describe('CatalogPage component', () => {
         emptyDescription="There are no movies in this category."
         noSourceDescription="Add a source to view movies."
         onItemClick={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy();
@@ -236,9 +236,39 @@ describe('CatalogPage component', () => {
   it('filters catalog items using genre chips and applies sorting', async () => {
     const user = userEvent.setup();
     const mockItems: MediaItem[] = [
-      { id: 'm1', title: 'Die Hard', genre: 'Action', added: '100', year: '1988', rating: 8.2, posterUrl: '', type: 'vod', categoryId: 'cat-1' },
-      { id: 'm2', title: 'Airplane!', genre: 'Comedy', added: '200', year: '1980', rating: 7.7, posterUrl: '', type: 'vod', categoryId: 'cat-1' },
-      { id: 'm3', title: 'The Matrix', genre: 'Action, Sci-Fi', added: '300', year: '1999', rating: 8.7, posterUrl: '', type: 'vod', categoryId: 'cat-1' },
+      {
+        id: 'm1',
+        title: 'Die Hard',
+        genre: 'Action',
+        added: '100',
+        year: '1988',
+        rating: 8.2,
+        posterUrl: '',
+        type: 'vod',
+        categoryId: 'cat-1',
+      },
+      {
+        id: 'm2',
+        title: 'Airplane!',
+        genre: 'Comedy',
+        added: '200',
+        year: '1980',
+        rating: 7.7,
+        posterUrl: '',
+        type: 'vod',
+        categoryId: 'cat-1',
+      },
+      {
+        id: 'm3',
+        title: 'The Matrix',
+        genre: 'Action, Sci-Fi',
+        added: '300',
+        year: '1999',
+        rating: 8.7,
+        posterUrl: '',
+        type: 'vod',
+        categoryId: 'cat-1',
+      },
     ];
 
     vi.spyOn(catalogApi, 'useCatalogByType').mockReturnValue({
@@ -268,7 +298,7 @@ describe('CatalogPage component', () => {
         emptyDescription="There are no movies in this category."
         noSourceDescription="Add a source to view movies."
         onItemClick={vi.fn()}
-      />
+      />,
     );
 
     // Initial state renders all 3 items

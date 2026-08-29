@@ -12,21 +12,37 @@ import { usePlayerStore } from './store/usePlayerStore';
 import { useAuthStore } from './store/useAuthStore';
 import { useSourceStore } from './store/useSourceStore';
 import { ToastContainer } from './components/shared/ToastContainer';
-const PlayerShell = lazy(() => import('./components/player/PlayerShell').then((module) => ({ default: module.PlayerShell })));
-const DebugOverlay = lazy(() => import('./components/shared/DebugOverlay').then((module) => ({ default: module.DebugOverlay })));
+const PlayerShell = lazy(() =>
+  import('./components/player/PlayerShell').then((module) => ({ default: module.PlayerShell })),
+);
+const DebugOverlay = lazy(() =>
+  import('./components/shared/DebugOverlay').then((module) => ({ default: module.DebugOverlay })),
+);
 import { ContextMenu } from './components/common/ContextMenu';
 import { useContextMenu } from './hooks/useContextMenu';
 import styles from './components/layout/AppLayout.module.css';
 import { applyAppearanceTheme } from './design/appearance';
-import { getCombinedErrorMessage, getErrorPresentation, getUserFacingErrorMessage } from './utils/error';
+import {
+  getCombinedErrorMessage,
+  getErrorPresentation,
+  getUserFacingErrorMessage,
+} from './utils/error';
 import { queryClient } from './api/queryClient';
 import { ErrorState } from './components/common/ErrorState';
 import { ConnectionStatus } from './components/common/ConnectionStatus';
 import { EmptyState } from './components/shared/EmptyState';
 import { Compass } from 'lucide-react';
-const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow').then((module) => ({ default: module.OnboardingFlow })));
+const OnboardingFlow = lazy(() =>
+  import('./components/onboarding/OnboardingFlow').then((module) => ({
+    default: module.OnboardingFlow,
+  })),
+);
 import { useEnabledSources } from './hooks/useEnabledSources';
-const ShortcutHelperModal = lazy(() => import('./components/common/ShortcutHelperModal').then((module) => ({ default: module.ShortcutHelperModal })));
+const ShortcutHelperModal = lazy(() =>
+  import('./components/common/ShortcutHelperModal').then((module) => ({
+    default: module.ShortcutHelperModal,
+  })),
+);
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { useDownloadEvents } from './hooks/useDownloadEvents';
 import { useI18n } from './i18n';
@@ -48,8 +64,6 @@ import {
   Upcoming,
 } from './routes/routeModules';
 
-
-
 export function NotFoundPage() {
   const navigate = useNavigate();
   return (
@@ -69,26 +83,32 @@ export function NotFoundPage() {
 
 function AnimatedRoutes() {
   const { t } = useI18n();
-  
+
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className={styles.routeLoading} role="status" aria-label={t('Loading page')}><span /></div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/live" element={<LiveTV />} />
-            <Route path="/epg" element={<Epg />} />
-            <Route path="/movies" element={<Movies />} />
-            <Route path="/series" element={<Series />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/continue" element={<ContinueWatching />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path="/downloads" element={<Downloads />} />
-            <Route path="/upcoming" element={<Upcoming />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/m3u-editor/:sourceId?" element={<M3uEditorPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+      <Suspense
+        fallback={
+          <div className={styles.routeLoading} role="status" aria-label={t('Loading page')}>
+            <span />
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/live" element={<LiveTV />} />
+          <Route path="/epg" element={<Epg />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/series" element={<Series />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/continue" element={<ContinueWatching />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/downloads" element={<Downloads />} />
+          <Route path="/upcoming" element={<Upcoming />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/m3u-editor/:sourceId?" element={<M3uEditorPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </Suspense>
     </ErrorBoundary>
   );
@@ -171,7 +191,10 @@ function AppShell() {
   // whichever step the user is on rather than letting it finish and hand
   // back control itself via `onDone`.
   const onboardingChecked = useRef(false);
-  const startupError = getCombinedErrorMessage([sourceInitializationError, initializationError], '');
+  const startupError = getCombinedErrorMessage(
+    [sourceInitializationError, initializationError],
+    '',
+  );
 
   const retryStartup = async () => {
     setIsRetryingStartup(true);
@@ -189,12 +212,19 @@ function AppShell() {
     // screen offers. Not latching the ref here lets this run again once the
     // error actually clears, instead of freezing in a decision made from a
     // source that hadn't finished loading.
-    if (onboardingChecked.current || isAuthInitializing || isSourceInitializing || startupError) return;
+    if (onboardingChecked.current || isAuthInitializing || isSourceInitializing || startupError)
+      return;
     onboardingChecked.current = true;
     if (!onboardingDismissed && !enabledSources.isAvailable) {
       setShowOnboarding(true);
     }
-  }, [isAuthInitializing, isSourceInitializing, startupError, onboardingDismissed, enabledSources.isAvailable]);
+  }, [
+    isAuthInitializing,
+    isSourceInitializing,
+    startupError,
+    onboardingDismissed,
+    enabledSources.isAvailable,
+  ]);
 
   useEffect(() => {
     Promise.all([initializeSources(), initializeAuth()])
@@ -232,15 +262,10 @@ function AppShell() {
     if (updateInfo.version === dismissedUpdateVersion) return;
     if (announcedUpdateVersion.current === updateInfo.version) return;
     announcedUpdateVersion.current = updateInfo.version;
-    notify.info(
-      'Update Available',
-      `Movena v${updateInfo.version} is now available.`,
-      8000,
-      {
-        label: 'View',
-        onClick: () => navigate('/settings?section=about'),
-      },
-    );
+    notify.info('Update Available', `Movena v${updateInfo.version} is now available.`, 8000, {
+      label: 'View',
+      onClick: () => navigate('/settings?section=about'),
+    });
   }, [updatePhase, updateInfo, dismissedUpdateVersion, navigate]);
 
   useEffect(() => {
@@ -288,7 +313,9 @@ function AppShell() {
   if (showOnboarding) {
     return (
       <MotionConfig
-        reducedMotion={motionPreference === 'reduced' ? 'always' : motionPreference === 'full' ? 'never' : 'user'}
+        reducedMotion={
+          motionPreference === 'reduced' ? 'always' : motionPreference === 'full' ? 'never' : 'user'
+        }
       >
         <div className={styles.appContainer} onContextMenu={handleAppBackdropContextMenu}>
           <div className={styles.windowDragArea} data-tauri-drag-region aria-hidden="true" />
@@ -306,12 +333,11 @@ function AppShell() {
 
   return (
     <MotionConfig
-      reducedMotion={motionPreference === 'reduced' ? 'always' : motionPreference === 'full' ? 'never' : 'user'}
+      reducedMotion={
+        motionPreference === 'reduced' ? 'always' : motionPreference === 'full' ? 'never' : 'user'
+      }
     >
-      <div
-        className={styles.appContainer}
-        onContextMenu={handleAppBackdropContextMenu}
-      >
+      <div className={styles.appContainer} onContextMenu={handleAppBackdropContextMenu}>
         <div className={styles.windowDragArea} data-tauri-drag-region aria-hidden="true" />
         <div className={`${styles.appUi} ${activeStream ? styles.appUiHidden : ''}`}>
           <Sidebar />

@@ -36,21 +36,30 @@ export function ConfirmDialog({
       initialFocusSelector="[data-modal-initial-focus]"
       dismissDisabled={isConfirming}
     >
-        <h2 id={titleId} className={styles.title}>{t(title)}</h2>
-        <p id={descriptionId} className={styles.description}>{t(description)}</p>
-        <div className={styles.actions}>
-          <Button className={styles.cancelButton} onClick={onCancel} data-modal-initial-focus disabled={isConfirming}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            variant={danger ? 'danger' : 'primary'}
-            className={styles.confirmButton}
-            onClick={onConfirm}
-            disabled={isConfirming}
-          >
-            {isConfirming ? t('Deleting…') : t(confirmLabel)}
-          </Button>
-        </div>
+      <h2 id={titleId} className={styles.title}>
+        {t(title)}
+      </h2>
+      <p id={descriptionId} className={styles.description}>
+        {t(description)}
+      </p>
+      <div className={styles.actions}>
+        <Button
+          className={styles.cancelButton}
+          onClick={onCancel}
+          data-modal-initial-focus
+          disabled={isConfirming}
+        >
+          {t('Cancel')}
+        </Button>
+        <Button
+          variant={danger ? 'danger' : 'primary'}
+          className={styles.confirmButton}
+          onClick={onConfirm}
+          disabled={isConfirming}
+        >
+          {isConfirming ? t('Deleting…') : t(confirmLabel)}
+        </Button>
+      </div>
     </ModalShell>
   );
 }

@@ -32,7 +32,8 @@ describe('release build output validation', () => {
     const directory = buildDirectory();
     writeFileSync(join(directory, 'private-recording.mp4'), 'not release content');
 
-    expect(() => execFileSync(process.execPath, [script, 'check', directory], { stdio: 'pipe' }))
-      .toThrow(/unexpected file types/);
+    expect(() =>
+      execFileSync(process.execPath, [script, 'check', directory], { stdio: 'pipe' }),
+    ).toThrow(/unexpected file types/);
   });
 });

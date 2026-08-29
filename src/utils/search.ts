@@ -17,7 +17,10 @@ export const normalizeText = (text: string): string => {
  */
 export const getTokens = (text: string): string[] => {
   const normalized = normalizeText(text);
-  return normalized.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
+  return normalized
+    .replace(/[^a-z0-9]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
 };
 
 /**
@@ -44,7 +47,10 @@ function prepareNormalizedText(normalized: string): PreparedSearchText {
   return {
     normalized,
     compact: normalized.replace(/[^a-z0-9]/g, ''),
-    tokens: normalized.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean),
+    tokens: normalized
+      .replace(/[^a-z0-9]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean),
   };
 }
 
@@ -91,11 +97,7 @@ export const levenshteinDistance = (a: string, b: string): number => {
 
     for (let j = 0; j < lenA; j++) {
       const cost = a.charCodeAt(j) === b.charCodeAt(i) ? 0 : 1;
-      row1[j + 1] = Math.min(
-        row0[j + 1]! + 1,
-        row1[j]! + 1,
-        row0[j]! + cost
-      );
+      row1[j + 1] = Math.min(row0[j + 1]! + 1, row1[j]! + 1, row0[j]! + cost);
     }
 
     const tmp = row0;

@@ -19,8 +19,9 @@ describe('appearance synchronization', () => {
     expect(root.style.getPropertyValue('--accent-color')).toBe('#ffcc00');
     expect(root.style.getPropertyValue('--accent-color-rgb')).toBe('255, 204, 0');
     expect(root.style.getPropertyValue('--text-on-accent')).toBe('#0f1014');
-    expect(contrastRatio(root.style.getPropertyValue('--accent-foreground'), '#ffffff'))
-      .toBeGreaterThanOrEqual(5.5);
+    expect(
+      contrastRatio(root.style.getPropertyValue('--accent-foreground'), '#ffffff'),
+    ).toBeGreaterThanOrEqual(5.5);
   });
 
   it('falls back safely when an invalid accent reaches the DOM boundary', () => {

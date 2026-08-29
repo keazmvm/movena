@@ -16,7 +16,8 @@ import {
 } from '../../src/components/m3u-editor/m3uEditorController';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 
-const number = (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat('en', options).format(value);
+const number = (value: number, options?: Intl.NumberFormatOptions) =>
+  new Intl.NumberFormat('en', options).format(value);
 
 describe('debug overlay model', () => {
   it('formats time and transfer measurements at their boundaries', () => {
@@ -44,18 +45,59 @@ describe('debug overlay model', () => {
       type: 'live' as const,
     };
     expect(playerPhase({ ...state, activeStream, eofReached: true })).toBe('Ended');
-    expect(playerPhase({ ...state, activeStream, eofReached: false, isVideoReady: false })).toBe('Starting');
-    expect(playerPhase({ ...state, activeStream, eofReached: false, isVideoReady: true, isBuffering: true })).toBe('Buffering');
-    expect(playerPhase({ ...state, activeStream, eofReached: false, isVideoReady: true, isBuffering: false, isPlaying: true })).toBe('Playing');
-    expect(searchableDetails({ id: '1', timestamp: 0, level: 'info', category: 'system', message: 'ok' })).toBe('');
-    expect(searchableDetails({ id: '2', timestamp: 0, level: 'info', category: 'system', message: 'ok', details: { safe: true } })).toBe('{"safe":true}');
+    expect(playerPhase({ ...state, activeStream, eofReached: false, isVideoReady: false })).toBe(
+      'Starting',
+    );
+    expect(
+      playerPhase({
+        ...state,
+        activeStream,
+        eofReached: false,
+        isVideoReady: true,
+        isBuffering: true,
+      }),
+    ).toBe('Buffering');
+    expect(
+      playerPhase({
+        ...state,
+        activeStream,
+        eofReached: false,
+        isVideoReady: true,
+        isBuffering: false,
+        isPlaying: true,
+      }),
+    ).toBe('Playing');
+    expect(
+      searchableDetails({
+        id: '1',
+        timestamp: 0,
+        level: 'info',
+        category: 'system',
+        message: 'ok',
+      }),
+    ).toBe('');
+    expect(
+      searchableDetails({
+        id: '2',
+        timestamp: 0,
+        level: 'info',
+        category: 'system',
+        message: 'ok',
+        details: { safe: true },
+      }),
+    ).toBe('{"safe":true}');
   });
 });
 
 describe('M3U editor controller', () => {
   it('creates isolated empty state and stable draft keys', () => {
     expect(emptyPlaylist()).toEqual({ entries: [], epgUrls: [], warnings: [] });
-    expect(emptyRawEditorViewState()).toEqual({ selectionStart: 0, selectionEnd: 0, scrollTop: 0, scrollLeft: 0 });
+    expect(emptyRawEditorViewState()).toEqual({
+      selectionStart: 0,
+      selectionEnd: 0,
+      scrollTop: 0,
+      scrollLeft: 0,
+    });
     expect(legacyDraftKey('source-1')).toBe('movena-m3u-editor-draft-v1:source-1');
   });
 

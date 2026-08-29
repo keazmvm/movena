@@ -76,7 +76,11 @@ describe('UpcomingReleaseCard', () => {
 
   it('renders every scheduled release on the full schedule without provider labels', () => {
     const onOpen = vi.fn();
-    render(<MemoryRouter><UpcomingReleaseCard variant="schedule" onOpen={onOpen} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard variant="schedule" onOpen={onOpen} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('First Show')).toBeTruthy();
     expect(screen.getByText('Second Show')).toBeTruthy();
@@ -90,7 +94,11 @@ describe('UpcomingReleaseCard', () => {
   });
 
   it('renders multiple releases in Discover mode by default', () => {
-    render(<MemoryRouter><UpcomingReleaseCard onOpen={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard onOpen={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('First Show')).toBeTruthy();
     expect(screen.getByText('Second Show')).toBeTruthy();
@@ -98,7 +106,11 @@ describe('UpcomingReleaseCard', () => {
   });
 
   it('respects limit prop in Discover mode when provided', () => {
-    render(<MemoryRouter><UpcomingReleaseCard onOpen={vi.fn()} limit={1} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard onOpen={vi.fn()} limit={1} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('First Show')).toBeTruthy();
     expect(screen.queryByText('Second Show')).toBeNull();
@@ -107,7 +119,11 @@ describe('UpcomingReleaseCard', () => {
 
   it('renders sleek countdown badges when countdown is enabled', () => {
     useSettingsStore.setState({ upcomingCountdownEnabled: true });
-    render(<MemoryRouter><UpcomingReleaseCard variant="schedule" onOpen={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard variant="schedule" onOpen={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     const countdowns = screen.getAllByLabelText('Release countdown');
     expect(countdowns.length).toBeGreaterThan(0);
@@ -125,7 +141,11 @@ describe('UpcomingReleaseCard', () => {
       isError: false,
     });
 
-    render(<MemoryRouter><UpcomingReleaseCard variant="schedule" onOpen={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard variant="schedule" onOpen={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Recently released')).toBeTruthy();
     expect(screen.getByText('Aired yesterday')).toBeTruthy();
@@ -142,10 +162,17 @@ describe('UpcomingReleaseCard', () => {
       isError: false,
     });
 
-    render(<MemoryRouter><UpcomingReleaseCard onOpen={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard onOpen={vi.fn()} />
+      </MemoryRouter>,
+    );
 
-    expect(screen.getAllByRole('button', { name: /^Open / }).map((button) => button.getAttribute('aria-label')))
-      .toEqual(['Open First Show']);
+    expect(
+      screen
+        .getAllByRole('button', { name: /^Open / })
+        .map((button) => button.getAttribute('aria-label')),
+    ).toEqual(['Open First Show']);
     expect(screen.queryByText('Aired yesterday')).toBeNull();
   });
 
@@ -160,7 +187,11 @@ describe('UpcomingReleaseCard', () => {
       isError: false,
     });
 
-    render(<MemoryRouter><UpcomingReleaseCard onOpen={vi.fn()} /></MemoryRouter>);
+    render(
+      <MemoryRouter>
+        <UpcomingReleaseCard onOpen={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getAllByRole('button', { name: 'Open First Show' })).toHaveLength(1);
     expect(screen.getByText(/1 more announced/)).toBeTruthy();

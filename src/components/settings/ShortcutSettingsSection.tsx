@@ -1,8 +1,5 @@
 import { useSettingsStore } from '../../store/useSettingsStore';
-import {
-  SettingsGroup,
-  SettingsPageContent,
-} from './SettingsControls';
+import { SettingsGroup, SettingsPageContent } from './SettingsControls';
 import styles from '../../pages/Settings.module.css';
 import { getShortcutGroups } from '../../utils/shortcuts';
 import { useI18n } from '../../i18n';
@@ -29,15 +26,15 @@ export function ShortcutSettingsSection() {
         <SettingsGroup
           key={group.title}
           title={group.title}
-          description={group.title === 'Global Navigation'
-            ? 'App navigation shortcuts, available when you are not editing text.'
-            : group.title === 'Live TV Channel Navigation'
-              ? 'Channel shortcuts available while the Live TV channel drawer is open.'
-              : 'Playback shortcuts available while the native player is active.'}
+          description={
+            group.title === 'Global Navigation'
+              ? 'App navigation shortcuts, available when you are not editing text.'
+              : group.title === 'Live TV Channel Navigation'
+                ? 'Channel shortcuts available while the Live TV channel drawer is open.'
+                : 'Playback shortcuts available while the native player is active.'
+          }
         >
-          <div className={styles.shortcutsContainer}>
-            {renderShortcuts(group.items)}
-          </div>
+          <div className={styles.shortcutsContainer}>{renderShortcuts(group.items)}</div>
         </SettingsGroup>
       ))}
     </SettingsPageContent>

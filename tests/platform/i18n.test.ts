@@ -30,17 +30,30 @@ describe('UI localization', () => {
   });
 
   it('provides complete catalogue parity for every supported language', () => {
-    const sourceKeys = Object.keys(DE_MESSAGES).filter((key) => !key.includes('::')).sort();
+    const sourceKeys = Object.keys(DE_MESSAGES)
+      .filter((key) => !key.includes('::'))
+      .sort();
 
     expect(UI_LANGUAGE_DEFINITIONS.map(({ code }) => code)).toEqual([
-      'en', 'de', 'es', 'fr', 'pt-BR', 'it', 'nl', 'pl',
+      'en',
+      'de',
+      'es',
+      'fr',
+      'pt-BR',
+      'it',
+      'nl',
+      'pl',
     ]);
     for (const [language, catalogue] of Object.entries(UI_MESSAGE_CATALOGS)) {
-      const translatedKeys = Object.keys(catalogue).filter((key) => !key.includes('::')).sort();
+      const translatedKeys = Object.keys(catalogue)
+        .filter((key) => !key.includes('::'))
+        .sort();
       expect(translatedKeys, `${language} catalogue keys`).toEqual(sourceKeys);
       for (const key of sourceKeys) {
         const sourcePlaceholders = [...key.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
-        const translatedPlaceholders = [...catalogue[key]!.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
+        const translatedPlaceholders = [...catalogue[key]!.matchAll(/\{(\w+)\}/g)]
+          .map((match) => match[1])
+          .sort();
         expect(translatedPlaceholders, `${language}: ${key}`).toEqual(sourcePlaceholders);
       }
     }
@@ -58,7 +71,9 @@ describe('UI localization', () => {
 
   it('interpolates templates and localizes app-owned values captured from dynamic text', () => {
     expect(translateUiText('Season {number}', 'de', { number: 3 })).toBe('Staffel 3');
-    expect(translateUiText('Collection "Weekend" ready.', 'de')).toBe('Sammlung „Weekend“ ist bereit.');
+    expect(translateUiText('Collection "Weekend" ready.', 'de')).toBe(
+      'Sammlung „Weekend“ ist bereit.',
+    );
     expect(translateUiText('Can’t reach Movies', 'de')).toBe('Filme ist nicht erreichbar');
     expect(translateUiText('Can’t reach Movies', 'es')).toBe('No se puede acceder a Películas');
   });
@@ -67,7 +82,9 @@ describe('UI localization', () => {
     const german = createI18n('de');
     const english = createI18n('en');
 
-    expect(german.tn('{count} item', '{count} items', 2, { count: german.number(2) })).toBe('2 Elemente');
+    expect(german.tn('{count} item', '{count} items', 2, { count: german.number(2) })).toBe(
+      '2 Elemente',
+    );
     expect(german.number(1234.5)).toBe('1.234,5');
     expect(english.number(1234.5)).toBe('1,234.5');
     expect(german.date(new Date(2026, 7, 13))).toBe('13.8.2026');

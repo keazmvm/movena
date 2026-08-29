@@ -9,13 +9,17 @@ export const UI_LANGUAGE_DEFINITIONS = [
   { code: 'pl', locale: 'pl-PL', label: 'Polski', direction: 'ltr' },
 ] as const;
 
-export type UiLanguage = typeof UI_LANGUAGE_DEFINITIONS[number]['code'];
-export type UiLocale = typeof UI_LANGUAGE_DEFINITIONS[number]['locale'];
+export type UiLanguage = (typeof UI_LANGUAGE_DEFINITIONS)[number]['code'];
+export type UiLocale = (typeof UI_LANGUAGE_DEFINITIONS)[number]['locale'];
 
-export const UI_LANGUAGES = UI_LANGUAGE_DEFINITIONS.map(({ code }) => code) as readonly UiLanguage[];
-export const UI_LOCALES = UI_LANGUAGE_DEFINITIONS.map(({ locale }) => locale) as readonly UiLocale[];
+export const UI_LANGUAGES = UI_LANGUAGE_DEFINITIONS.map(
+  ({ code }) => code,
+) as readonly UiLanguage[];
+export const UI_LOCALES = UI_LANGUAGE_DEFINITIONS.map(
+  ({ locale }) => locale,
+) as readonly UiLocale[];
 
-const definitionByLanguage = new Map<UiLanguage, typeof UI_LANGUAGE_DEFINITIONS[number]>(
+const definitionByLanguage = new Map<UiLanguage, (typeof UI_LANGUAGE_DEFINITIONS)[number]>(
   UI_LANGUAGE_DEFINITIONS.map((definition) => [definition.code, definition]),
 );
 

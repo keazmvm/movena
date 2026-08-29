@@ -19,15 +19,19 @@ describe('native XMLTV payload hydration', () => {
   it('rebuilds frontend indexes from the normalized native payload', async () => {
     native.xmltvFetch.mockResolvedValue({
       channels: [{ id: 'one', names: ['One'] }],
-      programmeGroups: [{
-        channelId: 'one',
-        programmes: [{
-          start: 1_786_535_200_000,
-          end: 1_786_538_800_000,
-          title: 'News',
-          description: '',
-        }],
-      }],
+      programmeGroups: [
+        {
+          channelId: 'one',
+          programmes: [
+            {
+              start: 1_786_535_200_000,
+              end: 1_786_538_800_000,
+              title: 'News',
+              description: '',
+            },
+          ],
+        },
+      ],
     });
 
     await expect(fetchXmltvGuide('https://guide.test/epg.xml')).resolves.toMatchObject({

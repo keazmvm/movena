@@ -20,14 +20,51 @@ describe('provider EPG query mapping', () => {
   it('maps, sorts, and rejects malformed provider timestamps', async () => {
     const sourceId = 'xtream-epg';
     useAuthStore.setState({
-      profiles: [{ id: sourceId, kind: 'xtream', name: 'EPG', locationLabel: 'epg.test', username: 'a', userInfo: { auth: 1 }, serverInfo: {}, createdAt: 1, updatedAt: 1 }],
-      runtimes: { [sourceId]: { credentials: { sourceId, url: 'https://epg.test', username: 'a', password: 'secret' }, status: 'ready', error: null, revision: 1 } },
+      profiles: [
+        {
+          id: sourceId,
+          kind: 'xtream',
+          name: 'EPG',
+          locationLabel: 'epg.test',
+          username: 'a',
+          userInfo: { auth: 1 },
+          serverInfo: {},
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      ],
+      runtimes: {
+        [sourceId]: {
+          credentials: { sourceId, url: 'https://epg.test', username: 'a', password: 'secret' },
+          status: 'ready',
+          error: null,
+          revision: 1,
+        },
+      },
     } as never);
     xc.getChannelEPG.mockResolvedValue([
-      { id: 'later', title: 'TGF0ZXI=', description: 'Later description', start_timestamp: '2000', stop_timestamp: '2600' },
-      { id: 'bad', title: 'Bad', description: '', start_timestamp: '2000oops', stop_timestamp: '2600' },
+      {
+        id: 'later',
+        title: 'TGF0ZXI=',
+        description: 'Later description',
+        start_timestamp: '2000',
+        stop_timestamp: '2600',
+      },
+      {
+        id: 'bad',
+        title: 'Bad',
+        description: '',
+        start_timestamp: '2000oops',
+        stop_timestamp: '2600',
+      },
       { id: '', title: '', description: '', start_timestamp: 2600, stop_timestamp: 2000 },
-      { id: 'earlier', title: 'Earlier', description: '', start_timestamp: 1000, stop_timestamp: 1500 },
+      {
+        id: 'earlier',
+        title: 'Earlier',
+        description: '',
+        start_timestamp: 1000,
+        stop_timestamp: 1500,
+      },
     ]);
 
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -39,9 +76,19 @@ describe('provider EPG query mapping', () => {
 
     expect(result.current.data).toEqual([
       { id: 'earlier', title: 'Earlier', description: '', start: 1_000_000, end: 1_500_000 },
-      { id: 'later', title: 'Later', description: 'Later description', start: 2_000_000, end: 2_600_000 },
+      {
+        id: 'later',
+        title: 'Later',
+        description: 'Later description',
+        start: 2_000_000,
+        end: 2_600_000,
+      },
     ]);
-    expect(xc.getChannelEPG).toHaveBeenCalledWith(expect.objectContaining({ sourceId }), '42', expect.any(AbortSignal));
+    expect(xc.getChannelEPG).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceId }),
+      '42',
+      expect.any(AbortSignal),
+    );
     client.clear();
   });
 });

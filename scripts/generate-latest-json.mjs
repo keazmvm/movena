@@ -48,14 +48,18 @@ const manifestPlatforms = {};
 for (const [platformKey, fileName] of Object.entries(platforms)) {
   const signature = readSignature(fileName);
   if (!signature) {
-    console.warn(`No signature found for ${platformKey} (${fileName}.sig) — skipping from latest.json`);
+    console.warn(
+      `No signature found for ${platformKey} (${fileName}.sig) — skipping from latest.json`,
+    );
     continue;
   }
   manifestPlatforms[platformKey] = { signature, url: downloadUrl(fileName) };
 }
 
 if (Object.keys(manifestPlatforms).length === 0) {
-  console.error('No updater signatures found for any platform — refusing to write an empty latest.json');
+  console.error(
+    'No updater signatures found for any platform — refusing to write an empty latest.json',
+  );
   process.exit(1);
 }
 

@@ -129,7 +129,13 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-8);
-  background: radial-gradient(circle at 50% 40%, rgba(var(--accent-color-rgb), var(--alpha-15)), transparent 42%), var(--neutral-black);
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(var(--accent-color-rgb), var(--alpha-15)),
+      transparent 42%
+    ),
+    var(--neutral-black);
   pointer-events: none;
 }
 
@@ -137,12 +143,24 @@
   width: min(26vw, 260px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: repeating-radial-gradient(circle, var(--bg-surface-hover) 0 2px, var(--neutral-black) 3px 5px);
+  background: repeating-radial-gradient(
+    circle,
+    var(--bg-surface-hover) 0 2px,
+    var(--neutral-black) 3px 5px
+  );
   box-shadow: var(--shadow-xl);
 }
 
-.radioCopy { display: flex; flex-direction: column; gap: var(--space-2); max-width: 360px; color: var(--text-primary); }
-.radioCopy strong { font-size: var(--font-size-display); }
+.radioCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 360px;
+  color: var(--text-primary);
+}
+.radioCopy strong {
+  font-size: var(--font-size-display);
+}
 
 /* ============================
    Error overlay

@@ -21,12 +21,14 @@ describe('global debug capture', () => {
   it('records browser errors and unhandled promise rejections', () => {
     render(<CaptureHarness enabled />);
 
-    window.dispatchEvent(new ErrorEvent('error', {
-      message: 'Render exploded',
-      filename: 'https://app.test/main.js',
-      lineno: 42,
-      error: new Error('Render exploded'),
-    }));
+    window.dispatchEvent(
+      new ErrorEvent('error', {
+        message: 'Render exploded',
+        filename: 'https://app.test/main.js',
+        lineno: 42,
+        error: new Error('Render exploded'),
+      }),
+    );
     const rejection = new Event('unhandledrejection') as PromiseRejectionEvent;
     Object.defineProperty(rejection, 'reason', { value: new Error('Async exploded') });
     window.dispatchEvent(rejection);

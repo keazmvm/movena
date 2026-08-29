@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  SearchX,
-} from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import {
   RiCalendarScheduleFill,
   RiCalendarScheduleLine,
@@ -97,8 +95,8 @@ export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigati
   };
 
   if (isCompact) {
-    const activeItem = SETTINGS_SECTIONS.find((item) => item.id === activeSection)
-      ?? SETTINGS_SECTIONS[0]!;
+    const activeItem =
+      SETTINGS_SECTIONS.find((item) => item.id === activeSection) ?? SETTINGS_SECTIONS[0]!;
 
     return (
       <nav className={styles.compactNavigation} aria-label={t('Settings navigation')}>
@@ -126,14 +124,14 @@ export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigati
       width={sidebarWidth}
       onWidthChange={(width) => updateSetting('sidebarWidth', width)}
       ariaLabel="Settings navigation"
-      headerContent={(
+      headerContent={
         <WorkspaceSidebarSearch
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Search settings..."
           ariaLabel="Search settings"
         />
-      )}
+      }
     >
       <nav className={styles.navigation} aria-label={t('Settings sections')}>
         {visibleGroups.map((group) => {
@@ -141,8 +139,14 @@ export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigati
           if (items.length === 0) return null;
 
           return (
-            <section key={group.id} className={styles.group} aria-labelledby={`settings-group-${group.id}`}>
-              <h3 id={`settings-group-${group.id}`} className={styles.groupLabel}>{t(group.label)}</h3>
+            <section
+              key={group.id}
+              className={styles.group}
+              aria-labelledby={`settings-group-${group.id}`}
+            >
+              <h3 id={`settings-group-${group.id}`} className={styles.groupLabel}>
+                {t(group.label)}
+              </h3>
               <div className={styles.groupItems}>
                 {items.map((item) => {
                   const icons = SECTION_ICONS[item.id];
@@ -151,9 +155,7 @@ export function SettingsNavigation({ activeSection, onSelect }: SettingsNavigati
                     <WorkspaceSidebarNavItem
                       key={item.id}
                       label={item.label}
-                      icon={(
-                        <StateIcon icons={icons} active={isActive} size={16} />
-                      )}
+                      icon={<StateIcon icons={icons} active={isActive} size={16} />}
                       active={isActive}
                       onClick={() => handleSelect(item.id)}
                     />

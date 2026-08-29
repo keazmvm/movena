@@ -25,7 +25,9 @@ describe('notification settings disabled-state propagation', () => {
 
     // Event toggles should be disabled
     const checkboxes = screen.getAllByRole('checkbox');
-    const eventCheckboxes = checkboxes.filter((checkbox) => checkbox !== screen.getByRole('checkbox', { name: 'Enable notifications' }));
+    const eventCheckboxes = checkboxes.filter(
+      (checkbox) => checkbox !== screen.getByRole('checkbox', { name: 'Enable notifications' }),
+    );
     for (const checkbox of eventCheckboxes) {
       expect(checkbox).toHaveProperty('disabled', true);
     }

@@ -59,10 +59,10 @@ export function HorizontalCarousel({
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
       const scrollAmount = clientWidth * 0.8; // Scroll 80% of container width
-      
+
       scrollRef.current.scrollTo({
         left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
@@ -75,7 +75,8 @@ export function HorizontalCarousel({
         <div className={styles.titleGroup}>
           <h2 className={styles.title}>{t(title)}</h2>
           {onSeeAll && (
-            <button type="button"
+            <button
+              type="button"
               className={styles.seeAllBtn}
               onClick={onSeeAll}
               aria-label={t('{action} for {title}', { action: t(seeAllLabel), title: t(title) })}
@@ -86,7 +87,8 @@ export function HorizontalCarousel({
           )}
         </div>
         <div className={styles.controls}>
-          <button type="button"
+          <button
+            type="button"
             className={styles.controlBtn}
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
@@ -94,7 +96,8 @@ export function HorizontalCarousel({
           >
             <ChevronLeft size={24} />
           </button>
-          <button type="button"
+          <button
+            type="button"
             className={styles.controlBtn}
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
@@ -104,13 +107,17 @@ export function HorizontalCarousel({
           </button>
         </div>
       </div>
-      
+
       <div className={styles.scrollArea} ref={scrollRef} onScroll={updateScrollState}>
         <div className={styles.itemTrack}>
           {items.map((item, index) => {
             const isFirst = index === 0;
             const isLast = index === items.length - 1;
-            const transformOrigin = isFirst ? 'left center' : isLast ? 'right center' : 'center center';
+            const transformOrigin = isFirst
+              ? 'left center'
+              : isLast
+                ? 'right center'
+                : 'center center';
 
             return (
               <div key={item.id} className={styles.itemWrapper}>

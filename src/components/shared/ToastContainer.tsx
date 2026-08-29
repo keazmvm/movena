@@ -107,18 +107,19 @@ export function ToastContainer() {
   if (!enableNotifications) return null;
 
   // Suppress non-critical notifications while playing media if DND during playback is enabled
-  const visibleNotifications = dndDuringPlayback && !!activeStream
-    ? notifications.filter((n) => n.type === 'error')
-    : notifications;
+  const visibleNotifications =
+    dndDuringPlayback && !!activeStream
+      ? notifications.filter((n) => n.type === 'error')
+      : notifications;
 
   const positionClass =
     toastPosition === 'top-left'
       ? styles.topLeft
       : toastPosition === 'bottom-right'
-      ? styles.bottomRight
-      : toastPosition === 'bottom-left'
-      ? styles.bottomLeft
-      : styles.topRight;
+        ? styles.bottomRight
+        : toastPosition === 'bottom-left'
+          ? styles.bottomLeft
+          : styles.topRight;
 
   return (
     <div className={`${styles.toastContainer} ${positionClass}`} data-ui-layer="toast">

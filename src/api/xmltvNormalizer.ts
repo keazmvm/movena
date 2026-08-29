@@ -24,10 +24,18 @@ export function parseXmltvTime(value: string | null | undefined): number {
   const hourNumber = parts[3];
   const minuteNumber = parts[4];
   const secondNumber = parts[5];
-  if (monthNumber < 1 || monthNumber > 12 || hourNumber > 23 || minuteNumber > 59 || secondNumber > 59) return 0;
+  if (
+    monthNumber < 1 ||
+    monthNumber > 12 ||
+    hourNumber > 23 ||
+    minuteNumber > 59 ||
+    secondNumber > 59
+  )
+    return 0;
   const daysInMonth = new Date(Date.UTC(parts[0], monthNumber, 0)).getUTCDate();
   if (dayNumber < 1 || dayNumber > daysInMonth) return 0;
-  if (!offset) return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]).getTime();
+  if (!offset)
+    return new Date(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]).getTime();
 
   const sign = offset.startsWith('-') ? -1 : 1;
   const offsetHours = +offset.slice(1, 3);

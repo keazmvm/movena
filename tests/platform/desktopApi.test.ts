@@ -28,7 +28,10 @@ vi.mock('@tauri-apps/api/window', () => ({
   }),
 }));
 vi.mock('@tauri-apps/plugin-dialog', () => ({ open: mocks.open, save: mocks.save }));
-vi.mock('@tauri-apps/plugin-opener', () => ({ openUrl: mocks.openUrl, revealItemInDir: mocks.revealItemInDir }));
+vi.mock('@tauri-apps/plugin-opener', () => ({
+  openUrl: mocks.openUrl,
+  revealItemInDir: mocks.revealItemInDir,
+}));
 vi.mock('@tauri-apps/plugin-process', () => ({ relaunch: mocks.relaunch }));
 vi.mock('@tauri-apps/plugin-updater', () => ({ check: mocks.check }));
 
@@ -51,8 +54,15 @@ describe('desktop API gateway', () => {
     await desktopApi.toggleMaximizeWindow();
     await desktopApi.closeWindow();
     await desktopApi.setAlwaysOnTop(true);
-    await desktopApi.openPath({ multiple: false, directory: false, filters: [{ name: 'Playlist', extensions: ['m3u'] }] });
-    await desktopApi.savePath({ defaultPath: 'backup.json', filters: [{ name: 'JSON', extensions: ['json'] }] });
+    await desktopApi.openPath({
+      multiple: false,
+      directory: false,
+      filters: [{ name: 'Playlist', extensions: ['m3u'] }],
+    });
+    await desktopApi.savePath({
+      defaultPath: 'backup.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
     await desktopApi.openPath({});
     await desktopApi.savePath({});
     await desktopApi.openUrl('https://movena.test');
@@ -60,8 +70,15 @@ describe('desktop API gateway', () => {
     await desktopApi.relaunch();
 
     expect(await desktopApi.getVersion()).toBe('1.2.3');
-    expect(mocks.open).toHaveBeenCalledWith({ multiple: false, directory: false, filters: [{ name: 'Playlist', extensions: ['m3u'] }] });
-    expect(mocks.save).toHaveBeenCalledWith({ defaultPath: 'backup.json', filters: [{ name: 'JSON', extensions: ['json'] }] });
+    expect(mocks.open).toHaveBeenCalledWith({
+      multiple: false,
+      directory: false,
+      filters: [{ name: 'Playlist', extensions: ['m3u'] }],
+    });
+    expect(mocks.save).toHaveBeenCalledWith({
+      defaultPath: 'backup.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
     expect(mocks.open).toHaveBeenLastCalledWith({});
     expect(mocks.save).toHaveBeenLastCalledWith({});
     expect(mocks.setAlwaysOnTop).toHaveBeenCalledWith(true);
@@ -76,7 +93,9 @@ describe('desktop API gateway', () => {
 
     await expect(desktopApi.onMpvEvent(mpvHandler)).resolves.toBe(unlisten);
     const mpvListener = mocks.listen.mock.calls[0]![1] as (event: { payload: unknown }) => void;
-    mpvListener({ payload: { type: 'property-change', name: 'volume', data: 42, sessionId: 'session' } });
+    mpvListener({
+      payload: { type: 'property-change', name: 'volume', data: 42, sessionId: 'session' },
+    });
     mpvListener({
       payload: {
         type: 'resolver-status',
@@ -85,17 +104,23 @@ describe('desktop API gateway', () => {
       },
     });
     await desktopApi.onDownloadEvent(downloadHandler);
-    const downloadListener = mocks.listen.mock.calls[1]![1] as (event: { payload: unknown }) => void;
-    downloadListener({ payload: { id: 'download', state: 'completed', downloadedBytes: 1, totalBytes: 1 } });
+    const downloadListener = mocks.listen.mock.calls[1]![1] as (event: {
+      payload: unknown;
+    }) => void;
+    downloadListener({
+      payload: { id: 'download', state: 'completed', downloadedBytes: 1, totalBytes: 1 },
+    });
     await desktopApi.onPointerMoved(pointerHandler);
     const pointerListener = mocks.listen.mock.calls[2]![1] as () => void;
     pointerListener();
 
     expect(mpvHandler).toHaveBeenCalledWith(expect.objectContaining({ sessionId: 'session' }));
-    expect(mpvHandler).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'resolver-status',
-      data: { provider: 'twitch', phase: 'ad-break', expectedDurationSeconds: 30 },
-    }));
+    expect(mpvHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'resolver-status',
+        data: { provider: 'twitch', phase: 'ad-break', expectedDurationSeconds: 30 },
+      }),
+    );
     expect(downloadHandler).toHaveBeenCalledWith(expect.objectContaining({ id: 'download' }));
     expect(pointerHandler).toHaveBeenCalledOnce();
   });
@@ -107,7 +132,14 @@ describe('desktop API gateway', () => {
       handler({ event: 'Progress', data: { chunkLength: 4 } });
       handler({ event: 'Finished', data: {} });
     });
-    mocks.check.mockResolvedValue({ version: '2.0.0', currentVersion: '1.0.0', body: null, date: null, downloadAndInstall, close });
+    mocks.check.mockResolvedValue({
+      version: '2.0.0',
+      currentVersion: '1.0.0',
+      body: null,
+      date: null,
+      downloadAndInstall,
+      close,
+    });
     const update = await desktopApi.checkForUpdate();
     const progress = vi.fn();
     await update?.downloadAndInstall(progress);

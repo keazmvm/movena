@@ -26,15 +26,22 @@ export function StorageSettingsSection() {
   const chooseDownloadDirectory = async () => {
     try {
       const selection = await desktopApi.openPath({ directory: true, multiple: false });
-      if (selection && !Array.isArray(selection)) settings.updateSetting('downloadDirectory', selection);
+      if (selection && !Array.isArray(selection))
+        settings.updateSetting('downloadDirectory', selection);
     } catch (error: unknown) {
-      notify.error('Folder Could Not Be Selected', getUserFacingErrorMessage(error, 'Movena could not open the folder picker.'));
+      notify.error(
+        'Folder Could Not Be Selected',
+        getUserFacingErrorMessage(error, 'Movena could not open the folder picker.'),
+      );
     }
   };
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Recording" description="Movena writes live recordings below your Downloads folder. Record only media you are authorized to copy; Movena does not bypass DRM.">
+      <SettingsGroup
+        title="Recording"
+        description="Movena writes live recordings below your Downloads folder. Record only media you are authorized to copy; Movena does not bypass DRM."
+      >
         <SettingsRow
           title="Save Folder"
           description="Use a relative folder name; missing folders are created automatically."
@@ -63,7 +70,10 @@ export function StorageSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Downloads" description="Downloaded media is saved here. Download only media you are authorized to copy. Leave the folder blank to use your system Downloads folder.">
+      <SettingsGroup
+        title="Downloads"
+        description="Downloaded media is saved here. Download only media you are authorized to copy. Leave the folder blank to use your system Downloads folder."
+      >
         <SettingsRow
           title="Save Folder"
           description="Use the folder picker for a native path, or enter an absolute path manually."
@@ -79,7 +89,10 @@ export function StorageSettingsSection() {
               autoCorrect="off"
               autoCapitalize="off"
             />
-            <SettingsButton onClick={() => void chooseDownloadDirectory()} aria-label="Choose download folder">
+            <SettingsButton
+              onClick={() => void chooseDownloadDirectory()}
+              aria-label="Choose download folder"
+            >
               <FolderOpen size={15} />
               {t('Choose')}
             </SettingsButton>
@@ -96,7 +109,10 @@ export function StorageSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Queue Behavior" description="Control how many files can download at once and whether new downloads begin immediately.">
+      <SettingsGroup
+        title="Queue Behavior"
+        description="Control how many files can download at once and whether new downloads begin immediately."
+      >
         <SettingsRow
           title="Parallel Downloads"
           description="More simultaneous downloads use more bandwidth and provider connections."
@@ -107,7 +123,12 @@ export function StorageSettingsSection() {
             max={8}
             step={1}
             value={settings.maxConcurrentDownloads}
-            onChange={(event) => settings.updateSetting('maxConcurrentDownloads', Math.max(1, Math.min(8, Number(event.target.value) || 1)))}
+            onChange={(event) =>
+              settings.updateSetting(
+                'maxConcurrentDownloads',
+                Math.max(1, Math.min(8, Number(event.target.value) || 1)),
+              )
+            }
             aria-label="Maximum parallel downloads"
           />
         </SettingsRow>

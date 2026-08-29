@@ -7,7 +7,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../src/api/useCatalog', async () => {
-  const actual = await vi.importActual<typeof import('../../src/api/useCatalog')>('../../src/api/useCatalog');
+  const actual = await vi.importActual<typeof import('../../src/api/useCatalog')>(
+    '../../src/api/useCatalog',
+  );
   return { ...actual, useLiveStreams: vi.fn() };
 });
 
@@ -20,13 +22,15 @@ vi.mock('../../src/api/xmltv', async () => {
 
 const useChannelEpg = vi.hoisted(() => {
   const result = {
-    data: [{
-      id: 'cached-programme',
-      title: 'Cached News',
-      description: '',
-      start: Date.now() - 30 * 60_000,
-      end: Date.now() + 30 * 60_000,
-    }],
+    data: [
+      {
+        id: 'cached-programme',
+        title: 'Cached News',
+        description: '',
+        start: Date.now() - 30 * 60_000,
+        end: Date.now() + 30 * 60_000,
+      },
+    ],
     isLoading: false,
     isError: false,
     isSuccess: true,
@@ -38,7 +42,9 @@ const useChannelEpg = vi.hoisted(() => {
 vi.mock('../../src/api/useEpg', () => ({ useChannelEpg }));
 
 vi.mock('../../src/api/useCategories', async () => {
-  const actual = await vi.importActual<typeof import('../../src/api/useCategories')>('../../src/api/useCategories');
+  const actual = await vi.importActual<typeof import('../../src/api/useCategories')>(
+    '../../src/api/useCategories',
+  );
   return { ...actual, useCategories: vi.fn(), useHiddenCategoryIds: vi.fn() };
 });
 
@@ -54,8 +60,24 @@ import { useLiveStreams } from '../../src/api/useCatalog';
 import { useCategories, useHiddenCategoryIds } from '../../src/api/useCategories';
 
 const channels = [
-  { id: 'ch-1', title: 'BBC One', posterUrl: '', type: 'live' as const, channelNum: 1, streamUrl: 'http://x/1', categoryId: 'de-news' },
-  { id: 'ch-2', title: 'CNN International', posterUrl: '', type: 'live' as const, channelNum: 2, streamUrl: 'http://x/2', categoryId: 'us-news' },
+  {
+    id: 'ch-1',
+    title: 'BBC One',
+    posterUrl: '',
+    type: 'live' as const,
+    channelNum: 1,
+    streamUrl: 'http://x/1',
+    categoryId: 'de-news',
+  },
+  {
+    id: 'ch-2',
+    title: 'CNN International',
+    posterUrl: '',
+    type: 'live' as const,
+    channelNum: 2,
+    streamUrl: 'http://x/2',
+    categoryId: 'us-news',
+  },
 ];
 
 const categories = [
@@ -77,8 +99,12 @@ function renderEpg() {
 beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 600 });
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, value: 800 });
-  vi.mocked(useLiveStreams).mockReturnValue({ data: channels } as unknown as ReturnType<typeof useLiveStreams>);
-  vi.mocked(useCategories).mockReturnValue({ data: categories } as unknown as ReturnType<typeof useCategories>);
+  vi.mocked(useLiveStreams).mockReturnValue({ data: channels } as unknown as ReturnType<
+    typeof useLiveStreams
+  >);
+  vi.mocked(useCategories).mockReturnValue({ data: categories } as unknown as ReturnType<
+    typeof useCategories
+  >);
   vi.mocked(useHiddenCategoryIds).mockReturnValue(new Set());
 });
 
@@ -117,7 +143,7 @@ describe('EPG TV Guide Features', () => {
 
     // Search for CNN
     await user.type(searchInput, 'CNN');
-    
+
     // BBC One should no longer match
     expect(screen.queryByText('BBC One')).toBeNull();
     expect(screen.getByText('CNN International')).toBeTruthy();

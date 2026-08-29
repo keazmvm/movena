@@ -21,29 +21,40 @@ const categories = [
 
 describe('smart catalogue filtering', () => {
   it('keeps uncategorized items while removing hidden categories from All', () => {
-    expect(filterItemsBySmartCategory(items, null, new Set(['20'])).map((item) => item.id))
-      .toEqual(['1', '3', '4']);
+    expect(filterItemsBySmartCategory(items, null, new Set(['20'])).map((item) => item.id)).toEqual(
+      ['1', '3', '4'],
+    );
   });
 
   it('builds country groups from decoded provider category names', () => {
-    expect(filterItemsBySmartCategory(items, 'country:DE', new Set(['30']), [], categories)
-      .map((item) => item.id)).toEqual(['1']);
+    expect(
+      filterItemsBySmartCategory(items, 'country:DE', new Set(['30']), [], categories).map(
+        (item) => item.id,
+      ),
+    ).toEqual(['1']);
   });
 
   it('matches favorites and built-in smart categories', () => {
-    expect(filterItemsBySmartCategory(items, 'smart:favorites', new Set(), [{ id: '2' }])
-      .map((item) => item.id)).toEqual(['2']);
-    expect(filterItemsBySmartCategory(items, 'smart:4k', new Set()).map((item) => item.id))
-      .toEqual(['1']);
-    expect(filterItemsBySmartCategory(items, 'smart:news', new Set()).map((item) => item.id))
-      .toEqual(['2']);
-    expect(filterItemsBySmartCategory(items, 'smart:kids', new Set()).map((item) => item.id))
-      .toEqual(['3']);
+    expect(
+      filterItemsBySmartCategory(items, 'smart:favorites', new Set(), [{ id: '2' }]).map(
+        (item) => item.id,
+      ),
+    ).toEqual(['2']);
+    expect(filterItemsBySmartCategory(items, 'smart:4k', new Set()).map((item) => item.id)).toEqual(
+      ['1'],
+    );
+    expect(
+      filterItemsBySmartCategory(items, 'smart:news', new Set()).map((item) => item.id),
+    ).toEqual(['2']);
+    expect(
+      filterItemsBySmartCategory(items, 'smart:kids', new Set()).map((item) => item.id),
+    ).toEqual(['3']);
   });
 
   it('falls back to exact provider category matching', () => {
-    expect(filterItemsBySmartCategory(items, '20', new Set()).map((item) => item.id))
-      .toEqual(['2']);
+    expect(filterItemsBySmartCategory(items, '20', new Set()).map((item) => item.id)).toEqual([
+      '2',
+    ]);
   });
 
   it('matches all sibling categories sharing the same parsed country, label, and tags', () => {
@@ -63,14 +74,17 @@ describe('smart catalogue filtering', () => {
     ];
 
     // Selecting any of the sport categories matches all sport items
-    expect(filterItemsBySmartCategory(streamItems, '101', new Set(), [], mergedCats).map((i) => i.id))
-      .toEqual(['s1', 's2', 's3']);
-    expect(filterItemsBySmartCategory(streamItems, '102', new Set(), [], mergedCats).map((i) => i.id))
-      .toEqual(['s1', 's2', 's3']);
+    expect(
+      filterItemsBySmartCategory(streamItems, '101', new Set(), [], mergedCats).map((i) => i.id),
+    ).toEqual(['s1', 's2', 's3']);
+    expect(
+      filterItemsBySmartCategory(streamItems, '102', new Set(), [], mergedCats).map((i) => i.id),
+    ).toEqual(['s1', 's2', 's3']);
 
     // Selecting any of the general categories matches all general items
-    expect(filterItemsBySmartCategory(streamItems, '201', new Set(), [], mergedCats).map((i) => i.id))
-      .toEqual(['g1', 'g2']);
+    expect(
+      filterItemsBySmartCategory(streamItems, '201', new Set(), [], mergedCats).map((i) => i.id),
+    ).toEqual(['g1', 'g2']);
 
     // Quality variant categories e.g. Macedonia HD (56) and Macedonia (54) match all items
     const mkCats = [
@@ -81,8 +95,9 @@ describe('smart catalogue filtering', () => {
       { id: 'mk1', title: 'MRT 1 HD', posterUrl: '', type: 'live' as const, categoryId: '301' },
       { id: 'mk2', title: 'MRT 2', posterUrl: '', type: 'live' as const, categoryId: '302' },
     ];
-    expect(filterItemsBySmartCategory(mkItems, '301', new Set(), [], mkCats).map((i) => i.id))
-      .toEqual(['mk1', 'mk2']);
+    expect(
+      filterItemsBySmartCategory(mkItems, '301', new Set(), [], mkCats).map((i) => i.id),
+    ).toEqual(['mk1', 'mk2']);
   });
 
   it('filters by smart:recent and smart:top-rated', () => {
@@ -93,18 +108,34 @@ describe('smart catalogue filtering', () => {
       { id: 'm4', title: 'Unknown Date', posterUrl: '', rating: 9.1 },
     ];
 
-    expect(filterItemsBySmartCategory(movieItems, 'smart:recent', new Set()).map((i) => i.id))
-      .toEqual(['m2', 'm3', 'm1']);
+    expect(
+      filterItemsBySmartCategory(movieItems, 'smart:recent', new Set()).map((i) => i.id),
+    ).toEqual(['m2', 'm3', 'm1']);
 
-    expect(filterItemsBySmartCategory(movieItems, 'smart:top-rated', new Set()).map((i) => i.id))
-      .toEqual(['m4', 'm2', 'm3']);
+    expect(
+      filterItemsBySmartCategory(movieItems, 'smart:top-rated', new Set()).map((i) => i.id),
+    ).toEqual(['m4', 'm2', 'm3']);
   });
 
   it('sorts catalog items by all supported sort modes', () => {
     const catalog = [
-      { id: '1', title: 'Interstellar', year: '2014', rating: 8.7, added: '1700000000', posterUrl: '' },
+      {
+        id: '1',
+        title: 'Interstellar',
+        year: '2014',
+        rating: 8.7,
+        added: '1700000000',
+        posterUrl: '',
+      },
       { id: '2', title: 'Avatar', year: '2009', rating: 7.9, added: '1600000000', posterUrl: '' },
-      { id: '3', title: 'Dune: Part Two', year: '2024', rating: 8.9, added: '1800000000', posterUrl: '' },
+      {
+        id: '3',
+        title: 'Dune: Part Two',
+        year: '2024',
+        rating: 8.9,
+        added: '1800000000',
+        posterUrl: '',
+      },
     ];
 
     expect(sortCatalogItems(catalog, 'default').map((i) => i.id)).toEqual(['1', '2', '3']);

@@ -9,11 +9,31 @@ import {
 import { useI18n } from '../../i18n';
 
 const TOGGLES = [
-  ['dndDuringPlayback', 'Do Not Disturb During Playback', 'Suppress non-critical information while media is playing'],
-  ['notifyPlaybackEvents', 'Playback & Stream Alerts', 'Show recording and playback-status notifications'],
-  ['notifyConnectionStatus', 'Provider & Connection Alerts', 'Show account and server-connection notifications'],
-  ['notifyLibraryUpdates', 'Library & Recording Alerts', 'Show favorites, watch-history, and recording notifications'],
-  ['notifyDownloadEvents', 'Download Alerts', 'Show download start, completion, and failure notifications'],
+  [
+    'dndDuringPlayback',
+    'Do Not Disturb During Playback',
+    'Suppress non-critical information while media is playing',
+  ],
+  [
+    'notifyPlaybackEvents',
+    'Playback & Stream Alerts',
+    'Show recording and playback-status notifications',
+  ],
+  [
+    'notifyConnectionStatus',
+    'Provider & Connection Alerts',
+    'Show account and server-connection notifications',
+  ],
+  [
+    'notifyLibraryUpdates',
+    'Library & Recording Alerts',
+    'Show favorites, watch-history, and recording notifications',
+  ],
+  [
+    'notifyDownloadEvents',
+    'Download Alerts',
+    'Show download start, completion, and failure notifications',
+  ],
   ['notifySound', 'Notification Audio Chime', 'Play a subtle sound when a notification appears'],
 ] as const;
 
@@ -23,8 +43,14 @@ export function NotificationSettingsSection() {
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Delivery" description="Control whether and where in-app notifications appear.">
-        <SettingsRow title="Enable Notifications" description="Show in-app status and event notifications.">
+      <SettingsGroup
+        title="Delivery"
+        description="Control whether and where in-app notifications appear."
+      >
+        <SettingsRow
+          title="Enable Notifications"
+          description="Show in-app status and event notifications."
+        >
           <SettingsToggle
             label="Enable notifications"
             checked={settings.enableNotifications}
@@ -67,7 +93,12 @@ export function NotificationSettingsSection() {
 
       <SettingsGroup title="Events" description="Choose which activity should interrupt you.">
         {TOGGLES.map(([key, title, description]) => (
-          <SettingsRow key={key} title={title} description={`${description}.`} disabled={!settings.enableNotifications}>
+          <SettingsRow
+            key={key}
+            title={title}
+            description={`${description}.`}
+            disabled={!settings.enableNotifications}
+          >
             <SettingsToggle
               label={title}
               checked={settings[key]}

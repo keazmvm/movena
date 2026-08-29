@@ -66,18 +66,41 @@ interface PendingEntry {
 }
 
 const KNOWN_ENTRY_ATTRIBUTES = new Set([
-  'tvg-id', 'channel-id', 'tvg-name', 'tvg-logo', 'logo', 'tvg-chno', 'channel-number',
-  'group-title', 'catchup', 'catchup-source', 'catchup-days', 'timeshift', 'description',
-  'tvg-description', 'year', 'rating', 'tvg-rating', 'radio', 'radio-id', 'radio-name',
-  'radio-logo', 'movena-type',
+  'tvg-id',
+  'channel-id',
+  'tvg-name',
+  'tvg-logo',
+  'logo',
+  'tvg-chno',
+  'channel-number',
+  'group-title',
+  'catchup',
+  'catchup-source',
+  'catchup-days',
+  'timeshift',
+  'description',
+  'tvg-description',
+  'year',
+  'rating',
+  'tvg-rating',
+  'radio',
+  'radio-id',
+  'radio-name',
+  'radio-logo',
+  'movena-type',
 ]);
 
 const KNOWN_HEADER_ATTRIBUTES = new Set([
-  'x-tvg-url', 'url-tvg', 'tvg-url', 'playlist-name', 'name',
+  'x-tvg-url',
+  'url-tvg',
+  'tvg-url',
+  'playlist-name',
+  'name',
 ]);
 
 const ATTRIBUTE_PATTERN = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s,]+))/g;
-const HLS_MANIFEST_PATTERN = /^#EXT-X-(?:STREAM-INF|TARGETDURATION|MEDIA-SEQUENCE|KEY|MAP|PART|ENDLIST)/m;
+const HLS_MANIFEST_PATTERN =
+  /^#EXT-X-(?:STREAM-INF|TARGETDURATION|MEDIA-SEQUENCE|KEY|MAP|PART|ENDLIST)/m;
 
 function fnv1a(value: string): string {
   let hash = 0x811c9dc5;
@@ -131,7 +154,10 @@ function canonicalHeaderName(value: string): string | null {
   if (key === 'origin' || key === 'http-origin') return 'Origin';
   if (key === 'cookie' || key === 'http-cookie') return 'Cookie';
   if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(key)) {
-    return key.split('-').map((part) => part ? `${part[0]!.toUpperCase()}${part.slice(1)}` : part).join('-');
+    return key
+      .split('-')
+      .map((part) => (part ? `${part[0]!.toUpperCase()}${part.slice(1)}` : part))
+      .join('-');
   }
   return null;
 }
@@ -147,13 +173,18 @@ function parseHeaderPairs(value: string, headers: Record<string, string>): void 
   for (const pair of value.split('&')) {
     const equals = pair.indexOf('=');
     if (equals <= 0) continue;
-    addHeader(headers, decodeHeaderValue(pair.slice(0, equals)), decodeHeaderValue(pair.slice(equals + 1)));
+    addHeader(
+      headers,
+      decodeHeaderValue(pair.slice(0, equals)),
+      decodeHeaderValue(pair.slice(equals + 1)),
+    );
   }
 }
 
 function splitUrlHeaders(value: string): { url: string; headers: Record<string, string> } {
   const separator = value.lastIndexOf('|');
-  if (separator <= 0 || !value.slice(separator + 1).includes('=')) return { url: value.trim(), headers: {} };
+  if (separator <= 0 || !value.slice(separator + 1).includes('='))
+    return { url: value.trim(), headers: {} };
   const headers: Record<string, string> = {};
   parseHeaderPairs(value.slice(separator + 1), headers);
   return Object.keys(headers).length > 0
@@ -161,9 +192,17 @@ function splitUrlHeaders(value: string): { url: string; headers: Record<string, 
     : { url: value.trim(), headers: {} };
 }
 
-function resolveEntryUrl(rawValue: string, baseUrl?: string): { url: string; headers: Record<string, string> } {
+function resolveEntryUrl(
+  rawValue: string,
+  baseUrl?: string,
+): { url: string; headers: Record<string, string> } {
   const split = splitUrlHeaders(rawValue.trim());
-  if (!baseUrl || /^[a-z][a-z0-9+.-]*:/i.test(split.url) || /^[a-z]:[\\/]/i.test(split.url) || split.url.startsWith('\\\\')) {
+  if (
+    !baseUrl ||
+    /^[a-z][a-z0-9+.-]*:/i.test(split.url) ||
+    /^[a-z]:[\\/]/i.test(split.url) ||
+    split.url.startsWith('\\\\')
+  ) {
     return split;
   }
   try {
@@ -177,9 +216,19 @@ function titleFromUrl(value: string): string {
   const withoutQuery = value.split(/[?#]/, 1)[0] ?? '';
   const finalPart = withoutQuery.split(/[\\/]/).filter(Boolean).at(-1) ?? 'Untitled stream';
   try {
-    return decodeURIComponent(finalPart).replace(/\.[^.]+$/, '').replace(/[._]+/g, ' ').trim() || 'Untitled stream';
+    return (
+      decodeURIComponent(finalPart)
+        .replace(/\.[^.]+$/, '')
+        .replace(/[._]+/g, ' ')
+        .trim() || 'Untitled stream'
+    );
   } catch {
-    return finalPart.replace(/\.[^.]+$/, '').replace(/[._]+/g, ' ').trim() || 'Untitled stream';
+    return (
+      finalPart
+        .replace(/\.[^.]+$/, '')
+        .replace(/[._]+/g, ' ')
+        .trim() || 'Untitled stream'
+    );
   }
 }
 
@@ -191,9 +240,15 @@ export function parseM3uEpisodeTitle(title: string): M3uEpisodeIdentity | undefi
   for (const pattern of patterns) {
     const match = pattern.exec(title.trim());
     if (!match) continue;
-    const seriesTitle = (match[1] ?? '').replace(/[._]+/g, ' ').replace(/[\s_-]+$/, '').trim();
+    const seriesTitle = (match[1] ?? '')
+      .replace(/[._]+/g, ' ')
+      .replace(/[\s_-]+$/, '')
+      .trim();
     if (!seriesTitle) return undefined;
-    const episodeTitle = match[4]?.replace(/[._]+/g, ' ').replace(/^[\s_-]+/, '').trim();
+    const episodeTitle = match[4]
+      ?.replace(/[._]+/g, ' ')
+      .replace(/^[\s_-]+/, '')
+      .trim();
     return {
       seriesTitle,
       seasonNumber: Number(match[2]),
@@ -232,7 +287,11 @@ function classifyMediaType(
   return 'live';
 }
 
-function createEntry(pending: PendingEntry, rawUrl: string, options: ParseM3uOptions): M3uEntry | null {
+function createEntry(
+  pending: PendingEntry,
+  rawUrl: string,
+  options: ParseM3uOptions,
+): M3uEntry | null {
   const resolved = resolveEntryUrl(rawUrl, options.baseUrl);
   if (!resolved.url) return null;
   const attributes = pending.attributes;
@@ -244,17 +303,21 @@ function createEntry(pending: PendingEntry, rawUrl: string, options: ParseM3uOpt
   const sourceHeaders = options.headers ?? {};
   const entryHeaders = { ...pending.headers, ...resolved.headers };
   const explicitHeaderNames = new Set(Object.keys(entryHeaders).map((name) => name.toLowerCase()));
-  const inheritedHeaderNames = Object.keys(sourceHeaders)
-    .filter((name) => !explicitHeaderNames.has(name.toLowerCase()));
+  const inheritedHeaderNames = Object.keys(sourceHeaders).filter(
+    (name) => !explicitHeaderNames.has(name.toLowerCase()),
+  );
   const headers = { ...sourceHeaders, ...entryHeaders };
   const catchupDays = parseFiniteNumber(attributes['catchup-days'] || attributes.timeshift);
   const radio = isRadioStream(attributes);
   const rating = parseFiniteNumber(attributes.rating || attributes['tvg-rating']);
   const yearMatch = (attributes.year || title).match(/(?:^|\D)((?:19|20)\d{2})(?:\D|$)/);
   const inferredType = classifyMediaType(groupTitle, pending.duration, episode);
-  const type = attributes['movena-type'] === 'vod' || attributes['movena-type'] === 'series' || attributes['movena-type'] === 'live'
-    ? attributes['movena-type']
-    : inferredType;
+  const type =
+    attributes['movena-type'] === 'vod' ||
+    attributes['movena-type'] === 'series' ||
+    attributes['movena-type'] === 'live'
+      ? attributes['movena-type']
+      : inferredType;
   const extraAttributes = Object.fromEntries(
     Object.entries(attributes).filter(([key]) => !KNOWN_ENTRY_ATTRIBUTES.has(key)),
   );
@@ -281,7 +344,9 @@ function createEntry(pending: PendingEntry, rawUrl: string, options: ParseM3uOpt
     catchupSource: attributes['catchup-source'] || undefined,
     catchupDays,
     radio,
-    radioMetadata: radio ? normalizeRadioDisplayMetadata(attributes, title, titleFromUrl(resolved.url)) : undefined,
+    radioMetadata: radio
+      ? normalizeRadioDisplayMetadata(attributes, title, titleFromUrl(resolved.url))
+      : undefined,
     episode,
     extraAttributes: Object.keys(extraAttributes).length > 0 ? extraAttributes : undefined,
     extraDirectives: pending.directives.length > 0 ? pending.directives : undefined,
@@ -315,7 +380,8 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
   const warnings: string[] = [];
   const entries: M3uEntry[] = [];
   const seenIds = new Set<string>();
-  const header = lines.find((line) => line.trim().toUpperCase().startsWith('#EXTM3U'))?.trim() ?? '';
+  const header =
+    lines.find((line) => line.trim().toUpperCase().startsWith('#EXTM3U'))?.trim() ?? '';
   const headerAttributes = parseAttributes(header.slice('#EXTM3U'.length));
   const extraHeaderAttributes = Object.fromEntries(
     Object.entries(headerAttributes).filter(([key]) => !KNOWN_HEADER_ATTRIBUTES.has(key)),
@@ -379,13 +445,17 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
       continue;
     }
 
-    const entry = createEntry(pending ?? {
-      duration: -1,
-      title: '',
-      attributes: {},
-      headers: {},
-      directives: [],
-    }, line, safeOptions);
+    const entry = createEntry(
+      pending ?? {
+        duration: -1,
+        title: '',
+        attributes: {},
+        headers: {},
+        directives: [],
+      },
+      line,
+      safeOptions,
+    );
     pending = null;
     if (!entry) {
       warnings.push(`Entry at line ${lineIndex + 1} has an empty media URL`);
@@ -406,7 +476,8 @@ export function parseM3u(content: string, options: Partial<ParseM3uOptions> = {}
     epgUrls,
     entries,
     warnings,
-    extraHeaderAttributes: Object.keys(extraHeaderAttributes).length > 0 ? extraHeaderAttributes : undefined,
+    extraHeaderAttributes:
+      Object.keys(extraHeaderAttributes).length > 0 ? extraHeaderAttributes : undefined,
     extraDirectives: extraDirectives.length > 0 ? extraDirectives : undefined,
   };
 }
@@ -430,8 +501,11 @@ export function getM3uSeriesGroups(playlist: M3uPlaylist): Map<string, M3uEntry[
   }
   for (const episodes of groups.values()) {
     episodes.sort((left, right) => {
-      const seasonDifference = (left.episode?.seasonNumber ?? 0) - (right.episode?.seasonNumber ?? 0);
-      return seasonDifference || (left.episode?.episodeNumber ?? 0) - (right.episode?.episodeNumber ?? 0);
+      const seasonDifference =
+        (left.episode?.seasonNumber ?? 0) - (right.episode?.seasonNumber ?? 0);
+      return (
+        seasonDifference || (left.episode?.episodeNumber ?? 0) - (right.episode?.episodeNumber ?? 0)
+      );
     });
   }
   return groups;
@@ -465,11 +539,15 @@ export function generateM3u(playlist: GenerateM3uOptions): string {
   if (playlist.name) {
     headerParts.push(quotedAttribute('playlist-name', playlist.name));
   }
-  for (const [name, value] of Object.entries(preserveUnknownTags ? playlist.extraHeaderAttributes || {} : {})) {
-    if (!KNOWN_HEADER_ATTRIBUTES.has(name.toLowerCase()) && value) headerParts.push(quotedAttribute(name, value));
+  for (const [name, value] of Object.entries(
+    preserveUnknownTags ? playlist.extraHeaderAttributes || {} : {},
+  )) {
+    if (!KNOWN_HEADER_ATTRIBUTES.has(name.toLowerCase()) && value)
+      headerParts.push(quotedAttribute(name, value));
   }
   lines.push(headerParts.join(' '));
-  if (preserveUnknownTags) lines.push(...(playlist.extraDirectives || []).filter((line) => line.startsWith('#')));
+  if (preserveUnknownTags)
+    lines.push(...(playlist.extraDirectives || []).filter((line) => line.startsWith('#')));
 
   for (const entry of playlist.entries) {
     const duration = Number.isFinite(entry.duration) ? entry.duration : -1;
@@ -484,7 +562,8 @@ export function generateM3u(playlist: GenerateM3uOptions): string {
     if (entry.catchupDays !== undefined && Number.isFinite(entry.catchupDays)) {
       attributes.push(`catchup-days="${entry.catchupDays}"`);
     }
-    if (entry.catchupSource) attributes.push(quotedAttribute('catchup-source', entry.catchupSource));
+    if (entry.catchupSource)
+      attributes.push(quotedAttribute('catchup-source', entry.catchupSource));
     if (entry.description) attributes.push(quotedAttribute('description', entry.description));
     if (entry.year) attributes.push(quotedAttribute('year', entry.year));
     if (entry.rating !== undefined && Number.isFinite(entry.rating)) {
@@ -492,8 +571,11 @@ export function generateM3u(playlist: GenerateM3uOptions): string {
     }
     if (entry.radio) attributes.push('radio="true"');
     attributes.push(quotedAttribute('movena-type', entry.type));
-    for (const [name, value] of Object.entries(preserveUnknownTags ? entry.extraAttributes || {} : {})) {
-      if (!KNOWN_ENTRY_ATTRIBUTES.has(name.toLowerCase()) && value) attributes.push(quotedAttribute(name, value));
+    for (const [name, value] of Object.entries(
+      preserveUnknownTags ? entry.extraAttributes || {} : {},
+    )) {
+      if (!KNOWN_ENTRY_ATTRIBUTES.has(name.toLowerCase()) && value)
+        attributes.push(quotedAttribute(name, value));
     }
 
     const attrString = attributes.length > 0 ? ` ${attributes.join(' ')}` : '';
@@ -503,7 +585,8 @@ export function generateM3u(playlist: GenerateM3uOptions): string {
       lines.push(`#EXTGRP:${entry.groupTitle}`);
     }
 
-    if (preserveUnknownTags) lines.push(...(entry.extraDirectives || []).filter((line) => line.startsWith('#')));
+    if (preserveUnknownTags)
+      lines.push(...(entry.extraDirectives || []).filter((line) => line.startsWith('#')));
 
     if (entry.headers && Object.keys(entry.headers).length > 0) {
       const extraHeaders: Record<string, string> = {};
@@ -521,7 +604,8 @@ export function generateM3u(playlist: GenerateM3uOptions): string {
           extraHeaders[key] = value;
         }
       }
-      if (Object.keys(extraHeaders).length > 0) lines.push(`#EXTHTTP:${JSON.stringify(extraHeaders)}`);
+      if (Object.keys(extraHeaders).length > 0)
+        lines.push(`#EXTHTTP:${JSON.stringify(extraHeaders)}`);
     }
 
     lines.push(entry.url);

@@ -2,10 +2,10 @@ import { lazy, Suspense } from 'react';
 import type { MediaItem } from '../catalog/MediaCard';
 
 const MovieDetailModal = lazy(() =>
-  import('./MovieDetailModal').then((module) => ({ default: module.MovieDetailModal }))
+  import('./MovieDetailModal').then((module) => ({ default: module.MovieDetailModal })),
 );
 const SeriesDetailModal = lazy(() =>
-  import('./SeriesDetailModal').then((module) => ({ default: module.SeriesDetailModal }))
+  import('./SeriesDetailModal').then((module) => ({ default: module.SeriesDetailModal })),
 );
 
 function positiveNumber(value: string | number | undefined): number | undefined {

@@ -1,5 +1,16 @@
 import { useId, useState } from 'react';
-import { ChevronDown, ChevronUp, Clock, Download, Film, Heart, Play, RotateCcw, Settings, Star } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Download,
+  Film,
+  Heart,
+  Play,
+  RotateCcw,
+  Settings,
+  Star,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getXtreamCredentials, useAuthStore } from '../../store/useAuthStore';
 import { getStreamUrl } from '../../api/xc';
@@ -37,39 +48,49 @@ export function MovieDetailModal(props: MovieDetailModalProps) {
   return <XtreamMovieDetailModal {...props} />;
 }
 
-function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, sourceItemId, onClose }: MovieDetailModalProps) {
+function XtreamMovieDetailModal({
+  movieId,
+  movieTitle,
+  moviePoster,
+  sourceId,
+  sourceItemId,
+  onClose,
+}: MovieDetailModalProps) {
   const { t, language, number } = useI18n();
   const navigate = useNavigate();
   const credentials = useAuthStore((state) => {
     const resolvedSourceId = sourceId === 'xtream' ? state.profiles[0]?.id : sourceId;
-    return resolvedSourceId ? state.runtimes[resolvedSourceId]?.credentials ?? null : getXtreamCredentials();
+    return resolvedSourceId
+      ? (state.runtimes[resolvedSourceId]?.credentials ?? null)
+      : getXtreamCredentials();
   });
   const providerMovieId = sourceItemId || movieId;
   const playStream = usePlayerStore((state) => state.playStream);
   const [imageError, setImageError] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const titleId = useId();
-  
-  const isFav = useLibraryStore(state => state.favorites.some(f => f.id === movieId));
-  const addFavorite = useLibraryStore(state => state.addFavorite);
-  const removeFavorite = useLibraryStore(state => state.removeFavorite);
+
+  const isFav = useLibraryStore((state) => state.favorites.some((f) => f.id === movieId));
+  const addFavorite = useLibraryStore((state) => state.addFavorite);
+  const removeFavorite = useLibraryStore((state) => state.removeFavorite);
 
   const { data, isLoading, error, isFetching, refetch } = useVodInfo(providerMovieId, sourceId);
   const enriched = useTmdbDetailEnrichment('movie', movieTitle);
   const toggleFavorite = () => {
     if (isFav) removeFavorite(movieId);
-    else addFavorite({
-      id: movieId,
-      title: movieTitle,
-      posterUrl: moviePoster,
-      type: 'vod',
-      sourceItemId: providerMovieId,
-      streamUrl: data?.movie_data.direct_stream_url,
-      httpHeaders: data?.movie_data.http_headers,
-      sourceId: data?.movie_data.source_id,
-      containerExtension: data?.movie_data.container_extension,
-      description: data?.info.description || data?.info.plot,
-    });
+    else
+      addFavorite({
+        id: movieId,
+        title: movieTitle,
+        posterUrl: moviePoster,
+        type: 'vod',
+        sourceItemId: providerMovieId,
+        streamUrl: data?.movie_data.direct_stream_url,
+        httpHeaders: data?.movie_data.http_headers,
+        sourceId: data?.movie_data.source_id,
+        containerExtension: data?.movie_data.container_extension,
+        description: data?.info.description || data?.info.plot,
+      });
   };
   const [isRetryingDetails, setIsRetryingDetails] = useState(false);
   const prerequisiteError = !credentials
@@ -94,7 +115,7 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
     }
   };
 
-  const historyItem = useLibraryStore(state => state.history.find(h => h.id === movieId));
+  const historyItem = useLibraryStore((state) => state.history.find((h) => h.id === movieId));
   const remainingLabel = formatRemaining(historyItem?.currentTime, historyItem?.duration, language);
 
   const detailPresentation = buildDetailPresentation({
@@ -109,9 +130,15 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
     data?.info.name || movieTitle,
     Number.isFinite(releaseYear) ? String(releaseYear) : undefined,
   );
-  const plot = enriched?.overview || data?.info.description || data?.info.plot || t('No description available.');
+  const plot =
+    enriched?.overview ||
+    data?.info.description ||
+    data?.info.plot ||
+    t('No description available.');
   const rating = enriched?.voteAverage ?? data?.info.rating;
-  const duration = enriched?.runtimeMinutes ? t('{count} min', { count: number(enriched.runtimeMinutes) }) : data?.info.duration;
+  const duration = enriched?.runtimeMinutes
+    ? t('{count} min', { count: number(enriched.runtimeMinutes) })
+    : data?.info.duration;
   const displayCountry = parsedTitle.country ? countryName(parsedTitle.country, language) : null;
   const hasMoreDetails = plot.length > 280 || castList.length > 4;
   const progress = Math.min(100, Math.max(0, historyItem?.progressPercentage || 0));
@@ -123,10 +150,18 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
 
   const handlePlay = (startFromBeginning = false) => {
     if (!data) return;
-    const streamUrl = data.movie_data.direct_stream_url
-      || (credentials ? getStreamUrl(credentials, 'vod', providerMovieId, data.movie_data.container_extension || 'mp4') : '');
+    const streamUrl =
+      data.movie_data.direct_stream_url ||
+      (credentials
+        ? getStreamUrl(
+            credentials,
+            'vod',
+            providerMovieId,
+            data.movie_data.container_extension || 'mp4',
+          )
+        : '');
     if (!streamUrl) return;
-    const startPos = startFromBeginning ? 0 : (historyItem?.currentTime || 0);
+    const startPos = startFromBeginning ? 0 : historyItem?.currentTime || 0;
     playStream({
       id: movieId,
       sourceItemId: providerMovieId,
@@ -146,8 +181,16 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
 
   const handleDownload = () => {
     if (!data) return;
-    const streamUrl = data.movie_data.direct_stream_url
-      || (credentials ? getStreamUrl(credentials, 'vod', providerMovieId, data.movie_data.container_extension || 'mp4') : '');
+    const streamUrl =
+      data.movie_data.direct_stream_url ||
+      (credentials
+        ? getStreamUrl(
+            credentials,
+            'vod',
+            providerMovieId,
+            data.movie_data.container_extension || 'mp4',
+          )
+        : '');
     void downloadMediaItem({
       id: movieId,
       title: parsedTitle.cleanTitle,
@@ -176,9 +219,16 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
           detail={visibleErrorPresentation.detail}
           actionIcon={!error && !credentials ? Settings : undefined}
           actionLabel={error ? 'Try Again' : !credentials ? 'Open Settings' : 'Close'}
-          onAction={error
-            ? () => void retryDetails()
-            : !credentials ? () => { onClose(); navigate('/settings?section=sources'); } : onClose}
+          onAction={
+            error
+              ? () => void retryDetails()
+              : !credentials
+                ? () => {
+                    onClose();
+                    navigate('/settings?section=sources');
+                  }
+                : onClose
+          }
           isRetrying={isRetryingDetails || isFetching}
         />
       ) : isLoading ? (
@@ -203,10 +253,10 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
                     <span className={styles.posterPlaceholderTitle}>{parsedTitle.cleanTitle}</span>
                   </div>
                 ) : (
-                  <img 
-                    src={enriched?.posterUrl || data.info.movie_image || moviePoster} 
+                  <img
+                    src={enriched?.posterUrl || data.info.movie_image || moviePoster}
                     alt={parsedTitle.cleanTitle}
-                    className={styles.poster} 
+                    className={styles.poster}
                     onError={() => setImageError(true)}
                   />
                 )}
@@ -231,7 +281,10 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
                       </span>
                       {progress > 0 && (
                         <span className={styles.actionProgress} aria-hidden="true">
-                          <span className={styles.actionProgressFill} style={{ width: `${progress}%` }} />
+                          <span
+                            className={styles.actionProgressFill}
+                            style={{ width: `${progress}%` }}
+                          />
                         </span>
                       )}
                     </button>
@@ -264,7 +317,7 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
                     aria-label={t(isFav ? 'Remove from favorites' : 'Add to favorites')}
                     aria-pressed={isFav}
                   >
-                    <Heart size={18} fill={isFav ? "currentColor" : "none"} />
+                    <Heart size={18} fill={isFav ? 'currentColor' : 'none'} />
                   </button>
                   <button
                     type="button"
@@ -280,11 +333,15 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
 
             {/* Right: Main details & credits */}
             <div className={`${styles.detailsArea} subtle-scrollbar`}>
-              <h1 id={titleId} className={styles.title}>{parsedTitle.cleanTitle}</h1>
+              <h1 id={titleId} className={styles.title}>
+                {parsedTitle.cleanTitle}
+              </h1>
 
               {/* Media Facts Bar */}
               <div className={styles.mediaFacts}>
-                {Number.isFinite(releaseYear) && <span className={styles.factItem}>{releaseYear}</span>}
+                {Number.isFinite(releaseYear) && (
+                  <span className={styles.factItem}>{releaseYear}</span>
+                )}
                 {duration && (
                   <span className={styles.factItem}>
                     <Clock size={14} /> {duration}
@@ -295,9 +352,7 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
                     <Star size={14} fill="currentColor" className={styles.starIcon} /> {rating}
                   </span>
                 )}
-                {genres && (
-                  <span className={styles.factItem}>{genres}</span>
-                )}
+                {genres && <span className={styles.factItem}>{genres}</span>}
                 {displayCountry && <span className={styles.factItem}>{displayCountry}</span>}
                 {getPrimaryMediaTags(parsedTitle.tags).map((tag) => (
                   <span
@@ -311,7 +366,9 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
               </div>
 
               {/* Synopsis plot */}
-              <div className={`${styles.plot} ${detailsExpanded ? styles.expandedText : styles.collapsedText}`}>
+              <div
+                className={`${styles.plot} ${detailsExpanded ? styles.expandedText : styles.collapsedText}`}
+              >
                 {plot}
               </div>
 
@@ -357,5 +414,3 @@ function XtreamMovieDetailModal({ movieId, movieTitle, moviePoster, sourceId, so
     </DetailModalShell>
   );
 }
-
-

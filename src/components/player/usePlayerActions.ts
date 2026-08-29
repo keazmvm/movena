@@ -23,7 +23,7 @@ export function usePlayerActions(
         if (feedbackTimeoutRef.current) window.clearTimeout(feedbackTimeoutRef.current);
         feedbackTimeoutRef.current = window.setTimeout(
           () => usePlayerStore.getState().clearFeedback(),
-          MOTION_DURATION.feedback * 1000
+          MOTION_DURATION.feedback * 1000,
         );
       }
     });
@@ -47,7 +47,13 @@ export function usePlayerActions(
       const state = usePlayerStore.getState();
       state.triggerFeedback(state.isPlaying ? 'pause' : 'play');
     } catch (error) {
-      notify.error('Playback Control Failed', getErrorMessage(error, 'mpv_play_pause failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        'Playback Control Failed',
+        getErrorMessage(error, 'mpv_play_pause failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   }, []);
 
@@ -60,7 +66,13 @@ export function usePlayerActions(
       await tauriApi.mpvSetVolume(volume);
       state.triggerFeedback('volume', volume);
     } catch (error) {
-      notify.error('Volume Failed', getErrorMessage(error, 'mpv_set_volume failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        'Volume Failed',
+        getErrorMessage(error, 'mpv_set_volume failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   }, [lastAudibleVolume]);
 
@@ -71,18 +83,35 @@ export function usePlayerActions(
       await tauriApi.mpvSetVolume(volume);
       state.triggerFeedback('volume', volume);
     } catch (error) {
-      notify.error('Volume Failed', getErrorMessage(error, 'mpv_set_volume failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        'Volume Failed',
+        getErrorMessage(error, 'mpv_set_volume failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   }, []);
 
   const seekRelative = useCallback(async (seconds: number) => {
     try {
       const state = usePlayerStore.getState();
-      const target = Math.max(0, state.duration > 0 ? Math.min(state.duration, state.currentTime + seconds) : state.currentTime + seconds);
+      const target = Math.max(
+        0,
+        state.duration > 0
+          ? Math.min(state.duration, state.currentTime + seconds)
+          : state.currentTime + seconds,
+      );
       usePlayerStore.setState({ currentTime: target, isBuffering: true });
       await tauriApi.mpvSeekRelative(seconds);
     } catch (error) {
-      notify.error('Seek Failed', getErrorMessage(error, 'mpv_seek_relative failed without an error message.'), undefined, undefined, 'playback');
+      notify.error(
+        'Seek Failed',
+        getErrorMessage(error, 'mpv_seek_relative failed without an error message.'),
+        undefined,
+        undefined,
+        'playback',
+      );
     }
   }, []);
 
@@ -94,7 +123,8 @@ export function usePlayerActions(
   useEffect(() => {
     if (!activeStream) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
+        return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (interactionsDisabled) {
         if (event.key === 'Escape') {
@@ -150,7 +180,17 @@ export function usePlayerActions(
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeStream, adjustVolume, handleClose, interactionsDisabled, seekJumpSecs, seekRelative, toggleFullscreen, toggleMute, togglePlayPause]);
+  }, [
+    activeStream,
+    adjustVolume,
+    handleClose,
+    interactionsDisabled,
+    seekJumpSecs,
+    seekRelative,
+    toggleFullscreen,
+    toggleMute,
+    togglePlayPause,
+  ]);
 
   const handleOverlayClick = useCallback(() => {
     if (interactionsDisabled) return;

@@ -66,10 +66,10 @@ describe('provider title normalization', () => {
   });
 
   it('extracts movie editions as clean metadata badges', () => {
-    expect(parseMediaTitle('Blade Runner 2049 - Director\'s Cut')).toEqual({
+    expect(parseMediaTitle("Blade Runner 2049 - Director's Cut")).toEqual({
       cleanTitle: 'Blade Runner 2049',
       country: null,
-      tags: ['Director\'s Cut'],
+      tags: ["Director's Cut"],
     });
     expect(parseMediaTitle('Avatar (2009) Extended Cut IMAX')).toEqual({
       cleanTitle: 'Avatar (2009)',
@@ -181,10 +181,13 @@ describe('provider title normalization', () => {
   it('removes trailing provider separators and hash-wrapped EPG promos', () => {
     expect(parseLiveChannelTitle('DOCUMENTARY /').cleanTitle).toBe('DOCUMENTARY');
     expect(parseLiveChannelTitle('GENERAL /').cleanTitle).toBe('GENERAL');
-    expect(cleanProviderDescription("The 'Why Am I Still Awake?' Show on ##### DOCUMENTARY HD/4K #####"))
-      .toBe("The 'Why Am I Still Awake?' Show");
+    expect(
+      cleanProviderDescription("The 'Why Am I Still Awake?' Show on ##### DOCUMENTARY HD/4K #####"),
+    ).toBe("The 'Why Am I Still Awake?' Show");
     expect(cleanProviderDescription('##### DOCUMENTARY HD/4K #####')).toBe('');
-    expect(cleanProviderDescription('A normal description / with punctuation')).toBe('A normal description / with punctuation');
+    expect(cleanProviderDescription('A normal description / with punctuation')).toBe(
+      'A normal description / with punctuation',
+    );
   });
 
   it('strips telegram and web promotional fluff', () => {
@@ -203,13 +206,13 @@ describe('provider title normalization', () => {
       { id: '2', pattern: '\\[BACKUP\\]', isRegex: true, enabled: true },
       { id: '3', pattern: 'DISABLED_RULE', isRegex: false, enabled: false },
     ];
-    expect(applyCustomTitleRules('PROMO Sky Sport [BACKUP] DISABLED_RULE', rules))
-      .toBe('Sky Sport DISABLED_RULE');
+    expect(applyCustomTitleRules('PROMO Sky Sport [BACKUP] DISABLED_RULE', rules)).toBe(
+      'Sky Sport DISABLED_RULE',
+    );
   });
 
   it('keeps episode titles while removing the provider prefix', () => {
-    expect(getSeriesBaseTitle('4K-DE-DV - MobLand - S01E01 - Stick or Twist'))
-      .toBe('MobLand');
+    expect(getSeriesBaseTitle('4K-DE-DV - MobLand - S01E01 - Stick or Twist')).toBe('MobLand');
   });
 
   it('removes a standalone provider territory suffix without removing a year', () => {
@@ -249,8 +252,9 @@ describe('provider title normalization', () => {
   });
 
   it('formats clean playback titles for episode history and player chrome', () => {
-    expect(formatEpisodePlaybackTitle('DE - Severance (2022)', 2, 4, 'Severance S02E04 Woe\'s Hollow'))
-      .toBe('Severance (2022) · S2:E4 · Woe\'s Hollow');
+    expect(
+      formatEpisodePlaybackTitle('DE - Severance (2022)', 2, 4, "Severance S02E04 Woe's Hollow"),
+    ).toBe("Severance (2022) · S2:E4 · Woe's Hollow");
   });
 });
 
@@ -262,7 +266,7 @@ describe('media tag normalization and filtering', () => {
     expect(normalizeMediaTag('720p')).toBe('HD');
     expect(normalizeMediaTag('Dolby Atmos')).toBe('ATMOS');
     expect(normalizeMediaTag('DTS-HD MA')).toBe('DTS-HD');
-    expect(normalizeMediaTag('Director\'s Cut')).toBe('Director\'s Cut');
+    expect(normalizeMediaTag("Director's Cut")).toBe("Director's Cut");
     expect(normalizeMediaTag('Extended Edition')).toBe('Extended Cut');
     expect(normalizeMediaTag('IMAX Enhanced')).toBe('IMAX');
   });
@@ -271,23 +275,25 @@ describe('media tag normalization and filtering', () => {
     expect(getMediaTagCategory('4K')).toBe('resolution');
     expect(getMediaTagCategory('60FPS')).toBe('fps');
     expect(getMediaTagCategory('ATMOS')).toBe('audio');
-    expect(getMediaTagCategory('Director\'s Cut')).toBe('edition');
+    expect(getMediaTagCategory("Director's Cut")).toBe('edition');
   });
 
   it('filters tags by visibility settings', () => {
     const tags = ['4K', '60FPS', 'ATMOS', 'Extended Cut'];
-    expect(filterMediaTagsByVisibility(tags, {
-      resolution: true,
-      fps: false,
-      audio: true,
-      edition: false,
-    })).toEqual(['4K', 'ATMOS']);
+    expect(
+      filterMediaTagsByVisibility(tags, {
+        resolution: true,
+        fps: false,
+        audio: true,
+        edition: false,
+      }),
+    ).toEqual(['4K', 'ATMOS']);
   });
 
   it('assigns appropriate color types to tag badges', () => {
     expect(getTagColorType('4K')).toBe('gold');
     expect(getTagColorType('IMAX')).toBe('gold');
-    expect(getTagColorType('Director\'s Cut')).toBe('purple');
+    expect(getTagColorType("Director's Cut")).toBe('purple');
     expect(getTagColorType('ATMOS')).toBe('purple');
     expect(getTagColorType('Extended Cut')).toBe('cyan');
     expect(getTagColorType('DTS-HD')).toBe('green');

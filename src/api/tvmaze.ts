@@ -18,12 +18,18 @@ async function tvmazeRequest(path: string, signal?: AbortSignal): Promise<unknow
     ...(signal ? { signal } : {}),
     headers: { Accept: 'application/json' },
   });
-  if (!response.ok) throw new Error(`TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`);
+  if (!response.ok)
+    throw new Error(
+      `TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`,
+    );
   return response.json();
 }
 
 /** Search TVmaze shows by the canonical clean display title. */
-export async function searchTvmazeShows(query: string, signal?: AbortSignal): Promise<NormalizedTvmazeShow[]> {
+export async function searchTvmazeShows(
+  query: string,
+  signal?: AbortSignal,
+): Promise<NormalizedTvmazeShow[]> {
   const title = cleanTvmazeSearchTitle(query);
   if (!title) return [];
   const url = new URL('/search/shows', TVMAZE_API);
@@ -32,7 +38,10 @@ export async function searchTvmazeShows(query: string, signal?: AbortSignal): Pr
     ...(signal ? { signal } : {}),
     headers: { Accept: 'application/json' },
   });
-  if (!response.ok) throw new Error(`TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`);
+  if (!response.ok)
+    throw new Error(
+      `TVmaze request failed (HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''})`,
+    );
   return normalizeTvmazeShowSearch(await response.json());
 }
 

@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import type { DesktopUpdate } from '../api/desktop';
-import { checkForAppUpdates, installAppUpdate, type UpdateDownloadProgress, type UpdateInfo } from '../services/appUpdater';
+import {
+  checkForAppUpdates,
+  installAppUpdate,
+  type UpdateDownloadProgress,
+  type UpdateInfo,
+} from '../services/appUpdater';
 import { useSettingsStore } from './useSettingsStore';
 
 type UpdatePhase = 'idle' | 'checking' | 'available' | 'downloading' | 'restarting';
@@ -37,7 +42,13 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
       const result = await checkForAppUpdates();
       useSettingsStore.getState().updateSetting('lastUpdateCheckTime', Date.now());
       if (result.available && result.updateInfo && result.update) {
-        set({ phase: 'available', info: result.updateInfo, handle: result.update, progress: null, error: null });
+        set({
+          phase: 'available',
+          info: result.updateInfo,
+          handle: result.update,
+          progress: null,
+          error: null,
+        });
         return;
       }
       set({ phase: 'idle', info: null, handle: null, progress: null, error: result.error ?? null });
@@ -54,7 +65,8 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
     set({ phase: 'downloading', progress: { downloaded: 0, total: null }, error: null });
     try {
       await installAppUpdate(handle, {
-        onProgress: (progress) => set((state) => (state.phase === 'downloading' ? { progress } : {})),
+        onProgress: (progress) =>
+          set((state) => (state.phase === 'downloading' ? { progress } : {})),
         onInstalled: () => set({ phase: 'restarting' }),
       });
       // installAppUpdate relaunches the app on success — this line normally

@@ -11,7 +11,12 @@ import { useSeriesInfo, useVodInfo } from '../../src/api/useDetails';
 import { useAuthStore } from '../../src/store/useAuthStore';
 
 const sourceId = 'xtream-details';
-const credentials = { sourceId, url: 'https://provider.test', username: 'alice', password: 'secret' };
+const credentials = {
+  sourceId,
+  url: 'https://provider.test',
+  username: 'alice',
+  password: 'secret',
+};
 
 function wrapperFactory() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -26,7 +31,19 @@ function wrapperFactory() {
 beforeEach(() => {
   vi.clearAllMocks();
   useAuthStore.setState({
-    profiles: [{ id: sourceId, kind: 'xtream', name: 'Details', locationLabel: 'provider.test', username: 'alice', userInfo: { auth: 1 }, serverInfo: {}, createdAt: 1, updatedAt: 1 }],
+    profiles: [
+      {
+        id: sourceId,
+        kind: 'xtream',
+        name: 'Details',
+        locationLabel: 'provider.test',
+        username: 'alice',
+        userInfo: { auth: 1 },
+        serverInfo: {},
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    ],
     runtimes: { [sourceId]: { credentials, status: 'ready', error: null, revision: 1 } },
   } as never);
 });
@@ -49,12 +66,20 @@ describe('detail query mapping', () => {
     xc.getSeriesInfo.mockResolvedValue({
       info: { name: 'Show' },
       seasons: [],
-      episodes: { '1': [{ id: 11, episode_num: 1 }, { id: 12, episode_num: 2 }] },
+      episodes: {
+        '1': [
+          { id: 11, episode_num: 1 },
+          { id: 12, episode_num: 2 },
+        ],
+      },
     });
     const { wrapper } = wrapperFactory();
     const { result } = renderHook(() => useSeriesInfo(99, sourceId), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.episodes['1']!.map((episode) => episode.source_id)).toEqual([sourceId, sourceId]);
+    expect(result.current.data?.episodes['1']!.map((episode) => episode.source_id)).toEqual([
+      sourceId,
+      sourceId,
+    ]);
 
     const unavailable = renderHook(() => useVodInfo(undefined, sourceId), { wrapper });
     await new Promise((resolve) => setTimeout(resolve, 0));

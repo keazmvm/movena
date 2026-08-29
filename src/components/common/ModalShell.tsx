@@ -43,7 +43,11 @@ export function ModalShell({
   const stopPropagation = (event: MouseEvent<HTMLDivElement>) => event.stopPropagation();
 
   return createPortal(
-    <div className={`uiModalOverlay ${overlayClassName ?? ''}`} data-ui-layer="modal" onMouseDown={dismiss}>
+    <div
+      className={`uiModalOverlay ${overlayClassName ?? ''}`}
+      data-ui-layer="modal"
+      onMouseDown={dismiss}
+    >
       <div
         ref={panelRef}
         className={`${className ?? ''} uiModalPanel`}

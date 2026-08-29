@@ -15,7 +15,7 @@ export function LiveTV() {
       const playable = playableFromMediaItem({ ...item, type: 'live' }, credentials);
       if (playable) playStream(playable);
     },
-    [credentials, playStream]
+    [credentials, playStream],
   );
 
   return (

@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanTvmazeSearchTitle, getTvmazeEpisodes, getTvmazeUpcomingEpisodes, searchTvmazeShows } from '../../src/api/tvmaze';
+import {
+  cleanTvmazeSearchTitle,
+  getTvmazeEpisodes,
+  getTvmazeUpcomingEpisodes,
+  searchTvmazeShows,
+} from '../../src/api/tvmaze';
 import {
   findFutureTvmazeEpisodes,
   findNextTvmazeEpisode,
@@ -12,7 +17,14 @@ afterEach(() => vi.unstubAllGlobals());
 describe('TVmaze normalization', () => {
   it('normalizes unique show search results and validated external ids', () => {
     const shows = normalizeTvmazeShowSearch([
-      { score: 1, show: { id: 1, name: '  Example Show  ', externals: { imdb: 'tt1234567', thetvdb: 9, tvrage: 22 } } },
+      {
+        score: 1,
+        show: {
+          id: 1,
+          name: '  Example Show  ',
+          externals: { imdb: 'tt1234567', thetvdb: 9, tvrage: 22 },
+        },
+      },
       { score: 0.5, show: { id: 1, name: 'Duplicate' } },
       { score: 0, show: { id: 'bad', name: 'Invalid' } },
       { score: 0, show: { id: 2, name: 'Second', externals: { imdb: 'not-an-id', thetvdb: '3' } } },
@@ -29,19 +41,27 @@ describe('TVmaze normalization', () => {
     expect(normalizeTvmazeAirstamp('2026-08-13T20:00:00')).toBeNull();
     expect(normalizeTvmazeAirstamp('2026-08-13T20:00:00-04:00')).toBe('2026-08-13T20:00:00-04:00');
 
-    const next = findNextTvmazeEpisode([
-      { id: 4, name: 'No exact time', airstamp: null },
-      { id: 3, name: 'Later', season: 2, number: 2, airstamp: '2026-08-14T20:00:00Z' },
-      { id: 2, name: 'Sooner', season: 2, number: 1, airstamp: '2026-08-13T20:00:00-04:00' },
-      { id: 1, name: 'Already aired', airstamp: '2026-08-12T20:00:00Z' },
-    ], new Date('2026-08-13T12:00:00Z'));
+    const next = findNextTvmazeEpisode(
+      [
+        { id: 4, name: 'No exact time', airstamp: null },
+        { id: 3, name: 'Later', season: 2, number: 2, airstamp: '2026-08-14T20:00:00Z' },
+        { id: 2, name: 'Sooner', season: 2, number: 1, airstamp: '2026-08-13T20:00:00-04:00' },
+        { id: 1, name: 'Already aired', airstamp: '2026-08-12T20:00:00Z' },
+      ],
+      new Date('2026-08-13T12:00:00Z'),
+    );
 
     expect(next).toMatchObject({ id: 2, name: 'Sooner', seasonNumber: 2, episodeNumber: 1 });
-    expect(findFutureTvmazeEpisodes([
-      { id: 3, name: 'Later', season: 2, number: 2, airstamp: '2026-08-14T20:00:00Z' },
-      { id: 2, name: 'Sooner', season: 2, number: 1, airstamp: '2026-08-13T20:00:00-04:00' },
-      { id: 1, name: 'Already aired', airstamp: '2026-08-12T20:00:00Z' },
-    ], new Date('2026-08-13T12:00:00Z')).map((episode) => episode.id)).toEqual([2, 3]);
+    expect(
+      findFutureTvmazeEpisodes(
+        [
+          { id: 3, name: 'Later', season: 2, number: 2, airstamp: '2026-08-14T20:00:00Z' },
+          { id: 2, name: 'Sooner', season: 2, number: 1, airstamp: '2026-08-13T20:00:00-04:00' },
+          { id: 1, name: 'Already aired', airstamp: '2026-08-12T20:00:00Z' },
+        ],
+        new Date('2026-08-13T12:00:00Z'),
+      ).map((episode) => episode.id),
+    ).toEqual([2, 3]);
   });
 });
 
@@ -49,14 +69,21 @@ describe('TVmaze API boundary', () => {
   it('cleans a provider title, safely searches without a key, and forwards the abort signal', async () => {
     expect(cleanTvmazeSearchTitle('4K-DE - Example Show (2026)')).toBe('Example Show');
     const controller = new AbortController();
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([
-      { show: { id: 7, name: 'Example Show', externals: { imdb: 'tt9876543' } } },
-    ]), { status: 200 }));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify([
+            { show: { id: 7, name: 'Example Show', externals: { imdb: 'tt9876543' } } },
+          ]),
+          { status: 200 },
+        ),
+      );
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(searchTvmazeShows('4K-DE - Example Show (2026)', controller.signal)).resolves.toMatchObject([
-      { id: 7, name: 'Example Show' },
-    ]);
+    await expect(
+      searchTvmazeShows('4K-DE - Example Show (2026)', controller.signal),
+    ).resolves.toMatchObject([{ id: 7, name: 'Example Show' }]);
     const request = fetchMock.mock.calls[0]!;
     const url = new URL(request[0]!.toString());
     expect(url.origin).toBe('https://api.tvmaze.com');
@@ -66,14 +93,21 @@ describe('TVmaze API boundary', () => {
   });
 
   it('uses one ordinary-episodes request and returns every exact future timestamp', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([
-      { id: 4, name: 'Past', season: 3, number: 3, airstamp: '2026-08-12T20:00:00Z' },
-      { id: 5, name: 'Future', season: 3, number: 4, airstamp: '2026-08-13T20:00:00Z' },
-      { id: 6, name: 'Later', season: 3, number: 5, airstamp: '2026-08-20T20:00:00Z' },
-    ]), { status: 200 }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          { id: 4, name: 'Past', season: 3, number: 3, airstamp: '2026-08-12T20:00:00Z' },
+          { id: 5, name: 'Future', season: 3, number: 4, airstamp: '2026-08-13T20:00:00Z' },
+          { id: 6, name: 'Later', season: 3, number: 5, airstamp: '2026-08-20T20:00:00Z' },
+        ]),
+        { status: 200 },
+      ),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(getTvmazeUpcomingEpisodes(9, undefined, new Date('2026-08-13T12:00:00Z'))).resolves.toMatchObject([
+    await expect(
+      getTvmazeUpcomingEpisodes(9, undefined, new Date('2026-08-13T12:00:00Z')),
+    ).resolves.toMatchObject([
       { id: 5, name: 'Future', airstamp: '2026-08-13T20:00:00Z' },
       { id: 6, name: 'Later', airstamp: '2026-08-20T20:00:00Z' },
     ]);
@@ -83,10 +117,15 @@ describe('TVmaze API boundary', () => {
   });
 
   it('keeps normalized past episodes in the reusable schedule response', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([
-      { id: 4, name: 'Past', season: 3, number: 3, airstamp: '2026-08-12T20:00:00Z' },
-      { id: 5, name: 'Future', season: 3, number: 4, airstamp: '2026-08-13T20:00:00Z' },
-    ]), { status: 200 }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          { id: 4, name: 'Past', season: 3, number: 3, airstamp: '2026-08-12T20:00:00Z' },
+          { id: 5, name: 'Future', season: 3, number: 4, airstamp: '2026-08-13T20:00:00Z' },
+        ]),
+        { status: 200 },
+      ),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(getTvmazeEpisodes(9)).resolves.toMatchObject([

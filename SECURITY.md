@@ -22,4 +22,3 @@ Test only systems and accounts you own or are authorized to test. Do not access
 another person's provider, media, device, or data; degrade a service; retain
 private content; or publish working secrets. Reports involving third-party
 services may need to be redirected to that service's security team.
-

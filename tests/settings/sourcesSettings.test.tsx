@@ -14,18 +14,46 @@ import { useAuthStore, type XtreamSourceProfile } from '../../src/store/useAuthS
 import { useSourceStore, type M3uSourceProfile } from '../../src/store/useSourceStore';
 
 const remoteProfile: M3uSourceProfile = {
-  id: 'm3u-12345678', kind: 'm3u', name: 'Living Room', locationType: 'remote', locationLabel: 'list.test',
-  refreshIntervalMinutes: 360, lastRefreshAt: 1, entryCount: 12, liveCount: 12, vodCount: 0, seriesCount: 0, hasEpg: true,
+  id: 'm3u-12345678',
+  kind: 'm3u',
+  name: 'Living Room',
+  locationType: 'remote',
+  locationLabel: 'list.test',
+  refreshIntervalMinutes: 360,
+  lastRefreshAt: 1,
+  entryCount: 12,
+  liveCount: 12,
+  vodCount: 0,
+  seriesCount: 0,
+  hasEpg: true,
 };
 const xtreamProfile: XtreamSourceProfile = {
-  id: 'xtream-12345678', kind: 'xtream', name: 'Main Provider', locationLabel: 'provider.test', username: 'alice',
+  id: 'xtream-12345678',
+  kind: 'xtream',
+  name: 'Main Provider',
+  locationLabel: 'provider.test',
+  username: 'alice',
   userInfo: {
-    username: 'alice', message: '', auth: 1, status: 'Active', exp_date: '0', is_trial: '0',
-    active_cons: '1', created_at: '', max_connections: '2', allowed_output_formats: ['m3u8'],
+    username: 'alice',
+    message: '',
+    auth: 1,
+    status: 'Active',
+    exp_date: '0',
+    is_trial: '0',
+    active_cons: '1',
+    created_at: '',
+    max_connections: '2',
+    allowed_output_formats: ['m3u8'],
   },
   serverInfo: {
-    url: 'provider.test', port: '80', https_port: '443', server_protocol: 'https', rtmp_port: '',
-    timestamp_now: 0, time_now: '', timezone: 'UTC',
+    url: 'provider.test',
+    port: '80',
+    https_port: '443',
+    server_protocol: 'https',
+    rtmp_port: '',
+    timestamp_now: 0,
+    time_now: '',
+    timezone: 'UTC',
   },
   createdAt: 1,
   updatedAt: 1,
@@ -41,11 +69,17 @@ beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   useAuthStore.setState({
-    profiles: [], runtimes: {},
-    isInitializing: false, initializationError: null,
+    profiles: [],
+    runtimes: {},
+    isInitializing: false,
+    initializationError: null,
   });
   useSourceStore.setState({
-    profiles: [], runtimes: {}, enabledSourceIds: [], isInitializing: false, initializationError: null,
+    profiles: [],
+    runtimes: {},
+    enabledSourceIds: [],
+    isInitializing: false,
+    initializationError: null,
   });
 });
 
@@ -82,7 +116,9 @@ describe('unified source settings', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add Source' }));
     expect(onAddSource).toHaveBeenCalledOnce();
-    expect(screen.getByText('Xtream accounts and M3U playlists live together in one source list.')).toBeTruthy();
+    expect(
+      screen.getByText('Xtream accounts and M3U playlists live together in one source list.'),
+    ).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Global Fallback Guide' })).toBeTruthy();
   });
 
@@ -95,7 +131,9 @@ describe('unified source settings', () => {
         [remoteProfile.id]: {
           connection: { location: 'https://list.test/main.m3u' },
           playlist: { entries: [], epgUrls: [], warnings: [] },
-          status: 'ready', error: null, revision: 1,
+          status: 'ready',
+          error: null,
+          revision: 1,
         },
       },
       enabledSourceIds: [],
@@ -113,10 +151,22 @@ describe('unified source settings', () => {
 
   it('states exactly how a refresh treats an edited M3U copy', async () => {
     const setEditorRefreshPolicy = vi.fn();
-    const editedProfile = { ...remoteProfile, hasLocalEdits: true, editorRefreshPolicy: 'preserve-edits' as const };
+    const editedProfile = {
+      ...remoteProfile,
+      hasLocalEdits: true,
+      editorRefreshPolicy: 'preserve-edits' as const,
+    };
     useSourceStore.setState({
       profiles: [editedProfile],
-      runtimes: { [editedProfile.id]: { connection: { location: 'https://list.test/main.m3u' }, playlist: { entries: [], epgUrls: [], warnings: [] }, status: 'ready', error: null, revision: 1 } },
+      runtimes: {
+        [editedProfile.id]: {
+          connection: { location: 'https://list.test/main.m3u' },
+          playlist: { entries: [], epgUrls: [], warnings: [] },
+          status: 'ready',
+          error: null,
+          revision: 1,
+        },
+      },
       enabledSourceIds: [editedProfile.id],
       setEditorRefreshPolicy,
     });
@@ -136,8 +186,15 @@ describe('unified source settings', () => {
       profiles: [xtreamProfile],
       runtimes: {
         [xtreamProfile.id]: {
-          credentials: { sourceId: xtreamProfile.id, url: 'https://provider.test', username: 'alice', password: 'secret' },
-          status: 'ready', error: null, revision: 1,
+          credentials: {
+            sourceId: xtreamProfile.id,
+            url: 'https://provider.test',
+            username: 'alice',
+            password: 'secret',
+          },
+          status: 'ready',
+          error: null,
+          revision: 1,
         },
       },
       removeSource,
@@ -147,7 +204,9 @@ describe('unified source settings', () => {
     render(<SourcesSettingsSection {...emptyProps} onEditXtream={onEditXtream} />);
     const user = userEvent.setup();
 
-    expect(screen.getByRole('button', { name: 'Enabled' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Enabled' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    );
     await user.click(screen.getByRole('button', { name: 'Edit' }));
     expect(onEditXtream).toHaveBeenCalledWith(xtreamProfile.id);
     await user.click(screen.getByRole('button', { name: 'Remove' }));
@@ -161,16 +220,26 @@ describe('unified source settings', () => {
     render(<M3uSourceForm onSuccess={vi.fn()} onCancel={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText('Display Name'), { target: { value: 'Living Room' } });
-    fireEvent.change(screen.getByLabelText('Playlist URL'), { target: { value: 'https://list.test/main.m3u' } });
-    fireEvent.change(screen.getByLabelText('XMLTV Override (Optional)'), { target: { value: 'https://guide.test/epg.xml' } });
+    fireEvent.change(screen.getByLabelText('Playlist URL'), {
+      target: { value: 'https://list.test/main.m3u' },
+    });
+    fireEvent.change(screen.getByLabelText('XMLTV Override (Optional)'), {
+      target: { value: 'https://guide.test/epg.xml' },
+    });
     fireEvent.change(screen.getByLabelText('Refresh Every (Hours)'), { target: { value: '12' } });
     fireEvent.change(screen.getByLabelText('User agent'), { target: { value: 'Provider App' } });
-    fireEvent.change(screen.getByLabelText('HTTP referrer'), { target: { value: 'https://portal.test/' } });
+    fireEvent.change(screen.getByLabelText('HTTP referrer'), {
+      target: { value: 'https://portal.test/' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save Source' }));
 
     expect(addRemoteSource).toHaveBeenCalledWith({
-      name: 'Living Room', url: 'https://list.test/main.m3u', epgUrl: 'https://guide.test/epg.xml',
-      userAgent: 'Provider App', referrer: 'https://portal.test/', refreshIntervalMinutes: 720,
+      name: 'Living Room',
+      url: 'https://list.test/main.m3u',
+      epgUrl: 'https://guide.test/epg.xml',
+      userAgent: 'Provider App',
+      referrer: 'https://portal.test/',
+      refreshIntervalMinutes: 720,
     });
   });
 
@@ -179,12 +248,16 @@ describe('unified source settings', () => {
     useSourceStore.setState({ addRemoteSource });
     render(<M3uSourceForm />);
 
-    fireEvent.change(screen.getByLabelText('Playlist URL'), { target: { value: 'http://list.test/main.m3u' } });
+    fireEvent.change(screen.getByLabelText('Playlist URL'), {
+      target: { value: 'http://list.test/main.m3u' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save Source' }));
 
-    expect(addRemoteSource).toHaveBeenCalledWith(expect.objectContaining({
-      url: 'http://list.test/main.m3u',
-    }));
+    expect(addRemoteSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'http://list.test/main.m3u',
+      }),
+    );
   });
 
   it('edits an existing M3U source without changing its identity', async () => {
@@ -193,8 +266,14 @@ describe('unified source settings', () => {
       profiles: [remoteProfile],
       runtimes: {
         [remoteProfile.id]: {
-          connection: { location: 'https://list.test/main.m3u', epgUrl: 'https://guide.test/old.xml' },
-          playlist: { entries: [], epgUrls: [], warnings: [] }, status: 'ready', error: null, revision: 1,
+          connection: {
+            location: 'https://list.test/main.m3u',
+            epgUrl: 'https://guide.test/old.xml',
+          },
+          playlist: { entries: [], epgUrls: [], warnings: [] },
+          status: 'ready',
+          error: null,
+          revision: 1,
         },
       },
       updateRemoteSource,
@@ -204,8 +283,13 @@ describe('unified source settings', () => {
     fireEvent.change(name, { target: { value: 'Edited' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save Source' }));
 
-    expect(updateRemoteSource).toHaveBeenCalledWith(remoteProfile.id, expect.objectContaining({
-      name: 'Edited', url: 'https://list.test/main.m3u', epgUrl: 'https://guide.test/old.xml',
-    }));
+    expect(updateRemoteSource).toHaveBeenCalledWith(
+      remoteProfile.id,
+      expect.objectContaining({
+        name: 'Edited',
+        url: 'https://list.test/main.m3u',
+        epgUrl: 'https://guide.test/old.xml',
+      }),
+    );
   });
 });

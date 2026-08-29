@@ -16,7 +16,10 @@ export interface GroupedUpcomingRelease {
 
 export type UpcomingKindFilter = 'all' | 'episode' | 'movie';
 
-export function episodeScheduleKey(seasonNumber: number | string, episodeNumber: number | string): string {
+export function episodeScheduleKey(
+  seasonNumber: number | string,
+  episodeNumber: number | string,
+): string {
   return `${Number(seasonNumber)}:${Number(episodeNumber)}`;
 }
 
@@ -28,7 +31,9 @@ export function filterUpcomingByKind(
 }
 
 /** Group releases of the same show airing on the same date (e.g. binge season drops) */
-export function groupUpcomingReleases(releases: readonly UpcomingRelease[]): GroupedUpcomingRelease[] {
+export function groupUpcomingReleases(
+  releases: readonly UpcomingRelease[],
+): GroupedUpcomingRelease[] {
   if (!releases || releases.length === 0) return [];
 
   const groups = new Map<string, UpcomingRelease[]>();
@@ -48,9 +53,10 @@ export function groupUpcomingReleases(releases: readonly UpcomingRelease[]): Gro
     if (episodeCount === 1 || primary.kind === 'movie') {
       let summarySubtitle = 'Movie premiere';
       if (primary.kind === 'episode') {
-        const code = primary.seasonNumber !== null && primary.episodeNumber !== null
-          ? `S${primary.seasonNumber} E${primary.episodeNumber}`
-          : 'Next episode';
+        const code =
+          primary.seasonNumber !== null && primary.episodeNumber !== null
+            ? `S${primary.seasonNumber} E${primary.episodeNumber}`
+            : 'Next episode';
         summarySubtitle = `${code} · ${primary.title}`;
       }
       result.push({
@@ -66,7 +72,9 @@ export function groupUpcomingReleases(releases: readonly UpcomingRelease[]): Gro
       continue;
     }
 
-    const seasons = new Set(items.map((i) => i.seasonNumber).filter((s): s is number => s !== null));
+    const seasons = new Set(
+      items.map((i) => i.seasonNumber).filter((s): s is number => s !== null),
+    );
     const episodeNumbers = items.map((i) => i.episodeNumber).filter((e): e is number => e !== null);
 
     let episodeRangeText = `${episodeCount} episodes`;
@@ -74,12 +82,14 @@ export function groupUpcomingReleases(releases: readonly UpcomingRelease[]): Gro
       const seasonNum = Array.from(seasons)[0];
       const minEp = Math.min(...episodeNumbers);
       const maxEp = Math.max(...episodeNumbers);
-      episodeRangeText = minEp === maxEp ? `S${seasonNum} E${minEp}` : `S${seasonNum} E${minEp}–E${maxEp}`;
+      episodeRangeText =
+        minEp === maxEp ? `S${seasonNum} E${minEp}` : `S${seasonNum} E${minEp}–E${maxEp}`;
     }
 
-    const summarySubtitle = episodeRangeText === `${episodeCount} episodes`
-      ? episodeRangeText
-      : `${episodeRangeText} · ${episodeCount} episodes`;
+    const summarySubtitle =
+      episodeRangeText === `${episodeCount} episodes`
+        ? episodeRangeText
+        : `${episodeRangeText} · ${episodeCount} episodes`;
 
     result.push({
       favorite: primary.favorite,
@@ -105,7 +115,9 @@ export function localCalendarDate(value: string): Date | null {
   const month = Number(match[2]);
   const day = Number(match[3]);
   const date = new Date(year, month - 1, day);
-  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+    ? date
+    : null;
 }
 
 function startOfDay(value: Date): number {
@@ -131,7 +143,10 @@ export type ReleasePhase = 'released' | 'today' | 'upcoming';
 
 /** Exact TV times become released at their actual instant. Date-only TMDB
  * releases remain "Today" for their entire local calendar day. */
-export function releasePhase(release: Pick<GroupedUpcomingRelease, 'airDate' | 'exactAirTime'>, now = new Date()): ReleasePhase | null {
+export function releasePhase(
+  release: Pick<GroupedUpcomingRelease, 'airDate' | 'exactAirTime'>,
+  now = new Date(),
+): ReleasePhase | null {
   if (release.exactAirTime) {
     const exact = exactTimestampDate(release.exactAirTime);
     if (exact && exact.getTime() <= now.getTime()) return 'released';
@@ -144,7 +159,10 @@ export function releasePhase(release: Pick<GroupedUpcomingRelease, 'airDate' | '
 }
 
 /** Short, stable lifecycle copy for release cards and calendar events. */
-export function releaseStatusLabel(release: Pick<GroupedUpcomingRelease, 'airDate' | 'exactAirTime' | 'kind'>, now = new Date()): string | null {
+export function releaseStatusLabel(
+  release: Pick<GroupedUpcomingRelease, 'airDate' | 'exactAirTime' | 'kind'>,
+  now = new Date(),
+): string | null {
   const phase = releasePhase(release, now);
   const days = daysUntilCalendarDate(release.airDate, now);
   if (phase === null || days === null) return null;
@@ -176,7 +194,8 @@ export function releaseCountdown(date: string, now = new Date()): string | null 
  * above, not UTC parsing.
  */
 export function exactTimestampDate(value: string): Date | null {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return null;
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i.test(value))
+    return null;
   if (!localCalendarDate(value.slice(0, 10))) return null;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -237,7 +256,11 @@ export interface HorizonGroups {
   later: GroupedUpcomingRelease[];
 }
 
-export function groupReleasesByHorizon(groups: readonly GroupedUpcomingRelease[], now = new Date(), historyDays = 7): HorizonGroups {
+export function groupReleasesByHorizon(
+  groups: readonly GroupedUpcomingRelease[],
+  now = new Date(),
+  historyDays = 7,
+): HorizonGroups {
   const recentlyReleased: GroupedUpcomingRelease[] = [];
   const today: GroupedUpcomingRelease[] = [];
   const thisWeek: GroupedUpcomingRelease[] = [];
@@ -263,8 +286,12 @@ export function groupReleasesByHorizon(groups: readonly GroupedUpcomingRelease[]
   }
 
   recentlyReleased.sort((left, right) => {
-    const leftTime = left.exactAirTime ? exactTimestampDate(left.exactAirTime)?.getTime() : localCalendarDate(left.airDate)?.getTime();
-    const rightTime = right.exactAirTime ? exactTimestampDate(right.exactAirTime)?.getTime() : localCalendarDate(right.airDate)?.getTime();
+    const leftTime = left.exactAirTime
+      ? exactTimestampDate(left.exactAirTime)?.getTime()
+      : localCalendarDate(left.airDate)?.getTime();
+    const rightTime = right.exactAirTime
+      ? exactTimestampDate(right.exactAirTime)?.getTime()
+      : localCalendarDate(right.airDate)?.getTime();
     return (rightTime ?? 0) - (leftTime ?? 0);
   });
 
@@ -272,9 +299,11 @@ export function groupReleasesByHorizon(groups: readonly GroupedUpcomingRelease[]
 }
 
 function releaseSortTime(group: GroupedUpcomingRelease): number {
-  return (group.exactAirTime ? exactTimestampDate(group.exactAirTime)?.getTime() : null)
-    ?? localCalendarDate(group.airDate)?.getTime()
-    ?? Number.POSITIVE_INFINITY;
+  return (
+    (group.exactAirTime ? exactTimestampDate(group.exactAirTime)?.getTime() : null) ??
+    localCalendarDate(group.airDate)?.getTime() ??
+    Number.POSITIVE_INFINITY
+  );
 }
 
 /** Keep Discover focused: one nearest future date per favorite, with later

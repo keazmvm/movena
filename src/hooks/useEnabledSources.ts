@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
-import { getCombinedSourceQueryScope, getM3uQueryScope, getXtreamQueryScope } from '../api/queryKeys';
-import { useAuthStore, type XCCredentials, type XtreamSourceProfile, type XtreamSourceRuntime } from '../store/useAuthStore';
+import {
+  getCombinedSourceQueryScope,
+  getM3uQueryScope,
+  getXtreamQueryScope,
+} from '../api/queryKeys';
+import {
+  useAuthStore,
+  type XCCredentials,
+  type XtreamSourceProfile,
+  type XtreamSourceRuntime,
+} from '../store/useAuthStore';
 import {
   useSourceStore,
   type M3uSourceProfile,
@@ -90,9 +99,12 @@ export function useEnabledSources(): EnabledSourcesSnapshot {
       m3uSources,
       availableM3uSources,
       isAvailable: xtreamAvailable || availableM3uSources.length > 0,
-      isLoading: [...xtreamSources, ...m3uSources].some((source) => source.runtime?.status === 'loading'),
-      errors: [...xtreamSources, ...m3uSources]
-        .flatMap((source) => source.runtime?.error ? [`${source.profile.name}: ${source.runtime.error}`] : []),
+      isLoading: [...xtreamSources, ...m3uSources].some(
+        (source) => source.runtime?.status === 'loading',
+      ),
+      errors: [...xtreamSources, ...m3uSources].flatMap((source) =>
+        source.runtime?.error ? [`${source.profile.name}: ${source.runtime.error}`] : [],
+      ),
       queryScope: getCombinedSourceQueryScope(queryScopes),
     };
   }, [enabledSourceIds, profiles, runtimes, xtreamProfiles, xtreamRuntimes]);

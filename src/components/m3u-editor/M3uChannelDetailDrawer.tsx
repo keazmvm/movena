@@ -149,7 +149,10 @@ export function M3uChannelDetailDrawer({
       type,
       duration: entry?.duration ?? -1,
       groupTitle: groupTitle.trim() || 'General',
-      categoryId: `m3u-category-${type}-${(groupTitle.trim() || 'general').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
+      categoryId: `m3u-category-${type}-${(groupTitle.trim() || 'general')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')}`,
       channelNumber: channelNumber.trim() || undefined,
       tvgId: tvgId.trim() || undefined,
       tvgName: tvgName.trim() || undefined,
@@ -181,7 +184,9 @@ export function M3uChannelDetailDrawer({
         style={{ '--m3u-inspector-width': `${inspectorWidth}px` } as CSSProperties}
       >
         <div className={styles.drawerHeader}>
-          <h2 className={styles.drawerHeaderTitle}>{entry ? t('Channel Inspector') : t('New Channel')}</h2>
+          <h2 className={styles.drawerHeaderTitle}>
+            {entry ? t('Channel Inspector') : t('New Channel')}
+          </h2>
           <IconButton size="sm" type="button" onClick={onClose} aria-label={t('Close')}>
             <X size={16} />
           </IconButton>
@@ -204,8 +209,16 @@ export function M3uChannelDetailDrawer({
 
           <div className={styles.formGroup}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className={styles.formLabel} htmlFor="m3u-channel-title">{t('Channel Name')}</label>
-              <Button size="sm" variant="ghost" type="button" onClick={handleAutoCleanTitle} title={t('Auto-clean name tags')}>
+              <label className={styles.formLabel} htmlFor="m3u-channel-title">
+                {t('Channel Name')}
+              </label>
+              <Button
+                size="sm"
+                variant="ghost"
+                type="button"
+                onClick={handleAutoCleanTitle}
+                title={t('Auto-clean name tags')}
+              >
                 <Sparkles size={12} /> {t('Clean')}
               </Button>
             </div>
@@ -222,10 +235,35 @@ export function M3uChannelDetailDrawer({
 
           <div className={styles.formGroup}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className={styles.formLabel} htmlFor="m3u-stream-url">{t('Stream URL')}</label>
-              <Button size="sm" variant="ghost" type="button" onClick={handleTestStream} disabled={testingHealth || !url.trim()}>
+              <label className={styles.formLabel} htmlFor="m3u-stream-url">
+                {t('Stream URL')}
+              </label>
+              <Button
+                size="sm"
+                variant="ghost"
+                type="button"
+                onClick={handleTestStream}
+                disabled={testingHealth || !url.trim()}
+              >
                 {testingHealth ? <Loader2 size={12} className="spin" /> : <Play size={12} />}
-                {healthResult === 'online' ? <span className={styles.inlineSuccess}><Check size={12} /> {t('Reachable')}</span> : healthResult ? <span className={styles.inlineError}><AlertCircle size={12} /> {t(healthResult === 'unauthorized' ? 'Unauthorized' : healthResult === 'timeout' ? 'Timed out' : 'Offline')}</span> : t('Test Stream')}
+                {healthResult === 'online' ? (
+                  <span className={styles.inlineSuccess}>
+                    <Check size={12} /> {t('Reachable')}
+                  </span>
+                ) : healthResult ? (
+                  <span className={styles.inlineError}>
+                    <AlertCircle size={12} />{' '}
+                    {t(
+                      healthResult === 'unauthorized'
+                        ? 'Unauthorized'
+                        : healthResult === 'timeout'
+                          ? 'Timed out'
+                          : 'Offline',
+                    )}
+                  </span>
+                ) : (
+                  t('Test Stream')
+                )}
               </Button>
             </div>
             <input
@@ -233,16 +271,26 @@ export function M3uChannelDetailDrawer({
               type="url"
               className={`uiField`}
               value={url}
-              onChange={(e) => { setUrl(e.target.value); setHealthResult(null); setHealthError(''); }}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                setHealthResult(null);
+                setHealthError('');
+              }}
               placeholder="http://example.com/stream.m3u8"
               required
             />
-            {healthError && <p className={styles.technicalError} role="alert">{healthError}</p>}
+            {healthError && (
+              <p className={styles.technicalError} role="alert">
+                {healthError}
+              </p>
+            )}
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-channel-group">{t('Category / Group')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-channel-group">
+                {t('Category / Group')}
+              </label>
               <input
                 id="m3u-channel-group"
                 type="text"
@@ -260,7 +308,9 @@ export function M3uChannelDetailDrawer({
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-channel-chno">{t('Channel Number')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-channel-chno">
+                {t('Channel Number')}
+              </label>
               <input
                 id="m3u-channel-chno"
                 type="text"
@@ -275,45 +325,105 @@ export function M3uChannelDetailDrawer({
           <details className={styles.advancedFields}>
             <summary>{t('Advanced metadata')}</summary>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-description">{t('Description')}</label>
-              <textarea id="m3u-description" className={`uiField ${styles.formTextarea}`} value={description} onChange={(event) => setDescription(event.target.value)} />
+              <label className={styles.formLabel} htmlFor="m3u-description">
+                {t('Description')}
+              </label>
+              <textarea
+                id="m3u-description"
+                className={`uiField ${styles.formTextarea}`}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
             </div>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="m3u-year">{t('Year')}</label>
-                <input id="m3u-year" className="uiField" inputMode="numeric" value={year} onChange={(event) => setYear(event.target.value)} />
+                <label className={styles.formLabel} htmlFor="m3u-year">
+                  {t('Year')}
+                </label>
+                <input
+                  id="m3u-year"
+                  className="uiField"
+                  inputMode="numeric"
+                  value={year}
+                  onChange={(event) => setYear(event.target.value)}
+                />
               </div>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="m3u-rating">{t('Rating')}</label>
-                <input id="m3u-rating" className="uiField" type="number" min="0" max="10" step="0.1" value={rating} onChange={(event) => setRating(event.target.value)} />
+                <label className={styles.formLabel} htmlFor="m3u-rating">
+                  {t('Rating')}
+                </label>
+                <input
+                  id="m3u-rating"
+                  className="uiField"
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value={rating}
+                  onChange={(event) => setRating(event.target.value)}
+                />
               </div>
             </div>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="m3u-catchup">{t('Catch-up Mode')}</label>
-                <input id="m3u-catchup" className="uiField" value={catchup} onChange={(event) => setCatchup(event.target.value)} placeholder="default, append, shift" />
+                <label className={styles.formLabel} htmlFor="m3u-catchup">
+                  {t('Catch-up Mode')}
+                </label>
+                <input
+                  id="m3u-catchup"
+                  className="uiField"
+                  value={catchup}
+                  onChange={(event) => setCatchup(event.target.value)}
+                  placeholder="default, append, shift"
+                />
               </div>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="m3u-catchup-days">{t('Catch-up Days')}</label>
-                <input id="m3u-catchup-days" className="uiField" type="number" min="0" value={catchupDays} onChange={(event) => setCatchupDays(event.target.value)} />
+                <label className={styles.formLabel} htmlFor="m3u-catchup-days">
+                  {t('Catch-up Days')}
+                </label>
+                <input
+                  id="m3u-catchup-days"
+                  className="uiField"
+                  type="number"
+                  min="0"
+                  value={catchupDays}
+                  onChange={(event) => setCatchupDays(event.target.value)}
+                />
               </div>
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-catchup-source">{t('Catch-up Source Template')}</label>
-              <input id="m3u-catchup-source" className="uiField" value={catchupSource} onChange={(event) => setCatchupSource(event.target.value)} />
+              <label className={styles.formLabel} htmlFor="m3u-catchup-source">
+                {t('Catch-up Source Template')}
+              </label>
+              <input
+                id="m3u-catchup-source"
+                className="uiField"
+                value={catchupSource}
+                onChange={(event) => setCatchupSource(event.target.value)}
+              />
             </div>
             <label className={styles.checkboxLabel}>
-              <input type="checkbox" checked={radio} onChange={(event) => setRadio(event.target.checked)} />
+              <input
+                type="checkbox"
+                checked={radio}
+                onChange={(event) => setRadio(event.target.checked)}
+              />
               <span>{t('Treat as a radio stream')}</span>
             </label>
             {entry && Object.keys(entry.headers || {}).length > 2 && (
-              <p className={styles.preservedNotice}>{t('{count} additional request headers will be preserved.', { count: Object.keys(entry.headers).length - 2 })}</p>
+              <p className={styles.preservedNotice}>
+                {t('{count} additional request headers will be preserved.', {
+                  count: Object.keys(entry.headers).length - 2,
+                })}
+              </p>
             )}
           </details>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-tvg-id">{t('EPG TVG-ID')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-tvg-id">
+                {t('EPG TVG-ID')}
+              </label>
               <input
                 id="m3u-tvg-id"
                 type="text"
@@ -324,7 +434,9 @@ export function M3uChannelDetailDrawer({
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-tvg-name">{t('TVG Name')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-tvg-name">
+                {t('TVG Name')}
+              </label>
               <input
                 id="m3u-tvg-name"
                 type="text"
@@ -337,7 +449,9 @@ export function M3uChannelDetailDrawer({
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="m3u-tvg-logo">{t('Logo URL (tvg-logo)')}</label>
+            <label className={styles.formLabel} htmlFor="m3u-tvg-logo">
+              {t('Logo URL (tvg-logo)')}
+            </label>
             <input
               id="m3u-tvg-logo"
               type="url"
@@ -367,7 +481,9 @@ export function M3uChannelDetailDrawer({
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-user-agent">{t('Custom User-Agent')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-user-agent">
+                {t('Custom User-Agent')}
+              </label>
               <input
                 id="m3u-user-agent"
                 type="text"
@@ -378,7 +494,9 @@ export function M3uChannelDetailDrawer({
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="m3u-referrer">{t('Custom Referer')}</label>
+              <label className={styles.formLabel} htmlFor="m3u-referrer">
+                {t('Custom Referer')}
+              </label>
               <input
                 id="m3u-referrer"
                 type="url"
@@ -393,7 +511,13 @@ export function M3uChannelDetailDrawer({
 
         <div className={styles.drawerFooter}>
           {onPrevious && (
-            <Button variant="ghost" size="sm" type="button" onClick={onPrevious} disabled={!hasPrevious}>
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+            >
               {t('Previous')}
             </Button>
           )}

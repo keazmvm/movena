@@ -22,12 +22,54 @@ const PICTURE_CONTROLS: Array<{
   max: number;
   format: (value: number) => string;
 }> = [
-  { key: 'imageSharpness', title: 'Sharpness', description: 'Increase edge clarity. Off is neutral.', min: 0, max: 100, format: (value) => value === 0 ? 'Off' : `${Math.round(value)}` },
-  { key: 'imageBrightness', title: 'Brightness', description: 'Adjust overall picture brightness.', min: 0, max: 200, format: (value) => `${Math.round(value)}%` },
-  { key: 'imageContrast', title: 'Contrast', description: 'Adjust separation between light and dark areas.', min: -100, max: 100, format: (value) => `${Math.round(value)}` },
-  { key: 'imageSaturation', title: 'Saturation', description: 'Adjust color intensity.', min: -100, max: 100, format: (value) => `${Math.round(value)}` },
-  { key: 'imageHue', title: 'Hue', description: 'Shift the picture color balance.', min: -100, max: 100, format: (value) => `${Math.round(value)}` },
-  { key: 'imageGamma', title: 'Dark Scene', description: 'Lift or deepen detail in dark scenes.', min: -100, max: 100, format: (value) => `${Math.round(value)}` },
+  {
+    key: 'imageSharpness',
+    title: 'Sharpness',
+    description: 'Increase edge clarity. Off is neutral.',
+    min: 0,
+    max: 100,
+    format: (value) => (value === 0 ? 'Off' : `${Math.round(value)}`),
+  },
+  {
+    key: 'imageBrightness',
+    title: 'Brightness',
+    description: 'Adjust overall picture brightness.',
+    min: 0,
+    max: 200,
+    format: (value) => `${Math.round(value)}%`,
+  },
+  {
+    key: 'imageContrast',
+    title: 'Contrast',
+    description: 'Adjust separation between light and dark areas.',
+    min: -100,
+    max: 100,
+    format: (value) => `${Math.round(value)}`,
+  },
+  {
+    key: 'imageSaturation',
+    title: 'Saturation',
+    description: 'Adjust color intensity.',
+    min: -100,
+    max: 100,
+    format: (value) => `${Math.round(value)}`,
+  },
+  {
+    key: 'imageHue',
+    title: 'Hue',
+    description: 'Shift the picture color balance.',
+    min: -100,
+    max: 100,
+    format: (value) => `${Math.round(value)}`,
+  },
+  {
+    key: 'imageGamma',
+    title: 'Dark Scene',
+    description: 'Lift or deepen detail in dark scenes.',
+    min: -100,
+    max: 100,
+    format: (value) => `${Math.round(value)}`,
+  },
 ];
 
 export function PictureSettingsSection() {
@@ -49,7 +91,10 @@ export function PictureSettingsSection() {
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Picture Adjustments" description="Persist picture tuning across streams. These changes also apply to the active player.">
+      <SettingsGroup
+        title="Picture Adjustments"
+        description="Persist picture tuning across streams. These changes also apply to the active player."
+      >
         {PICTURE_CONTROLS.map((control) => (
           <SettingsRow key={control.key} title={control.title} description={control.description}>
             <SettingsRange
@@ -62,8 +107,16 @@ export function PictureSettingsSection() {
             />
           </SettingsRow>
         ))}
-        <SettingsRow title="Reset Picture Adjustments" description="Return all image controls to their neutral values.">
-          <SettingsButton onClick={resetPictureAdjustments} disabled={PICTURE_CONTROLS.every((control) => settings[control.key] === DEFAULT_IMAGE_ADJUSTMENTS[control.key])}>
+        <SettingsRow
+          title="Reset Picture Adjustments"
+          description="Return all image controls to their neutral values."
+        >
+          <SettingsButton
+            onClick={resetPictureAdjustments}
+            disabled={PICTURE_CONTROLS.every(
+              (control) => settings[control.key] === DEFAULT_IMAGE_ADJUSTMENTS[control.key],
+            )}
+          >
             Reset Picture
           </SettingsButton>
         </SettingsRow>

@@ -27,7 +27,11 @@ beforeEach(() => {
 
 describe('useUpdateStore', () => {
   it('moves idle -> checking -> available when an update is found', async () => {
-    appUpdater.checkForAppUpdates.mockResolvedValue({ available: true, updateInfo, update: fakeHandle });
+    appUpdater.checkForAppUpdates.mockResolvedValue({
+      available: true,
+      updateInfo,
+      update: fakeHandle,
+    });
     const { result } = renderHook(() => useUpdateStore());
 
     let pending!: Promise<void>;
@@ -54,7 +58,10 @@ describe('useUpdateStore', () => {
   });
 
   it('surfaces a check failure without throwing', async () => {
-    appUpdater.checkForAppUpdates.mockResolvedValue({ available: false, error: 'network unreachable' });
+    appUpdater.checkForAppUpdates.mockResolvedValue({
+      available: false,
+      error: 'network unreachable',
+    });
     const { result } = renderHook(() => useUpdateStore());
 
     await act(() => result.current.check());
@@ -65,7 +72,11 @@ describe('useUpdateStore', () => {
 
   it('ignores a second check while one is already in flight', async () => {
     let resolveCheck!: (value: { available: boolean }) => void;
-    appUpdater.checkForAppUpdates.mockReturnValue(new Promise((resolve) => { resolveCheck = resolve; }));
+    appUpdater.checkForAppUpdates.mockReturnValue(
+      new Promise((resolve) => {
+        resolveCheck = resolve;
+      }),
+    );
     const { result } = renderHook(() => useUpdateStore());
 
     let first!: Promise<void>;
@@ -80,15 +91,26 @@ describe('useUpdateStore', () => {
   });
 
   it('reports download progress and lands on restarting once installed', async () => {
-    appUpdater.installAppUpdate.mockImplementation(async (_handle: unknown, options: {
-      onProgress?: (p: { downloaded: number; total: number | null }) => void;
-      onInstalled?: () => void;
-    }) => {
-      options.onProgress?.({ downloaded: 50, total: 100 });
-      options.onProgress?.({ downloaded: 100, total: 100 });
-      options.onInstalled?.();
+    appUpdater.installAppUpdate.mockImplementation(
+      async (
+        _handle: unknown,
+        options: {
+          onProgress?: (p: { downloaded: number; total: number | null }) => void;
+          onInstalled?: () => void;
+        },
+      ) => {
+        options.onProgress?.({ downloaded: 50, total: 100 });
+        options.onProgress?.({ downloaded: 100, total: 100 });
+        options.onInstalled?.();
+      },
+    );
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: fakeHandle,
+      progress: null,
+      error: null,
     });
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: fakeHandle, progress: null, error: null });
     const { result } = renderHook(() => useUpdateStore());
 
     await act(() => result.current.install());
@@ -99,7 +121,13 @@ describe('useUpdateStore', () => {
 
   it('falls back to idle with an error message when install fails', async () => {
     appUpdater.installAppUpdate.mockRejectedValue(new Error('signature verification failed'));
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: fakeHandle, progress: null, error: null });
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: fakeHandle,
+      progress: null,
+      error: null,
+    });
     const { result } = renderHook(() => useUpdateStore());
 
     await act(() => result.current.install());
@@ -119,7 +147,13 @@ describe('useUpdateStore', () => {
   });
 
   it('dismiss closes the handle, remembers the version, and resets to idle', async () => {
-    useUpdateStore.setState({ phase: 'available', info: updateInfo, handle: fakeHandle, progress: null, error: null });
+    useUpdateStore.setState({
+      phase: 'available',
+      info: updateInfo,
+      handle: fakeHandle,
+      progress: null,
+      error: null,
+    });
     const { result } = renderHook(() => useUpdateStore());
 
     act(() => result.current.dismiss());

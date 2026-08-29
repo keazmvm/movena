@@ -10,7 +10,10 @@ vi.mock('../../src/api/ipc', () => ({
 }));
 
 import { applyAspectRatio, applySbsTo2d } from '../../src/components/player/aspect';
-import { setPlayerFullscreen, toggleWindowFullscreen } from '../../src/components/player/fullscreen';
+import {
+  setPlayerFullscreen,
+  toggleWindowFullscreen,
+} from '../../src/components/player/fullscreen';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 
 beforeEach(() => {

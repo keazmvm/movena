@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useSettingsStore } from './store/useSettingsStore';
-import {
-  UI_LANGUAGES,
-  uiLanguageDefinition,
-  type UiLanguage,
-} from './i18nConfig';
+import { UI_LANGUAGES, uiLanguageDefinition, type UiLanguage } from './i18nConfig';
 
 export type { UiLanguage } from './i18nConfig';
 export type TranslationValues = Record<string, string | number>;
@@ -47,11 +43,13 @@ export function ensureUiMessages(language: UiLanguage): Promise<void> {
   const pending = catalogPromises.get(language);
   if (pending) return pending;
 
-  const request = catalogLoaders[language]().then((catalog) => {
-    installCatalog(language, catalog);
-  }).finally(() => {
-    catalogPromises.delete(language);
-  });
+  const request = catalogLoaders[language]()
+    .then((catalog) => {
+      installCatalog(language, catalog);
+    })
+    .finally(() => {
+      catalogPromises.delete(language);
+    });
   catalogPromises.set(language, request);
   return request;
 }
@@ -62,15 +60,29 @@ export async function loadAllUiMessageCatalogs(): Promise<void> {
   await Promise.all(UI_LANGUAGES.map((language) => ensureUiMessages(language)));
 }
 
-const catalogFor = (language: UiLanguage): Record<string, string> => (
-  language === 'en' ? EMPTY_CATALOG : UI_MESSAGE_CATALOGS[language] ?? EMPTY_CATALOG
-);
+const catalogFor = (language: UiLanguage): Record<string, string> =>
+  language === 'en' ? EMPTY_CATALOG : (UI_MESSAGE_CATALOGS[language] ?? EMPTY_CATALOG);
 
 const templateCache = new Map<string, { names: string[]; pattern: RegExp }>();
 const NUMERIC_PLACEHOLDERS = new Set([
-  'count', 'configured', 'current', 'downloaded', 'enabled', 'episode',
-  'failed', 'maximum', 'number', 'percent', 'progress', 'season', 'seconds',
-  'slow', 'step', 'stale', 'total', 'visible',
+  'count',
+  'configured',
+  'current',
+  'downloaded',
+  'enabled',
+  'episode',
+  'failed',
+  'maximum',
+  'number',
+  'percent',
+  'progress',
+  'season',
+  'seconds',
+  'slow',
+  'step',
+  'stale',
+  'total',
+  'visible',
 ]);
 const dynamicTemplates = new WeakMap<MessageCatalog, string[]>();
 
@@ -87,9 +99,7 @@ function compileTemplate(template: string) {
     source += template.slice(cursor, match.index).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const name = match[1];
     if (!name) continue;
-    source += NUMERIC_PLACEHOLDERS.has(name)
-      ? '([+-]?(?:\\d[\\d.,\\s]*|—))'
-      : '(.+?)';
+    source += NUMERIC_PLACEHOLDERS.has(name) ? '([+-]?(?:\\d[\\d.,\\s]*|—))' : '(.+?)';
     names.push(name);
     cursor = match.index + match[0].length;
   }
@@ -101,9 +111,9 @@ function compileTemplate(template: string) {
 }
 
 function interpolate(message: string, values: TranslationValues): string {
-  return message.replace(/\{(\w+)\}/g, (placeholder, name: string) => (
-    Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : placeholder
-  ));
+  return message.replace(/\{(\w+)\}/g, (placeholder, name: string) =>
+    Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : placeholder,
+  );
 }
 
 function templatesFor(catalog: MessageCatalog): string[] {
@@ -116,7 +126,10 @@ function templatesFor(catalog: MessageCatalog): string[] {
   return templates;
 }
 
-function translateDynamicEnglish(message: string, catalog: MessageCatalog): { template: string; values: TranslationValues } | null {
+function translateDynamicEnglish(
+  message: string,
+  catalog: MessageCatalog,
+): { template: string; values: TranslationValues } | null {
   for (const template of templatesFor(catalog)) {
     const { names, pattern } = compileTemplate(template);
     const match = pattern.exec(message);
@@ -173,7 +186,8 @@ export interface I18nApi {
 
 export function createI18n(language: UiLanguage): I18nApi {
   const locale = uiLanguageDefinition(language).locale;
-  const t = (message: string, values?: TranslationValues) => translateUiText(message, language, values);
+  const t = (message: string, values?: TranslationValues) =>
+    translateUiText(message, language, values);
   const pluralRules = new Intl.PluralRules(locale);
   return {
     language,
@@ -188,11 +202,12 @@ export function createI18n(language: UiLanguage): I18nApi {
     },
     number: (value, options) => new Intl.NumberFormat(locale, options).format(value),
     date: (value, options) => new Intl.DateTimeFormat(locale, options).format(value),
-    time: (value, options) => new Intl.DateTimeFormat(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-      ...options,
-    }).format(value),
+    time: (value, options) =>
+      new Intl.DateTimeFormat(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+        ...options,
+      }).format(value),
     list: (values, options) => new Intl.ListFormat(locale, options).format(values),
   };
 }

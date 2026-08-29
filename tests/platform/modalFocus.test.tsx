@@ -11,7 +11,9 @@ function DialogHarness() {
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)}>Open dialog</button>
+      <button type="button" onClick={() => setIsOpen(true)}>
+        Open dialog
+      </button>
       {isOpen && (
         <ConfirmDialog
           title="Remove source?"

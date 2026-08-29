@@ -32,22 +32,20 @@ export function TabStrip<T extends string | number>({
     if (!option) return;
     onChange(option.value);
     currentTarget.parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[index]
-      ?.focus();
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      [index]?.focus();
   };
 
-  const handleKeyDown = (
-    event: KeyboardEvent<HTMLButtonElement>,
-    tabIndex: number,
-  ) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, tabIndex: number) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
 
     event.preventDefault();
-    const nextIndex = event.key === 'Home'
-      ? 0
-      : event.key === 'End'
-        ? options.length - 1
-        : (tabIndex + (event.key === 'ArrowLeft' ? -1 : 1) + options.length) % options.length;
+    const nextIndex =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? options.length - 1
+          : (tabIndex + (event.key === 'ArrowLeft' ? -1 : 1) + options.length) % options.length;
     selectTab(nextIndex, event.currentTarget);
   };
 

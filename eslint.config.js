@@ -17,7 +17,12 @@ export default tseslint.config(
   },
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}', 'tests-ui/**/*.{ts,tsx}', 'tests-desktop/**/*.{ts,tsx}'],
+    files: [
+      'src/**/*.{ts,tsx}',
+      'tests/**/*.{ts,tsx}',
+      'tests-ui/**/*.{ts,tsx}',
+      'tests-desktop/**/*.{ts,tsx}',
+    ],
     languageOptions: {
       ecmaVersion: 2023,
       globals: { ...globals.browser, ...globals.node },
@@ -32,12 +37,17 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-restricted-imports': ['error', {
-        patterns: [{
-          group: ['@tauri-apps/*'],
-          message: 'Use the typed desktopApi or tauriApi boundary instead.',
-        }],
-      }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@tauri-apps/*'],
+              message: 'Use the typed desktopApi or tauriApi boundary instead.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

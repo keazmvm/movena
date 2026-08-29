@@ -41,7 +41,9 @@ describe('settings store', () => {
     store.toggleCategoryPref('hidden', 'vod', '10');
 
     expect(useSettingsStore.getState().categoryPrefs.hidden).toEqual({
-      live: ['20'], vod: [], series: [],
+      live: ['20'],
+      vod: [],
+      series: [],
     });
   });
 
@@ -221,7 +223,11 @@ describe('settings store', () => {
 
     current.importSettings(snapshot);
 
-    expect(useSettingsStore.getState()).toMatchObject({ accentColor: '#af52de', themePreference: 'light', cacheSecs: 15 });
+    expect(useSettingsStore.getState()).toMatchObject({
+      accentColor: '#af52de',
+      themePreference: 'light',
+      cacheSecs: 15,
+    });
     expect(useSettingsStore.getState().resetSettings).toBeTypeOf('function');
   });
 

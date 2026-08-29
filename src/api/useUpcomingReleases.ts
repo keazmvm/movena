@@ -68,7 +68,8 @@ export function selectUpcomingTmdbMatch(
       const originalTitle = candidate.originalTitle ? titleMatchKey(candidate.originalTitle) : '';
       let score = title === wantedTitle ? 100 : originalTitle === wantedTitle ? 95 : 0;
       if (!score && (title.includes(wantedTitle) || wantedTitle.includes(title))) score = 45;
-      if (wantedYear && candidate.releaseYear) score += String(candidate.releaseYear) === wantedYear ? 25 : -10;
+      if (wantedYear && candidate.releaseYear)
+        score += String(candidate.releaseYear) === wantedYear ? 25 : -10;
       return { candidate, score, index };
     })
     .sort((left, right) => right.score - left.score || left.index - right.index)[0]?.candidate;
@@ -95,7 +96,11 @@ function favoriteScope(items: readonly MediaItem[]): string {
     .join('|');
 }
 
-async function mapWithConcurrency<T, R>(items: readonly T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> {
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T) => Promise<R>,
+): Promise<R[]> {
   const result = new Array<R>(items.length);
   let next = 0;
   const run = async () => {
@@ -127,13 +132,16 @@ export function useUpcomingReleases(hookOptions: UpcomingReleaseOptions = {}) {
   const queryClient = useQueryClient();
 
   const requestedFavoriteIds = hookOptions.favoriteIds ? new Set(hookOptions.favoriteIds) : null;
-  const trackedFavorites = favorites.filter((item) => (
-    (item.type === 'series' || item.type === 'vod')
-    && item.title.trim()
-    && (!requestedFavoriteIds || requestedFavoriteIds.has(item.id))
-  ));
-  const language = tmdbLanguage === 'auto' ? uiLanguageDefinition(appLanguage).locale : tmdbLanguage;
-  const enabled = upcomingEnabled && tmdbEnabled && Boolean(tmdbApiKey.trim()) && trackedFavorites.length > 0;
+  const trackedFavorites = favorites.filter(
+    (item) =>
+      (item.type === 'series' || item.type === 'vod') &&
+      item.title.trim() &&
+      (!requestedFavoriteIds || requestedFavoriteIds.has(item.id)),
+  );
+  const language =
+    tmdbLanguage === 'auto' ? uiLanguageDefinition(appLanguage).locale : tmdbLanguage;
+  const enabled =
+    upcomingEnabled && tmdbEnabled && Boolean(tmdbApiKey.trim()) && trackedFavorites.length > 0;
   const options: TmdbRequestOptions = {
     language,
     includeAdult: tmdbIncludeAdult,
@@ -143,120 +151,149 @@ export function useUpcomingReleases(hookOptions: UpcomingReleaseOptions = {}) {
   const calendarDay = calendarDayKey(new Date());
 
   return useQuery({
-    queryKey: queryKeys.tmdbUpcoming(scope, language, tmdbIncludeAdult, tmdbImageSize, exactTimesEnabled, historyDays, calendarDay),
+    queryKey: queryKeys.tmdbUpcoming(
+      scope,
+      language,
+      tmdbIncludeAdult,
+      tmdbImageSize,
+      exactTimesEnabled,
+      historyDays,
+      calendarDay,
+    ),
     enabled,
     staleTime: DETAILS_STALE_TIME,
     retry: 1,
     queryFn: async (): Promise<UpcomingRelease[]> => {
       const windowStart = releaseWindowStartKey(new Date(), historyDays);
       const scheduleEnrichmentFailures: string[] = [];
-      const releaseGroups = await mapWithConcurrency<MediaItem, UpcomingRelease[]>(trackedFavorites, MAX_CONCURRENT_LOOKUPS, async (favorite) => {
-        const mediaType = favorite.type === 'vod' ? 'movie' : 'tv';
-        const search = await queryClient.fetchQuery({
-          queryKey: queryKeys.tmdbSearch(mediaType, titleForTmdb(favorite), language, tmdbIncludeAdult),
-          staleTime: SEARCH_STALE_TIME,
-          retry: 1,
-          queryFn: () => searchTmdb(tmdbApiKey, titleForTmdb(favorite), undefined, options),
-        });
-        const match = selectUpcomingTmdbMatch(favorite, mediaType, search.results);
-        if (!match) return [];
-        if (mediaType === 'movie') {
-          const movie = await queryClient.fetchQuery({
-            queryKey: queryKeys.tmdbMovie(match.id, language, tmdbIncludeAdult, tmdbImageSize),
+      const releaseGroups = await mapWithConcurrency<MediaItem, UpcomingRelease[]>(
+        trackedFavorites,
+        MAX_CONCURRENT_LOOKUPS,
+        async (favorite) => {
+          const mediaType = favorite.type === 'vod' ? 'movie' : 'tv';
+          const search = await queryClient.fetchQuery({
+            queryKey: queryKeys.tmdbSearch(
+              mediaType,
+              titleForTmdb(favorite),
+              language,
+              tmdbIncludeAdult,
+            ),
+            staleTime: SEARCH_STALE_TIME,
+            retry: 1,
+            queryFn: () => searchTmdb(tmdbApiKey, titleForTmdb(favorite), undefined, options),
+          });
+          const match = selectUpcomingTmdbMatch(favorite, mediaType, search.results);
+          if (!match) return [];
+          if (mediaType === 'movie') {
+            const movie = await queryClient.fetchQuery({
+              queryKey: queryKeys.tmdbMovie(match.id, language, tmdbIncludeAdult, tmdbImageSize),
+              staleTime: DETAILS_STALE_TIME,
+              retry: 1,
+              queryFn: () => getTmdbMovie(tmdbApiKey, match.id, undefined, options),
+            });
+            if (!movie?.releaseDate || movie.releaseDate < windowStart) return [];
+            return [
+              {
+                favorite,
+                tmdbId: match.id,
+                airDate: movie.releaseDate,
+                kind: 'movie',
+                title: movie.title,
+                seasonNumber: null,
+                episodeNumber: null,
+                artworkUrl: movie.posterUrl ?? favorite.posterUrl,
+                exactAirTime: null,
+                timeSource: 'tmdb',
+              },
+            ];
+          }
+          const tv = await queryClient.fetchQuery({
+            queryKey: queryKeys.tmdbTv(match.id, language, tmdbIncludeAdult, tmdbImageSize),
             staleTime: DETAILS_STALE_TIME,
             retry: 1,
-            queryFn: () => getTmdbMovie(tmdbApiKey, match.id, undefined, options),
+            queryFn: () => getTmdbTv(tmdbApiKey, match.id, undefined, options),
           });
-          if (!movie?.releaseDate || movie.releaseDate < windowStart) return [];
-          return [{
-            favorite,
-            tmdbId: match.id,
-            airDate: movie.releaseDate,
-            kind: 'movie',
-            title: movie.title,
-            seasonNumber: null,
-            episodeNumber: null,
-            artworkUrl: movie.posterUrl ?? favorite.posterUrl,
-            exactAirTime: null,
-            timeSource: 'tmdb',
-          }];
-        }
-        const tv = await queryClient.fetchQuery({
-          queryKey: queryKeys.tmdbTv(match.id, language, tmdbIncludeAdult, tmdbImageSize),
-          staleTime: DETAILS_STALE_TIME,
-          retry: 1,
-          queryFn: () => getTmdbTv(tmdbApiKey, match.id, undefined, options),
-        });
-        const nextEpisode = tv?.nextEpisodeToAir;
-        const lastEpisode = tv?.lastEpisodeToAir;
-        // TVmaze is optional schedule enrichment. One cached request serves
-        // both recently aired and announced episodes; failure still falls
-        // back to TMDB's latest and next date-only episodes.
-        let tvmazeEpisodes: Awaited<ReturnType<typeof getTvmazeEpisodes>> = [];
-        if (exactTimesEnabled) {
-          try {
-            const tvmazeMatches = await queryClient.fetchQuery({
-              queryKey: queryKeys.tvmazeSearch(titleForTmdb(favorite)),
-              staleTime: SEARCH_STALE_TIME,
-              retry: 1,
-              queryFn: () => searchTvmazeShows(titleForTmdb(favorite)),
-            });
-            const tvmazeMatch = tvmazeMatches.find((result) => titleMatchKey(result.name) === titleMatchKey(titleForTmdb(favorite)));
-            if (tvmazeMatch) {
-              tvmazeEpisodes = await queryClient.fetchQuery({
-                queryKey: queryKeys.tvmazeEpisodes(tvmazeMatch.id),
-                staleTime: TVMAZE_STALE_TIME,
+          const nextEpisode = tv?.nextEpisodeToAir;
+          const lastEpisode = tv?.lastEpisodeToAir;
+          // TVmaze is optional schedule enrichment. One cached request serves
+          // both recently aired and announced episodes; failure still falls
+          // back to TMDB's latest and next date-only episodes.
+          let tvmazeEpisodes: Awaited<ReturnType<typeof getTvmazeEpisodes>> = [];
+          if (exactTimesEnabled) {
+            try {
+              const tvmazeMatches = await queryClient.fetchQuery({
+                queryKey: queryKeys.tvmazeSearch(titleForTmdb(favorite)),
+                staleTime: SEARCH_STALE_TIME,
                 retry: 1,
-                queryFn: () => getTvmazeEpisodes(tvmazeMatch.id),
+                queryFn: () => searchTvmazeShows(titleForTmdb(favorite)),
               });
+              const tvmazeMatch = tvmazeMatches.find(
+                (result) => titleMatchKey(result.name) === titleMatchKey(titleForTmdb(favorite)),
+              );
+              if (tvmazeMatch) {
+                tvmazeEpisodes = await queryClient.fetchQuery({
+                  queryKey: queryKeys.tvmazeEpisodes(tvmazeMatch.id),
+                  staleTime: TVMAZE_STALE_TIME,
+                  retry: 1,
+                  queryFn: () => getTvmazeEpisodes(tvmazeMatch.id),
+                });
+              }
+            } catch (error: unknown) {
+              scheduleEnrichmentFailures.push(
+                `${favorite.title}: ${getErrorMessage(error, 'TVmaze enrichment failed without an error message.')}`,
+              );
+              // The date-only TMDB next episode remains available as fallback.
             }
-          } catch (error: unknown) {
-            scheduleEnrichmentFailures.push(
-              `${favorite.title}: ${getErrorMessage(error, 'TVmaze enrichment failed without an error message.')}`,
-            );
-            // The date-only TMDB next episode remains available as fallback.
           }
-        }
 
-        const relevantTvmazeEpisodes = tvmazeEpisodes
-          .filter((tvmazeEpisode) => (localDateKey(tvmazeEpisode.airstamp) ?? tvmazeEpisode.airstamp.slice(0, 10)) >= windowStart);
-        if (relevantTvmazeEpisodes.length > 0) {
-          return relevantTvmazeEpisodes.map((tvmazeEpisode) => ({
-            favorite,
-            tmdbId: match.id,
-            airDate: localDateKey(tvmazeEpisode.airstamp) ?? tvmazeEpisode.airstamp.slice(0, 10),
-            kind: 'episode' as const,
-            title: tvmazeEpisode.name,
-            seasonNumber: tvmazeEpisode.seasonNumber,
-            episodeNumber: tvmazeEpisode.episodeNumber,
-            artworkUrl: tv?.posterUrl ?? favorite.posterUrl,
-            exactAirTime: tvmazeEpisode.airstamp,
-            timeSource: 'tvmaze' as const,
-          }));
-        }
+          const relevantTvmazeEpisodes = tvmazeEpisodes.filter(
+            (tvmazeEpisode) =>
+              (localDateKey(tvmazeEpisode.airstamp) ?? tvmazeEpisode.airstamp.slice(0, 10)) >=
+              windowStart,
+          );
+          if (relevantTvmazeEpisodes.length > 0) {
+            return relevantTvmazeEpisodes.map((tvmazeEpisode) => ({
+              favorite,
+              tmdbId: match.id,
+              airDate: localDateKey(tvmazeEpisode.airstamp) ?? tvmazeEpisode.airstamp.slice(0, 10),
+              kind: 'episode' as const,
+              title: tvmazeEpisode.name,
+              seasonNumber: tvmazeEpisode.seasonNumber,
+              episodeNumber: tvmazeEpisode.episodeNumber,
+              artworkUrl: tv?.posterUrl ?? favorite.posterUrl,
+              exactAirTime: tvmazeEpisode.airstamp,
+              timeSource: 'tvmaze' as const,
+            }));
+          }
 
-        return [lastEpisode, nextEpisode]
-          .filter((episode): episode is NonNullable<typeof episode> => Boolean(episode?.airDate && episode.airDate >= windowStart))
-          .filter((episode, index, episodes) => episodes.findIndex((candidate) => (
-            candidate.id !== null && episode.id !== null
-              ? candidate.id === episode.id
-              : candidate.airDate === episode.airDate
-                && candidate.seasonNumber === episode.seasonNumber
-                && candidate.episodeNumber === episode.episodeNumber
-          )) === index)
-          .map((episode) => ({
-            favorite,
-            tmdbId: match.id,
-            airDate: episode.airDate!,
-            kind: 'episode' as const,
-            title: episode.name,
-            seasonNumber: episode.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            artworkUrl: episode.stillUrl ?? tv?.posterUrl ?? favorite.posterUrl,
-            exactAirTime: null,
-            timeSource: 'tmdb' as const,
-          }));
-      });
+          return [lastEpisode, nextEpisode]
+            .filter((episode): episode is NonNullable<typeof episode> =>
+              Boolean(episode?.airDate && episode.airDate >= windowStart),
+            )
+            .filter(
+              (episode, index, episodes) =>
+                episodes.findIndex((candidate) =>
+                  candidate.id !== null && episode.id !== null
+                    ? candidate.id === episode.id
+                    : candidate.airDate === episode.airDate &&
+                      candidate.seasonNumber === episode.seasonNumber &&
+                      candidate.episodeNumber === episode.episodeNumber,
+                ) === index,
+            )
+            .map((episode) => ({
+              favorite,
+              tmdbId: match.id,
+              airDate: episode.airDate!,
+              kind: 'episode' as const,
+              title: episode.name,
+              seasonNumber: episode.seasonNumber,
+              episodeNumber: episode.episodeNumber,
+              artworkUrl: episode.stillUrl ?? tv?.posterUrl ?? favorite.posterUrl,
+              exactAirTime: null,
+              timeSource: 'tmdb' as const,
+            }));
+        },
+      );
       if (scheduleEnrichmentFailures.length > 0) {
         notify.warning(
           'Exact Air Times Unavailable',
@@ -269,11 +306,12 @@ export function useUpcomingReleases(hookOptions: UpcomingReleaseOptions = {}) {
       return releaseGroups
         .flat()
         .filter((release) => release.airDate >= windowStart)
-        .sort((left, right) => (
-          left.airDate.localeCompare(right.airDate)
-          || (left.exactAirTime ?? '').localeCompare(right.exactAirTime ?? '')
-          || left.favorite.title.localeCompare(right.favorite.title)
-        ));
+        .sort(
+          (left, right) =>
+            left.airDate.localeCompare(right.airDate) ||
+            (left.exactAirTime ?? '').localeCompare(right.exactAirTime ?? '') ||
+            left.favorite.title.localeCompare(right.favorite.title),
+        );
     },
   });
 }

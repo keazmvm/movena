@@ -45,7 +45,11 @@ export function formatDurationLabel(duration?: string, durationSeconds?: number)
  * whether that is ten minutes or an hour, which is the thing you actually want
  * to know before pressing play.
  */
-export function formatRemaining(currentTime?: number, duration?: number, language: UiLanguage = 'en'): string | null {
+export function formatRemaining(
+  currentTime?: number,
+  duration?: number,
+  language: UiLanguage = 'en',
+): string | null {
   if (!duration || !isFinite(duration) || duration <= 0) return null;
   const remaining = duration - (currentTime ?? 0);
   if (!isFinite(remaining) || remaining <= 0) return null;
@@ -63,7 +67,10 @@ export function formatRemaining(currentTime?: number, duration?: number, languag
  * a series, just the remaining time for a movie. Shared by every place that
  * renders history entries as cards so they can't drift apart again.
  */
-export function historyCardSubtitle(item: HistoryItem, language: UiLanguage = 'en'): string | undefined {
+export function historyCardSubtitle(
+  item: HistoryItem,
+  language: UiLanguage = 'en',
+): string | undefined {
   return (
     [
       item.type === 'series' && item.seasonNum && item.episodeNum

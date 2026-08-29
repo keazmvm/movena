@@ -16,23 +16,45 @@ export function DeveloperSettingsSection() {
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Diagnostics" description="Developer tools remain inactive until Developer Mode is enabled.">
-        <SettingsRow title="Developer Mode" description="Enable diagnostic logs and runtime-state inspection.">
+      <SettingsGroup
+        title="Diagnostics"
+        description="Developer tools remain inactive until Developer Mode is enabled."
+      >
+        <SettingsRow
+          title="Developer Mode"
+          description="Enable diagnostic logs and runtime-state inspection."
+        >
           <SettingsToggle
             label="Enable Developer Mode"
             checked={settings.debugMode}
             onChange={(checked) => {
               settings.updateSetting('debugMode', checked);
-              if (checked) notify.info('Developer Mode Enabled', 'Developer diagnostics are now available.');
+              if (checked)
+                notify.info('Developer Mode Enabled', 'Developer diagnostics are now available.');
             }}
           />
         </SettingsRow>
 
-        {([ 
-          ['showDebugOverlay', 'Floating Debug Overlay', 'Show logs, network history, and runtime state'],
-          ['logApiRequests', 'Log Network Requests', 'Record provider calls and latency in diagnostic history'],
-        ] as const).map(([key, title, description]) => (
-          <SettingsRow key={key} title={title} description={`${description}.`} disabled={!settings.debugMode}>
+        {(
+          [
+            [
+              'showDebugOverlay',
+              'Floating Debug Overlay',
+              'Show logs, network history, and runtime state',
+            ],
+            [
+              'logApiRequests',
+              'Log Network Requests',
+              'Record provider calls and latency in diagnostic history',
+            ],
+          ] as const
+        ).map(([key, title, description]) => (
+          <SettingsRow
+            key={key}
+            title={title}
+            description={`${description}.`}
+            disabled={!settings.debugMode}
+          >
             <SettingsToggle
               label={title}
               checked={settings[key]}
@@ -42,7 +64,11 @@ export function DeveloperSettingsSection() {
           </SettingsRow>
         ))}
 
-        <SettingsRow title="Log Filter Level" description="Minimum severity stored in diagnostic history." disabled={!settings.debugMode}>
+        <SettingsRow
+          title="Log Filter Level"
+          description="Minimum severity stored in diagnostic history."
+          disabled={!settings.debugMode}
+        >
           <SegmentedControl
             value={settings.debugLogLevel}
             onChange={(value) => settings.updateSetting('debugLogLevel', value)}
@@ -57,8 +83,14 @@ export function DeveloperSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Diagnostic Data" description="Local diagnostic history can be cleared without changing preferences.">
-        <SettingsRow title="Clear Debug Logs" description="Remove recorded application logs and network history.">
+      <SettingsGroup
+        title="Diagnostic Data"
+        description="Local diagnostic history can be cleared without changing preferences."
+      >
+        <SettingsRow
+          title="Clear Debug Logs"
+          description="Remove recorded application logs and network history."
+        >
           <SettingsButton
             disabled={!settings.debugMode}
             onClick={() => {
@@ -71,7 +103,6 @@ export function DeveloperSettingsSection() {
           </SettingsButton>
         </SettingsRow>
       </SettingsGroup>
-
     </SettingsPageContent>
   );
 }

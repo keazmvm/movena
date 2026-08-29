@@ -37,12 +37,15 @@ export function WorkspaceSidebar({
   const drag = useRef({ x: 0, startWidth: 0, width: 0 });
   const [isResizing, setIsResizing] = useState(false);
 
-  const handleResizeStart = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    drag.current = { x: event.clientX, startWidth: width, width };
-    setIsResizing(true);
-  }, [width]);
+  const handleResizeStart = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      drag.current = { x: event.clientX, startWidth: width, width };
+      setIsResizing(true);
+    },
+    [width],
+  );
 
   const handleResizeMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
@@ -57,29 +60,36 @@ export function WorkspaceSidebar({
     sidebarRef.current?.style.setProperty('--sidebar-width', `${next}px`);
   }, []);
 
-  const handleResizeEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setIsResizing(false);
-    if (drag.current.width !== drag.current.startWidth) onWidthChange(drag.current.width);
-  }, [onWidthChange]);
+  const handleResizeEnd = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      setIsResizing(false);
+      if (drag.current.width !== drag.current.startWidth) onWidthChange(drag.current.width);
+    },
+    [onWidthChange],
+  );
 
-  const handleResizeKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
-    event.preventDefault();
-    const step = event.shiftKey ? 40 : 10;
-    const next = event.key === 'Home'
-      ? WORKSPACE_SIDEBAR_DEFAULT_WIDTH
-      : Math.min(
-          WORKSPACE_SIDEBAR_MAX_WIDTH,
-          Math.max(
-            WORKSPACE_SIDEBAR_MIN_WIDTH,
-            width + (event.key === 'ArrowRight' ? step : -step),
-          ),
-        );
-    onWidthChange(next);
-  }, [onWidthChange, width]);
+  const handleResizeKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+      event.preventDefault();
+      const step = event.shiftKey ? 40 : 10;
+      const next =
+        event.key === 'Home'
+          ? WORKSPACE_SIDEBAR_DEFAULT_WIDTH
+          : Math.min(
+              WORKSPACE_SIDEBAR_MAX_WIDTH,
+              Math.max(
+                WORKSPACE_SIDEBAR_MIN_WIDTH,
+                width + (event.key === 'ArrowRight' ? step : -step),
+              ),
+            );
+      onWidthChange(next);
+    },
+    [onWidthChange, width],
+  );
 
   return (
     <aside
@@ -192,7 +202,9 @@ export function WorkspaceSidebarNavItem({
       onClick={onClick}
       aria-current={active ? 'location' : undefined}
     >
-      <span className={styles.navIcon} aria-hidden="true">{icon}</span>
+      <span className={styles.navIcon} aria-hidden="true">
+        {icon}
+      </span>
       <span className={styles.navLabel}>{t(label)}</span>
     </button>
   );

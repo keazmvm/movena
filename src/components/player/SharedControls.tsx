@@ -7,12 +7,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { ASPECT_OPTIONS } from '../../utils/aspect';
 import { notify } from '../../store/useNotificationStore';
 import { getUserFacingErrorMessage } from '../../utils/error';
-import {
-  Check,
-  Minus,
-  Plus,
-  RotateCcw,
-} from 'lucide-react';
+import { Check, Minus, Plus, RotateCcw } from 'lucide-react';
 import {
   RiAspectRatioFill,
   RiAspectRatioLine,
@@ -49,26 +44,34 @@ export function VolumeControl() {
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseInt(e.target.value, 10);
     void tauriApi.mpvSetVolume(newVolume).catch((error: unknown) => {
-      notify.error('Volume Failed', getUserFacingErrorMessage(error, 'Could not change the volume.'));
+      notify.error(
+        'Volume Failed',
+        getUserFacingErrorMessage(error, 'Could not change the volume.'),
+      );
     });
   };
 
   const handleVolumeToggle = () => {
     const newVolume = isMuted || volume === 0 ? lastAudibleVolume : 0;
     void tauriApi.mpvSetVolume(newVolume).catch((error: unknown) => {
-      notify.error('Volume Failed', getUserFacingErrorMessage(error, 'Could not change the volume.'));
+      notify.error(
+        'Volume Failed',
+        getUserFacingErrorMessage(error, 'Could not change the volume.'),
+      );
     });
   };
 
-  const VolumeIcon = isMuted || volume === 0
-    ? RiVolumeMuteFill
-    : volume < 50
-      ? RiVolumeDownLine
-      : RiVolumeUpLine;
+  const VolumeIcon =
+    isMuted || volume === 0 ? RiVolumeMuteFill : volume < 50 ? RiVolumeDownLine : RiVolumeUpLine;
 
   return (
     <div className={styles.volumeContainer}>
-      <button type="button" className={styles.iconBtn} onClick={handleVolumeToggle} aria-label={t('Mute / Unmute (M)')}>
+      <button
+        type="button"
+        className={styles.iconBtn}
+        onClick={handleVolumeToggle}
+        aria-label={t('Mute / Unmute (M)')}
+      >
         <VolumeIcon size={22} />
       </button>
       <input
@@ -105,16 +108,24 @@ export function AudioPopover() {
 
   const handleAudioTrack = (trackId: number) => {
     void tauriApi.mpvSetAudioTrack(trackId).catch((error: unknown) => {
-      notify.error('Track Selection Failed', getUserFacingErrorMessage(error, 'Could not switch the audio track.'));
+      notify.error(
+        'Track Selection Failed',
+        getUserFacingErrorMessage(error, 'Could not switch the audio track.'),
+      );
     });
   };
 
   const setAudioDelay = (value: number) => {
     const next = Number.isFinite(value) ? Math.max(-5000, Math.min(5000, value)) : 0;
     updateSetting('audioDelayMs', next);
-    void tauriApi.mpvSetProperty({ property: 'audio-delay', value: next / 1000 }).catch((error: unknown) => {
-      notify.error('Audio Sync Failed', getUserFacingErrorMessage(error, 'Could not change the audio delay.'));
-    });
+    void tauriApi
+      .mpvSetProperty({ property: 'audio-delay', value: next / 1000 })
+      .catch((error: unknown) => {
+        notify.error(
+          'Audio Sync Failed',
+          getUserFacingErrorMessage(error, 'Could not change the audio delay.'),
+        );
+      });
   };
 
   const commitAudioDelayDraft = () => {
@@ -128,7 +139,8 @@ export function AudioPopover() {
 
   return (
     <div className={styles.popoverContainer} data-popover>
-      <button type="button"
+      <button
+        type="button"
         className={`${styles.iconBtn} ${isOpen || audioDelayMs !== 0 ? styles.activeIcon : ''}`}
         onClick={() => setActivePopover(isOpen ? null : 'audio')}
         aria-label={t('Audio')}
@@ -146,7 +158,8 @@ export function AudioPopover() {
             <>
               <div className={styles.popoverTitle}>{t('Audio Tracks')}</div>
               {audioTracks.map((track) => (
-                <button type="button"
+                <button
+                  type="button"
                   key={`audio-${track.id}`}
                   className={`${styles.popoverItem} ${currentAudioTrack === track.id ? styles.popoverItemActive : ''}`}
                   onClick={() => handleAudioTrack(track.id)}
@@ -158,14 +171,22 @@ export function AudioPopover() {
             </>
           )}
 
-          <div className={styles.popoverTitle} style={{ marginTop: audioTracks.length > 0 ? 6 : 0 }}>{t('Audio Sync')}</div>
+          <div
+            className={styles.popoverTitle}
+            style={{ marginTop: audioTracks.length > 0 ? 6 : 0 }}
+          >
+            {t('Audio Sync')}
+          </div>
           <div className={styles.audioSyncControl}>
             <div className="uiFieldGroup">
-              <IconButton size="sm"
+              <IconButton
+                size="sm"
                 className={styles.audioSyncNudgeButton}
                 onClick={() => setAudioDelay(audioDelayMs - 1)}
                 aria-label="Decrease audio sync by 1 millisecond"
-              ><Minus size={14} /></IconButton>
+              >
+                <Minus size={14} />
+              </IconButton>
               <div className={styles.audioSyncInputWrap}>
                 <input
                   className={`uiField ${styles.audioSyncInput}`}
@@ -173,7 +194,11 @@ export function AudioPopover() {
                   type="text"
                   inputMode="numeric"
                   value={audioDelayDraft}
-                  onChange={(event) => setAudioDelayDraft(event.target.value.replace(/[^\d-]/g, '').replace(/(?!^)-/g, ''))}
+                  onChange={(event) =>
+                    setAudioDelayDraft(
+                      event.target.value.replace(/[^\d-]/g, '').replace(/(?!^)-/g, ''),
+                    )
+                  }
                   onBlur={commitAudioDelayDraft}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {
@@ -189,12 +214,16 @@ export function AudioPopover() {
                 />
                 <span className={styles.audioSyncUnit}>ms</span>
               </div>
-              <IconButton size="sm"
+              <IconButton
+                size="sm"
                 className={styles.audioSyncNudgeButton}
                 onClick={() => setAudioDelay(audioDelayMs + 1)}
                 aria-label="Increase audio sync by 1 millisecond"
-              ><Plus size={14} /></IconButton>
-              <IconButton size="sm"
+              >
+                <Plus size={14} />
+              </IconButton>
+              <IconButton
+                size="sm"
                 className={styles.audioSyncResetButton}
                 onClick={() => setAudioDelay(0)}
                 aria-label="Reset audio sync"
@@ -225,25 +254,38 @@ export function SubtitlePopover() {
 
   const handleSubTrack = (trackId: number) => {
     void tauriApi.mpvSetSubTrack(trackId).catch((error: unknown) => {
-      notify.error('Track Selection Failed', getUserFacingErrorMessage(error, 'Could not switch subtitles.'));
+      notify.error(
+        'Track Selection Failed',
+        getUserFacingErrorMessage(error, 'Could not switch subtitles.'),
+      );
     });
   };
 
   const setSubtitleStyle = (key: 'subtitleFontSize' | 'subtitleOpacity', value: number) => {
-    const limits = key === 'subtitleFontSize' ? [12, 96] as const : [0, 100] as const;
+    const limits = key === 'subtitleFontSize' ? ([12, 96] as const) : ([0, 100] as const);
     const next = Math.max(limits[0], Math.min(limits[1], value));
     updateSetting(key, next);
-    const update = key === 'subtitleFontSize'
-      ? { property: 'sub-font-size' as const, value: next }
-      : { property: 'sub-color' as const, value: `#FFFFFF${Math.round(next * 2.55).toString(16).padStart(2, '0')}` };
+    const update =
+      key === 'subtitleFontSize'
+        ? { property: 'sub-font-size' as const, value: next }
+        : {
+            property: 'sub-color' as const,
+            value: `#FFFFFF${Math.round(next * 2.55)
+              .toString(16)
+              .padStart(2, '0')}`,
+          };
     void tauriApi.mpvSetProperty(update).catch((error: unknown) => {
-      notify.error('Subtitle Style Failed', getUserFacingErrorMessage(error, 'Could not update the subtitle style.'));
+      notify.error(
+        'Subtitle Style Failed',
+        getUserFacingErrorMessage(error, 'Could not update the subtitle style.'),
+      );
     });
   };
 
   return (
     <div className={styles.popoverContainer} data-popover>
-      <button type="button"
+      <button
+        type="button"
         className={`${styles.iconBtn} ${isOpen || isSubActive || hasCustomStyle ? styles.activeIcon : ''}`}
         onClick={() => setActivePopover(isOpen ? null : 'subtitles')}
         aria-label={t('Subtitles and closed captions')}
@@ -258,7 +300,8 @@ export function SubtitlePopover() {
       {isOpen && (
         <div className={`${styles.popoverMenu} subtle-scrollbar`}>
           <div className={styles.popoverTitle}>{t('Subtitles & CC')}</div>
-          <button type="button"
+          <button
+            type="button"
             className={`${styles.popoverItem} ${!isSubActive ? styles.popoverItemActive : ''}`}
             onClick={() => handleSubTrack(0)}
           >
@@ -266,7 +309,8 @@ export function SubtitlePopover() {
             {!isSubActive && <Check size={14} />}
           </button>
           {subtitleTracks.map((track) => (
-            <button type="button"
+            <button
+              type="button"
               key={`sub-${track.id}`}
               className={`${styles.popoverItem} ${subtitlesVisible && currentSubTrack === track.id ? styles.popoverItemActive : ''}`}
               onClick={() => handleSubTrack(track.id)}
@@ -278,14 +322,36 @@ export function SubtitlePopover() {
 
           <div className={styles.popoverTitle}>{t('Quick Adjustments')}</div>
           <label className={styles.popoverAdjustment}>
-            <span className={styles.popoverAdjustmentHeader}><span>{t('Subtitle size')}</span><strong>{subtitleFontSize}px</strong></span>
-            <input className={styles.popoverRange} type="range" min="12" max="96" step="1" value={subtitleFontSize}
-              onChange={(event) => setSubtitleStyle('subtitleFontSize', Number(event.target.value))} aria-label={t('Subtitle size')} />
+            <span className={styles.popoverAdjustmentHeader}>
+              <span>{t('Subtitle size')}</span>
+              <strong>{subtitleFontSize}px</strong>
+            </span>
+            <input
+              className={styles.popoverRange}
+              type="range"
+              min="12"
+              max="96"
+              step="1"
+              value={subtitleFontSize}
+              onChange={(event) => setSubtitleStyle('subtitleFontSize', Number(event.target.value))}
+              aria-label={t('Subtitle size')}
+            />
           </label>
           <label className={styles.popoverAdjustment}>
-            <span className={styles.popoverAdjustmentHeader}><span>{t('Subtitle opacity')}</span><strong>{subtitleOpacity}%</strong></span>
-            <input className={styles.popoverRange} type="range" min="0" max="100" step="1" value={subtitleOpacity}
-              onChange={(event) => setSubtitleStyle('subtitleOpacity', Number(event.target.value))} aria-label={t('Subtitle opacity')} />
+            <span className={styles.popoverAdjustmentHeader}>
+              <span>{t('Subtitle opacity')}</span>
+              <strong>{subtitleOpacity}%</strong>
+            </span>
+            <input
+              className={styles.popoverRange}
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={subtitleOpacity}
+              onChange={(event) => setSubtitleStyle('subtitleOpacity', Number(event.target.value))}
+              aria-label={t('Subtitle opacity')}
+            />
           </label>
         </div>
       )}
@@ -313,7 +379,8 @@ export function AspectRatioControl() {
 
   return (
     <div className={styles.popoverContainer} data-popover>
-      <button type="button"
+      <button
+        type="button"
         className={`${styles.iconBtn} ${aspectRatio !== 'auto' ? styles.activeIcon : ''}`}
         onClick={() => setActivePopover(isOpen ? null : 'aspect')}
         aria-label={t('Aspect Ratio')}
@@ -329,7 +396,8 @@ export function AspectRatioControl() {
         <div className={`${styles.popoverMenu} subtle-scrollbar`} style={{ minWidth: '190px' }}>
           <div className={styles.popoverTitle}>{t('Aspect Ratio')}</div>
           {ASPECT_OPTIONS.map((option) => (
-            <button type="button"
+            <button
+              type="button"
               key={option.mode}
               className={`${styles.popoverItem} ${aspectRatio === option.mode ? styles.popoverItemActive : ''}`}
               aria-label={t(option.label)}
@@ -337,7 +405,13 @@ export function AspectRatioControl() {
               onClick={() => {
                 updateSetting('aspectRatio', option.mode);
                 void applyAspectRatio(option.mode, true).catch((error: unknown) => {
-                  notify.error('Aspect Ratio Failed', getUserFacingErrorMessage(error, `Could not apply aspect ratio mode "${option.mode}".`));
+                  notify.error(
+                    'Aspect Ratio Failed',
+                    getUserFacingErrorMessage(
+                      error,
+                      `Could not apply aspect ratio mode "${option.mode}".`,
+                    ),
+                  );
                 });
                 setActivePopover(null);
               }}
@@ -359,7 +433,8 @@ export function FullscreenButton() {
   const isFullscreen = usePlayerStore((s) => s.isFullscreen);
 
   return (
-    <button type="button"
+    <button
+      type="button"
       className={styles.iconBtn}
       onClick={() => void toggleWindowFullscreen()}
       aria-label={t('Toggle Fullscreen (F)')}

@@ -3,7 +3,13 @@ import { MotionConfig } from 'framer-motion';
 import { MemoryRouter } from 'react-router-dom';
 import { type M3uEntry, type M3uPlaylist } from '../../src/api/m3u';
 import { detailQueryKeys } from '../../src/api/useDetails';
-import { getCombinedSourceQueryScope, getM3uQueryScope, getUrlQueryScope, getXtreamQueryScope, queryKeys } from '../../src/api/queryKeys';
+import {
+  getCombinedSourceQueryScope,
+  getM3uQueryScope,
+  getUrlQueryScope,
+  getXtreamQueryScope,
+  queryKeys,
+} from '../../src/api/queryKeys';
 import type { UpcomingRelease } from '../../src/api/useUpcomingReleases';
 import type { XCSeriesInfoResponse, XCVodInfo } from '../../src/api/xc';
 import { desktopApi } from '../../src/api/desktop';
@@ -30,13 +36,20 @@ import { Series } from '../../src/pages/Series';
 import { Settings } from '../../src/pages/Settings';
 import { Upcoming } from '../../src/pages/Upcoming';
 import { useDownloadStore } from '../../src/store/useDownloadStore';
-import { useAuthStore, type XCCredentials, type XtreamSourceProfile } from '../../src/store/useAuthStore';
+import {
+  useAuthStore,
+  type XCCredentials,
+  type XtreamSourceProfile,
+} from '../../src/store/useAuthStore';
 import { useLibraryStore } from '../../src/store/useLibraryStore';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { useSourceStore, type M3uSourceProfile } from '../../src/store/useSourceStore';
 import type { DownloadJob } from '../../src/utils/downloads';
-import { resolveSettingsSectionId, type SettingsSectionId } from '../../src/utils/settingsNavigation';
+import {
+  resolveSettingsSectionId,
+  type SettingsSectionId,
+} from '../../src/utils/settingsNavigation';
 import appStyles from '../../src/components/layout/AppLayout.module.css';
 import type { ReadmeSurface } from '../readmeSurfaces';
 import { NotFoundPage } from '../../src/App';
@@ -156,7 +169,8 @@ const DUNE_DETAILS: XCVodInfo = {
     movie_image: TMDB_ARTWORK.dunePartTwo.poster,
     backdrop_path: [TMDB_ARTWORK.dunePartTwo.backdrop],
     name: 'Dune: Part Two',
-    description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
+    description:
+      'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
     plot: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
     genre: 'Science Fiction, Adventure',
     releaseDate: '2024-02-27',
@@ -194,8 +208,10 @@ function severanceEpisode(
     source_id: XTREAM_SOURCE_ID,
     info: {
       duration_secs: runtimeMinutes * 60,
-      duration: `${Math.floor(runtimeMinutes / 60).toString().padStart(2, '0')}:${(runtimeMinutes % 60).toString().padStart(2, '0')}:00`,
-      movie_image: artwork((season * 10) + number, true),
+      duration: `${Math.floor(runtimeMinutes / 60)
+        .toString()
+        .padStart(2, '0')}:${(runtimeMinutes % 60).toString().padStart(2, '0')}:00`,
+      movie_image: artwork(season * 10 + number, true),
       plot,
     },
   };
@@ -203,8 +219,20 @@ function severanceEpisode(
 
 const SEVERANCE_DETAILS: XCSeriesInfoResponse = {
   seasons: [
-    { id: 1, name: 'Season 1', season_number: 1, episode_count: 9, cover: TMDB_ARTWORK.severance.poster },
-    { id: 2, name: 'Season 2', season_number: 2, episode_count: 10, cover: TMDB_ARTWORK.severance.poster },
+    {
+      id: 1,
+      name: 'Season 1',
+      season_number: 1,
+      episode_count: 9,
+      cover: TMDB_ARTWORK.severance.poster,
+    },
+    {
+      id: 2,
+      name: 'Season 2',
+      season_number: 2,
+      episode_count: 10,
+      cover: TMDB_ARTWORK.severance.poster,
+    },
   ],
   info: {
     name: 'Severance',
@@ -219,27 +247,160 @@ const SEVERANCE_DETAILS: XCSeriesInfoResponse = {
   },
   episodes: {
     '1': [
-      severanceEpisode(1, 1, 'Good News About Hell', 59, 'sP3GZe9j7BY3CAyZGFuZxxnGpN1.jpg', 'Mark is promoted to lead a team whose work and personal memories have been surgically separated.'),
-      severanceEpisode(1, 2, 'Half Loop', 57, 'wIQP0P2tyE7VRIN3xR8Efq7UgKt.jpg', 'The team trains Helly in macrodata refinement while Mark meets a mysterious former colleague.'),
-      severanceEpisode(1, 3, 'In Perpetuity', 60, 'hMpY4wpHlwMf42aDM25bU9fau5f.jpg', 'Helly continues to resist Lumon as a deteriorating Petey tells Mark more about the company.'),
-      severanceEpisode(1, 4, 'The You You Are', 50, 'dzQJeDznS0I4spAqTImiLH9p252.jpg', 'Irving discovers a forbidden book, Helly demands contact with her Outie, and Mark attends a funeral.'),
-      severanceEpisode(1, 5, 'The Grim Barbarity of Optics and Design', 47, 'oy4BZotFbNX5YoPkWuWF3kcdMVw.jpg', 'Irving and Dylan confront Burt while Mark and Helly discover another department.'),
-      severanceEpisode(1, 6, 'Hide and Seek', 44, '3fQp0pUtgDkqqyEbXY8KKCZPMU7.jpg', 'The refiners form an alliance that puts them in direct conflict with Cobel.'),
-      severanceEpisode(1, 7, 'Defiant Jazz', 53, 'gHoKlbC2esqq3SXm0ZCcl3bzpFZ.jpg', 'Cobel introduces new security measures as Mark and the team push back.'),
-      severanceEpisode(1, 8, "What's for Dinner?", 50, '8Gv9ELume0jo7gz7R2h4tPmVLsD.jpg', 'The team prepares its plan while Mark attends a party hosted by Devon and Ricken.'),
-      severanceEpisode(1, 9, 'The We We Are', 44, 'dzx8D2B0ELncXuCNwtPCags43Q.jpg', 'The refiners use the overtime contingency and uncover troubling truths about their outside lives.'),
+      severanceEpisode(
+        1,
+        1,
+        'Good News About Hell',
+        59,
+        'sP3GZe9j7BY3CAyZGFuZxxnGpN1.jpg',
+        'Mark is promoted to lead a team whose work and personal memories have been surgically separated.',
+      ),
+      severanceEpisode(
+        1,
+        2,
+        'Half Loop',
+        57,
+        'wIQP0P2tyE7VRIN3xR8Efq7UgKt.jpg',
+        'The team trains Helly in macrodata refinement while Mark meets a mysterious former colleague.',
+      ),
+      severanceEpisode(
+        1,
+        3,
+        'In Perpetuity',
+        60,
+        'hMpY4wpHlwMf42aDM25bU9fau5f.jpg',
+        'Helly continues to resist Lumon as a deteriorating Petey tells Mark more about the company.',
+      ),
+      severanceEpisode(
+        1,
+        4,
+        'The You You Are',
+        50,
+        'dzQJeDznS0I4spAqTImiLH9p252.jpg',
+        'Irving discovers a forbidden book, Helly demands contact with her Outie, and Mark attends a funeral.',
+      ),
+      severanceEpisode(
+        1,
+        5,
+        'The Grim Barbarity of Optics and Design',
+        47,
+        'oy4BZotFbNX5YoPkWuWF3kcdMVw.jpg',
+        'Irving and Dylan confront Burt while Mark and Helly discover another department.',
+      ),
+      severanceEpisode(
+        1,
+        6,
+        'Hide and Seek',
+        44,
+        '3fQp0pUtgDkqqyEbXY8KKCZPMU7.jpg',
+        'The refiners form an alliance that puts them in direct conflict with Cobel.',
+      ),
+      severanceEpisode(
+        1,
+        7,
+        'Defiant Jazz',
+        53,
+        'gHoKlbC2esqq3SXm0ZCcl3bzpFZ.jpg',
+        'Cobel introduces new security measures as Mark and the team push back.',
+      ),
+      severanceEpisode(
+        1,
+        8,
+        "What's for Dinner?",
+        50,
+        '8Gv9ELume0jo7gz7R2h4tPmVLsD.jpg',
+        'The team prepares its plan while Mark attends a party hosted by Devon and Ricken.',
+      ),
+      severanceEpisode(
+        1,
+        9,
+        'The We We Are',
+        44,
+        'dzx8D2B0ELncXuCNwtPCags43Q.jpg',
+        'The refiners use the overtime contingency and uncover troubling truths about their outside lives.',
+      ),
     ],
     '2': [
-      severanceEpisode(2, 1, 'Hello, Ms. Cobel', 54, 'a97vNY8Knu45FLQib0uQZ2VReLy.jpg', 'Mark returns to the severed floor under changed circumstances as outside secrets surface.'),
-      severanceEpisode(2, 2, 'Goodbye, Mrs. Selvig', 49, 'wjlSkqMoLngSO6fv2Ajt2CIeCSi.jpg', 'Mark considers the meaning of a message while Lumon works to regain control.'),
-      severanceEpisode(2, 3, 'Who Is Alive?', 57, 'j4AUAq1XJOBmfXsLphZzsCz6pZs.jpg', 'Mark, Helly, Irving, and Dylan search for answers about the people they care about.'),
-      severanceEpisode(2, 4, "Woe's Hollow", 54, 'mioOOhTaShLd1MPKsmfirbe9AwI.jpg', 'The team leaves the severed floor for an unsettling outdoor retreat.'),
-      severanceEpisode(2, 5, "Trojan's Horse", 50, 'csATq6CUnvyMY26cTKy3YmlmOyK.jpg', 'Tensions rise across the team after a painful loss changes their relationships.'),
-      severanceEpisode(2, 6, 'Attila', 52, '4J8HXT1FIjnLJiNt6xwR0TnmLcX.jpg', 'Personal bonds are tested as Mark continues searching for the truth.'),
-      severanceEpisode(2, 7, 'Chikhai Bardo', 53, 'dmzBzYcEtjOYJO46p7kyRmYrHZu.jpg', 'Mark confronts memories of Gemma as past love collides with a present threat.'),
-      severanceEpisode(2, 8, 'Sweet Vitriol', 41, 'piWjCKARsSkmr9kMKHZ5ynengj3.jpg', 'Harmony Cobel returns home and makes discoveries about Lumon and her own past.'),
-      severanceEpisode(2, 9, 'The After Hours', 48, '2RJaWjY4dD5s7jpdo2aGeSLmtI3.jpg', 'Mark and Devon join an ally while Helly continues her investigation inside Lumon.'),
-      severanceEpisode(2, 10, 'Cold Harbor', 80, 'gXUvGwpZxrpqMRouxM7yI28lgNa.jpg', 'Mark forms a fragile alliance for a final attempt as the refiners make a dangerous stand.'),
+      severanceEpisode(
+        2,
+        1,
+        'Hello, Ms. Cobel',
+        54,
+        'a97vNY8Knu45FLQib0uQZ2VReLy.jpg',
+        'Mark returns to the severed floor under changed circumstances as outside secrets surface.',
+      ),
+      severanceEpisode(
+        2,
+        2,
+        'Goodbye, Mrs. Selvig',
+        49,
+        'wjlSkqMoLngSO6fv2Ajt2CIeCSi.jpg',
+        'Mark considers the meaning of a message while Lumon works to regain control.',
+      ),
+      severanceEpisode(
+        2,
+        3,
+        'Who Is Alive?',
+        57,
+        'j4AUAq1XJOBmfXsLphZzsCz6pZs.jpg',
+        'Mark, Helly, Irving, and Dylan search for answers about the people they care about.',
+      ),
+      severanceEpisode(
+        2,
+        4,
+        "Woe's Hollow",
+        54,
+        'mioOOhTaShLd1MPKsmfirbe9AwI.jpg',
+        'The team leaves the severed floor for an unsettling outdoor retreat.',
+      ),
+      severanceEpisode(
+        2,
+        5,
+        "Trojan's Horse",
+        50,
+        'csATq6CUnvyMY26cTKy3YmlmOyK.jpg',
+        'Tensions rise across the team after a painful loss changes their relationships.',
+      ),
+      severanceEpisode(
+        2,
+        6,
+        'Attila',
+        52,
+        '4J8HXT1FIjnLJiNt6xwR0TnmLcX.jpg',
+        'Personal bonds are tested as Mark continues searching for the truth.',
+      ),
+      severanceEpisode(
+        2,
+        7,
+        'Chikhai Bardo',
+        53,
+        'dmzBzYcEtjOYJO46p7kyRmYrHZu.jpg',
+        'Mark confronts memories of Gemma as past love collides with a present threat.',
+      ),
+      severanceEpisode(
+        2,
+        8,
+        'Sweet Vitriol',
+        41,
+        'piWjCKARsSkmr9kMKHZ5ynengj3.jpg',
+        'Harmony Cobel returns home and makes discoveries about Lumon and her own past.',
+      ),
+      severanceEpisode(
+        2,
+        9,
+        'The After Hours',
+        48,
+        '2RJaWjY4dD5s7jpdo2aGeSLmtI3.jpg',
+        'Mark and Devon join an ally while Helly continues her investigation inside Lumon.',
+      ),
+      severanceEpisode(
+        2,
+        10,
+        'Cold Harbor',
+        80,
+        'gXUvGwpZxrpqMRouxM7yI28lgNa.jpg',
+        'Mark forms a fragile alliance for a final attempt as the refiners make a dangerous stand.',
+      ),
     ],
   },
 };
@@ -319,36 +480,228 @@ function entry(
 }
 
 const MOVIES: M3uEntry[] = [
-  entry('movie-dune-part-two', 'Dune: Part Two', 'vod', 'Science Fiction', 0, { logo: TMDB_ARTWORK.dunePartTwo.poster, duration: 10_020, year: '2024', rating: 8.1, description: 'Paul Atreides joins Chani and the Fremen while seeking revenge against those who destroyed his family.' }),
-  entry('movie-parasite', 'Parasite', 'vod', 'Thriller', 1, { logo: TMDB_ARTWORK.parasite.poster, duration: 7_920, year: '2019', rating: 8.5, description: 'A cash-strapped family gradually enters the household of a wealthy family, with unexpected consequences.' }),
-  entry('movie-spirited-away', 'Spirited Away', 'vod', 'Animation', 2, { logo: TMDB_ARTWORK.spiritedAway.poster, duration: 7_500, year: '2001', rating: 8.5, description: 'Chihiro enters a spirit world and must find a way to rescue her transformed parents.' }),
-  entry('movie-the-matrix', 'The Matrix', 'vod', 'Science Fiction', 3, { logo: TMDB_ARTWORK.theMatrix.poster, duration: 8_160, year: '1999', rating: 8.3, description: 'A computer hacker discovers that the world he knows is a simulated reality and joins a rebellion against its controllers.' }),
-  entry('movie-arrival', 'Arrival', 'vod', 'Science Fiction', 4, { logo: TMDB_ARTWORK.arrival.poster, duration: 6_960, year: '2016', rating: 7.6, description: 'A linguist is recruited to communicate with visitors after mysterious spacecraft appear around the world.' }),
-  entry('movie-grand-budapest', 'The Grand Budapest Hotel', 'vod', 'Comedy', 5, { logo: TMDB_ARTWORK.grandBudapestHotel.poster, duration: 6_000, year: '2014', rating: 8.0, description: 'A hotel concierge and his lobby-boy protege become entangled in a dispute over a valuable painting.' }),
-  entry('movie-mad-max-fury-road', 'Mad Max: Fury Road', 'vod', 'Action', 2, { logo: TMDB_ARTWORK.madMaxFuryRoad.poster, duration: 7_200, year: '2015', rating: 7.6, description: 'Max joins Furiosa and a band of rebels fleeing a tyrant across a ruined wasteland.' }),
-  entry('movie-the-godfather', 'The Godfather', 'vod', 'Crime', 0, { logo: TMDB_ARTWORK.theGodfather.poster, duration: 10_500, year: '1972', rating: 8.7, description: 'The aging head of a crime family transfers control of his empire to his reluctant son.' }),
+  entry('movie-dune-part-two', 'Dune: Part Two', 'vod', 'Science Fiction', 0, {
+    logo: TMDB_ARTWORK.dunePartTwo.poster,
+    duration: 10_020,
+    year: '2024',
+    rating: 8.1,
+    description:
+      'Paul Atreides joins Chani and the Fremen while seeking revenge against those who destroyed his family.',
+  }),
+  entry('movie-parasite', 'Parasite', 'vod', 'Thriller', 1, {
+    logo: TMDB_ARTWORK.parasite.poster,
+    duration: 7_920,
+    year: '2019',
+    rating: 8.5,
+    description:
+      'A cash-strapped family gradually enters the household of a wealthy family, with unexpected consequences.',
+  }),
+  entry('movie-spirited-away', 'Spirited Away', 'vod', 'Animation', 2, {
+    logo: TMDB_ARTWORK.spiritedAway.poster,
+    duration: 7_500,
+    year: '2001',
+    rating: 8.5,
+    description:
+      'Chihiro enters a spirit world and must find a way to rescue her transformed parents.',
+  }),
+  entry('movie-the-matrix', 'The Matrix', 'vod', 'Science Fiction', 3, {
+    logo: TMDB_ARTWORK.theMatrix.poster,
+    duration: 8_160,
+    year: '1999',
+    rating: 8.3,
+    description:
+      'A computer hacker discovers that the world he knows is a simulated reality and joins a rebellion against its controllers.',
+  }),
+  entry('movie-arrival', 'Arrival', 'vod', 'Science Fiction', 4, {
+    logo: TMDB_ARTWORK.arrival.poster,
+    duration: 6_960,
+    year: '2016',
+    rating: 7.6,
+    description:
+      'A linguist is recruited to communicate with visitors after mysterious spacecraft appear around the world.',
+  }),
+  entry('movie-grand-budapest', 'The Grand Budapest Hotel', 'vod', 'Comedy', 5, {
+    logo: TMDB_ARTWORK.grandBudapestHotel.poster,
+    duration: 6_000,
+    year: '2014',
+    rating: 8.0,
+    description:
+      'A hotel concierge and his lobby-boy protege become entangled in a dispute over a valuable painting.',
+  }),
+  entry('movie-mad-max-fury-road', 'Mad Max: Fury Road', 'vod', 'Action', 2, {
+    logo: TMDB_ARTWORK.madMaxFuryRoad.poster,
+    duration: 7_200,
+    year: '2015',
+    rating: 7.6,
+    description:
+      'Max joins Furiosa and a band of rebels fleeing a tyrant across a ruined wasteland.',
+  }),
+  entry('movie-the-godfather', 'The Godfather', 'vod', 'Crime', 0, {
+    logo: TMDB_ARTWORK.theGodfather.poster,
+    duration: 10_500,
+    year: '1972',
+    rating: 8.7,
+    description:
+      'The aging head of a crime family transfers control of his empire to his reluctant son.',
+  }),
 ];
 
 const SERIES: M3uEntry[] = [
-  entry('series-severance-s1e1', 'Severance S01E01 - Good News About Hell', 'series', 'Drama Series', 5, { logo: TMDB_ARTWORK.severance.poster, duration: 3_420, rating: 8.4, year: '2022', description: 'Mark leads a team whose work memories have been surgically separated from their personal lives.', episode: { seriesTitle: 'Severance', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Good News About Hell' } }),
-  entry('series-severance-s1e2', 'Severance S01E02 - Half Loop', 'series', 'Drama Series', 0, { logo: TMDB_ARTWORK.severance.poster, duration: 3_180, rating: 8.4, year: '2022', description: 'The severed floor welcomes a new employee while Mark navigates a life split in two.', episode: { seriesTitle: 'Severance', seasonNumber: 1, episodeNumber: 2, episodeTitle: 'Half Loop' } }),
-  entry('series-severance-s1e3', 'Severance S01E03 - In Perpetuity', 'series', 'Drama Series', 2, { logo: TMDB_ARTWORK.severance.poster, duration: 3_360, rating: 8.4, year: '2022', description: 'A visit to Lumon history raises more questions about the severance programme.', episode: { seriesTitle: 'Severance', seasonNumber: 1, episodeNumber: 3, episodeTitle: 'In Perpetuity' } }),
-  entry('series-severance-s2e1', 'Severance S02E01 - Hello, Ms. Cobel', 'series', 'Drama Series', 4, { logo: TMDB_ARTWORK.severance.poster, duration: 2_880, rating: 8.4, year: '2025', description: 'Mark returns to the severed floor after the overtime contingency.', episode: { seriesTitle: 'Severance', seasonNumber: 2, episodeNumber: 1, episodeTitle: 'Hello, Ms. Cobel' } }),
-  entry('series-the-bear-s1e1', 'The Bear S01E01 - System', 'series', 'Comedy Drama', 3, { logo: TMDB_ARTWORK.theBear.poster, duration: 1_620, rating: 8.1, year: '2022', episode: { seriesTitle: 'The Bear', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'System' } }),
-  entry('series-dark-s1e1', 'Dark S01E01 - Secrets', 'series', 'Mystery Series', 4, { logo: TMDB_ARTWORK.dark.poster, duration: 3_120, rating: 8.4, year: '2017', episode: { seriesTitle: 'Dark', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Secrets' } }),
-  entry('series-arcane-s1e1', 'Arcane S01E01 - Welcome to the Playground', 'series', 'Animation', 1, { logo: TMDB_ARTWORK.arcane.poster, duration: 2_580, rating: 8.8, year: '2021', episode: { seriesTitle: 'Arcane', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Welcome to the Playground' } }),
-  entry('series-shogun-s1e1', 'Shōgun S01E01 - Anjin', 'series', 'Historical Drama', 2, { logo: TMDB_ARTWORK.shogun.poster, duration: 4_200, rating: 8.4, year: '2024', episode: { seriesTitle: 'Shōgun', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Anjin' } }),
+  entry(
+    'series-severance-s1e1',
+    'Severance S01E01 - Good News About Hell',
+    'series',
+    'Drama Series',
+    5,
+    {
+      logo: TMDB_ARTWORK.severance.poster,
+      duration: 3_420,
+      rating: 8.4,
+      year: '2022',
+      description:
+        'Mark leads a team whose work memories have been surgically separated from their personal lives.',
+      episode: {
+        seriesTitle: 'Severance',
+        seasonNumber: 1,
+        episodeNumber: 1,
+        episodeTitle: 'Good News About Hell',
+      },
+    },
+  ),
+  entry('series-severance-s1e2', 'Severance S01E02 - Half Loop', 'series', 'Drama Series', 0, {
+    logo: TMDB_ARTWORK.severance.poster,
+    duration: 3_180,
+    rating: 8.4,
+    year: '2022',
+    description:
+      'The severed floor welcomes a new employee while Mark navigates a life split in two.',
+    episode: {
+      seriesTitle: 'Severance',
+      seasonNumber: 1,
+      episodeNumber: 2,
+      episodeTitle: 'Half Loop',
+    },
+  }),
+  entry('series-severance-s1e3', 'Severance S01E03 - In Perpetuity', 'series', 'Drama Series', 2, {
+    logo: TMDB_ARTWORK.severance.poster,
+    duration: 3_360,
+    rating: 8.4,
+    year: '2022',
+    description: 'A visit to Lumon history raises more questions about the severance programme.',
+    episode: {
+      seriesTitle: 'Severance',
+      seasonNumber: 1,
+      episodeNumber: 3,
+      episodeTitle: 'In Perpetuity',
+    },
+  }),
+  entry(
+    'series-severance-s2e1',
+    'Severance S02E01 - Hello, Ms. Cobel',
+    'series',
+    'Drama Series',
+    4,
+    {
+      logo: TMDB_ARTWORK.severance.poster,
+      duration: 2_880,
+      rating: 8.4,
+      year: '2025',
+      description: 'Mark returns to the severed floor after the overtime contingency.',
+      episode: {
+        seriesTitle: 'Severance',
+        seasonNumber: 2,
+        episodeNumber: 1,
+        episodeTitle: 'Hello, Ms. Cobel',
+      },
+    },
+  ),
+  entry('series-the-bear-s1e1', 'The Bear S01E01 - System', 'series', 'Comedy Drama', 3, {
+    logo: TMDB_ARTWORK.theBear.poster,
+    duration: 1_620,
+    rating: 8.1,
+    year: '2022',
+    episode: { seriesTitle: 'The Bear', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'System' },
+  }),
+  entry('series-dark-s1e1', 'Dark S01E01 - Secrets', 'series', 'Mystery Series', 4, {
+    logo: TMDB_ARTWORK.dark.poster,
+    duration: 3_120,
+    rating: 8.4,
+    year: '2017',
+    episode: { seriesTitle: 'Dark', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Secrets' },
+  }),
+  entry(
+    'series-arcane-s1e1',
+    'Arcane S01E01 - Welcome to the Playground',
+    'series',
+    'Animation',
+    1,
+    {
+      logo: TMDB_ARTWORK.arcane.poster,
+      duration: 2_580,
+      rating: 8.8,
+      year: '2021',
+      episode: {
+        seriesTitle: 'Arcane',
+        seasonNumber: 1,
+        episodeNumber: 1,
+        episodeTitle: 'Welcome to the Playground',
+      },
+    },
+  ),
+  entry('series-shogun-s1e1', 'Shōgun S01E01 - Anjin', 'series', 'Historical Drama', 2, {
+    logo: TMDB_ARTWORK.shogun.poster,
+    duration: 4_200,
+    rating: 8.4,
+    year: '2024',
+    episode: { seriesTitle: 'Shōgun', seasonNumber: 1, episodeNumber: 1, episodeTitle: 'Anjin' },
+  }),
 ];
 
 const LIVE: M3uEntry[] = [
-  entry('live-bbc-news', 'BBC News', 'live', 'News', 0, { logo: CHANNEL_LOGOS.bbcNews, tvgId: 'bbc.news', channelNumber: '101', catchup: 'append', catchupDays: 7 }),
-  entry('live-cnn-international', 'CNN International', 'live', 'News', 1, { logo: CHANNEL_LOGOS.cnnInternational, tvgId: 'cnn.international', channelNumber: '102', catchup: 'append', catchupDays: 3 }),
-  entry('live-arte', 'ARTE', 'live', 'Culture', 2, { logo: CHANNEL_LOGOS.arte, tvgId: 'arte', channelNumber: '110' }),
-  entry('live-national-geographic', 'National Geographic', 'live', 'Documentary', 3, { logo: CHANNEL_LOGOS.nationalGeographic, tvgId: 'national.geographic', channelNumber: '120' }),
-  entry('live-eurosport', 'Eurosport', 'live', 'Sports', 4, { logo: CHANNEL_LOGOS.eurosport, tvgId: 'eurosport', channelNumber: '130' }),
-  entry('live-mtv', 'MTV', 'live', 'Music', 5, { logo: CHANNEL_LOGOS.mtv, tvgId: 'mtv', channelNumber: '140' }),
-  entry('live-cartoon-network', 'Cartoon Network', 'live', 'Family', 0, { logo: CHANNEL_LOGOS.cartoonNetwork, tvgId: 'cartoon.network', channelNumber: '150' }),
-  entry('live-deutsche-welle', 'DW', 'live', 'News', 2, { logo: CHANNEL_LOGOS.deutscheWelle, tvgId: 'dw', channelNumber: '160' }),
+  entry('live-bbc-news', 'BBC News', 'live', 'News', 0, {
+    logo: CHANNEL_LOGOS.bbcNews,
+    tvgId: 'bbc.news',
+    channelNumber: '101',
+    catchup: 'append',
+    catchupDays: 7,
+  }),
+  entry('live-cnn-international', 'CNN International', 'live', 'News', 1, {
+    logo: CHANNEL_LOGOS.cnnInternational,
+    tvgId: 'cnn.international',
+    channelNumber: '102',
+    catchup: 'append',
+    catchupDays: 3,
+  }),
+  entry('live-arte', 'ARTE', 'live', 'Culture', 2, {
+    logo: CHANNEL_LOGOS.arte,
+    tvgId: 'arte',
+    channelNumber: '110',
+  }),
+  entry('live-national-geographic', 'National Geographic', 'live', 'Documentary', 3, {
+    logo: CHANNEL_LOGOS.nationalGeographic,
+    tvgId: 'national.geographic',
+    channelNumber: '120',
+  }),
+  entry('live-eurosport', 'Eurosport', 'live', 'Sports', 4, {
+    logo: CHANNEL_LOGOS.eurosport,
+    tvgId: 'eurosport',
+    channelNumber: '130',
+  }),
+  entry('live-mtv', 'MTV', 'live', 'Music', 5, {
+    logo: CHANNEL_LOGOS.mtv,
+    tvgId: 'mtv',
+    channelNumber: '140',
+  }),
+  entry('live-cartoon-network', 'Cartoon Network', 'live', 'Family', 0, {
+    logo: CHANNEL_LOGOS.cartoonNetwork,
+    tvgId: 'cartoon.network',
+    channelNumber: '150',
+  }),
+  entry('live-deutsche-welle', 'DW', 'live', 'News', 2, {
+    logo: CHANNEL_LOGOS.deutscheWelle,
+    tvgId: 'dw',
+    channelNumber: '160',
+  }),
 ];
 
 const PLAYLIST: M3uPlaylist = {
@@ -373,11 +726,22 @@ const PROFILE: M3uSourceProfile = {
   hasEpg: true,
 };
 
-function programme(id: string, title: string, startMinutes: number, durationMinutes = 60): EpgProgramme {
+function programme(
+  id: string,
+  title: string,
+  startMinutes: number,
+  durationMinutes = 60,
+): EpgProgramme {
   const anchor = new Date(now);
   anchor.setMinutes(0, 0, 0);
   const start = anchor.getTime() + startMinutes * 60_000;
-  return { id, title, description: `Example XMLTV listing for ${title}.`, start, end: start + durationMinutes * 60_000 };
+  return {
+    id,
+    title,
+    description: `Example XMLTV listing for ${title}.`,
+    start,
+    end: start + durationMinutes * 60_000,
+  };
 }
 
 function guide(): XmltvGuide {
@@ -386,32 +750,96 @@ function guide(): XmltvGuide {
   const nameById = new Map<string, string>();
   const schedules = [
     ['bbc.news', ['BBC News', 'Business Today', 'The Context', 'Newsday']],
-    ['cnn.international', ['CNN Newsroom', 'Connect the World', 'The Lead', 'Quest Means Business']],
+    [
+      'cnn.international',
+      ['CNN Newsroom', 'Connect the World', 'The Lead', 'Quest Means Business'],
+    ],
     ['arte', ['ARTE Journal', 'Tracks', '28 Minutes', 'Metropolis']],
-    ['national.geographic', ['Air Crash Investigation', 'Europe From Above', 'Drain the Oceans', 'Wicked Tuna']],
+    [
+      'national.geographic',
+      ['Air Crash Investigation', 'Europe From Above', 'Drain the Oceans', 'Wicked Tuna'],
+    ],
     ['eurosport', ['Eurosport News', 'Cycling', 'Tennis', 'Snooker']],
     ['mtv', ['MTV Hits', 'Ridiculousness', 'Catfish', 'The Challenge']],
-    ['cartoon.network', ['Teen Titans Go!', 'The Amazing World of Gumball', 'We Bare Bears', 'Adventure Time']],
+    [
+      'cartoon.network',
+      ['Teen Titans Go!', 'The Amazing World of Gumball', 'We Bare Bears', 'Adventure Time'],
+    ],
     ['dw', ['DW News', 'Global Us', 'Focus on Europe', 'The Day']],
   ] as const;
   let count = 0;
   for (const [channelId, titles] of schedules) {
     const scopedId = `${SOURCE_ID}::${channelId}`;
-    byChannel.set(scopedId, titles.map((title, index) => {
-      count += 1;
-      return programme(`${channelId}-${index}`, title, (index - 1) * 60);
-    }));
-    idByName.set(`${SOURCE_ID}::${LIVE.find((item) => item.tvgId === channelId)!.title.toLowerCase()}`, scopedId);
+    byChannel.set(
+      scopedId,
+      titles.map((title, index) => {
+        count += 1;
+        return programme(`${channelId}-${index}`, title, (index - 1) * 60);
+      }),
+    );
+    idByName.set(
+      `${SOURCE_ID}::${LIVE.find((item) => item.tvgId === channelId)!.title.toLowerCase()}`,
+      scopedId,
+    );
     nameById.set(scopedId, LIVE.find((item) => item.tvgId === channelId)!.title);
   }
   return { byChannel, idByName, nameById, channelCount: schedules.length, programmeCount: count };
 }
 
 const DOWNLOADS: DownloadJob[] = [
-  { id: 'download-dune', sourceUrl: 'https://media.example.test/vod/movie-dune-part-two.mp4', fileName: 'Dune Part Two.mp4', state: 'downloading', progress: 0.68, downloadedBytes: 2_720_000_000, totalBytes: 4_000_000_000, attempts: 1, maxAttempts: 3, createdAt: now - 900_000, updatedAt: now },
-  { id: 'download-parasite', sourceUrl: 'https://media.example.test/vod/movie-parasite.mp4', fileName: 'Parasite.mp4', state: 'paused', progress: 0.34, downloadedBytes: 1_020_000_000, totalBytes: 3_000_000_000, attempts: 1, maxAttempts: 3, createdAt: now - 1_800_000, updatedAt: now - 120_000 },
-  { id: 'download-spirited-away', sourceUrl: 'https://media.example.test/vod/movie-spirited-away.mp4', fileName: 'Spirited Away.mp4', state: 'queued', progress: 0, downloadedBytes: 0, totalBytes: 3_400_000_000, attempts: 0, maxAttempts: 3, createdAt: now - 600_000, updatedAt: now - 300_000 },
-  { id: 'download-matrix', sourceUrl: 'https://media.example.test/vod/movie-the-matrix.mp4', filePath: 'C:\\Movena\\The Matrix.mp4', fileName: 'The Matrix.mp4', state: 'completed', progress: 1, downloadedBytes: 2_800_000_000, totalBytes: 2_800_000_000, attempts: 1, maxAttempts: 3, createdAt: now - 7_200_000, updatedAt: now - 3_600_000 },
+  {
+    id: 'download-dune',
+    sourceUrl: 'https://media.example.test/vod/movie-dune-part-two.mp4',
+    fileName: 'Dune Part Two.mp4',
+    state: 'downloading',
+    progress: 0.68,
+    downloadedBytes: 2_720_000_000,
+    totalBytes: 4_000_000_000,
+    attempts: 1,
+    maxAttempts: 3,
+    createdAt: now - 900_000,
+    updatedAt: now,
+  },
+  {
+    id: 'download-parasite',
+    sourceUrl: 'https://media.example.test/vod/movie-parasite.mp4',
+    fileName: 'Parasite.mp4',
+    state: 'paused',
+    progress: 0.34,
+    downloadedBytes: 1_020_000_000,
+    totalBytes: 3_000_000_000,
+    attempts: 1,
+    maxAttempts: 3,
+    createdAt: now - 1_800_000,
+    updatedAt: now - 120_000,
+  },
+  {
+    id: 'download-spirited-away',
+    sourceUrl: 'https://media.example.test/vod/movie-spirited-away.mp4',
+    fileName: 'Spirited Away.mp4',
+    state: 'queued',
+    progress: 0,
+    downloadedBytes: 0,
+    totalBytes: 3_400_000_000,
+    attempts: 0,
+    maxAttempts: 3,
+    createdAt: now - 600_000,
+    updatedAt: now - 300_000,
+  },
+  {
+    id: 'download-matrix',
+    sourceUrl: 'https://media.example.test/vod/movie-the-matrix.mp4',
+    filePath: 'C:\\Movena\\The Matrix.mp4',
+    fileName: 'The Matrix.mp4',
+    state: 'completed',
+    progress: 1,
+    downloadedBytes: 2_800_000_000,
+    totalBytes: 2_800_000_000,
+    attempts: 1,
+    maxAttempts: 3,
+    createdAt: now - 7_200_000,
+    updatedAt: now - 3_600_000,
+  },
 ];
 
 function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
@@ -443,7 +871,11 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
     initializationError: null,
     runtimes: {
       [SOURCE_ID]: {
-        connection: { location: 'https://playlist.example.test/demo.m3u', epgUrl: GUIDE_URL, headers: {} },
+        connection: {
+          location: 'https://playlist.example.test/demo.m3u',
+          epgUrl: GUIDE_URL,
+          headers: {},
+        },
         playlist: PLAYLIST,
         baseUrl: 'https://media.example.test/',
         status: 'ready',
@@ -465,18 +897,84 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
     isInitializing: false,
     initializationError: null,
   });
-  const favoriteDune = { id: 'movie-dune-part-two', sourceId: SOURCE_ID, sourceItemId: 'movie-dune-part-two', title: 'Dune: Part Two', type: 'vod' as const, posterUrl: TMDB_ARTWORK.dunePartTwo.poster, year: '2024', rating: 8.1 };
-  const favoriteArrival = { id: 'movie-arrival', sourceId: SOURCE_ID, sourceItemId: 'movie-arrival', title: 'Arrival', type: 'vod' as const, posterUrl: TMDB_ARTWORK.arrival.poster, year: '2016', rating: 7.6 };
-  const favoriteSeverance = { id: 'series-severance', sourceId: XTREAM_SOURCE_ID, sourceItemId: 'severance-s1e1', title: 'Severance', type: 'series' as const, posterUrl: TMDB_ARTWORK.severance.poster, year: '2022', rating: 8.4 };
-  const favoriteTheBear = { id: 'series-the-bear', sourceId: XTREAM_SOURCE_ID, sourceItemId: 'the-bear-s1e1', title: 'The Bear', type: 'series' as const, posterUrl: TMDB_ARTWORK.theBear.poster, year: '2022', rating: 8.1 };
+  const favoriteDune = {
+    id: 'movie-dune-part-two',
+    sourceId: SOURCE_ID,
+    sourceItemId: 'movie-dune-part-two',
+    title: 'Dune: Part Two',
+    type: 'vod' as const,
+    posterUrl: TMDB_ARTWORK.dunePartTwo.poster,
+    year: '2024',
+    rating: 8.1,
+  };
+  const favoriteArrival = {
+    id: 'movie-arrival',
+    sourceId: SOURCE_ID,
+    sourceItemId: 'movie-arrival',
+    title: 'Arrival',
+    type: 'vod' as const,
+    posterUrl: TMDB_ARTWORK.arrival.poster,
+    year: '2016',
+    rating: 7.6,
+  };
+  const favoriteSeverance = {
+    id: 'series-severance',
+    sourceId: XTREAM_SOURCE_ID,
+    sourceItemId: 'severance-s1e1',
+    title: 'Severance',
+    type: 'series' as const,
+    posterUrl: TMDB_ARTWORK.severance.poster,
+    year: '2022',
+    rating: 8.4,
+  };
+  const favoriteTheBear = {
+    id: 'series-the-bear',
+    sourceId: XTREAM_SOURCE_ID,
+    sourceItemId: 'the-bear-s1e1',
+    title: 'The Bear',
+    type: 'series' as const,
+    posterUrl: TMDB_ARTWORK.theBear.poster,
+    year: '2022',
+    rating: 8.1,
+  };
   const mockFavorites = [favoriteDune, favoriteArrival, favoriteSeverance, favoriteTheBear];
 
   useLibraryStore.setState({
     favorites: mockFavorites,
     collections: [{ id: 'weekend', name: 'Weekend picks', items: [] }],
     history: [
-      { id: 'movie-parasite', sourceId: SOURCE_ID, sourceItemId: 'movie-parasite', title: 'Parasite', type: 'vod', posterUrl: TMDB_ARTWORK.parasite.poster, year: '2019', rating: 8.5, progressPercentage: 46, currentTime: 3_643, duration: 7_920, lastWatchedAt: now - 900_000 },
-      { id: 'series-severance', sourceId: XTREAM_SOURCE_ID, sourceItemId: 'severance-s1e1', title: 'Severance', type: 'series', posterUrl: TMDB_ARTWORK.severance.poster, progressPercentage: 23, currentTime: 814, duration: 3_540, lastWatchedAt: now - 7_200_000, seriesId: 'series-severance', seriesSourceItemId: '95396', seasonNum: 1, episodeNum: 1, episodeId: 'severance-s1e1', episodeTitle: 'Good News About Hell' },
+      {
+        id: 'movie-parasite',
+        sourceId: SOURCE_ID,
+        sourceItemId: 'movie-parasite',
+        title: 'Parasite',
+        type: 'vod',
+        posterUrl: TMDB_ARTWORK.parasite.poster,
+        year: '2019',
+        rating: 8.5,
+        progressPercentage: 46,
+        currentTime: 3_643,
+        duration: 7_920,
+        lastWatchedAt: now - 900_000,
+      },
+      {
+        id: 'series-severance',
+        sourceId: XTREAM_SOURCE_ID,
+        sourceItemId: 'severance-s1e1',
+        title: 'Severance',
+        type: 'series',
+        posterUrl: TMDB_ARTWORK.severance.poster,
+        progressPercentage: 23,
+        currentTime: 814,
+        duration: 3_540,
+        lastWatchedAt: now - 7_200_000,
+        seriesId: 'series-severance',
+        seriesSourceItemId: '95396',
+        seasonNum: 1,
+        episodeNum: 1,
+        episodeId: 'severance-s1e1',
+        episodeTitle: 'Good News About Hell',
+      },
     ],
     watched: [],
   });
@@ -489,9 +987,18 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
   const xtreamScope = getXtreamQueryScope(XTREAM_SOURCE_ID, XTREAM_CREDENTIALS);
   queryClient.setQueryData(detailQueryKeys.vod('693134', xtreamScope), DUNE_DETAILS);
   queryClient.setQueryData(detailQueryKeys.series('95396', xtreamScope), SEVERANCE_DETAILS);
-  queryClient.setQueryData(detailQueryKeys.series('series-severance', xtreamScope), SEVERANCE_DETAILS);
-  queryClient.setQueryDefaults(['series_info'], { queryFn: async () => SEVERANCE_DETAILS, initialData: () => SEVERANCE_DETAILS });
-  queryClient.setQueryDefaults(['xc_series_info'], { queryFn: async () => SEVERANCE_DETAILS, initialData: () => SEVERANCE_DETAILS });
+  queryClient.setQueryData(
+    detailQueryKeys.series('series-severance', xtreamScope),
+    SEVERANCE_DETAILS,
+  );
+  queryClient.setQueryDefaults(['series_info'], {
+    queryFn: async () => SEVERANCE_DETAILS,
+    initialData: () => SEVERANCE_DETAILS,
+  });
+  queryClient.setQueryDefaults(['xc_series_info'], {
+    queryFn: async () => SEVERANCE_DETAILS,
+    initialData: () => SEVERANCE_DETAILS,
+  });
 
   const d = new Date();
   const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -552,8 +1059,12 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
       timeSource: 'tmdb',
     },
   ];
-  queryClient.setQueryDefaults(['tmdb_upcoming'], { queryFn: async () => mockUpcomingList, initialData: () => mockUpcomingList });
-  const scope = 'movie-arrival:Arrival|movie-dune-part-two:Dune: Part Two|series-severance:Severance|series-the-bear:The Bear';
+  queryClient.setQueryDefaults(['tmdb_upcoming'], {
+    queryFn: async () => mockUpcomingList,
+    initialData: () => mockUpcomingList,
+  });
+  const scope =
+    'movie-arrival:Arrival|movie-dune-part-two:Dune: Part Two|series-severance:Severance|series-the-bear:The Bear';
   queryClient.setQueryData(
     queryKeys.tmdbUpcoming(scope, 'en-US', false, 'w500', true, 7, todayStr),
     mockUpcomingList,
@@ -593,7 +1104,11 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
       currentAudioTrack: 1,
       currentSubTrack: 3,
       subtitlesVisible: true,
-      chapters: [{ title: 'Opening', time: 0 }, { title: 'The Desert', time: 2_760 }, { title: 'Final Act', time: 8_040 }],
+      chapters: [
+        { title: 'Opening', time: 0 },
+        { title: 'The Desert', time: 2_760 },
+        { title: 'Final Act', time: 8_040 },
+      ],
     });
   }
 
@@ -627,7 +1142,14 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
       showControls: true,
       showEpisodesDrawer: true,
       audioTracks: [
-        { id: 1, type: 'audio', title: 'English [Original]', lang: 'en', selected: true, codec: 'eac3' },
+        {
+          id: 1,
+          type: 'audio',
+          title: 'English [Original]',
+          lang: 'en',
+          selected: true,
+          codec: 'eac3',
+        },
         { id: 2, type: 'audio', title: 'Deutsch', lang: 'de', codec: 'aac' },
       ],
       subtitleTracks: [
@@ -637,13 +1159,20 @@ function seedFixture(queryClient: QueryClient, surface: ReadmeSurface) {
       currentAudioTrack: 1,
       currentSubTrack: 3,
       subtitlesVisible: true,
-      chapters: [{ title: 'Intro', time: 90 }, { title: 'Lumon Floor', time: 240 }, { title: 'Refinement', time: 1_200 }],
+      chapters: [
+        { title: 'Intro', time: 90 },
+        { title: 'Lumon Floor', time: 240 },
+        { title: 'Refinement', time: 1_200 },
+      ],
     });
   }
 }
 
 function PlayerFixture({ surface }: { surface: ReadmeSurface }) {
-  const background = surface === 'player-series' ? TMDB_ARTWORK.severance.backdrop : TMDB_ARTWORK.dunePartTwo.backdrop;
+  const background =
+    surface === 'player-series'
+      ? TMDB_ARTWORK.severance.backdrop
+      : TMDB_ARTWORK.dunePartTwo.backdrop;
   return (
     <>
       <div
@@ -675,10 +1204,17 @@ function Surface({ surface }: { surface: ReadmeSurface }) {
   if (surface === 'live-epg') return <Epg />;
   if (surface === 'upcoming') return <Upcoming />;
   if (surface === 'search') return <Search />;
-  if (surface === 'downloads') return <PageTransition><Downloads /></PageTransition>;
+  if (surface === 'downloads')
+    return (
+      <PageTransition>
+        <Downloads />
+      </PageTransition>
+    );
   if (surface === 'settings' || surface === 'playback-settings') return <Settings />;
-  if (surface === 'm3u-editor') return <M3uEditor initialSourceId={SOURCE_ID} onClose={() => undefined} />;
-  if (surface === 'm3u-raw-editor') return <M3uEditor initialSourceId={SOURCE_ID} initialMode="raw" onClose={() => undefined} />;
+  if (surface === 'm3u-editor')
+    return <M3uEditor initialSourceId={SOURCE_ID} onClose={() => undefined} />;
+  if (surface === 'm3u-raw-editor')
+    return <M3uEditor initialSourceId={SOURCE_ID} initialMode="raw" onClose={() => undefined} />;
   if (surface === 'series-details') {
     return (
       <>
@@ -735,17 +1271,26 @@ const ROUTES: Record<ReadmeSurface, string> = {
   'light-theme': '/',
 };
 
-export function ReadmeHarness({ surface, settingsSection }: { surface: ReadmeSurface; settingsSection?: string | null | undefined }) {
+export function ReadmeHarness({
+  surface,
+  settingsSection,
+}: {
+  surface: ReadmeSurface;
+  settingsSection?: string | null | undefined;
+}) {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: Number.POSITIVE_INFINITY, refetchOnWindowFocus: false } },
+    defaultOptions: {
+      queries: { retry: false, staleTime: Number.POSITIVE_INFINITY, refetchOnWindowFocus: false },
+    },
   });
   seedFixture(queryClient, surface);
   const isPlayerSurface = surface === 'player-vod' || surface === 'player-series';
 
-  const resolvedSettingsSection: SettingsSectionId = resolveSettingsSectionId(settingsSection ?? null);
-  const initialRoute = surface === 'settings'
-    ? `/settings?section=${resolvedSettingsSection}`
-    : ROUTES[surface];
+  const resolvedSettingsSection: SettingsSectionId = resolveSettingsSectionId(
+    settingsSection ?? null,
+  );
+  const initialRoute =
+    surface === 'settings' ? `/settings?section=${resolvedSettingsSection}` : ROUTES[surface];
   const scenarioId = surface === 'settings' ? `settings-${resolvedSettingsSection}` : surface;
 
   return (
@@ -754,7 +1299,9 @@ export function ReadmeHarness({ surface, settingsSection }: { surface: ReadmeSur
         <MotionConfig reducedMotion="always">
           <div className={appStyles.appContainer} data-ui-qa-scenario={scenarioId}>
             <div className={appStyles.windowDragArea} data-tauri-drag-region aria-hidden="true" />
-            {isPlayerSurface ? <PlayerFixture surface={surface} /> : (
+            {isPlayerSurface ? (
+              <PlayerFixture surface={surface} />
+            ) : (
               <div className={appStyles.appUi}>
                 <Sidebar />
                 <main className={appStyles.mainContent}>

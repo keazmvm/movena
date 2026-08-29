@@ -77,7 +77,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 760px) {
@@ -108,9 +110,10 @@
     flex-direction: column;
     gap: var(--space-1);
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinning { animation: none; }
+  .spinning {
+    animation: none;
+  }
 }

@@ -116,21 +116,21 @@ official channel marks; programme times remain deterministic example XMLTV
 data. Provider accounts, stream URLs, downloads, and playback state use
 reserved `.test` fixture data. No commercial video is included.
 
-| Live TV catalogue | Timeline programme guide |
-| :---: | :---: |
-| ![Movena Live TV catalogue with real channel identities and logos](.github/assets/readme/live-tv.webp) | ![Movena timeline programme guide with real channels and example XMLTV scheduling](.github/assets/readme/live-epg.webp) |
-| Movie details and playback actions | Seasons and episode browser |
-| ![Movena movie details showing real Dune Part Two metadata and TMDB poster artwork](.github/assets/readme/library-details.webp) | ![Movena series details showing Severance with its correct two seasons and 19 episodes](.github/assets/readme/series-details.webp) |
-| Upcoming release calendar | Light appearance |
-| ![Movena upcoming release schedule with live countdowns](.github/assets/readme/upcoming.webp) | ![Movena Discover view in clean light appearance](.github/assets/readme/light-theme.webp) |
-| VOD player controls | Series playback & episode navigation |
-| ![Movena native VOD player controls over a TMDB backdrop with timeline, chapters, and playback settings](.github/assets/readme/player-vod.webp) | ![Movena series player with episode drawer and skip prompts](.github/assets/readme/player-series.webp) |
-| M3U visual channel workspace | M3U raw syntax editor |
-| ![Movena M3U editor with example channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp) | ![Movena M3U raw syntax editor with line numbers and editing controls](.github/assets/readme/m3u-raw-editor.webp) |
-| Download queue | Source management |
-| ![Movena downloads page with real movie titles and deterministic example transfers](.github/assets/readme/downloads.webp) | ![Movena source settings with a reserved example M3U library](.github/assets/readme/settings.webp) |
-| Global library search | Playback configuration |
-| ![Movena global search returning a real movie title and example Live TV results](.github/assets/readme/search.webp) | ![Movena player and video settings for decoding, buffering, playback behavior, and subtitles](.github/assets/readme/playback-settings.webp) |
+|                                                                Live TV catalogue                                                                |                                                          Timeline programme guide                                                           |
+| :---------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------: |
+|                     ![Movena Live TV catalogue with real channel identities and logos](.github/assets/readme/live-tv.webp)                      |           ![Movena timeline programme guide with real channels and example XMLTV scheduling](.github/assets/readme/live-epg.webp)           |
+|                                                       Movie details and playback actions                                                        |                                                         Seasons and episode browser                                                         |
+|         ![Movena movie details showing real Dune Part Two metadata and TMDB poster artwork](.github/assets/readme/library-details.webp)         |     ![Movena series details showing Severance with its correct two seasons and 19 episodes](.github/assets/readme/series-details.webp)      |
+|                                                            Upcoming release calendar                                                            |                                                              Light appearance                                                               |
+|                          ![Movena upcoming release schedule with live countdowns](.github/assets/readme/upcoming.webp)                          |                          ![Movena Discover view in clean light appearance](.github/assets/readme/light-theme.webp)                          |
+|                                                               VOD player controls                                                               |                                                    Series playback & episode navigation                                                     |
+| ![Movena native VOD player controls over a TMDB backdrop with timeline, chapters, and playback settings](.github/assets/readme/player-vod.webp) |                   ![Movena series player with episode drawer and skip prompts](.github/assets/readme/player-series.webp)                    |
+|                                                          M3U visual channel workspace                                                           |                                                            M3U raw syntax editor                                                            |
+|        ![Movena M3U editor with example channels, categories, filters, and stream-health status](.github/assets/readme/m3u-editor.webp)         |              ![Movena M3U raw syntax editor with line numbers and editing controls](.github/assets/readme/m3u-raw-editor.webp)              |
+|                                                                 Download queue                                                                  |                                                              Source management                                                              |
+|            ![Movena downloads page with real movie titles and deterministic example transfers](.github/assets/readme/downloads.webp)            |                     ![Movena source settings with a reserved example M3U library](.github/assets/readme/settings.webp)                      |
+|                                                              Global library search                                                              |                                                           Playback configuration                                                            |
+|               ![Movena global search returning a real movie title and example Live TV results](.github/assets/readme/search.webp)               | ![Movena player and video settings for decoding, buffering, playback behavior, and subtitles](.github/assets/readme/playback-settings.webp) |
 
 ## Download and platform support
 
@@ -141,11 +141,11 @@ assets also include a
 an SPDX SBOM, GitHub build-provenance attestations, and updater signatures where
 applicable. Platform trust status remains explicitly disclosed below.
 
-| Platform | Published packages | Important notes |
-| --- | --- | --- |
-| Windows x64 | [Microsoft Store](https://apps.microsoft.com/detail/9P2T0QGGHQGQ), WinGet, NSIS `.exe`, `.msi`, portable `.zip` | Microsoft Store / WinGet (`winget install movena`). Standalone NSIS and portable packages bundle libmpv. |
-| macOS Apple Silicon | `.dmg` | Install the current mpv runtime with `brew install mpv`. Current builds are ad-hoc signed rather than Developer ID notarized. |
-| Linux x64 | `.deb`, `.AppImage` | A compatible system libmpv and normal Tauri/WebKit desktop libraries are required. Install `mpv` through your distribution if necessary. |
+| Platform            | Published packages                                                                                              | Important notes                                                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows x64         | [Microsoft Store](https://apps.microsoft.com/detail/9P2T0QGGHQGQ), WinGet, NSIS `.exe`, `.msi`, portable `.zip` | Microsoft Store / WinGet (`winget install movena`). Standalone NSIS and portable packages bundle libmpv.                                 |
+| macOS Apple Silicon | `.dmg`                                                                                                          | Install the current mpv runtime with `brew install mpv`. Current builds are ad-hoc signed rather than Developer ID notarized.            |
+| Linux x64           | `.deb`, `.AppImage`                                                                                             | A compatible system libmpv and normal Tauri/WebKit desktop libraries are required. Install `mpv` through your distribution if necessary. |
 
 If installation or playback fails, search the
 [existing issues](https://github.com/movena-app/movena/issues) before opening a
@@ -155,29 +155,29 @@ real viewing data in an issue.
 <details>
 <summary><strong>Keyboard shortcuts</strong></summary>
 
-| Area | Shortcut | Action |
-| --- | --- | --- |
-| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>1–5</kbd> | Open Home, Live TV, TV Guide, Movies, or Series |
-| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>K</kbd> | Open Search |
-| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>\</kbd> | Collapse or expand the sidebar |
-| Help | <kbd>?</kbd> | Show or hide the in-app shortcut guide |
-| Playback | <kbd>Space</kbd> or <kbd>K</kbd> | Play or pause |
-| Playback | <kbd>F</kbd> | Toggle fullscreen |
-| Playback | <kbd>M</kbd> | Mute or restore volume |
-| Playback | <kbd>←</kbd> / <kbd>→</kbd> | Seek backward or forward during VOD playback |
-| Playback | <kbd>↑</kbd> / <kbd>↓</kbd> | Adjust volume, or change channels when the live drawer is open |
-| Playback | <kbd>Esc</kbd> | Close the active player menu, drawer, or player |
+| Area       | Shortcut                             | Action                                                         |
+| ---------- | ------------------------------------ | -------------------------------------------------------------- |
+| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>1–5</kbd> | Open Home, Live TV, TV Guide, Movies, or Series                |
+| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>K</kbd>   | Open Search                                                    |
+| Navigation | <kbd>Ctrl/Cmd</kbd> + <kbd>\</kbd>   | Collapse or expand the sidebar                                 |
+| Help       | <kbd>?</kbd>                         | Show or hide the in-app shortcut guide                         |
+| Playback   | <kbd>Space</kbd> or <kbd>K</kbd>     | Play or pause                                                  |
+| Playback   | <kbd>F</kbd>                         | Toggle fullscreen                                              |
+| Playback   | <kbd>M</kbd>                         | Mute or restore volume                                         |
+| Playback   | <kbd>←</kbd> / <kbd>→</kbd>          | Seek backward or forward during VOD playback                   |
+| Playback   | <kbd>↑</kbd> / <kbd>↓</kbd>          | Adjust volume, or change channels when the live drawer is open |
+| Playback   | <kbd>Esc</kbd>                       | Close the active player menu, drawer, or player                |
 
 </details>
 
 ## Technology
 
-| Layer | Technology |
-| --- | --- |
-| Desktop shell | [Tauri 2](https://tauri.app/) |
-| Interface | React, TypeScript, Zustand, and TanStack Query |
-| Native core | Rust |
-| Playback | [libmpv](https://mpv.io/) |
+| Layer                       | Technology                                      |
+| --------------------------- | ----------------------------------------------- |
+| Desktop shell               | [Tauri 2](https://tauri.app/)                   |
+| Interface                   | React, TypeScript, Zustand, and TanStack Query  |
+| Native core                 | Rust                                            |
+| Playback                    | [libmpv](https://mpv.io/)                       |
 | Twitch live-page resolution | [Streamlink 8.5](https://streamlink.github.io/) |
 
 React owns presentation and client state; Rust owns native playback,

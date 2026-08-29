@@ -1,12 +1,12 @@
 import { tauriApi, type MpvPropertyUpdate } from '../../api/ipc';
 
 export interface ImageAdjustments {
-  imageSharpness: number;  // 0-100, 0 = off
+  imageSharpness: number; // 0-100, 0 = off
   imageBrightness: number; // 0-200%, 100 = neutral
-  imageContrast: number;   // -100..100, 0 = neutral
+  imageContrast: number; // -100..100, 0 = neutral
   imageSaturation: number; // -100..100, 0 = neutral
-  imageHue: number;        // -100..100, 0 = neutral
-  imageGamma: number;      // -100..100, 0 = neutral ("Dark scene")
+  imageHue: number; // -100..100, 0 = neutral
+  imageGamma: number; // -100..100, 0 = neutral ("Dark scene")
 }
 
 export const DEFAULT_IMAGE_ADJUSTMENTS: ImageAdjustments = {
@@ -35,14 +35,24 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
  * instead of a dedicated sharpen amount. Kept mild (down to -0.9) since the
  * manual also warns that low values introduce ringing.
  */
-function mpvPropertiesFor(key: keyof ImageAdjustments, values: ImageAdjustments): MpvPropertyUpdate[] {
+function mpvPropertiesFor(
+  key: keyof ImageAdjustments,
+  values: ImageAdjustments,
+): MpvPropertyUpdate[] {
   switch (key) {
     case 'imageBrightness':
-      return [{ property: 'brightness', value: Math.round(clamp(values.imageBrightness - 100, -100, 100)) }];
+      return [
+        {
+          property: 'brightness',
+          value: Math.round(clamp(values.imageBrightness - 100, -100, 100)),
+        },
+      ];
     case 'imageContrast':
       return [{ property: 'contrast', value: Math.round(clamp(values.imageContrast, -100, 100)) }];
     case 'imageSaturation':
-      return [{ property: 'saturation', value: Math.round(clamp(values.imageSaturation, -100, 100)) }];
+      return [
+        { property: 'saturation', value: Math.round(clamp(values.imageSaturation, -100, 100)) },
+      ];
     case 'imageHue':
       return [{ property: 'hue', value: Math.round(clamp(values.imageHue, -100, 100)) }];
     case 'imageGamma':
@@ -88,9 +98,17 @@ export async function applyImageAdjustment(
  * full reset — so, like `applyAspectRatio`, every property is sent rather
  * than diffed against whatever mpv already has.
  */
-export async function applyImageAdjustments(values: ImageAdjustments, throwOnError = false): Promise<void> {
+export async function applyImageAdjustments(
+  values: ImageAdjustments,
+  throwOnError = false,
+): Promise<void> {
   const keys: Array<keyof ImageAdjustments> = [
-    'imageBrightness', 'imageContrast', 'imageSaturation', 'imageHue', 'imageGamma', 'imageSharpness',
+    'imageBrightness',
+    'imageContrast',
+    'imageSaturation',
+    'imageHue',
+    'imageGamma',
+    'imageSharpness',
   ];
   for (const key of keys) {
     await applyImageAdjustment(key, values, throwOnError);

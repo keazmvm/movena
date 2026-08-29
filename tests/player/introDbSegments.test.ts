@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  resolvePlaybackPromptSegments,
-} from '../../src/utils/chapters';
+import { resolvePlaybackPromptSegments } from '../../src/utils/chapters';
 
 describe('resolvePlaybackPromptSegments (chapters + IntroDB merge)', () => {
   it('prefers embedded chapter markers over IntroDB segments for intro and outro', () => {
@@ -56,9 +54,7 @@ describe('resolvePlaybackPromptSegments (chapters + IntroDB merge)', () => {
       outro: null,
     });
 
-    expect(
-      resolvePlaybackPromptSegments([], { intro: null, recap: null, outro: null })
-    ).toEqual({
+    expect(resolvePlaybackPromptSegments([], { intro: null, recap: null, outro: null })).toEqual({
       intro: null,
       recap: null,
       outro: null,

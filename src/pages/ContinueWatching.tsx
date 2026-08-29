@@ -21,13 +21,8 @@ export function ContinueWatching() {
 
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
 
-  const {
-    selectedMovie,
-    selectedSeries,
-    handleCloseMovie,
-    handleCloseSeries,
-    handleItemClick,
-  } = useMediaDetailState({ enableSourceOnOpen: true });
+  const { selectedMovie, selectedSeries, handleCloseMovie, handleCloseSeries, handleItemClick } =
+    useMediaDetailState({ enableSourceOnOpen: true });
 
   // Sort by most recently watched
   const sortedHistory = [...history].sort((a, b) => b.lastWatchedAt - a.lastWatchedAt);
@@ -37,12 +32,9 @@ export function ContinueWatching() {
       <div className={styles.page}>
         <CatalogPageHeader
           title="Continue Watching"
-          meta={tn(
-            '{count} item to resume',
-            '{count} items to resume',
-            sortedHistory.length,
-            { count: number(sortedHistory.length) },
-          )}
+          meta={tn('{count} item to resume', '{count} items to resume', sortedHistory.length, {
+            count: number(sortedHistory.length),
+          })}
           actions={
             <>
               <HeaderSearch onItemClick={handleItemClick} />

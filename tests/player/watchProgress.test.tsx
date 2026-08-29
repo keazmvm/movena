@@ -14,14 +14,31 @@ import { useLibraryStore } from '../../src/store/useLibraryStore';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
 
 const sourceId = 'xtream-progress';
-const credentials = { sourceId, url: 'https://provider.test', username: 'alice', password: 'secret' };
+const credentials = {
+  sourceId,
+  url: 'https://provider.test',
+  username: 'alice',
+  password: 'secret',
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
   useLibraryStore.setState({ favorites: [], collections: [], history: [], watched: [] });
   usePlayerStore.getState().closePlayer();
   useAuthStore.setState({
-    profiles: [{ id: sourceId, kind: 'xtream', name: 'Progress', locationLabel: 'provider.test', username: 'alice', userInfo: { auth: 1 }, serverInfo: {}, createdAt: 1, updatedAt: 1 }],
+    profiles: [
+      {
+        id: sourceId,
+        kind: 'xtream',
+        name: 'Progress',
+        locationLabel: 'provider.test',
+        username: 'alice',
+        userInfo: { auth: 1 },
+        serverInfo: {},
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    ],
     runtimes: { [sourceId]: { credentials, status: 'ready', error: null, revision: 1 } },
   } as never);
 });
@@ -38,21 +55,23 @@ describe('watch progress integration', () => {
         ],
       },
     });
-    act(() => usePlayerStore.getState().playStream({
-      id: 'episode-1',
-      sourceItemId: 'episode-1',
-      title: 'Show S01E01 - Pilot',
-      type: 'series',
-      streamUrl: 'https://provider.test/episode-1.mp4',
-      sourceId,
-      seriesId: 'series-1',
-      seriesSourceItemId: 'series-raw',
-      seriesTitle: 'Show',
-      seasonNum: '1',
-      episodeNum: 1,
-      posterUrl: 'episode-still',
-      seriesPosterUrl: 'series-cover',
-    }));
+    act(() =>
+      usePlayerStore.getState().playStream({
+        id: 'episode-1',
+        sourceItemId: 'episode-1',
+        title: 'Show S01E01 - Pilot',
+        type: 'series',
+        streamUrl: 'https://provider.test/episode-1.mp4',
+        sourceId,
+        seriesId: 'series-1',
+        seriesSourceItemId: 'series-raw',
+        seriesTitle: 'Show',
+        seasonNum: '1',
+        episodeNum: 1,
+        posterUrl: 'episode-still',
+        seriesPosterUrl: 'series-cover',
+      }),
+    );
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     );
@@ -78,9 +97,15 @@ describe('watch progress integration', () => {
 
   it('does not write live playback or sessions without a usable duration', () => {
     const client = new QueryClient();
-    act(() => usePlayerStore.getState().playStream({
-      id: 'live-1', title: 'Live', type: 'live', streamUrl: 'https://provider.test/live.m3u8', sourceId,
-    }));
+    act(() =>
+      usePlayerStore.getState().playStream({
+        id: 'live-1',
+        title: 'Live',
+        type: 'live',
+        streamUrl: 'https://provider.test/live.m3u8',
+        sourceId,
+      }),
+    );
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     );

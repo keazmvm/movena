@@ -44,7 +44,10 @@ export function ConfigSettingsSection() {
       setStatus(message);
       notify.success('Settings Exported', message);
     } catch (error: unknown) {
-      notify.error('Export Failed', getUserFacingErrorMessage(error, 'Movena could not save the settings file.'));
+      notify.error(
+        'Export Failed',
+        getUserFacingErrorMessage(error, 'Movena could not save the settings file.'),
+      );
     } finally {
       setBusyAction(null);
     }
@@ -55,16 +58,24 @@ export function ConfigSettingsSection() {
     try {
       const selected = await selectSettingsConfig();
       if (!selected) return;
-      const changedCount = countChangedSettings(useSettingsStore.getState(), selected.document.settings);
+      const changedCount = countChangedSettings(
+        useSettingsStore.getState(),
+        selected.document.settings,
+      );
       if (changedCount === 0) {
-        const message = t('{fileName} already matches your settings.', { fileName: selected.fileName });
+        const message = t('{fileName} already matches your settings.', {
+          fileName: selected.fileName,
+        });
         setStatus(message);
         notify.info('Settings Already Match', message);
         return;
       }
       setPendingImport({ selected, changedCount });
     } catch (error: unknown) {
-      notify.error('Import Failed', getUserFacingErrorMessage(error, 'Movena could not read the settings file.'));
+      notify.error(
+        'Import Failed',
+        getUserFacingErrorMessage(error, 'Movena could not read the settings file.'),
+      );
     } finally {
       setBusyAction(null);
     }
@@ -75,13 +86,22 @@ export function ConfigSettingsSection() {
     settings.importSettings(pendingImport.selected.document.settings);
     const ignored = pendingImport.selected.ignoredKeys.length;
     const ignoredSuffix = ignored
-      ? tn('; {count} unknown entry was ignored', '; {count} unknown entries were ignored', ignored, { count: number(ignored) })
+      ? tn(
+          '; {count} unknown entry was ignored',
+          '; {count} unknown entries were ignored',
+          ignored,
+          { count: number(ignored) },
+        )
       : '';
     const message = tn(
       'Imported {count} changed preference from {source}{ignored}.',
       'Imported {count} changed preferences from {source}{ignored}.',
       pendingImport.changedCount,
-      { count: number(pendingImport.changedCount), source: pendingImport.selected.fileName, ignored: ignoredSuffix },
+      {
+        count: number(pendingImport.changedCount),
+        source: pendingImport.selected.fileName,
+        ignored: ignoredSuffix,
+      },
     );
     setStatus(message);
     setPendingImport(null);
@@ -95,7 +115,10 @@ export function ConfigSettingsSection() {
       const message = t('Configuration JSON has been copied to your clipboard.');
       notify.success('Settings Copied', message);
     } catch (error: unknown) {
-      notify.error('Copy Failed', getUserFacingErrorMessage(error, 'Could not copy the settings to the clipboard.'));
+      notify.error(
+        'Copy Failed',
+        getUserFacingErrorMessage(error, 'Could not copy the settings to the clipboard.'),
+      );
     }
   };
 
@@ -103,7 +126,12 @@ export function ConfigSettingsSection() {
     settings.importSettings(parsed.document.settings);
     const ignored = parsed.ignoredKeys.length;
     const ignoredSuffix = ignored
-      ? tn('; {count} unknown entry was ignored', '; {count} unknown entries were ignored', ignored, { count: number(ignored) })
+      ? tn(
+          '; {count} unknown entry was ignored',
+          '; {count} unknown entries were ignored',
+          ignored,
+          { count: number(ignored) },
+        )
       : '';
     const message = tn(
       'Imported {count} changed preference from {source}{ignored}.',
@@ -128,7 +156,11 @@ export function ConfigSettingsSection() {
         >
           <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
             <SettingsButton onClick={() => void handleExport()} disabled={busyAction !== null}>
-              {busyAction === 'export' ? <LoaderCircle className={styles.spinner} size={15} /> : <Download size={15} />}
+              {busyAction === 'export' ? (
+                <LoaderCircle className={styles.spinner} size={15} />
+              ) : (
+                <Download size={15} />
+              )}
               {t('Export File')}
             </SettingsButton>
             <SettingsButton onClick={() => void handleCopy()} disabled={busyAction !== null}>
@@ -143,8 +175,16 @@ export function ConfigSettingsSection() {
           description="Review a Movena settings file or paste configuration JSON to replace your preferences in one operation."
         >
           <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <SettingsButton variant="primary" onClick={() => void handleSelectImport()} disabled={busyAction !== null}>
-              {busyAction === 'import' ? <LoaderCircle className={styles.spinner} size={15} /> : <Upload size={15} />}
+            <SettingsButton
+              variant="primary"
+              onClick={() => void handleSelectImport()}
+              disabled={busyAction !== null}
+            >
+              {busyAction === 'import' ? (
+                <LoaderCircle className={styles.spinner} size={15} />
+              ) : (
+                <Upload size={15} />
+              )}
               {t('Choose File')}
             </SettingsButton>
             <SettingsButton onClick={() => setShowPasteModal(true)} disabled={busyAction !== null}>
@@ -167,7 +207,11 @@ export function ConfigSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      {status && <p className={styles.successText} role="status">{status}</p>}
+      {status && (
+        <p className={styles.successText} role="status">
+          {status}
+        </p>
+      )}
 
       {pendingImport && (
         <ConfirmDialog
@@ -176,7 +220,10 @@ export function ConfigSettingsSection() {
             '{fileName} will replace {count} current preference. Source connections and library data will not change.',
             '{fileName} will replace {count} current preferences. Source connections and library data will not change.',
             pendingImport.changedCount,
-            { fileName: pendingImport.selected.fileName, count: number(pendingImport.changedCount) },
+            {
+              fileName: pendingImport.selected.fileName,
+              count: number(pendingImport.changedCount),
+            },
           )}
           confirmLabel="Import Settings"
           onConfirm={applyImport}

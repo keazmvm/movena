@@ -21,7 +21,17 @@ vi.mock('../../src/components/modals/MovieDetailModal', () => ({
 }));
 
 vi.mock('../../src/components/modals/SeriesDetailModal', () => ({
-  SeriesDetailModal: ({ seriesTitle, initialSeasonNumber, initialEpisodeNumber, onClose }: { seriesTitle: string; initialSeasonNumber?: number; initialEpisodeNumber?: number; onClose: () => void }) => (
+  SeriesDetailModal: ({
+    seriesTitle,
+    initialSeasonNumber,
+    initialEpisodeNumber,
+    onClose,
+  }: {
+    seriesTitle: string;
+    initialSeasonNumber?: number;
+    initialEpisodeNumber?: number;
+    onClose: () => void;
+  }) => (
     <div data-testid="mock-series-modal">
       <span>{seriesTitle}</span>
       <span data-testid="mock-series-context">{`${initialSeasonNumber ?? ''}:${initialEpisodeNumber ?? ''}`}</span>
@@ -59,7 +69,12 @@ describe('useMediaDetailState hook', () => {
 
   it('routes series to selectedSeries and closes cleanly', () => {
     const { result } = renderHook(() => useMediaDetailState());
-    const seriesItem: MediaItem = { id: 's1', title: 'Breaking Bad', posterUrl: '', type: 'series' };
+    const seriesItem: MediaItem = {
+      id: 's1',
+      title: 'Breaking Bad',
+      posterUrl: '',
+      type: 'series',
+    };
 
     act(() => {
       result.current.handleItemClick(seriesItem);
@@ -116,8 +131,14 @@ describe('useMediaDetailState hook', () => {
 
   it('plays a downloaded movie straight from disk instead of opening its detail modal', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'm1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
-      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'm1',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Inception.mp4',
+      fileName: 'Inception.mp4',
+      type: 'vod',
+      title: 'Inception',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     const { result } = renderHook(() => useMediaDetailState());
     const movieItem: MediaItem = { id: 'm1', title: 'Inception', posterUrl: '', type: 'vod' };
@@ -137,11 +158,27 @@ describe('useMediaDetailState hook', () => {
 
   it('resumes a downloaded movie from its saved watch history position', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'm1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
-      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'm1',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Inception.mp4',
+      fileName: 'Inception.mp4',
+      type: 'vod',
+      title: 'Inception',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     useLibraryStore.setState({
-      history: [{ id: 'm1', title: 'Inception', posterUrl: '', type: 'vod', progressPercentage: 40, lastWatchedAt: Date.now(), currentTime: 543 }],
+      history: [
+        {
+          id: 'm1',
+          title: 'Inception',
+          posterUrl: '',
+          type: 'vod',
+          progressPercentage: 40,
+          lastWatchedAt: Date.now(),
+          currentTime: 543,
+        },
+      ],
     });
     const { result } = renderHook(() => useMediaDetailState());
 
@@ -196,12 +233,7 @@ describe('MediaDetailModals component', () => {
     const handleCloseMovie = vi.fn();
     const movieItem: MediaItem = { id: 'm1', title: 'Interstellar', posterUrl: '', type: 'vod' };
 
-    render(
-      <MediaDetailModals
-        selectedMovie={movieItem}
-        onCloseMovie={handleCloseMovie}
-      />
-    );
+    render(<MediaDetailModals selectedMovie={movieItem} onCloseMovie={handleCloseMovie} />);
 
     expect(await screen.findByTestId('mock-movie-modal')).toBeTruthy();
     expect(screen.getByText('Interstellar')).toBeTruthy();
@@ -215,12 +247,7 @@ describe('MediaDetailModals component', () => {
     const handleCloseSeries = vi.fn();
     const seriesItem: MediaItem = { id: 's1', title: 'Severance', posterUrl: '', type: 'series' };
 
-    render(
-      <MediaDetailModals
-        selectedSeries={seriesItem}
-        onCloseSeries={handleCloseSeries}
-      />
-    );
+    render(<MediaDetailModals selectedSeries={seriesItem} onCloseSeries={handleCloseSeries} />);
 
     expect(await screen.findByTestId('mock-series-modal')).toBeTruthy();
     expect(screen.getByText('Severance')).toBeTruthy();

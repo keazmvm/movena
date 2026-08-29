@@ -71,7 +71,7 @@ export function Search() {
         else next.delete('q');
         return next;
       },
-      { replace: true }
+      { replace: true },
     );
   };
 
@@ -108,13 +108,14 @@ export function Search() {
   const liveQuery = useLiveStreams({ enabled: filterType === 'all' || filterType === 'live' });
   const { data: live = [], isLoading: loadingLive } = liveQuery;
 
-  const isLoading = filterType === 'movies'
-    ? loadingMovies
-    : filterType === 'series'
-      ? loadingSeries
-      : filterType === 'live'
-        ? loadingLive
-        : loadingMovies || loadingSeries || loadingLive;
+  const isLoading =
+    filterType === 'movies'
+      ? loadingMovies
+      : filterType === 'series'
+        ? loadingSeries
+        : filterType === 'live'
+          ? loadingLive
+          : loadingMovies || loadingSeries || loadingLive;
 
   // Memoize combined catalog references to avoid array re-allocations on every input keystroke
   const combinedCatalog = useMemo(() => {
@@ -143,16 +144,18 @@ export function Search() {
   };
 
   const hasQuery = searchQuery.trim().length > 0;
-  const selectedQuery = filterType === 'movies'
-    ? moviesQuery
-    : filterType === 'series'
-      ? seriesQuery
-      : filterType === 'live'
-        ? liveQuery
-        : null;
-  const catalogError = getCombinedErrorMessage(selectedQuery
-    ? [selectedQuery.error]
-    : [moviesQuery.error, seriesQuery.error, liveQuery.error], '');
+  const selectedQuery =
+    filterType === 'movies'
+      ? moviesQuery
+      : filterType === 'series'
+        ? seriesQuery
+        : filterType === 'live'
+          ? liveQuery
+          : null;
+  const catalogError = getCombinedErrorMessage(
+    selectedQuery ? [selectedQuery.error] : [moviesQuery.error, seriesQuery.error, liveQuery.error],
+    '',
+  );
   const relevantDataCount = selectedQuery?.data?.length ?? combinedCatalog.all.length;
   const showLoadError = Boolean(catalogError) && relevantDataCount === 0;
   const errorPresentation = getErrorPresentation(catalogError, 'Search results');
@@ -170,11 +173,17 @@ export function Search() {
       <div className={styles.page}>
         <CatalogPageHeader
           title="Search"
-          meta={hasQuery && isLoading ? (
-            <TextLineSkeleton width={140} />
-          ) : hasQuery
-            ? tn('{count} result found', '{count} results found', searchResults.length, { count: number(searchResults.length) })
-            : t('Search across movies, series, and live channels')}
+          meta={
+            hasQuery && isLoading ? (
+              <TextLineSkeleton width={140} />
+            ) : hasQuery ? (
+              tn('{count} result found', '{count} results found', searchResults.length, {
+                count: number(searchResults.length),
+              })
+            ) : (
+              t('Search across movies, series, and live channels')
+            )
+          }
           actions={hasQuery ? <CatalogViewToggle /> : undefined}
         />
 
@@ -195,7 +204,8 @@ export function Search() {
               autoFocus
             />
             {searchQuery && (
-              <button type="button"
+              <button
+                type="button"
                 className={searchStyles.clearInputBtn}
                 onClick={() => handleQueryChange('')}
                 title={t('Clear search')}
@@ -238,7 +248,10 @@ export function Search() {
               <EmptyState
                 icon={SearchX}
                 title="No Results Found"
-                description={t('We couldn\'t find any media matching "{query}". Try searching for something else.', { query: searchQuery })}
+                description={t(
+                  'We couldn\'t find any media matching "{query}". Try searching for something else.',
+                  { query: searchQuery },
+                )}
               />
             )
           ) : (
@@ -249,16 +262,17 @@ export function Search() {
                     <div className={searchStyles.recentTitleGroup}>
                       <span>{t('Recent searches')}</span>
                     </div>
-                    <button type="button" className={searchStyles.clearAllBtn} onClick={() => clearRecentSearches()}>
+                    <button
+                      type="button"
+                      className={searchStyles.clearAllBtn}
+                      onClick={() => clearRecentSearches()}
+                    >
                       {t('Clear history')}
                     </button>
                   </div>
                   <div className={searchStyles.recentList}>
                     {recentSearches.map((term) => (
-                      <div
-                        key={term}
-                        className={searchStyles.recentItem}
-                      >
+                      <div key={term} className={searchStyles.recentItem}>
                         <button
                           type="button"
                           className={searchStyles.recentSelectBtn}

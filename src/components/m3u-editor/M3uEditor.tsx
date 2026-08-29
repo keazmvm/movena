@@ -62,11 +62,11 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
   const preserveUnknownTags = useSettingsStore((state) => state.m3uPreserveUnknownTags);
   const sidebarWidth = useSettingsStore((state) => state.m3uEditorSidebarWidth);
 
-  const [selectedSourceId, setSelectedSourceId] = useState(() => (
+  const [selectedSourceId, setSelectedSourceId] = useState(() =>
     initialSourceId && m3uProfiles.some((profile) => profile.id === initialSourceId)
       ? initialSourceId
-      : m3uProfiles[0]?.id || 'blank'
-  ));
+      : m3uProfiles[0]?.id || 'blank',
+  );
   const [ephemeralLabel, setEphemeralLabel] = useState('Imported playlist');
   const [activeMode, setActiveMode] = useState<EditorMode>(() => initialMode ?? 'channels');
   const [snapshot, setSnapshot] = useState<PlaylistSnapshot>(emptyPlaylist);
@@ -75,7 +75,8 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
   const [future, setFuture] = useState<PlaylistSnapshot[]>([]);
   const [isDirty, setIsDirty] = useState(false);
   const [rawDirty, setRawDirty] = useState(false);
-  const [rawEditorViewState, setRawEditorViewState] = useState<M3uRawEditorViewState>(emptyRawEditorViewState);
+  const [rawEditorViewState, setRawEditorViewState] =
+    useState<M3uRawEditorViewState>(emptyRawEditorViewState);
   const [isSaving, setIsSaving] = useState(false);
   const [healthStatuses, setHealthStatuses] = useState<M3uHealthStatuses>({});
   const [loadUrlModal, setLoadUrlModal] = useState(false);
@@ -109,37 +110,46 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
     setHealthStatuses({});
   }, []);
 
-  const loadSourceContent = useCallback(async (sourceId: string) => {
-    const generation = ++draftLoadGenerationRef.current;
-    if (sourceId === 'blank') {
-      resetSession(emptyPlaylist());
-      return;
-    }
-    const runtime = m3uRuntimes[sourceId];
-    if (!runtime?.playlist) {
-      resetSession(emptyPlaylist());
-      return;
-    }
-    const sourceSnapshot = playlistSnapshot(runtime.playlist);
-    if (autosaveDrafts) {
-      try {
-        let draft = await loadM3uDraft(sourceId);
-        const legacy = localStorage.getItem(legacyDraftKey(sourceId));
-        if (!draft && legacy) {
-          const parsed = JSON.parse(legacy) as { content?: unknown | undefined; savedAt?: unknown | undefined };
-          if (typeof parsed.content === 'string') {
-            draft = { content: parsed.content, savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now() };
-            await saveM3uDraft(sourceId, draft);
+  const loadSourceContent = useCallback(
+    async (sourceId: string) => {
+      const generation = ++draftLoadGenerationRef.current;
+      if (sourceId === 'blank') {
+        resetSession(emptyPlaylist());
+        return;
+      }
+      const runtime = m3uRuntimes[sourceId];
+      if (!runtime?.playlist) {
+        resetSession(emptyPlaylist());
+        return;
+      }
+      const sourceSnapshot = playlistSnapshot(runtime.playlist);
+      if (autosaveDrafts) {
+        try {
+          let draft = await loadM3uDraft(sourceId);
+          const legacy = localStorage.getItem(legacyDraftKey(sourceId));
+          if (!draft && legacy) {
+            const parsed = JSON.parse(legacy) as {
+              content?: unknown | undefined;
+              savedAt?: unknown | undefined;
+            };
+            if (typeof parsed.content === 'string') {
+              draft = {
+                content: parsed.content,
+                savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now(),
+              };
+              await saveM3uDraft(sourceId, draft);
+            }
           }
-        }
-        localStorage.removeItem(legacyDraftKey(sourceId));
-        if (generation !== draftLoadGenerationRef.current) return;
-        if (draft) {
-            const restored = playlistSnapshot(parseM3u(draft.content, {
-              sourceId,
-              baseUrl: runtime.baseUrl,
-              headers: runtime.connection?.headers,
-            }));
+          localStorage.removeItem(legacyDraftKey(sourceId));
+          if (generation !== draftLoadGenerationRef.current) return;
+          if (draft) {
+            const restored = playlistSnapshot(
+              parseM3u(draft.content, {
+                sourceId,
+                baseUrl: runtime.baseUrl,
+                headers: runtime.connection?.headers,
+              }),
+            );
             setSnapshot(restored);
             setBaseline(sourceSnapshot);
             setPast([]);
@@ -149,15 +159,17 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
             setHealthStatuses({});
             notify.info('Draft Restored', 'Recovered unsaved playlist changes from this device.');
             return;
+          }
+        } catch {
+          localStorage.removeItem(legacyDraftKey(sourceId));
+          await deleteM3uDraft(sourceId).catch(() => {});
         }
-      } catch {
-        localStorage.removeItem(legacyDraftKey(sourceId));
-        await deleteM3uDraft(sourceId).catch(() => {});
       }
-    }
-    if (generation !== draftLoadGenerationRef.current) return;
-    resetSession(sourceSnapshot);
-  }, [autosaveDrafts, m3uRuntimes, resetSession]);
+      if (generation !== draftLoadGenerationRef.current) return;
+      resetSession(sourceSnapshot);
+    },
+    [autosaveDrafts, m3uRuntimes, resetSession],
+  );
 
   useEffect(() => {
     if (selectedSourceId === 'custom-file' || selectedSourceId === 'custom-url') return;
@@ -168,14 +180,18 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
     loadedSourceRef.current = { id: selectedSourceId, revision };
   }, [isDirty, loadSourceContent, m3uRuntimes, selectedSourceId]);
 
-  const currentM3uContent = useMemo(() => generateM3u({
-    name: snapshot.name,
-    entries: snapshot.entries,
-    epgUrls: snapshot.epgUrls,
-    extraHeaderAttributes: preserveUnknownTags ? snapshot.extraHeaderAttributes : undefined,
-    extraDirectives: preserveUnknownTags ? snapshot.extraDirectives : undefined,
-    preserveUnknownTags,
-  }), [preserveUnknownTags, snapshot]);
+  const currentM3uContent = useMemo(
+    () =>
+      generateM3u({
+        name: snapshot.name,
+        entries: snapshot.entries,
+        epgUrls: snapshot.epgUrls,
+        extraHeaderAttributes: preserveUnknownTags ? snapshot.extraHeaderAttributes : undefined,
+        extraDirectives: preserveUnknownTags ? snapshot.extraDirectives : undefined,
+        preserveUnknownTags,
+      }),
+    [preserveUnknownTags, snapshot],
+  );
 
   useEffect(() => {
     if (!persistedSource) return;
@@ -189,14 +205,19 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       void saveM3uDraft(selectedSourceId, {
         content: currentM3uContent,
         savedAt: Date.now(),
-      }).then(() => {
-        draftSaveWarningRef.current = false;
-      }).catch((error: unknown) => {
-        if (!draftSaveWarningRef.current) {
-          draftSaveWarningRef.current = true;
-          notify.error('Draft Save Failed', getErrorMessage(error, 'Draft storage failed without an error message.'));
-        }
-      });
+      })
+        .then(() => {
+          draftSaveWarningRef.current = false;
+        })
+        .catch((error: unknown) => {
+          if (!draftSaveWarningRef.current) {
+            draftSaveWarningRef.current = true;
+            notify.error(
+              'Draft Save Failed',
+              getErrorMessage(error, 'Draft storage failed without an error message.'),
+            );
+          }
+        });
     }, 500);
     return () => window.clearTimeout(timer);
   }, [autosaveDrafts, currentM3uContent, isDirty, persistedSource, selectedSourceId]);
@@ -211,16 +232,22 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [isDirty, rawDirty]);
 
-  const commitSnapshot = useCallback((next: PlaylistSnapshot) => {
-    setPast((items) => [...items.slice(-49), snapshot]);
-    setSnapshot(next);
-    setFuture([]);
-    setIsDirty(true);
-  }, [snapshot]);
+  const commitSnapshot = useCallback(
+    (next: PlaylistSnapshot) => {
+      setPast((items) => [...items.slice(-49), snapshot]);
+      setSnapshot(next);
+      setFuture([]);
+      setIsDirty(true);
+    },
+    [snapshot],
+  );
 
-  const handleUpdateEntries = useCallback((entries: M3uEntry[]) => {
-    commitSnapshot({ ...snapshot, entries });
-  }, [commitSnapshot, snapshot]);
+  const handleUpdateEntries = useCallback(
+    (entries: M3uEntry[]) => {
+      commitSnapshot({ ...snapshot, entries });
+    },
+    [commitSnapshot, snapshot],
+  );
 
   const handleUndo = () => {
     const previous = past.at(-1);
@@ -243,7 +270,9 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      const editingText = target instanceof HTMLElement && target.matches('input, textarea, [contenteditable="true"]');
+      const editingText =
+        target instanceof HTMLElement &&
+        target.matches('input, textarea, [contenteditable="true"]');
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         setShowCommands(true);
@@ -253,7 +282,10 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       if (event.key.toLowerCase() === 'z' && !event.shiftKey) {
         event.preventDefault();
         handleUndo();
-      } else if (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey)) {
+      } else if (
+        event.key.toLowerCase() === 'y' ||
+        (event.key.toLowerCase() === 'z' && event.shiftKey)
+      ) {
         event.preventDefault();
         handleRedo();
       } else if (event.key.toLowerCase() === 's' && isDirty && !rawDirty) {
@@ -309,8 +341,7 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
 
     if (action.type === 'source') {
       setSelectedSourceId(action.sourceId);
-    }
-    else if (action.type === 'mode') {
+    } else if (action.type === 'mode') {
       setRawDirty(false);
       setActiveMode(action.mode);
     } else if (action.type === 'open-file') {
@@ -336,11 +367,18 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       commitSnapshot(playlistSnapshot(parseM3u(rawText, currentParseOptions())));
       setRawDirty(false);
     } catch (error: unknown) {
-      notify.error('Parse Error', getErrorMessage(error, 'M3U parsing failed without an error message.'));
+      notify.error(
+        'Parse Error',
+        getErrorMessage(error, 'M3U parsing failed without an error message.'),
+      );
     }
   };
 
-  const finishImport = (playlist: M3uPlaylist, sourceId: 'custom-file' | 'custom-url', label: string) => {
+  const finishImport = (
+    playlist: M3uPlaylist,
+    sourceId: 'custom-file' | 'custom-url',
+    label: string,
+  ) => {
     setSelectedSourceId(sourceId);
     loadedSourceRef.current = null;
     setEphemeralLabel(label);
@@ -349,12 +387,22 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
 
   const handleOpenFile = async () => {
     try {
-      const path = await desktopApi.openPath({ multiple: false, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }] });
+      const path = await desktopApi.openPath({
+        multiple: false,
+        filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8', 'txt'] }],
+      });
       if (!path || Array.isArray(path)) return;
       const document = await tauriApi.m3uReadFile(path);
-      finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-file', document.fileName || 'Local file');
+      finishImport(
+        parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }),
+        'custom-file',
+        document.fileName || 'Local file',
+      );
     } catch (error: unknown) {
-      notify.error('File Error', getErrorMessage(error, 'Playlist file loading failed without an error message.'));
+      notify.error(
+        'File Error',
+        getErrorMessage(error, 'Playlist file loading failed without an error message.'),
+      );
     }
   };
 
@@ -363,23 +411,36 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
     if (!url) return;
     try {
       const document = await tauriApi.m3uFetch({ url });
-      finishImport(parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }), 'custom-url', new URL(url).host);
+      finishImport(
+        parseM3u(document.content, { sourceId: 'm3u-import', baseUrl: document.baseUrl }),
+        'custom-url',
+        new URL(url).host,
+      );
       setLoadUrlModal(false);
       setRemoteUrlInput('');
     } catch (error: unknown) {
-      notify.error('URL Fetch Failed', getErrorMessage(error, 'Playlist URL fetch failed without an error message.'));
+      notify.error(
+        'URL Fetch Failed',
+        getErrorMessage(error, 'Playlist URL fetch failed without an error message.'),
+      );
     }
   };
 
   const handleExportFile = async (content = currentM3uContent) => {
     const fileName = `${snapshot.name?.trim().replace(/[^a-z0-9-]+/gi, '-') || 'playlist'}-${new Date().toISOString().slice(0, 10)}.m3u`;
     try {
-      const path = await desktopApi.savePath({ defaultPath: fileName, filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }] });
+      const path = await desktopApi.savePath({
+        defaultPath: fileName,
+        filters: [{ name: 'M3U playlist', extensions: ['m3u', 'm3u8'] }],
+      });
       if (!path || Array.isArray(path)) return;
       await tauriApi.m3uWriteFile(path, content);
       notify.success('Playlist Exported', 'The edited playlist was saved successfully.');
     } catch (error: unknown) {
-      notify.error('Export Failed', getErrorMessage(error, 'Playlist export failed without an error message.'));
+      notify.error(
+        'Export Failed',
+        getErrorMessage(error, 'Playlist export failed without an error message.'),
+      );
     }
   };
 
@@ -391,7 +452,10 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       else void handleExportFile(rawText);
       return true;
     } catch (error: unknown) {
-      notify.error('Parse Error', getErrorMessage(error, 'M3U parsing failed without an error message.'));
+      notify.error(
+        'Parse Error',
+        getErrorMessage(error, 'M3U parsing failed without an error message.'),
+      );
       return false;
     }
   };
@@ -416,7 +480,12 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
         content: baselineContent,
         entryCount: baseline.entries.length,
         label: 'Before save',
-      }).catch((error: unknown) => notify.error('History Warning', getErrorMessage(error, 'Playlist checkpoint storage failed without an error message.')));
+      }).catch((error: unknown) =>
+        notify.error(
+          'History Warning',
+          getErrorMessage(error, 'Playlist checkpoint storage failed without an error message.'),
+        ),
+      );
       await saveEditedSource(selectedSourceId, currentM3uContent);
       setBaseline(snapshot);
       setIsDirty(false);
@@ -424,7 +493,10 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       localStorage.removeItem(legacyDraftKey(selectedSourceId));
       notify.success('Source Updated', 'Changes are saved and available throughout Movena.');
     } catch (error: unknown) {
-      notify.error('Save Failed', getErrorMessage(error, 'Playlist saving failed without an error message.'));
+      notify.error(
+        'Save Failed',
+        getErrorMessage(error, 'Playlist saving failed without an error message.'),
+      );
     } finally {
       setIsSaving(false);
       setConfirmSave(false);
@@ -432,7 +504,10 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
   };
 
   const sourceOptions = useMemo(() => {
-    const options = m3uProfiles.map((profile) => ({ value: profile.id, label: `${profile.name} (${profile.entryCount})` }));
+    const options = m3uProfiles.map((profile) => ({
+      value: profile.id,
+      label: `${profile.name} (${profile.entryCount})`,
+    }));
     if (selectedSourceId === 'custom-file' || selectedSourceId === 'custom-url') {
       options.unshift({ value: selectedSourceId, label: ephemeralLabel });
     }
@@ -446,12 +521,29 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
     { id: 'diagnostics', label: 'Show Diagnostics', run: () => handleModeChange('diagnostics') },
     { id: 'raw', label: 'Show Raw M3U', run: () => handleModeChange('raw') },
     { id: 'undo', label: 'Undo', shortcut: 'Ctrl+Z', disabled: past.length === 0, run: handleUndo },
-    { id: 'redo', label: 'Redo', shortcut: 'Ctrl+Y', disabled: future.length === 0, run: handleRedo },
-    { id: 'save', label: persistedSource ? 'Review & Save' : 'Export Playlist', shortcut: 'Ctrl+S', disabled: !isDirty || rawDirty, run: () => persistedSource ? setConfirmSave(true) : void handleExportFile() },
+    {
+      id: 'redo',
+      label: 'Redo',
+      shortcut: 'Ctrl+Y',
+      disabled: future.length === 0,
+      run: handleRedo,
+    },
+    {
+      id: 'save',
+      label: persistedSource ? 'Review & Save' : 'Export Playlist',
+      shortcut: 'Ctrl+S',
+      disabled: !isDirty || rawDirty,
+      run: () => (persistedSource ? setConfirmSave(true) : void handleExportFile()),
+    },
     { id: 'export', label: 'Export Playlist', run: () => void handleExportFile() },
     { id: 'open', label: 'Open File', run: () => requestAction({ type: 'open-file' }) },
     { id: 'url', label: 'Load URL', run: () => requestAction({ type: 'load-url' }) },
-    { id: 'history', label: 'Playlist Version History', disabled: !persistedSource, run: () => setShowHistory(true) },
+    {
+      id: 'history',
+      label: 'Playlist Version History',
+      disabled: !persistedSource,
+      run: () => setShowHistory(true),
+    },
   ];
 
   return (
@@ -459,30 +551,59 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       <header className={styles.workspaceHeader}>
         <div className={styles.workspaceTitleRow}>
           {onClose && (
-            <IconButton type="button" onClick={() => requestAction({ type: 'close' })} aria-label={t('Back to Sources')}>
+            <IconButton
+              type="button"
+              onClick={() => requestAction({ type: 'close' })}
+              aria-label={t('Back to Sources')}
+            >
               <ArrowLeft size={16} />
             </IconButton>
           )}
           <div>
             <h1 className={styles.workspaceTitle}>{t('M3U Playlist Editor')}</h1>
             <p className={styles.workspaceSubtitle}>
-              {isDirty ? t('Unsaved draft') : t('All changes saved')} · {number(stats.total)} {t('items')}
+              {isDirty ? t('Unsaved draft') : t('All changes saved')} · {number(stats.total)}{' '}
+              {t('items')}
             </p>
           </div>
         </div>
         <div className={styles.workspaceActions}>
-          <IconButton type="button" onClick={handleUndo} disabled={past.length === 0} aria-label={t('Undo')}><Undo2 size={15} /></IconButton>
-          <IconButton type="button" onClick={handleRedo} disabled={future.length === 0} aria-label={t('Redo')}><Redo2 size={15} /></IconButton>
-          <IconButton type="button" onClick={() => setShowHistory(true)} disabled={!persistedSource} aria-label={t('Version history')}><History size={15} /></IconButton>
-          <Button variant="ghost" size="sm" type="button" onClick={() => void handleExportFile()}><Download size={14} /> {t('Export')}</Button>
+          <IconButton
+            type="button"
+            onClick={handleUndo}
+            disabled={past.length === 0}
+            aria-label={t('Undo')}
+          >
+            <Undo2 size={15} />
+          </IconButton>
+          <IconButton
+            type="button"
+            onClick={handleRedo}
+            disabled={future.length === 0}
+            aria-label={t('Redo')}
+          >
+            <Redo2 size={15} />
+          </IconButton>
+          <IconButton
+            type="button"
+            onClick={() => setShowHistory(true)}
+            disabled={!persistedSource}
+            aria-label={t('Version history')}
+          >
+            <History size={15} />
+          </IconButton>
+          <Button variant="ghost" size="sm" type="button" onClick={() => void handleExportFile()}>
+            <Download size={14} /> {t('Export')}
+          </Button>
           <Button
             variant="primary"
             size="sm"
             type="button"
-            onClick={() => persistedSource ? setConfirmSave(true) : void handleExportFile()}
+            onClick={() => (persistedSource ? setConfirmSave(true) : void handleExportFile())}
             disabled={!isDirty || isSaving || rawDirty}
           >
-            <Save size={14} /> {t(persistedSource ? (isSaving ? 'Saving...' : 'Review & Save') : 'Export Playlist')}
+            <Save size={14} />{' '}
+            {t(persistedSource ? (isSaving ? 'Saving...' : 'Review & Save') : 'Export Playlist')}
           </Button>
         </div>
       </header>
@@ -496,13 +617,39 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
             width={`${Math.max(156, sidebarWidth - 24)}px`}
             ariaLabel={t('Select source to edit')}
           />
-          <Button variant="ghost" size="sm" type="button" onClick={() => requestAction({ type: 'open-file' })}><Upload size={13} /> {t('Open File')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={() => requestAction({ type: 'load-url' })}><Link size={13} /> {t('Load URL')}</Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => requestAction({ type: 'open-file' })}
+          >
+            <Upload size={13} /> {t('Open File')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => requestAction({ type: 'load-url' })}
+          >
+            <Link size={13} /> {t('Load URL')}
+          </Button>
           <div className={styles.statsBar}>
-            <span className={styles.statPill}><Tv size={12} /> {number(stats.live)} {t('live')}</span>
-            {stats.vod > 0 && <span className={styles.statPill}>{number(stats.vod)} {t('movies')}</span>}
-            {stats.series > 0 && <span className={styles.statPill}>{number(stats.series)} {t('series')}</span>}
-            <span className={styles.statPill}><Layers size={12} /> {number(stats.groups)} {t('groups')}</span>
+            <span className={styles.statPill}>
+              <Tv size={12} /> {number(stats.live)} {t('live')}
+            </span>
+            {stats.vod > 0 && (
+              <span className={styles.statPill}>
+                {number(stats.vod)} {t('movies')}
+              </span>
+            )}
+            {stats.series > 0 && (
+              <span className={styles.statPill}>
+                {number(stats.series)} {t('series')}
+              </span>
+            )}
+            <span className={styles.statPill}>
+              <Layers size={12} /> {number(stats.groups)} {t('groups')}
+            </span>
           </div>
         </div>
         <SegmentedControl
@@ -522,11 +669,21 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       <div className={styles.workspaceBody}>
         {snapshot.warnings.length > 0 && (
           <div className={styles.warningBanner} role="status">
-            {t('{count} import warnings. Review Raw M3U for line details.', { count: number(snapshot.warnings.length) })}
+            {t('{count} import warnings. Review Raw M3U for line details.', {
+              count: number(snapshot.warnings.length),
+            })}
           </div>
         )}
-        {activeMode === 'channels' && <M3uChannelTable entries={snapshot.entries} healthStatuses={healthStatuses} onUpdateEntries={handleUpdateEntries} />}
-        {activeMode === 'groups' && <M3uGroupManager entries={snapshot.entries} onUpdateEntries={handleUpdateEntries} />}
+        {activeMode === 'channels' && (
+          <M3uChannelTable
+            entries={snapshot.entries}
+            healthStatuses={healthStatuses}
+            onUpdateEntries={handleUpdateEntries}
+          />
+        )}
+        {activeMode === 'groups' && (
+          <M3uGroupManager entries={snapshot.entries} onUpdateEntries={handleUpdateEntries} />
+        )}
         {activeMode === 'diagnostics' && (
           <M3uDiagnosticsWorkspace
             entries={snapshot.entries}
@@ -552,25 +709,51 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       </div>
 
       {loadUrlModal && (
-        <ModalShell onClose={() => setLoadUrlModal(false)} className={styles.modalDialog} ariaLabel={t('Load from URL')} initialFocusSelector="input">
-            <div className={styles.modalHeader}><h2 className={styles.drawerHeaderTitle}>{t('Load Playlist from URL')}</h2></div>
-            <div className={styles.modalBody}>
-              <label className={styles.formGroup} htmlFor="m3u-remote-url-input">
-                <span className={styles.formLabel}>{t('Playlist URL')}</span>
-                <input id="m3u-remote-url-input" type="url" className="uiField" value={remoteUrlInput} onChange={(event) => setRemoteUrlInput(event.target.value)} placeholder="https://example.com/playlist.m3u" autoFocus />
-              </label>
-            </div>
-            <div className={styles.modalFooter}>
-              <Button variant="ghost" type="button" onClick={() => setLoadUrlModal(false)}>{t('Cancel')}</Button>
-              <Button variant="primary" type="button" onClick={() => void handleFetchUrl()} disabled={!remoteUrlInput.trim()}>{t('Load Playlist')}</Button>
-            </div>
+        <ModalShell
+          onClose={() => setLoadUrlModal(false)}
+          className={styles.modalDialog}
+          ariaLabel={t('Load from URL')}
+          initialFocusSelector="input"
+        >
+          <div className={styles.modalHeader}>
+            <h2 className={styles.drawerHeaderTitle}>{t('Load Playlist from URL')}</h2>
+          </div>
+          <div className={styles.modalBody}>
+            <label className={styles.formGroup} htmlFor="m3u-remote-url-input">
+              <span className={styles.formLabel}>{t('Playlist URL')}</span>
+              <input
+                id="m3u-remote-url-input"
+                type="url"
+                className="uiField"
+                value={remoteUrlInput}
+                onChange={(event) => setRemoteUrlInput(event.target.value)}
+                placeholder="https://example.com/playlist.m3u"
+                autoFocus
+              />
+            </label>
+          </div>
+          <div className={styles.modalFooter}>
+            <Button variant="ghost" type="button" onClick={() => setLoadUrlModal(false)}>
+              {t('Cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              type="button"
+              onClick={() => void handleFetchUrl()}
+              disabled={!remoteUrlInput.trim()}
+            >
+              {t('Load Playlist')}
+            </Button>
+          </div>
         </ModalShell>
       )}
 
       {pendingAction && (
         <ConfirmDialog
           title={t(rawDirty ? 'Discard unapplied Raw M3U changes?' : 'Discard unsaved edits?')}
-          description={t('The current draft has changes that have not been saved. This action cannot be undone after leaving the workspace.')}
+          description={t(
+            'The current draft has changes that have not been saved. This action cannot be undone after leaving the workspace.',
+          )}
           confirmLabel={t('Discard Changes')}
           danger
           onConfirm={() => performAction(pendingAction)}
@@ -581,9 +764,14 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
       {confirmSave && (
         <ConfirmDialog
           title={t('Save playlist changes?')}
-          description={t('{added} added, {changed} changed, and {removed} removed. Movena will update the source cache and refresh its catalogue.', {
-            added: number(changeSummary.added), changed: number(changeSummary.changed), removed: number(changeSummary.removed),
-          })}
+          description={t(
+            '{added} added, {changed} changed, and {removed} removed. Movena will update the source cache and refresh its catalogue.',
+            {
+              added: number(changeSummary.added),
+              changed: number(changeSummary.changed),
+              removed: number(changeSummary.removed),
+            },
+          )}
           confirmLabel={t('Save Changes')}
           onConfirm={() => void handleSaveToSource()}
           onCancel={() => setConfirmSave(false)}
@@ -598,16 +786,27 @@ export function M3uEditor({ initialSourceId, initialMode, onClose }: M3uEditorPr
           onRestore={(content) => {
             try {
               commitSnapshot(playlistSnapshot(parseM3u(content, currentParseOptions())));
-              notify.success('Version Restored', 'The selected checkpoint is now an unsaved editor draft.');
+              notify.success(
+                'Version Restored',
+                'The selected checkpoint is now an unsaved editor draft.',
+              );
             } catch (error: unknown) {
-              notify.error('Restore Failed', getErrorMessage(error, 'Playlist checkpoint parsing failed without an error message.'));
+              notify.error(
+                'Restore Failed',
+                getErrorMessage(
+                  error,
+                  'Playlist checkpoint parsing failed without an error message.',
+                ),
+              );
             }
           }}
           onClose={() => setShowHistory(false)}
         />
       )}
 
-      {showCommands && <M3uCommandPalette commands={commands} onClose={() => setShowCommands(false)} />}
+      {showCommands && (
+        <M3uCommandPalette commands={commands} onClose={() => setShowCommands(false)} />
+      )}
     </div>
   );
 }

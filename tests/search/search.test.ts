@@ -9,7 +9,14 @@ import {
 } from '../../src/utils/search';
 
 const items = [
-  { id: '1', title: 'Spider-Man: No Way Home', posterUrl: '', type: 'vod' as const, year: '2021', quality: '4K' },
+  {
+    id: '1',
+    title: 'Spider-Man: No Way Home',
+    posterUrl: '',
+    type: 'vod' as const,
+    year: '2021',
+    quality: '4K',
+  },
   { id: '2', title: 'Spider-Man', posterUrl: '', type: 'vod' as const, year: '2002' },
   { id: '3', title: 'The Amazing Spider-Man', posterUrl: '', type: 'vod' as const, year: '2012' },
 ];

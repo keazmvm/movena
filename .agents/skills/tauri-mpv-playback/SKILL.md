@@ -6,6 +6,7 @@ description: Technical instructions and guidelines for native libmpv FFI video p
 # Native libmpv playback
 
 Canonical documentation:
+
 - [docs/ARCHITECTURE.md](../../../docs/ARCHITECTURE.md) § Playback
 - [.agents/AGENTS.md](../../AGENTS.md) § Native playback invariants
 
@@ -43,6 +44,7 @@ npm run check
 ```
 
 Manually test the following matrix when playback paths change:
+
 - stream start/stop
 - seek
 - tracks

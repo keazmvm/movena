@@ -1,6 +1,10 @@
 import { useState, useCallback } from 'react';
 import type { MediaItem, MediaOpenContext } from '../components/catalog/MediaCard';
-import { useAuthStore, getLegacyXtreamSourceId, selectPrimaryXtreamCredentials } from '../store/useAuthStore';
+import {
+  useAuthStore,
+  getLegacyXtreamSourceId,
+  selectPrimaryXtreamCredentials,
+} from '../store/useAuthStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useSourceStore } from '../store/useSourceStore';
 import { useDownloadStore } from '../store/useDownloadStore';
@@ -32,47 +36,59 @@ export function useMediaDetailState(options: UseMediaDetailStateOptions = {}) {
     setSelectedSeries(null);
   }, []);
 
-  const handleItemClick = useCallback((item: MediaItem, context?: MediaOpenContext) => {
-    if (enableSourceOnOpen) {
-      const sourceId = item.sourceId && item.sourceId !== 'xtream'
-        ? item.sourceId
-        : (item.type === 'vod' || item.type === 'series' ? getLegacyXtreamSourceId() : undefined);
-      if (sourceId) {
-        useSourceStore.getState().setSourceEnabled(sourceId, true);
+  const handleItemClick = useCallback(
+    (item: MediaItem, context?: MediaOpenContext) => {
+      if (enableSourceOnOpen) {
+        const sourceId =
+          item.sourceId && item.sourceId !== 'xtream'
+            ? item.sourceId
+            : item.type === 'vod' || item.type === 'series'
+              ? getLegacyXtreamSourceId()
+              : undefined;
+        if (sourceId) {
+          useSourceStore.getState().setSourceEnabled(sourceId, true);
+        }
       }
-    }
 
-    if (item.type === 'series') {
-      setSelectedMovie(null);
-      setSelectedSeries(context ? {
-        ...item,
-        seasonNum: context.seasonNumber ?? item.seasonNum,
-        episodeNum: context.episodeNumber ?? item.episodeNum,
-      } : item);
-    } else if (item.type === 'vod') {
-      // A downloaded movie plays straight from disk — instantly, online or
-      // offline, exactly like the rest of the catalog would only wish it
-      // could. Skip the detail modal (and its provider/TMDB fetches)
-      // entirely, the same way the `live` branch below skips it.
-      const downloaded = useDownloadStore.getState().downloadedByLibraryId[item.id];
-      if (downloaded) {
+      if (item.type === 'series') {
+        setSelectedMovie(null);
+        setSelectedSeries(
+          context
+            ? {
+                ...item,
+                seasonNum: context.seasonNumber ?? item.seasonNum,
+                episodeNum: context.episodeNumber ?? item.episodeNum,
+              }
+            : item,
+        );
+      } else if (item.type === 'vod') {
+        // A downloaded movie plays straight from disk — instantly, online or
+        // offline, exactly like the rest of the catalog would only wish it
+        // could. Skip the detail modal (and its provider/TMDB fetches)
+        // entirely, the same way the `live` branch below skips it.
+        const downloaded = useDownloadStore.getState().downloadedByLibraryId[item.id];
+        if (downloaded) {
+          setSelectedMovie(null);
+          setSelectedSeries(null);
+          const resumeSeconds = useLibraryStore
+            .getState()
+            .history.find((entry) => entry.id === item.id)?.currentTime;
+          playStream(playableFromDownloadedItem(downloaded, resumeSeconds));
+          return;
+        }
+        setSelectedSeries(null);
+        setSelectedMovie(item);
+      } else if (item.type === 'live') {
         setSelectedMovie(null);
         setSelectedSeries(null);
-        const resumeSeconds = useLibraryStore.getState().history.find((entry) => entry.id === item.id)?.currentTime;
-        playStream(playableFromDownloadedItem(downloaded, resumeSeconds));
-        return;
+        const playable = playableFromMediaItem(item, credentials);
+        if (playable) {
+          playStream(playable);
+        }
       }
-      setSelectedSeries(null);
-      setSelectedMovie(item);
-    } else if (item.type === 'live') {
-      setSelectedMovie(null);
-      setSelectedSeries(null);
-      const playable = playableFromMediaItem(item, credentials);
-      if (playable) {
-        playStream(playable);
-      }
-    }
-  }, [credentials, enableSourceOnOpen, playStream]);
+    },
+    [credentials, enableSourceOnOpen, playStream],
+  );
 
   return {
     selectedMovie,

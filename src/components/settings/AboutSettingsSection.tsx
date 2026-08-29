@@ -34,7 +34,10 @@ export function AboutSettingsSection() {
   const dismissUpdate = useUpdateStore((state) => state.dismiss);
 
   useEffect(() => {
-    desktopApi.getVersion().then(setAppVersion).catch(() => {});
+    desktopApi
+      .getVersion()
+      .then(setAppVersion)
+      .catch(() => {});
   }, []);
 
   const handleCheckUpdates = async () => {
@@ -44,7 +47,10 @@ export function AboutSettingsSection() {
     if (error) {
       notify.warning('Update Check', error);
     } else {
-      notify.info('Up to Date', `Movena ${appVersion ? `v${appVersion}` : ''} is the latest version.`);
+      notify.info(
+        'Up to Date',
+        `Movena ${appVersion ? `v${appVersion}` : ''} is the latest version.`,
+      );
     }
   };
 
@@ -66,7 +72,10 @@ export function AboutSettingsSection() {
       setConfirmAction(null);
       notify.warning('Settings Reset', 'Application settings were restored to their defaults.');
     } catch (error: unknown) {
-      notify.error('Settings Could Not Be Reset', getErrorMessage(error, 'Credential deletion failed without an error message.'));
+      notify.error(
+        'Settings Could Not Be Reset',
+        getErrorMessage(error, 'Credential deletion failed without an error message.'),
+      );
     }
   };
 
@@ -75,9 +84,15 @@ export function AboutSettingsSection() {
     try {
       await clearAllAppData();
       setConfirmAction(null);
-      notify.warning('All Data Deleted', 'All Movena settings, sources, history, downloads, and caches were removed. Restart the app to begin setup again.');
+      notify.warning(
+        'All Data Deleted',
+        'All Movena settings, sources, history, downloads, and caches were removed. Restart the app to begin setup again.',
+      );
     } catch (error: unknown) {
-      notify.error('Could Not Delete Data', getErrorMessage(error, 'Application data deletion failed without an error message.'));
+      notify.error(
+        'Could Not Delete Data',
+        getErrorMessage(error, 'Application data deletion failed without an error message.'),
+      );
     } finally {
       setIsClearingData(false);
     }
@@ -89,9 +104,9 @@ export function AboutSettingsSection() {
   const progressByteText = updateProgress
     ? updateProgress.total
       ? t('{downloaded} of {total}', {
-        downloaded: formatBytes(updateProgress.downloaded, number) ?? '0 B',
-        total: formatBytes(updateProgress.total, number) ?? '0 B',
-      })
+          downloaded: formatBytes(updateProgress.downloaded, number) ?? '0 B',
+          total: formatBytes(updateProgress.total, number) ?? '0 B',
+        })
       : formatBytes(updateProgress.downloaded, number)
     : null;
 
@@ -102,66 +117,88 @@ export function AboutSettingsSection() {
         description={`Version ${appVersion ?? '…'} · Tauri 2 · Rust · React · libmpv`}
       >
         <div className={styles.aboutBody}>
-          <p className={styles.aboutTagline}>{t('A native desktop client for Xtream and M3U live TV, movies, and series.')}</p>
+          <p className={styles.aboutTagline}>
+            {t('A native desktop client for Xtream and M3U live TV, movies, and series.')}
+          </p>
           <div className={styles.aboutLinks}>
-            <SettingsButton
-              onClick={handleCheckUpdates}
-              disabled={updatePhase !== 'idle'}
-            >
-              <RefreshCw size={15} className={updatePhase === 'checking' ? 'animate-spin' : undefined} /> {t('Check for Updates')}
+            <SettingsButton onClick={handleCheckUpdates} disabled={updatePhase !== 'idle'}>
+              <RefreshCw
+                size={15}
+                className={updatePhase === 'checking' ? 'animate-spin' : undefined}
+              />{' '}
+              {t('Check for Updates')}
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://discord.gg/hRHpwVPjBN')}>
+            <SettingsButton
+              onClick={() => void desktopApi.openUrl('https://discord.gg/hRHpwVPjBN')}
+            >
               <DiscordIcon size={15} /> Discord
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena')}>
+            <SettingsButton
+              onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena')}
+            >
               <GithubIcon size={15} /> {t('View on GitHub')}
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/issues/new')}>
+            <SettingsButton
+              onClick={() =>
+                void desktopApi.openUrl('https://github.com/movena-app/movena/issues/new')
+              }
+            >
               <Bug size={15} /> {t('Report an Issue')}
             </SettingsButton>
           </div>
 
-          {updateInfo && (updatePhase === 'available' || updatePhase === 'downloading' || updatePhase === 'restarting') && (
-            <div className={styles.updatePanel}>
-              <div className={styles.updatePanelHeader}>
-                <span className={styles.updatePanelTitle}>{t('Movena {version} is available', { version: `v${updateInfo.version}` })}</span>
-                <span className={styles.updatePanelMeta}>{t('You have {version}', { version: `v${updateInfo.currentVersion}` })}</span>
-              </div>
-
-              {updateInfo.body && updatePhase === 'available' && (
-                <p className={styles.updatePanelNotes}>{updateInfo.body}</p>
-              )}
-
-              {updatePhase === 'available' && (
-                <div className={styles.updatePanelActions}>
-                  <SettingsButton variant="primary" onClick={handleInstallUpdate}>
-                    <Download size={15} /> {t('Download & Install')}
-                  </SettingsButton>
-                  <SettingsButton onClick={dismissUpdate}>{t('Later')}</SettingsButton>
-                </div>
-              )}
-
-              {updatePhase === 'downloading' && (
-                <div className={styles.updatePanelProgress}>
-                  <div className={styles.progressTrack} aria-label={t('Downloading update')}>
-                    <span style={{ width: progressPercent === null ? '35%' : `${progressPercent}%` }} />
-                  </div>
+          {updateInfo &&
+            (updatePhase === 'available' ||
+              updatePhase === 'downloading' ||
+              updatePhase === 'restarting') && (
+              <div className={styles.updatePanel}>
+                <div className={styles.updatePanelHeader}>
+                  <span className={styles.updatePanelTitle}>
+                    {t('Movena {version} is available', { version: `v${updateInfo.version}` })}
+                  </span>
                   <span className={styles.updatePanelMeta}>
-                    {progressPercent === null
-                      ? (progressByteText ?? t('Downloading…'))
-                      : `${number(progressPercent)}%${progressByteText ? ` · ${progressByteText}` : ''}`}
+                    {t('You have {version}', { version: `v${updateInfo.currentVersion}` })}
                   </span>
                 </div>
-              )}
 
-              {updatePhase === 'restarting' && (
-                <div className={styles.updatePanelProgress}>
-                  <RefreshCw size={15} className="animate-spin" />
-                  <span className={styles.updatePanelMeta}>{t('Installed. Restarting Movena…')}</span>
-                </div>
-              )}
-            </div>
-          )}
+                {updateInfo.body && updatePhase === 'available' && (
+                  <p className={styles.updatePanelNotes}>{updateInfo.body}</p>
+                )}
+
+                {updatePhase === 'available' && (
+                  <div className={styles.updatePanelActions}>
+                    <SettingsButton variant="primary" onClick={handleInstallUpdate}>
+                      <Download size={15} /> {t('Download & Install')}
+                    </SettingsButton>
+                    <SettingsButton onClick={dismissUpdate}>{t('Later')}</SettingsButton>
+                  </div>
+                )}
+
+                {updatePhase === 'downloading' && (
+                  <div className={styles.updatePanelProgress}>
+                    <div className={styles.progressTrack} aria-label={t('Downloading update')}>
+                      <span
+                        style={{ width: progressPercent === null ? '35%' : `${progressPercent}%` }}
+                      />
+                    </div>
+                    <span className={styles.updatePanelMeta}>
+                      {progressPercent === null
+                        ? (progressByteText ?? t('Downloading…'))
+                        : `${number(progressPercent)}%${progressByteText ? ` · ${progressByteText}` : ''}`}
+                    </span>
+                  </div>
+                )}
+
+                {updatePhase === 'restarting' && (
+                  <div className={styles.updatePanelProgress}>
+                    <RefreshCw size={15} className="animate-spin" />
+                    <span className={styles.updatePanelMeta}>
+                      {t('Installed. Restarting Movena…')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
       </SettingsGroup>
 
@@ -180,7 +217,11 @@ export function AboutSettingsSection() {
             <SettingsButton onClick={() => void desktopApi.openUrl('https://introdb.app')}>
               <ExternalLink size={15} /> IntroDB
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://creativecommons.org/licenses/by-sa/4.0/')}>
+            <SettingsButton
+              onClick={() =>
+                void desktopApi.openUrl('https://creativecommons.org/licenses/by-sa/4.0/')
+              }
+            >
               <ExternalLink size={15} /> CC BY-SA 4.0
             </SettingsButton>
           </div>
@@ -192,15 +233,34 @@ export function AboutSettingsSection() {
         description="Movena is free software licensed under GPL-3.0-or-later. It provides no channels, subscriptions, playlists, or media and is not affiliated with or endorsed by Xtream Codes or any content provider."
       >
         <div className={styles.aboutBody}>
-          <p className={styles.aboutTagline}>Configure only sources you are authorized to access. Record or download media only when you have the necessary rights. Movena does not bypass DRM.</p>
+          <p className={styles.aboutTagline}>
+            Configure only sources you are authorized to access. Record or download media only when
+            you have the necessary rights. Movena does not bypass DRM.
+          </p>
           <div className={styles.aboutLinks}>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/LICENSE')}>
+            <SettingsButton
+              onClick={() =>
+                void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/LICENSE')
+              }
+            >
               <ExternalLink size={15} /> GPL-3.0-or-later
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/docs/PRIVACY.md')}>
+            <SettingsButton
+              onClick={() =>
+                void desktopApi.openUrl(
+                  'https://github.com/movena-app/movena/blob/main/docs/PRIVACY.md',
+                )
+              }
+            >
               <ExternalLink size={15} /> Privacy
             </SettingsButton>
-            <SettingsButton onClick={() => void desktopApi.openUrl('https://github.com/movena-app/movena/blob/main/docs/THIRD_PARTY_NOTICES.md')}>
+            <SettingsButton
+              onClick={() =>
+                void desktopApi.openUrl(
+                  'https://github.com/movena-app/movena/blob/main/docs/THIRD_PARTY_NOTICES.md',
+                )
+              }
+            >
               <ExternalLink size={15} /> Third-party notices
             </SettingsButton>
           </div>
@@ -216,14 +276,18 @@ export function AboutSettingsSection() {
           title="Reset Settings"
           description="Restore playback, appearance, notification, and developer preferences. Source connections, favorites, collections, and watch history are kept."
         >
-          <SettingsButton variant="danger" onClick={() => setConfirmAction('settings')}>Reset Settings</SettingsButton>
+          <SettingsButton variant="danger" onClick={() => setConfirmAction('settings')}>
+            Reset Settings
+          </SettingsButton>
         </SettingsRow>
 
         <SettingsRow
           title="Delete All App Data"
           description="Removes settings, sources and credentials, library data, searches, download records, and cached content."
         >
-          <SettingsButton variant="danger" onClick={() => setConfirmAction('all-data')}>Delete All Data</SettingsButton>
+          <SettingsButton variant="danger" onClick={() => setConfirmAction('all-data')}>
+            Delete All Data
+          </SettingsButton>
         </SettingsRow>
       </SettingsGroup>
 

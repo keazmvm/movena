@@ -4,7 +4,10 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const events = vi.hoisted(() => ({ listen: vi.fn() }));
-const service = vi.hoisted(() => ({ startQueuedDownloads: vi.fn(), takePendingDownloadMetadata: vi.fn() }));
+const service = vi.hoisted(() => ({
+  startQueuedDownloads: vi.fn(),
+  takePendingDownloadMetadata: vi.fn(),
+}));
 const notifications = vi.hoisted(() => ({
   notify: { success: vi.fn(), error: vi.fn() },
 }));
@@ -29,7 +32,9 @@ beforeEach(() => {
     return unlisten;
   });
   useDownloadStore.setState({ jobs: [], downloadedByLibraryId: {} });
-  useDownloadStore.getState().enqueue({ id: 'job-events', sourceUrl: 'https://media.test/movie', fileName: 'Movie.mp4' });
+  useDownloadStore
+    .getState()
+    .enqueue({ id: 'job-events', sourceUrl: 'https://media.test/movie', fileName: 'Movie.mp4' });
   useDownloadStore.getState().start('job-events');
 });
 
@@ -38,10 +43,22 @@ describe('native download event subscription', () => {
     const { unmount } = renderHook(() => useDownloadEvents());
     await waitFor(() => expect(handler).not.toBeNull());
 
-    act(() => handler?.({ payload: {
-      id: 'job-events', state: 'completed', downloadedBytes: 100, totalBytes: 100, path: 'C:\\Movie.mp4',
-    } }));
-    expect(useDownloadStore.getState().jobs[0]).toMatchObject({ state: 'completed', progress: 1, filePath: 'C:\\Movie.mp4' });
+    act(() =>
+      handler?.({
+        payload: {
+          id: 'job-events',
+          state: 'completed',
+          downloadedBytes: 100,
+          totalBytes: 100,
+          path: 'C:\\Movie.mp4',
+        },
+      }),
+    );
+    expect(useDownloadStore.getState().jobs[0]).toMatchObject({
+      state: 'completed',
+      progress: 1,
+      filePath: 'C:\\Movie.mp4',
+    });
     expect(notifications.notify.success).toHaveBeenCalledWith(
       'Download Complete',
       'Movie.mp4 was saved successfully.',
@@ -56,13 +73,25 @@ describe('native download event subscription', () => {
   });
 
   it('turns a completed job with stashed metadata into a persisted downloaded item', async () => {
-    service.takePendingDownloadMetadata.mockReturnValue({ id: 'movie-1', type: 'vod', title: 'Movie' });
+    service.takePendingDownloadMetadata.mockReturnValue({
+      id: 'movie-1',
+      type: 'vod',
+      title: 'Movie',
+    });
     renderHook(() => useDownloadEvents());
     await waitFor(() => expect(handler).not.toBeNull());
 
-    act(() => handler?.({ payload: {
-      id: 'job-events', state: 'completed', downloadedBytes: 100, totalBytes: 100, path: 'C:\\Movie.mp4',
-    } }));
+    act(() =>
+      handler?.({
+        payload: {
+          id: 'job-events',
+          state: 'completed',
+          downloadedBytes: 100,
+          totalBytes: 100,
+          path: 'C:\\Movie.mp4',
+        },
+      }),
+    );
 
     expect(service.takePendingDownloadMetadata).toHaveBeenCalledWith('job-events');
     expect(useDownloadStore.getState().downloadedByLibraryId['movie-1']).toMatchObject({
@@ -78,9 +107,17 @@ describe('native download event subscription', () => {
     renderHook(() => useDownloadEvents());
     await waitFor(() => expect(handler).not.toBeNull());
 
-    act(() => handler?.({ payload: {
-      id: 'job-events', state: 'completed', downloadedBytes: 100, totalBytes: 100, path: 'C:\\Movie.mp4',
-    } }));
+    act(() =>
+      handler?.({
+        payload: {
+          id: 'job-events',
+          state: 'completed',
+          downloadedBytes: 100,
+          totalBytes: 100,
+          path: 'C:\\Movie.mp4',
+        },
+      }),
+    );
 
     expect(useDownloadStore.getState().downloadedByLibraryId).toEqual({});
   });

@@ -1,8 +1,4 @@
-import {
-  COUNTRY_ALIASES,
-  COUNTRY_NAMES,
-  normalizeCountryCode,
-} from './categoryName';
+import { COUNTRY_ALIASES, COUNTRY_NAMES, normalizeCountryCode } from './categoryName';
 import { extractMediaTags, mergeMediaTags } from './mediaTags';
 import { normalizeFancyUnicode } from './textNormalization';
 
@@ -133,8 +129,10 @@ const KNOWN_CLUSTER_MARKERS = new Set([
 ]);
 
 const DECORATION = /^[\s#*=_~\/\-–—·|:]+|[\s#*=_~\/\-–—·|:]+$/g;
-const AD_FLUFF_PATTERN = /(?:https?:\/\/|www\.)\S+|\[(?:t\.me|telegram|discord|bit\.ly|t\.co)[^\]]*\]|\((?:t\.me|telegram|discord|bit\.ly|t\.co)[^)]*\)|\b(?:t\.me|telegram\.me)\/\S+/gi;
-const BACKUP_SERVER_PATTERN = /\b(?:SERVER\s*\d+|FEED\s*\d+|BACKUP|ALT\s*\d*|VIP\+|MAIN|DIRECT)\b/gi;
+const AD_FLUFF_PATTERN =
+  /(?:https?:\/\/|www\.)\S+|\[(?:t\.me|telegram|discord|bit\.ly|t\.co)[^\]]*\]|\((?:t\.me|telegram|discord|bit\.ly|t\.co)[^)]*\)|\b(?:t\.me|telegram\.me)\/\S+/gi;
+const BACKUP_SERVER_PATTERN =
+  /\b(?:SERVER\s*\d+|FEED\s*\d+|BACKUP|ALT\s*\d*|VIP\+|MAIN|DIRECT)\b/gi;
 const PROMOTIONAL_TIER_PATTERN = /\b(?:GOLD|SILVER|PLATINUM|VIP|PREMIUM|ULTRA|PRO)\b/gi;
 
 function cleanSeparators(value: string): string {
@@ -405,14 +403,17 @@ export function parseEpisodeTitle(
   let country = parsed.country;
   let tags = parsed.tags;
 
-  const episodeCode = workingTitle.match(/\bS(?:EASON\s*)?0*(\d{1,3})\s*[:.-]?\s*E(?:PISODE\s*)?0*(\d{1,4})\b/i);
+  const episodeCode = workingTitle.match(
+    /\bS(?:EASON\s*)?0*(\d{1,3})\s*[:.-]?\s*E(?:PISODE\s*)?0*(\d{1,4})\b/i,
+  );
   if (episodeCode && episodeCode.index !== undefined) {
     const beforeCode = cleanSeparators(workingTitle.slice(0, episodeCode.index));
     const afterCode = cleanSeparators(
       workingTitle.slice(episodeCode.index + episodeCode[0].length),
     );
     const parsedSeries = beforeCode ? parseMediaTitle(beforeCode, customRules) : null;
-    const containsNestedEpisode = /\bS(?:EASON\s*)?0*\d{1,3}\s*[:.-]?\s*E(?:PISODE\s*)?0*\d{1,4}\b/i.test(afterCode);
+    const containsNestedEpisode =
+      /\bS(?:EASON\s*)?0*\d{1,3}\s*[:.-]?\s*E(?:PISODE\s*)?0*\d{1,4}\b/i.test(afterCode);
     const nestedEpisode = containsNestedEpisode
       ? parseEpisodeTitle(afterCode, context, customRules)
       : null;
@@ -421,11 +422,7 @@ export function parseEpisodeTitle(
     seasonNum = normalizeEpisodeIndex(episodeCode[1]) ?? seasonNum;
     episodeNum = normalizeEpisodeIndex(episodeCode[2]) ?? episodeNum;
     country = country ?? nestedEpisode?.country ?? parsedSeries?.country ?? null;
-    tags = mergeMediaTags(
-      ...tags,
-      ...(nestedEpisode?.tags ?? []),
-      ...(parsedSeries?.tags ?? []),
-    );
+    tags = mergeMediaTags(...tags, ...(nestedEpisode?.tags ?? []), ...(parsedSeries?.tags ?? []));
     workingTitle = nestedEpisode?.cleanTitle || afterCode;
   } else {
     // A few APIs return `E01 - Title` instead of a full SxxExx code.
@@ -469,15 +466,14 @@ export function formatEpisodePlaybackTitle(
     seasonNum,
     episodeNum,
   });
-  const episodeIdentity = parsedEpisode.seasonNum && parsedEpisode.episodeNum
-    ? `S${parsedEpisode.seasonNum}:E${parsedEpisode.episodeNum}`
-    : parsedEpisode.episodeNum
-      ? `E${parsedEpisode.episodeNum}`
-      : null;
+  const episodeIdentity =
+    parsedEpisode.seasonNum && parsedEpisode.episodeNum
+      ? `S${parsedEpisode.seasonNum}:E${parsedEpisode.episodeNum}`
+      : parsedEpisode.episodeNum
+        ? `E${parsedEpisode.episodeNum}`
+        : null;
 
-  return [cleanSeriesTitle, episodeIdentity, parsedEpisode.cleanTitle]
-    .filter(Boolean)
-    .join(' · ');
+  return [cleanSeriesTitle, episodeIdentity, parsedEpisode.cleanTitle].filter(Boolean).join(' · ');
 }
 
 /** Live names additionally remove standalone technical markers in the channel name. */
@@ -513,7 +509,10 @@ export function parseLiveChannelTitle(
   }
 
   cleanTitle = cleanTitle
-    .replace(/\b(?:INF\s*(?:&|\+)\s*(?:EVENTS|CHANNELS)?|INF\s*&|GOLD|SILVER|PLATINUM|VIP|PREMIUM)\b/gi, '')
+    .replace(
+      /\b(?:INF\s*(?:&|\+)\s*(?:EVENTS|CHANNELS)?|INF\s*&|GOLD|SILVER|PLATINUM|VIP|PREMIUM)\b/gi,
+      '',
+    )
     .replace(/\s*[/|\-:]\s*[/|\-:]+/g, ' /')
     .replace(/\s+/g, ' ')
     .trim();
@@ -541,7 +540,7 @@ export function getSeriesBaseTitle(rawTitle: string): string {
   const parsedEpisode = parseEpisodeTitle(rawTitle);
   if (parsedEpisode.seriesTitle) return parsedEpisode.seriesTitle;
 
-  return parseMediaTitle(rawTitle).cleanTitle
-    .replace(/\s+(?:-|·)\s+S\d+[: ]?E\d+(?:\s+(?:-|·)\s+.*)?$/i, '')
+  return parseMediaTitle(rawTitle)
+    .cleanTitle.replace(/\s+(?:-|·)\s+S\d+[: ]?E\d+(?:\s+(?:-|·)\s+.*)?$/i, '')
     .trim();
 }

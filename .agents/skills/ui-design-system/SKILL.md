@@ -11,6 +11,7 @@ Global tokens: `src/index.css`
 ## Surface tokens quick-reference
 
 Repeated surfaces use semantic tokens such as:
+
 - `--bg-surface`
 - `--surface-control`
 - `--surface-elevated`

@@ -21,9 +21,14 @@ const MAX_LOGO_URL_LENGTH = 2048;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f-\u009f]/g;
 const BIDI_CONTROL_PATTERN = /[\u202a-\u202e\u2066-\u2069]/g;
 
-function attributeValue(attributes: M3uLikeAttributes, requestedKey: string): M3uLikeAttributeValue {
+function attributeValue(
+  attributes: M3uLikeAttributes,
+  requestedKey: string,
+): M3uLikeAttributeValue {
   const normalizedKey = requestedKey.trim().toLowerCase();
-  const matchingKey = Object.keys(attributes).find((key) => key.trim().toLowerCase() === normalizedKey);
+  const matchingKey = Object.keys(attributes).find(
+    (key) => key.trim().toLowerCase() === normalizedKey,
+  );
   return matchingKey === undefined ? undefined : attributes[matchingKey];
 }
 
@@ -42,7 +47,11 @@ function normalizedText(value: M3uLikeAttributeValue, maxLength: number): string
   return text || undefined;
 }
 
-function firstText(attributes: M3uLikeAttributes, keys: readonly string[], maxLength: number): string | undefined {
+function firstText(
+  attributes: M3uLikeAttributes,
+  keys: readonly string[],
+  maxLength: number,
+): string | undefined {
   for (const key of keys) {
     const value = normalizedText(attributeValue(attributes, key), maxLength);
     if (value) return value;
@@ -92,19 +101,34 @@ export function normalizeRadioDisplayMetadata(
   title?: M3uLikeAttributeValue,
   fallbackTitle = 'Radio stream',
 ): RadioDisplayMetadata {
-  const normalizedTitle = normalizedText(title, MAX_TITLE_LENGTH)
-    ?? firstText(attributes, ['title', 'tvg-name', 'station-name', 'radio-name', 'channel-name', 'name'], MAX_TITLE_LENGTH)
-    ?? normalizedText(fallbackTitle, MAX_TITLE_LENGTH)
-    ?? 'Radio stream';
+  const normalizedTitle =
+    normalizedText(title, MAX_TITLE_LENGTH) ??
+    firstText(
+      attributes,
+      ['title', 'tvg-name', 'station-name', 'radio-name', 'channel-name', 'name'],
+      MAX_TITLE_LENGTH,
+    ) ??
+    normalizedText(fallbackTitle, MAX_TITLE_LENGTH) ??
+    'Radio stream';
 
   const metadata: RadioDisplayMetadata = { title: normalizedTitle };
-  const artist = firstText(attributes, ['artist', 'tvg-artist', 'station-artist'], MAX_METADATA_LENGTH);
+  const artist = firstText(
+    attributes,
+    ['artist', 'tvg-artist', 'station-artist'],
+    MAX_METADATA_LENGTH,
+  );
   const album = firstText(attributes, ['album', 'tvg-album', 'station-album'], MAX_METADATA_LENGTH);
   const genre = firstText(attributes, ['genre', 'tvg-genre', 'station-genre'], MAX_METADATA_LENGTH);
-  const channelNumber = firstText(attributes, ['tvg-chno', 'channel-number', 'channel'], MAX_CHANNEL_NUMBER_LENGTH);
-  const logoUrl = safeLogoUrl(attributeValue(attributes, 'tvg-logo')
-    ?? attributeValue(attributes, 'logo')
-    ?? attributeValue(attributes, 'logo-url'));
+  const channelNumber = firstText(
+    attributes,
+    ['tvg-chno', 'channel-number', 'channel'],
+    MAX_CHANNEL_NUMBER_LENGTH,
+  );
+  const logoUrl = safeLogoUrl(
+    attributeValue(attributes, 'tvg-logo') ??
+      attributeValue(attributes, 'logo') ??
+      attributeValue(attributes, 'logo-url'),
+  );
 
   if (artist) metadata.artist = artist;
   if (album) metadata.album = album;

@@ -43,7 +43,9 @@ vi.mock('../../src/components/catalog/VirtualizedGrid', () => ({
   }) => (
     <div data-testid="search-results">
       {items.map((item) => (
-        <button key={item.id} onClick={() => onItemClick?.(item)}>{item.title}</button>
+        <button key={item.id} onClick={() => onItemClick?.(item)}>
+          {item.title}
+        </button>
       ))}
     </div>
   ),
@@ -108,14 +110,16 @@ describe('search page controls', () => {
   it('opens movie details instead of unexpectedly starting search-result playback', async () => {
     const user = userEvent.setup();
     vi.mocked(useVodStreams).mockReturnValue({
-      data: [{
-        id: 'movie-1',
-        title: 'Dune',
-        posterUrl: '',
-        type: 'vod',
-        sourceId: 'source-1',
-        sourceItemId: '1',
-      }],
+      data: [
+        {
+          id: 'movie-1',
+          title: 'Dune',
+          posterUrl: '',
+          type: 'vod',
+          sourceId: 'source-1',
+          sourceItemId: '1',
+        },
+      ],
       isLoading: false,
       isFetching: false,
       error: null,

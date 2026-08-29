@@ -42,7 +42,10 @@
   align-items: center;
   justify-content: center;
   opacity: var(--alpha-80);
-  transition: opacity var(--duration-normal), transform var(--duration-normal), color var(--duration-normal);
+  transition:
+    opacity var(--duration-normal),
+    transform var(--duration-normal),
+    color var(--duration-normal);
   width: var(--control-height-lg);
   height: var(--control-height-lg);
   padding: 0;
@@ -167,7 +170,9 @@
   background: transparent;
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--duration-normal), width var(--duration-normal);
+  transition:
+    opacity var(--duration-normal),
+    width var(--duration-normal);
 }
 
 .volumeContainer:hover .volumeSlider,
@@ -211,8 +216,13 @@
 }
 
 @keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: var(--alpha-70); }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: var(--alpha-70);
+  }
 }
 
 /* ── EPG Container ──────────────────────────────────────── */
@@ -253,12 +263,24 @@
   border: 1px solid var(--border-subtle);
 }
 
-.epgBadge[data-tag-type='gold'] { color: var(--tag-gold); }
-.epgBadge[data-tag-type='purple'] { color: var(--tag-purple); }
-.epgBadge[data-tag-type='cyan'] { color: var(--tag-cyan); }
-.epgBadge[data-tag-type='green'] { color: var(--tag-green); }
-.epgBadge[data-tag-type='blue'] { color: var(--tag-blue); }
-.epgBadge[data-tag-type='coral'] { color: var(--tag-coral); }
+.epgBadge[data-tag-type='gold'] {
+  color: var(--tag-gold);
+}
+.epgBadge[data-tag-type='purple'] {
+  color: var(--tag-purple);
+}
+.epgBadge[data-tag-type='cyan'] {
+  color: var(--tag-cyan);
+}
+.epgBadge[data-tag-type='green'] {
+  color: var(--tag-green);
+}
+.epgBadge[data-tag-type='blue'] {
+  color: var(--tag-blue);
+}
+.epgBadge[data-tag-type='coral'] {
+  color: var(--tag-coral);
+}
 
 /* ── Popover Menus ──────────────────────────────────────── */
 
@@ -458,7 +480,9 @@
   cursor: pointer;
   padding: var(--space-1) var(--space-1-5);
   border-radius: var(--radius-sm);
-  transition: color var(--duration-normal), background var(--duration-normal);
+  transition:
+    color var(--duration-normal),
+    background var(--duration-normal);
 }
 
 .imageResetBtn:hover:not(:disabled) {

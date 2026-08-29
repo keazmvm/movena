@@ -58,7 +58,9 @@ export function GuideSettingsSection({ embedded = false }: { embedded?: boolean 
     >
       <SettingsRow
         title="Backup XMLTV URL"
-        description={testResult ?? 'Plain XML and gzipped XML feeds (.xml / .xml.gz) are supported.'}
+        description={
+          testResult ?? 'Plain XML and gzipped XML feeds (.xml / .xml.gz) are supported.'
+        }
         alignStart
         wideControl
       >
@@ -72,7 +74,10 @@ export function GuideSettingsSection({ embedded = false }: { embedded?: boolean 
           autoCorrect="off"
           autoCapitalize="off"
         />
-        <SettingsButton onClick={handleTestXmltv} disabled={!settings.epgXmltvUrl.trim() || isTesting}>
+        <SettingsButton
+          onClick={handleTestXmltv}
+          disabled={!settings.epgXmltvUrl.trim() || isTesting}
+        >
           {isTesting ? <Loader2 className={styles.spinner} size={13} /> : <RefreshCw size={13} />}
           {t(isTesting ? 'Loading' : 'Test Feed')}
         </SettingsButton>

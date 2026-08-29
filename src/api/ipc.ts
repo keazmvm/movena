@@ -96,7 +96,6 @@ export type MpvPropertyUpdate =
   | { property: 'sub-font-size' | 'sub-border-size' | 'sub-shadow-offset'; value: number }
   | { property: 'sub-font' | 'sub-color'; value: string };
 
-
 /**
  * Strongly-typed wrapper for all Tauri IPC commands in Movena.
  */
@@ -138,7 +137,8 @@ export const tauriApi = {
   playerSetFullscreen: (on: boolean) => invoke<boolean>('player_set_fullscreen', { on }),
 
   /** Hide or show native cursor over video viewport */
-  playerSetCursorHidden: (hidden: boolean) => invoke<boolean>('player_set_cursor_hidden', { hidden }),
+  playerSetCursorHidden: (hidden: boolean) =>
+    invoke<boolean>('player_set_cursor_hidden', { hidden }),
 
   /** Store the active provider password in the operating-system credential vault. */
   credentialStore: (password: string) => invoke<void>('credential_store', { password }),
@@ -154,18 +154,17 @@ export const tauriApi = {
     invoke<void>('source_secret_store', { sourceId, value }),
 
   /** Restore one playlist connection secret. */
-  sourceSecretLoad: (sourceId: string) =>
-    invoke<string | null>('source_secret_load', { sourceId }),
+  sourceSecretLoad: (sourceId: string) => invoke<string | null>('source_secret_load', { sourceId }),
 
   /** Remove one playlist connection secret. */
-  sourceSecretDelete: (sourceId: string) =>
-    invoke<void>('source_secret_delete', { sourceId }),
+  sourceSecretDelete: (sourceId: string) => invoke<void>('source_secret_delete', { sourceId }),
 
   /** Download a remote M3U outside the webview's CORS boundary. */
   m3uFetch: (options: M3uFetchOptions) => invoke<M3uDocument>('m3u_fetch', { options }),
 
   /** Probe a stream outside the webview CORS boundary with its source headers. */
-  m3uProbeStream: (options: M3uProbeOptions) => invoke<M3uProbeResult>('m3u_probe_stream', { options }),
+  m3uProbeStream: (options: M3uProbeOptions) =>
+    invoke<M3uProbeResult>('m3u_probe_stream', { options }),
 
   /** Download, decompress, and parse XMLTV outside the webview. */
   xmltvFetch: (options: M3uFetchOptions) => invoke<XmltvGuidePayload>('xmltv_fetch', { options }),
@@ -181,12 +180,14 @@ export const tauriApi = {
     invoke<unknown>('introdb_fetch_segments', { imdbId, season, episode }),
 
   /** Start a managed media download; progress and lifecycle arrive on download-event. */
-  downloadMediaStart: (options: DownloadMediaOptions & { id: string }) => invoke<void>('download_media_start', { options }),
+  downloadMediaStart: (options: DownloadMediaOptions & { id: string }) =>
+    invoke<void>('download_media_start', { options }),
   downloadMediaPause: (id: string) => invoke<void>('download_media_pause', { id }),
   downloadMediaResume: (id: string) => invoke<void>('download_media_resume', { id }),
   downloadMediaCancel: (id: string) => invoke<void>('download_media_cancel', { id }),
   /** Permanently deletes a completed download's file from disk. */
-  downloadMediaDelete: (options: DeleteDownloadOptions) => invoke<void>('download_media_delete', { options }),
+  downloadMediaDelete: (options: DeleteDownloadOptions) =>
+    invoke<void>('download_media_delete', { options }),
 
   /** Read a user-selected local M3U and report its base directory URL. */
   m3uReadFile: (path: string) => invoke<M3uDocument>('m3u_read_file', { path }),
@@ -200,8 +201,7 @@ export const tauriApi = {
     invoke<void>('m3u_cache_store', { sourceId, document }),
 
   /** Load a previously validated playlist body. */
-  m3uCacheLoad: (sourceId: string) =>
-    invoke<M3uDocument | null>('m3u_cache_load', { sourceId }),
+  m3uCacheLoad: (sourceId: string) => invoke<M3uDocument | null>('m3u_cache_load', { sourceId }),
 
   /** Remove a playlist's application-data cache. */
   m3uCacheDelete: (sourceId: string) => invoke<void>('m3u_cache_delete', { sourceId }),

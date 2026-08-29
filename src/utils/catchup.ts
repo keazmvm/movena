@@ -5,7 +5,14 @@ import type { XCLiveStream } from '../api/xc';
 /** Values accepted by the catch-up helpers. Numeric Unix values may be seconds or milliseconds. */
 export type CatchupTime = number | string | Date;
 
-export type M3uCatchupMode = 'none' | 'shift' | 'default' | 'append' | 'flussonic' | 'xc' | 'source';
+export type M3uCatchupMode =
+  | 'none'
+  | 'shift'
+  | 'default'
+  | 'append'
+  | 'flussonic'
+  | 'xc'
+  | 'source';
 
 export interface CatchupProgramme {
   start?: CatchupTime | undefined;
@@ -27,7 +34,13 @@ export interface CatchupWindow {
   end: number | null;
   now: number;
   archiveDays: number;
-  reason: 'eligible' | 'missing-start' | 'invalid-archive-days' | 'future' | 'outside-window' | 'not-ended';
+  reason:
+    | 'eligible'
+    | 'missing-start'
+    | 'invalid-archive-days'
+    | 'future'
+    | 'outside-window'
+    | 'not-ended';
 }
 
 export interface XtreamCatchupOptions {
@@ -38,14 +51,19 @@ export interface XtreamCatchupOptions {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const XMLTV_TIMESTAMP = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(?:\s*([+-])(\d{2})(\d{2}))?$/;
-const ISO_TIMESTAMP = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+const ISO_TIMESTAMP =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
 
 function finitePositive(value: unknown): number | null {
   const parsed = typeof value === 'number' ? value : Number(String(value).trim());
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-function parseOffset(sign: string | undefined, hours: string | undefined, minutes: string | undefined): number {
+function parseOffset(
+  sign: string | undefined,
+  hours: string | undefined,
+  minutes: string | undefined,
+): number {
   if (!sign || !hours || !minutes) return 0;
   const hourValue = Number(hours);
   const minuteValue = Number(minutes);
@@ -54,7 +72,14 @@ function parseOffset(sign: string | undefined, hours: string | undefined, minute
   return sign === '-' ? -total : total;
 }
 
-function validCalendarDate(year: number, month: number, day: number, hour: number, minute: number, second: number): boolean {
+function validCalendarDate(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  second: number,
+): boolean {
   if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) return false;
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
   return day >= 1 && day <= daysInMonth;
@@ -63,7 +88,18 @@ function validCalendarDate(year: number, month: number, day: number, hour: numbe
 function parseXmltvTimestamp(value: string): number | null {
   const match = XMLTV_TIMESTAMP.exec(value.trim());
   if (!match) return null;
-  const [, yearText, monthText, dayText, hourText, minuteText, secondText, sign, offsetHour, offsetMinute] = match;
+  const [
+    ,
+    yearText,
+    monthText,
+    dayText,
+    hourText,
+    minuteText,
+    secondText,
+    sign,
+    offsetHour,
+    offsetMinute,
+  ] = match;
   const year = Number(yearText);
   const month = Number(monthText);
   const day = Number(dayText);
@@ -79,7 +115,8 @@ function parseXmltvTimestamp(value: string): number | null {
 function parseIsoTimestamp(value: string): number | null {
   const match = ISO_TIMESTAMP.exec(value.trim());
   if (!match) return null;
-  const [, yearText, monthText, dayText, hourText, minuteText, secondText, fractionText, zone] = match;
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, fractionText, zone] =
+    match;
   const year = Number(yearText);
   const month = Number(monthText);
   const day = Number(dayText);
@@ -109,7 +146,10 @@ export function parseCatchupTimestamp(value: unknown): number | null {
     const time = value.getTime();
     return Number.isFinite(time) && time > 0 ? time : null;
   }
-  if (typeof value === 'number' || (typeof value === 'string' && /^\s*[+-]?\d+(?:\.\d+)?\s*$/.test(value))) {
+  if (
+    typeof value === 'number' ||
+    (typeof value === 'string' && /^\s*[+-]?\d+(?:\.\d+)?\s*$/.test(value))
+  ) {
     const numeric = finitePositive(value);
     if (numeric === null) return null;
     const milliseconds = numeric < 100_000_000_000 ? numeric * 1000 : numeric;
@@ -147,7 +187,12 @@ export function isWithinCatchupWindow(
   const startMillis = parseCatchupTimestamp(start);
   const days = archiveDays(archiveDaysValue);
   const nowMillis = normalizedNow(now);
-  return startMillis !== null && days !== null && startMillis <= nowMillis && nowMillis - startMillis <= days * DAY_MS;
+  return (
+    startMillis !== null &&
+    days !== null &&
+    startMillis <= nowMillis &&
+    nowMillis - startMillis <= days * DAY_MS
+  );
 }
 
 export function evaluateCatchupWindow(
@@ -159,10 +204,13 @@ export function evaluateCatchupWindow(
   const end = programmeEnd(programme);
   const now = normalizedNow(options.now);
   const days = archiveDays(archiveDaysValue);
-  if (start === null) return { eligible: false, start, end, now, archiveDays: 0, reason: 'missing-start' };
-  if (days === null) return { eligible: false, start, end, now, archiveDays: 0, reason: 'invalid-archive-days' };
+  if (start === null)
+    return { eligible: false, start, end, now, archiveDays: 0, reason: 'missing-start' };
+  if (days === null)
+    return { eligible: false, start, end, now, archiveDays: 0, reason: 'invalid-archive-days' };
   if (start > now) return { eligible: false, start, end, now, archiveDays: days, reason: 'future' };
-  if (now - start > days * DAY_MS) return { eligible: false, start, end, now, archiveDays: days, reason: 'outside-window' };
+  if (now - start > days * DAY_MS)
+    return { eligible: false, start, end, now, archiveDays: days, reason: 'outside-window' };
   if (options.requireEnded && (end === null || end > now)) {
     return { eligible: false, start, end, now, archiveDays: days, reason: 'not-ended' };
   }
@@ -184,10 +232,12 @@ function cleanMode(value: unknown): string {
 function isHttpUrl(value: string, base?: string): boolean {
   try {
     const parsed = new URL(value, base);
-    return (parsed.protocol === 'http:' || parsed.protocol === 'https:')
-      && !parsed.username
-      && !parsed.password
-      && !/[\u0000-\u0020\u007f]/.test(value);
+    return (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      !parsed.username &&
+      !parsed.password &&
+      !/[\u0000-\u0020\u007f]/.test(value)
+    );
   } catch {
     return false;
   }
@@ -197,7 +247,7 @@ function safeUrl(value: string, base?: string): URL | null {
   if (!value.trim() || !isHttpUrl(value, base)) return null;
   try {
     const parsed = new URL(value, base);
-    return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed : null;
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed : null;
   } catch {
     return null;
   }
@@ -207,7 +257,9 @@ function getM3uArchiveDays(entry: Pick<M3uEntry, 'catchupDays'> | null | undefin
   return archiveDays(entry?.catchupDays) ?? 0;
 }
 
-export function getM3uCatchupMode(entry: Pick<M3uEntry, 'url' | 'catchup' | 'catchupSource' | 'catchupDays'> | null | undefined): M3uCatchupMode {
+export function getM3uCatchupMode(
+  entry: Pick<M3uEntry, 'url' | 'catchup' | 'catchupSource' | 'catchupDays'> | null | undefined,
+): M3uCatchupMode {
   if (getM3uArchiveDays(entry) <= 0 || !entry) return 'none';
   const mode = cleanMode(entry.catchup);
   const source = typeof entry.catchupSource === 'string' ? entry.catchupSource.trim() : '';
@@ -222,7 +274,9 @@ export function getM3uCatchupMode(entry: Pick<M3uEntry, 'url' | 'catchup' | 'cat
   return hasSource ? 'source' : 'none';
 }
 
-export function isM3uCatchupPlaybackSupported(entry: Pick<M3uEntry, 'url' | 'catchup' | 'catchupSource' | 'catchupDays'> | null | undefined): boolean {
+export function isM3uCatchupPlaybackSupported(
+  entry: Pick<M3uEntry, 'url' | 'catchup' | 'catchupSource' | 'catchupDays'> | null | undefined,
+): boolean {
   return getM3uCatchupMode(entry) !== 'none';
 }
 
@@ -255,17 +309,24 @@ function formatTemplateTimestamp(seconds: number, format?: string): string {
 function substituteTemplate(template: string, values: TemplateValues): string {
   const parts = utcParts(values.start);
   const startTokens: Record<string, string> = {
-    start: String(values.start), utc: String(values.start), timestamp: String(values.start),
-    end: String(values.end), utcend: String(values.end),
-    lutc: String(values.now), duration: String(values.duration), offset: String(values.offset),
+    start: String(values.start),
+    utc: String(values.start),
+    timestamp: String(values.start),
+    end: String(values.end),
+    utcend: String(values.end),
+    lutc: String(values.now),
+    duration: String(values.duration),
+    offset: String(values.offset),
     catchupid: String(values.start),
   };
-  return template.replace(/\$?\{(start|end|utc|utcend|lutc|timestamp|duration|offset|catchup-id|catchupid)(?::([^}]+))?\}|\{([YmdHMS])\}/gi,
+  return template.replace(
+    /\$?\{(start|end|utc|utcend|lutc|timestamp|duration|offset|catchup-id|catchupid)(?::([^}]+))?\}|\{([YmdHMS])\}/gi,
     (_match: string, token: string, format: string | undefined, dateToken: string | undefined) => {
       if (dateToken) return parts[dateToken] ?? dateToken;
       const key = (token ?? '').toLowerCase().replace('-', '');
       return formatTemplateTimestamp(Number(startTokens[key] ?? values.start), format);
-    });
+    },
+  );
 }
 
 function programmeValues(programme: CatchupProgramme, now: CatchupTime): TemplateValues | null {
@@ -313,20 +374,33 @@ export function resolveM3uCatchupUrl(
   options: Pick<CatchupWindowOptions, 'requireEnded'> = {},
 ): string | null {
   if (!entry || !programme) return null;
-  const window = evaluateCatchupWindow(programme, entry.catchupDays, { now, requireEnded: options.requireEnded });
+  const window = evaluateCatchupWindow(programme, entry.catchupDays, {
+    now,
+    requireEnded: options.requireEnded,
+  });
   if (!window.eligible) return null;
   const mode = getM3uCatchupMode(entry);
   if (mode === 'none') return null;
   const values = programmeValues(programme, now);
   if (!values) return null;
-  if (mode === 'append' && entry.catchupSource && !/^https?:\/\//i.test(entry.catchupSource.trim())) {
-    return appendM3uSource(entry.url, entry.catchupSource, values) ?? appendCatchupParameters(entry.url, values);
+  if (
+    mode === 'append' &&
+    entry.catchupSource &&
+    !/^https?:\/\//i.test(entry.catchupSource.trim())
+  ) {
+    return (
+      appendM3uSource(entry.url, entry.catchupSource, values) ??
+      appendCatchupParameters(entry.url, values)
+    );
   }
-  const rawSource = mode === 'shift' ? entry.url : (entry.catchupSource || entry.url);
+  const rawSource = mode === 'shift' ? entry.url : entry.catchupSource || entry.url;
   if (!rawSource || !isHttpUrl(rawSource, entry.url)) return null;
   const resolvedSource = safeUrl(rawSource, entry.url);
   if (!resolvedSource) return null;
-  const hasTemplate = /\$?\{(?:start|end|utc|utcend|lutc|timestamp|duration|offset|catchup-id)(?::[^}]+)?\}|\{[YmdHMS]\}/i.test(rawSource);
+  const hasTemplate =
+    /\$?\{(?:start|end|utc|utcend|lutc|timestamp|duration|offset|catchup-id)(?::[^}]+)?\}|\{[YmdHMS]\}/i.test(
+      rawSource,
+    );
   if (hasTemplate) {
     // Keep the template spelling intact until substitution; URL serialisation
     // percent-encodes braces and dollar signs in path segments.
@@ -336,14 +410,20 @@ export function resolveM3uCatchupUrl(
     const resolved = substituteTemplate(templateSource, values);
     return safeUrl(resolved)?.toString() ?? null;
   }
-  return mode === 'shift' || mode === 'append' ? appendCatchupParameters(resolvedSource.toString(), values) : resolvedSource.toString();
+  return mode === 'shift' || mode === 'append'
+    ? appendCatchupParameters(resolvedSource.toString(), values)
+    : resolvedSource.toString();
 }
 
-function getXtreamArchiveDays(stream: Pick<XCLiveStream, 'tv_archive_duration'> | null | undefined): number {
+function getXtreamArchiveDays(
+  stream: Pick<XCLiveStream, 'tv_archive_duration'> | null | undefined,
+): number {
   return archiveDays(stream?.tv_archive_duration) ?? 0;
 }
 
-export function isXtreamCatchupSupported(stream: Pick<XCLiveStream, 'tv_archive' | 'tv_archive_duration'> | null | undefined): boolean {
+export function isXtreamCatchupSupported(
+  stream: Pick<XCLiveStream, 'tv_archive' | 'tv_archive_duration'> | null | undefined,
+): boolean {
   return Boolean(stream && Number(stream.tv_archive) === 1 && getXtreamArchiveDays(stream) > 0);
 }
 
@@ -352,7 +432,10 @@ export function isXtreamCatchupProgrammeEligible(
   programme: CatchupProgramme | null | undefined,
   options: CatchupWindowOptions = {},
 ): boolean {
-  return isXtreamCatchupSupported(stream) && isCatchupProgrammeEligible(programme, getXtreamArchiveDays(stream), options);
+  return (
+    isXtreamCatchupSupported(stream) &&
+    isCatchupProgrammeEligible(programme, getXtreamArchiveDays(stream), options)
+  );
 }
 
 function safeExtension(value: string | undefined): string {
@@ -362,7 +445,9 @@ function safeExtension(value: string | undefined): string {
 
 function safePathSegment(value: string): string | null {
   const cleaned = value.trim();
-  return cleaned && !/[\u0000-\u001f\u007f/\\?#]/.test(cleaned) ? encodeURIComponent(cleaned) : null;
+  return cleaned && !/[\u0000-\u001f\u007f/\\?#]/.test(cleaned)
+    ? encodeURIComponent(cleaned)
+    : null;
 }
 
 /** Build the conventional Xtream timeshift URL for an eligible programme. */

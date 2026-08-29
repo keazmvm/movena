@@ -17,7 +17,9 @@ describe('GeneralSettingsSection', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Keep Movena window on top' }));
     expect(useSettingsStore.getState().alwaysOnTop).toBe(true);
 
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Show library counts in collapsed sidebar' }));
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Show library counts in collapsed sidebar' }),
+    );
     expect(useSettingsStore.getState().showCollapsedSidebarBadges).toBe(false);
   });
 

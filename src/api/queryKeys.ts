@@ -4,9 +4,13 @@ import type { CatalogType } from '../store/useSettingsStore';
 /** Stable, non-secret cache scope. Prevents one provider account reusing another's data. */
 export function getAuthQueryScope(credentials: XCCredentials | null | undefined): string {
   if (!credentials) return 'anonymous';
-  const servers = [...new Set([credentials.url, ...(credentials.alternativeUrls ?? [])]
-    .filter(Boolean)
-    .map((url) => url.replace(/\/+$/, '').toLowerCase()))]
+  const servers = [
+    ...new Set(
+      [credentials.url, ...(credentials.alternativeUrls ?? [])]
+        .filter(Boolean)
+        .map((url) => url.replace(/\/+$/, '').toLowerCase()),
+    ),
+  ]
     .sort()
     .join(',');
   const identity = `${servers}|${credentials.username.trim().toLowerCase()}`;
@@ -29,8 +33,14 @@ export function getM3uQueryScope(sourceId: string, revision: number): string {
 }
 
 /** Source-scoped even when the same provider login is intentionally added twice. */
-export function getXtreamQueryScope(sourceId: string | undefined, credentials: XCCredentials | null | undefined): string {
-  return getCombinedSourceQueryScope([getAuthQueryScope(credentials), `xtream-id:${sourceId || 'legacy'}`]);
+export function getXtreamQueryScope(
+  sourceId: string | undefined,
+  credentials: XCCredentials | null | undefined,
+): string {
+  return getCombinedSourceQueryScope([
+    getAuthQueryScope(credentials),
+    `xtream-id:${sourceId || 'legacy'}`,
+  ]);
 }
 
 export function getUrlQueryScope(value: string): string {
@@ -71,8 +81,25 @@ export const queryKeys = {
     ['tmdb_tv', id, language, includeAdult, imageSize] as const,
   tmdbMovie: (id: number, language: string, includeAdult: boolean, imageSize: string) =>
     ['tmdb_movie', id, language, includeAdult, imageSize] as const,
-  tmdbUpcoming: (favoriteScope: string, language: string, includeAdult: boolean, imageSize: string, exactTimes: boolean, historyDays: number, calendarDay: string) =>
-    ['tmdb_upcoming', favoriteScope, language, includeAdult, imageSize, exactTimes, historyDays, calendarDay] as const,
+  tmdbUpcoming: (
+    favoriteScope: string,
+    language: string,
+    includeAdult: boolean,
+    imageSize: string,
+    exactTimes: boolean,
+    historyDays: number,
+    calendarDay: string,
+  ) =>
+    [
+      'tmdb_upcoming',
+      favoriteScope,
+      language,
+      includeAdult,
+      imageSize,
+      exactTimes,
+      historyDays,
+      calendarDay,
+    ] as const,
   tvmazeSearch: (title: string) => ['tvmaze_search', title.trim().toLocaleLowerCase()] as const,
   tvmazeEpisodes: (showId: number) => ['tvmaze_episodes_v3', showId] as const,
   tmdbExternalIds: (tmdbId: number) => ['tmdb_external_ids', tmdbId] as const,

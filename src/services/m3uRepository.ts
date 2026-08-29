@@ -6,7 +6,10 @@ export interface M3uConnectionSecret {
   headers?: Record<string, string> | undefined;
 }
 
-export async function storeM3uConnection(sourceId: string, secret: M3uConnectionSecret): Promise<void> {
+export async function storeM3uConnection(
+  sourceId: string,
+  secret: M3uConnectionSecret,
+): Promise<void> {
   await tauriApi.sourceSecretStore(sourceId, JSON.stringify(secret));
 }
 
@@ -16,11 +19,14 @@ export async function loadM3uConnection(sourceId: string): Promise<M3uConnection
   try {
     const parsed = JSON.parse(value) as Partial<M3uConnectionSecret>;
     if (typeof parsed.location !== 'string' || !parsed.location) return null;
-    const headers = parsed.headers && typeof parsed.headers === 'object' && !Array.isArray(parsed.headers)
-      ? Object.fromEntries(Object.entries(parsed.headers).filter(
-          (entry): entry is [string, string] => typeof entry[1] === 'string',
-        ))
-      : undefined;
+    const headers =
+      parsed.headers && typeof parsed.headers === 'object' && !Array.isArray(parsed.headers)
+        ? Object.fromEntries(
+            Object.entries(parsed.headers).filter(
+              (entry): entry is [string, string] => typeof entry[1] === 'string',
+            ),
+          )
+        : undefined;
     return {
       location: parsed.location,
       epgUrl: typeof parsed.epgUrl === 'string' && parsed.epgUrl ? parsed.epgUrl : undefined,
@@ -35,7 +41,10 @@ export async function deleteM3uConnection(sourceId: string): Promise<void> {
   await tauriApi.sourceSecretDelete(sourceId);
 }
 
-export async function fetchRemoteM3u(secret: M3uConnectionSecret, sourceId?: string): Promise<M3uDocument> {
+export async function fetchRemoteM3u(
+  secret: M3uConnectionSecret,
+  sourceId?: string,
+): Promise<M3uDocument> {
   return tauriApi.m3uFetch({ url: secret.location, headers: secret.headers, cacheKey: sourceId });
 }
 

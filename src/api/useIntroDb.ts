@@ -42,21 +42,14 @@ export function useIntroDbSegments(
   const tmdbEnabled = useSettingsStore((s) => s.tmdbEnabled);
   const introDbEnabled = useSettingsStore((s) => s.introDbEnabled);
 
-  const cleanTitle = (
-    seriesTitle
-      ? (parseMediaDisplayTitle(seriesTitle)?.cleanTitle || seriesTitle).trim()
-      : ''
-  );
+  const cleanTitle = seriesTitle
+    ? (parseMediaDisplayTitle(seriesTitle)?.cleanTitle || seriesTitle).trim()
+    : '';
   const season = parsePositiveInteger(seasonNum);
   const episode = parsePositiveInteger(episodeNum);
 
-  const isEligible = (
-    enabled &&
-    introDbEnabled &&
-    Boolean(cleanTitle) &&
-    season !== null &&
-    episode !== null
-  );
+  const isEligible =
+    enabled && introDbEnabled && Boolean(cleanTitle) && season !== null && episode !== null;
 
   return useQuery<IntroDbSegments>({
     queryKey: ['introdb_pipeline', cleanTitle.toLowerCase(), season, episode],
@@ -82,7 +75,8 @@ export function useIntroDbSegments(
           if (tvMatch?.id) {
             const externalIds = await queryClient.ensureQueryData({
               queryKey: queryKeys.tmdbExternalIds(tvMatch.id),
-              queryFn: ({ signal: extSignal }) => getTmdbTvExternalIds(apiKey, tvMatch.id, extSignal),
+              queryFn: ({ signal: extSignal }) =>
+                getTmdbTvExternalIds(apiKey, tvMatch.id, extSignal),
               staleTime: INTRODB_STALE_TIME,
               gcTime: INTRODB_GC_TIME,
             });
@@ -130,7 +124,11 @@ export function useIntroDbSegments(
         staleTime: INTRODB_STALE_TIME,
         gcTime: INTRODB_GC_TIME,
       });
-      debugLog.info('api', `IntroDB: fetched segments for ${imdbId} S${season}E${episode}`, segments);
+      debugLog.info(
+        'api',
+        `IntroDB: fetched segments for ${imdbId} S${season}E${episode}`,
+        segments,
+      );
       return segments;
     },
     enabled: isEligible,

@@ -10,13 +10,14 @@ export function FeedbackHud() {
   const { t, number } = useI18n();
   const feedback = usePlayerStore((s) => s.feedback);
 
-  const feedbackLabel = feedback?.type === 'volume'
-    ? t('Volume {percent} percent', { percent: number(feedback.value ?? 0) })
-    : feedback?.type === 'play'
-      ? t('Play')
-      : feedback?.type === 'pause'
-        ? t('Pause')
-        : undefined;
+  const feedbackLabel =
+    feedback?.type === 'volume'
+      ? t('Volume {percent} percent', { percent: number(feedback.value ?? 0) })
+      : feedback?.type === 'play'
+        ? t('Play')
+        : feedback?.type === 'pause'
+          ? t('Pause')
+          : undefined;
 
   const renderIcon = () => {
     if (!feedback) return null;
@@ -47,7 +48,11 @@ export function FeedbackHud() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 1.2] }}
             exit={{ opacity: 0 }}
-            transition={{ duration: MOTION_DURATION.feedback, times: [0, 0.15, 0.7, 1], ease: MOTION_EASE.standard }}
+            transition={{
+              duration: MOTION_DURATION.feedback,
+              times: [0, 0.15, 0.7, 1],
+              ease: MOTION_EASE.standard,
+            }}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             <div className={styles.feedbackCircle}>{renderIcon()}</div>

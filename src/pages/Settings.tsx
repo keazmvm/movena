@@ -24,10 +24,7 @@ import { SubtitleAudioSettingsSection } from '../components/settings/SubtitleAud
 import { IconButton } from '../components/common/Button';
 import { ModalShell } from '../components/common/ModalShell';
 import { MOTION_DURATION, MOTION_EASE } from '../design/motion';
-import {
-  resolveSettingsSectionId,
-  type SettingsSectionId,
-} from '../utils/settingsNavigation';
+import { resolveSettingsSectionId, type SettingsSectionId } from '../utils/settingsNavigation';
 import styles from '../components/layout/AppLayout.module.css';
 import settingsStyles from './Settings.module.css';
 import { useI18n } from '../i18n';
@@ -47,7 +44,7 @@ export function Settings() {
   const activeSection = resolveSettingsSectionId(sectionParam);
   const closeSourceEditor = useCallback(() => setSourceEditor(null), []);
   const sourceEditorKey = sourceEditor
-    ? `${sourceEditor.kind}-${'sourceId' in sourceEditor ? sourceEditor.sourceId ?? 'new' : 'choose'}`
+    ? `${sourceEditor.kind}-${'sourceId' in sourceEditor ? (sourceEditor.sourceId ?? 'new') : 'choose'}`
     : 'closed';
 
   const selectSection = (section: SettingsSectionId) => {
@@ -65,7 +62,9 @@ export function Settings() {
             onAddSource={() => setSourceEditor({ kind: 'choose' })}
             onEditXtream={(sourceId) => setSourceEditor({ kind: 'xtream', sourceId })}
             onEditM3u={(sourceId) => setSourceEditor({ kind: 'm3u', sourceId })}
-            onOpenM3uEditor={(sourceId) => navigate(sourceId ? `/m3u-editor/${sourceId}` : '/m3u-editor')}
+            onOpenM3uEditor={(sourceId) =>
+              navigate(sourceId ? `/m3u-editor/${sourceId}` : '/m3u-editor')
+            }
           />
         );
       case 'general':
@@ -135,48 +134,67 @@ export function Settings() {
           onClose={closeSourceEditor}
           className={settingsStyles.accountModal}
           focusKey={sourceEditorKey}
-          initialFocusSelector={sourceEditor.kind === 'choose' ? '[data-modal-initial-focus]' : 'input:not([disabled])'}
-          ariaLabel={sourceEditor.kind === 'choose'
-            ? t('Add media source')
-            : sourceEditor.sourceId
-              ? t(sourceEditor.kind === 'xtream' ? 'Edit Xtream source' : 'Edit M3U source')
-              : t(sourceEditor.kind === 'xtream' ? 'Add Xtream source' : 'Add M3U source')}
+          initialFocusSelector={
+            sourceEditor.kind === 'choose' ? '[data-modal-initial-focus]' : 'input:not([disabled])'
+          }
+          ariaLabel={
+            sourceEditor.kind === 'choose'
+              ? t('Add media source')
+              : sourceEditor.sourceId
+                ? t(sourceEditor.kind === 'xtream' ? 'Edit Xtream source' : 'Edit M3U source')
+                : t(sourceEditor.kind === 'xtream' ? 'Add Xtream source' : 'Add M3U source')
+          }
         >
-                {sourceEditor.kind === 'choose' ? (
-                  <div className={settingsStyles.sourceChooser}>
-                    <div className={settingsStyles.sourceChooserHeader}>
-                      <div>
-                        <h2>{t('What do you want to add?')}</h2>
-                        <p>{t('Both types become equal sources in the same merged library.')}</p>
-                      </div>
-                      <IconButton size="sm" onClick={closeSourceEditor} aria-label="Close">
-                        <X size={16} />
-                      </IconButton>
-                    </div>
-                    <button type="button" className={settingsStyles.sourceChoice} data-modal-initial-focus onClick={() => setSourceEditor({ kind: 'xtream' })}>
-                      <Radio size={20} />
-                      <span><strong>{t('Xtream Account')}</strong><small>{t('Live TV, movies, series, and provider EPG')}</small></span>
-                    </button>
-                    <button type="button" className={settingsStyles.sourceChoice} onClick={() => setSourceEditor({ kind: 'm3u' })}>
-                      <FileText size={20} />
-                      <span><strong>{t('M3U Playlist')}</strong><small>{t('Remote URL or local file, with optional XMLTV')}</small></span>
-                    </button>
-                  </div>
-                ) : sourceEditor.kind === 'xtream' ? (
-                  <AccountConnectionForm
-                    sourceId={sourceEditor.sourceId}
-                    title={sourceEditor.sourceId ? 'Edit Xtream Source' : 'Add Xtream Source'}
-                    submitLabel={sourceEditor.sourceId ? 'Save Changes' : 'Add Source'}
-                    onSuccess={closeSourceEditor}
-                    onCancel={closeSourceEditor}
-                  />
-                ) : (
-                  <M3uSourceForm
-                    sourceId={sourceEditor.sourceId}
-                    onSuccess={closeSourceEditor}
-                    onCancel={closeSourceEditor}
-                  />
-                )}
+          {sourceEditor.kind === 'choose' ? (
+            <div className={settingsStyles.sourceChooser}>
+              <div className={settingsStyles.sourceChooserHeader}>
+                <div>
+                  <h2>{t('What do you want to add?')}</h2>
+                  <p>{t('Both types become equal sources in the same merged library.')}</p>
+                </div>
+                <IconButton size="sm" onClick={closeSourceEditor} aria-label="Close">
+                  <X size={16} />
+                </IconButton>
+              </div>
+              <button
+                type="button"
+                className={settingsStyles.sourceChoice}
+                data-modal-initial-focus
+                onClick={() => setSourceEditor({ kind: 'xtream' })}
+              >
+                <Radio size={20} />
+                <span>
+                  <strong>{t('Xtream Account')}</strong>
+                  <small>{t('Live TV, movies, series, and provider EPG')}</small>
+                </span>
+              </button>
+              <button
+                type="button"
+                className={settingsStyles.sourceChoice}
+                onClick={() => setSourceEditor({ kind: 'm3u' })}
+              >
+                <FileText size={20} />
+                <span>
+                  <strong>{t('M3U Playlist')}</strong>
+                  <small>{t('Remote URL or local file, with optional XMLTV')}</small>
+                </span>
+              </button>
+            </div>
+          ) : sourceEditor.kind === 'xtream' ? (
+            <AccountConnectionForm
+              sourceId={sourceEditor.sourceId}
+              title={sourceEditor.sourceId ? 'Edit Xtream Source' : 'Add Xtream Source'}
+              submitLabel={sourceEditor.sourceId ? 'Save Changes' : 'Add Source'}
+              onSuccess={closeSourceEditor}
+              onCancel={closeSourceEditor}
+            />
+          ) : (
+            <M3uSourceForm
+              sourceId={sourceEditor.sourceId}
+              onSuccess={closeSourceEditor}
+              onCancel={closeSourceEditor}
+            />
+          )}
         </ModalShell>
       )}
     </>

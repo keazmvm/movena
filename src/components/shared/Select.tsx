@@ -51,13 +51,19 @@ export function Select<T extends string | number>({
   const listboxId = useId();
 
   const selectedOption = options.find((opt) => opt.value === value) || options[0];
-  const selectedIndex = Math.max(0, options.findIndex((opt) => opt.value === value));
+  const selectedIndex = Math.max(
+    0,
+    options.findIndex((opt) => opt.value === value),
+  );
 
-  const open = useCallback((index = selectedIndex) => {
-    if (disabled || options.length === 0) return;
-    setActiveIndex(index);
-    setIsOpen(true);
-  }, [disabled, options.length, selectedIndex]);
+  const open = useCallback(
+    (index = selectedIndex) => {
+      if (disabled || options.length === 0) return;
+      setActiveIndex(index);
+      setIsOpen(true);
+    },
+    [disabled, options.length, selectedIndex],
+  );
 
   const updateCoords = useCallback(() => {
     if (!triggerRef.current) return;
@@ -100,7 +106,9 @@ export function Select<T extends string | number>({
 
   useEffect(() => {
     if (!isOpen) return;
-    document.getElementById(`${listboxId}-option-${activeIndex}`)?.scrollIntoView({ block: 'nearest' });
+    document
+      .getElementById(`${listboxId}-option-${activeIndex}`)
+      ?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex, isOpen, listboxId]);
 
   useEffect(() => {
@@ -112,10 +120,7 @@ export function Select<T extends string | number>({
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (
-        triggerRef.current?.contains(target) ||
-        dropdownRef.current?.contains(target)
-      ) {
+      if (triggerRef.current?.contains(target) || dropdownRef.current?.contains(target)) {
         return;
       }
       setIsOpen(false);
@@ -171,7 +176,10 @@ export function Select<T extends string | number>({
   return (
     <div
       className={`${styles.selectContainer} ${className || ''}`}
-      style={{ width: width || 'auto', minWidth: typeof width === 'number' ? `${width}px` : width || '200px' }}
+      style={{
+        width: width || 'auto',
+        minWidth: typeof width === 'number' ? `${width}px` : width || '200px',
+      }}
     >
       <button
         ref={triggerRef}
@@ -185,8 +193,17 @@ export function Select<T extends string | number>({
         aria-expanded={isOpen}
         aria-controls={isOpen ? listboxId : undefined}
       >
-        <span className={styles.triggerText}>{selectedOption ? (selectedOption.localize === false ? selectedOption.label : t(selectedOption.label)) : ''}</span>
-        <ChevronDown size={14} className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`} />
+        <span className={styles.triggerText}>
+          {selectedOption
+            ? selectedOption.localize === false
+              ? selectedOption.label
+              : t(selectedOption.label)
+            : ''}
+        </span>
+        <ChevronDown
+          size={14}
+          className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
+        />
       </button>
 
       {createPortal(
@@ -243,7 +260,7 @@ export function Select<T extends string | number>({
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.body,
       )}
     </div>
   );

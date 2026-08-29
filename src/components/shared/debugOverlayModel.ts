@@ -15,7 +15,10 @@ export function formatDebugTime(seconds: number): string {
     : `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
-export function formatMilliseconds(value: number | null | undefined, number: NumberFormatter): string {
+export function formatMilliseconds(
+  value: number | null | undefined,
+  number: NumberFormatter,
+): string {
   if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
   return value >= 1000
     ? `${number(value / 1000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s`
@@ -24,17 +27,25 @@ export function formatMilliseconds(value: number | null | undefined, number: Num
 
 export function formatBitrate(bitsPerSecond: number | undefined, number: NumberFormatter): string {
   if (typeof bitsPerSecond !== 'number' || !Number.isFinite(bitsPerSecond)) return '—';
-  if (bitsPerSecond >= 1_000_000) return `${number(bitsPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mbps`;
+  if (bitsPerSecond >= 1_000_000)
+    return `${number(bitsPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mbps`;
   return `${number(Math.round(bitsPerSecond / 1000))} kbps`;
 }
 
-export function formatByteRate(bytesPerSecond: number | undefined, number: NumberFormatter): string {
+export function formatByteRate(
+  bytesPerSecond: number | undefined,
+  number: NumberFormatter,
+): string {
   if (typeof bytesPerSecond !== 'number' || !Number.isFinite(bytesPerSecond)) return '—';
-  if (bytesPerSecond >= 1_000_000) return `${number(bytesPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB/s`;
+  if (bytesPerSecond >= 1_000_000)
+    return `${number(bytesPerSecond / 1_000_000, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB/s`;
   return `${number(Math.round(bytesPerSecond / 1000))} kB/s`;
 }
 
-export function formatSignedMilliseconds(seconds: number | undefined, number: NumberFormatter): string {
+export function formatSignedMilliseconds(
+  seconds: number | undefined,
+  number: NumberFormatter,
+): string {
   if (typeof seconds !== 'number' || !Number.isFinite(seconds)) return '—';
   const milliseconds = seconds * 1000;
   return `${milliseconds > 0 ? '+' : ''}${number(milliseconds, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ms`;

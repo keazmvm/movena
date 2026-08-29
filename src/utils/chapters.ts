@@ -20,9 +20,7 @@ export interface PlaybackPromptSegments {
  * a *following* chapter to know where the intro ends — a title alone only
  * marks where it starts, not how long it runs.
  */
-export function findIntroChapter(
-  chapters: MpvChapter[]
-): { start: number; skipTo: number } | null {
+export function findIntroChapter(chapters: MpvChapter[]): { start: number; skipTo: number } | null {
   const index = chapters.findIndex((c) => c.title && INTRO_PATTERN.test(c.title.trim()));
   if (index === -1) return null;
   const next = chapters[index + 1];
@@ -51,21 +49,18 @@ export function resolvePlaybackPromptSegments(
   const chapterIntro = findIntroChapter(chapters);
   const chapterOutro = findOutroChapter(chapters);
 
-  const intro: PlaybackSegmentRange | null = chapterIntro ?? (
-    introDbSegments?.intro
+  const intro: PlaybackSegmentRange | null =
+    chapterIntro ??
+    (introDbSegments?.intro
       ? { start: introDbSegments.intro.startSec, skipTo: introDbSegments.intro.endSec }
-      : null
-  );
+      : null);
 
   const recap: PlaybackSegmentRange | null = introDbSegments?.recap
     ? { start: introDbSegments.recap.startSec, skipTo: introDbSegments.recap.endSec }
     : null;
 
-  const outro: { start: number } | null = chapterOutro ?? (
-    introDbSegments?.outro
-      ? { start: introDbSegments.outro.startSec }
-      : null
-  );
+  const outro: { start: number } | null =
+    chapterOutro ?? (introDbSegments?.outro ? { start: introDbSegments.outro.startSec } : null);
 
   return { intro, recap, outro };
 }

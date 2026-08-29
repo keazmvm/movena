@@ -80,7 +80,9 @@
 }
 
 @keyframes routeSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Catalog Page Layout */
@@ -314,7 +316,9 @@
    ============================ */
 
 @media (max-width: 1024px) {
-  .pageContainer { padding-inline: var(--space-4); }
+  .pageContainer {
+    padding-inline: var(--space-4);
+  }
 
   .pageTitle {
     font-size: var(--font-size-section);
@@ -323,17 +327,19 @@
   .pageSubtitle {
     font-size: var(--font-size-body);
   }
-
 }
 
 @media (max-width: 768px) {
-  .pageContainer { padding-inline: var(--space-3); }
+  .pageContainer {
+    padding-inline: var(--space-3);
+  }
 
   .catalogLayout {
     flex-direction: column;
   }
 
-  .pageHeader, .catalogHeader {
+  .pageHeader,
+  .catalogHeader {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-3);
@@ -355,5 +361,7 @@
     font-size: var(--font-size-section);
   }
 
-  .pageContainer { padding-inline: var(--space-2); }
+  .pageContainer {
+    padding-inline: var(--space-2);
+  }
 }

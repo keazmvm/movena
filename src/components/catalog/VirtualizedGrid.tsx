@@ -35,9 +35,9 @@ interface VirtualizedGridProps {
   showTypeInList?: boolean | undefined;
 }
 
-export function VirtualizedGrid({ 
-  items, 
-  onItemClick, 
+export function VirtualizedGrid({
+  items,
+  onItemClick,
   onViewDetails,
   currentCollectionId,
   gap = 16,
@@ -46,7 +46,7 @@ export function VirtualizedGrid({
 }: VirtualizedGridProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
-  const viewMode = useSettingsStore(state => state.viewMode);
+  const viewMode = useSettingsStore((state) => state.viewMode);
 
   const isListMode = viewMode === 'list';
   const effectiveGap = isListMode ? 0 : gap;
@@ -78,14 +78,14 @@ export function VirtualizedGrid({
       // thread or visibly lagging behind an actual window resize.
       if (!hasMeasured) {
         hasMeasured = true;
-        setContainerWidth((current) => current === width ? current : width);
+        setContainerWidth((current) => (current === width ? current : width));
         return;
       }
 
       if (frameId !== null) cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(() => {
         frameId = null;
-        setContainerWidth((current) => current === width ? current : width);
+        setContainerWidth((current) => (current === width ? current : width));
       });
     });
 
@@ -129,7 +129,7 @@ export function VirtualizedGrid({
   };
 
   return (
-    <div 
+    <div
       ref={parentRef}
       className={`${styles.gridContainer} ${isListMode ? styles.listContainer : ''} subtle-scrollbar`}
       style={gridStyle}
@@ -177,8 +177,8 @@ export function VirtualizedGrid({
 
                 return (
                   <div key={item.id} className={styles.itemWrapper}>
-                    <MediaCard 
-                      item={item} 
+                    <MediaCard
+                      item={item}
                       onClick={onItemClick}
                       onViewDetails={onViewDetails}
                       currentCollectionId={currentCollectionId}

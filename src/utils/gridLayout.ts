@@ -41,10 +41,7 @@ export function calculateGridLayout(
     Math.floor((safeWidth + safeGap) / (minWidth + safeGap)),
   );
   const columns = Math.min(closestColumnCount, maximumComfortableColumns);
-  const cardWidth = Math.max(
-    0,
-    (safeWidth - safeGap * (columns - 1)) / columns,
-  );
+  const cardWidth = Math.max(0, (safeWidth - safeGap * (columns - 1)) / columns);
 
   return {
     columns,

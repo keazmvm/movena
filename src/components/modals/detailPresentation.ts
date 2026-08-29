@@ -23,11 +23,15 @@ export function buildDetailPresentation(input: DetailPresentationInput) {
     : NaN;
   const tmdbCast = input.enriched?.credits.cast.map((credit) => credit.name).filter(Boolean) ?? [];
   const providerCast = input.providerCast?.split(/\s*,\s*/).filter(Boolean) ?? [];
-  const director = input.enriched?.credits.crew.find((credit) => (
-    credit.job === 'Director' || credit.jobs.includes('Director')
-  ))?.name || input.providerDirector;
-  const genres = input.enriched?.genres.map((genre) => genre.name).filter(Boolean).join(' / ')
-    || input.providerGenres?.replace(/\s*,\s*/g, ' / ');
+  const director =
+    input.enriched?.credits.crew.find(
+      (credit) => credit.job === 'Director' || credit.jobs.includes('Director'),
+    )?.name || input.providerDirector;
+  const genres =
+    input.enriched?.genres
+      .map((genre) => genre.name)
+      .filter(Boolean)
+      .join(' / ') || input.providerGenres?.replace(/\s*,\s*/g, ' / ');
 
   return {
     releaseYear: input.enriched?.releaseYear ?? providerReleaseYear,

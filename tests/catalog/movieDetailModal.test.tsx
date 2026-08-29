@@ -97,9 +97,18 @@ describe('<MovieDetailModal />', () => {
     tmdb.getTmdbMovie.mockResolvedValue({
       voteAverage: 8.4,
       genres: [{ name: 'Drama' }],
-      credits: { cast: [{ name: 'TMDB Actor' }], crew: [{ name: 'TMDB Director', job: 'Director', jobs: [] }] },
+      credits: {
+        cast: [{ name: 'TMDB Actor' }],
+        crew: [{ name: 'TMDB Director', job: 'Director', jobs: [] }],
+      },
     });
-    vi.spyOn(useDetailsModule, 'useVodInfo').mockReturnValue({ data: mockMovieData as any, isLoading: false, error: null, isFetching: false, refetch: vi.fn() } as any);
+    vi.spyOn(useDetailsModule, 'useVodInfo').mockReturnValue({
+      data: mockMovieData as any,
+      isLoading: false,
+      error: null,
+      isFetching: false,
+      refetch: vi.fn(),
+    } as any);
 
     renderWithRouter(<MovieDetailModal {...defaultProps} />);
 
@@ -190,7 +199,9 @@ describe('<MovieDetailModal />', () => {
 
     renderWithRouter(<MovieDetailModal {...defaultProps} sourceId="xtream-missing" />);
 
-    expect(screen.getByText('No credentials are loaded for Xtream source "xtream-missing".')).toBeTruthy();
+    expect(
+      screen.getByText('No credentials are loaded for Xtream source "xtream-missing".'),
+    ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Open Settings' })).toBeTruthy();
   });
 });

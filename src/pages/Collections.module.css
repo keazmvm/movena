@@ -25,7 +25,9 @@
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: background-color var(--duration-normal) var(--ease-standard), color var(--duration-normal) var(--ease-standard);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
   position: relative;
   min-height: var(--control-height-md);
 }

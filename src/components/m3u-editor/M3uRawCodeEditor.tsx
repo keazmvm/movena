@@ -1,5 +1,24 @@
-import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type UIEvent } from 'react';
-import { Check, ChevronDown, ChevronUp, Copy, RefreshCw, Replace, Search, WandSparkles, X } from 'lucide-react';
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+  type UIEvent,
+} from 'react';
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  RefreshCw,
+  Replace,
+  Search,
+  WandSparkles,
+  X,
+} from 'lucide-react';
 import { generateM3u, parseM3u } from '../../api/m3u';
 import { parseM3uAsync } from '../../services/m3uParser';
 import { Button } from '../common/Button';
@@ -80,9 +99,21 @@ function renderAttributes(value: string): ReactNode[] {
   let match: RegExpExecArray | null;
   while ((match = attributePattern.exec(value))) {
     if (match.index > cursor) nodes.push(value.slice(cursor, match.index));
-    nodes.push(<span className={styles.rawAttribute} key={`${match.index}-name`}>{match[1]}</span>);
-    nodes.push(<span className={styles.rawPunctuation} key={`${match.index}-equals`}>{match[2]}</span>);
-    nodes.push(<span className={styles.rawAttributeValue} key={`${match.index}-value`}>{match[3]}</span>);
+    nodes.push(
+      <span className={styles.rawAttribute} key={`${match.index}-name`}>
+        {match[1]}
+      </span>,
+    );
+    nodes.push(
+      <span className={styles.rawPunctuation} key={`${match.index}-equals`}>
+        {match[2]}
+      </span>,
+    );
+    nodes.push(
+      <span className={styles.rawAttributeValue} key={`${match.index}-value`}>
+        {match[3]}
+      </span>,
+    );
     cursor = match.index + match[0].length;
   }
   if (cursor < value.length) nodes.push(value.slice(cursor));
@@ -103,17 +134,38 @@ const M3uSyntaxHighlight = memo(function M3uSyntaxHighlight({
   startLine: number;
 }) {
   return (
-    <pre className={styles.rawHighlight} style={{ transform: `translate(${-scrollLeft}px, ${offsetTop}px)` }} aria-hidden="true">
+    <pre
+      className={styles.rawHighlight}
+      style={{ transform: `translate(${-scrollLeft}px, ${offsetTop}px)` }}
+      aria-hidden="true"
+    >
       {lines.slice(startLine, endLine).map((line, visibleIndex) => {
         const index = startLine + visibleIndex;
         const directive = /^(#[A-Z0-9-]+)(:?)(.*)$/i.exec(line);
         if (directive) {
-          return <span className={styles.rawHighlightLine} key={`${index}-${line}`}><span className={styles.rawDirective}>{directive[1]}</span><span className={styles.rawPunctuation}>{directive[2]}</span>{renderAttributes(directive[3] ?? '')}{'\n'}</span>;
+          return (
+            <span className={styles.rawHighlightLine} key={`${index}-${line}`}>
+              <span className={styles.rawDirective}>{directive[1]}</span>
+              <span className={styles.rawPunctuation}>{directive[2]}</span>
+              {renderAttributes(directive[3] ?? '')}
+              {'\n'}
+            </span>
+          );
         }
         if (/^(?:https?|rtmp|rtsp|udp|file):/i.test(line)) {
-          return <span className={styles.rawHighlightLine} key={`${index}-${line}`}><span className={styles.rawUrl}>{line}</span>{'\n'}</span>;
+          return (
+            <span className={styles.rawHighlightLine} key={`${index}-${line}`}>
+              <span className={styles.rawUrl}>{line}</span>
+              {'\n'}
+            </span>
+          );
         }
-        return <span className={styles.rawHighlightLine} key={`${index}-${line}`}>{line}{'\n'}</span>;
+        return (
+          <span className={styles.rawHighlightLine} key={`${index}-${line}`}>
+            {line}
+            {'\n'}
+          </span>
+        );
       })}
     </pre>
   );
@@ -131,10 +183,21 @@ const M3uVisibleLineNumbers = memo(function M3uVisibleLineNumbers({
   warningLines: Set<number>;
 }) {
   return (
-    <div className={styles.rawLineNumberViewport} style={{ transform: `translateY(${offsetTop}px)` }}>
+    <div
+      className={styles.rawLineNumberViewport}
+      style={{ transform: `translateY(${offsetTop}px)` }}
+    >
       {Array.from({ length: endLine - startLine }, (_, visibleIndex) => {
         const line = startLine + visibleIndex + 1;
-        return <span className={warningLines.has(line) ? styles.rawWarningLineNumber : undefined} data-raw-line-number key={line}>{line}</span>;
+        return (
+          <span
+            className={warningLines.has(line) ? styles.rawWarningLineNumber : undefined}
+            data-raw-line-number
+            key={line}
+          >
+            {line}
+          </span>
+        );
       })}
     </div>
   );
@@ -170,7 +233,9 @@ export function M3uRawCodeEditor({
   });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const findInputRef = useRef<HTMLInputElement>(null);
-  const latestViewStateRef = useRef<M3uRawEditorViewState>(viewState ?? { selectionStart: 0, selectionEnd: 0, scrollTop: 0, scrollLeft: 0 });
+  const latestViewStateRef = useRef<M3uRawEditorViewState>(
+    viewState ?? { selectionStart: 0, selectionEnd: 0, scrollTop: 0, scrollLeft: 0 },
+  );
   const onViewStateChangeRef = useRef(onViewStateChange);
   const viewStateTimerRef = useRef<number | null>(null);
   const viewportFrameRef = useRef<number | null>(null);
@@ -194,7 +259,11 @@ export function M3uRawCodeEditor({
     editor.scrollTop = viewState.scrollTop;
     editor.scrollLeft = viewState.scrollLeft;
     latestViewStateRef.current = viewState;
-    setViewport((current) => ({ ...current, scrollTop: viewState.scrollTop, scrollLeft: viewState.scrollLeft }));
+    setViewport((current) => ({
+      ...current,
+      scrollTop: viewState.scrollTop,
+      scrollLeft: viewState.scrollLeft,
+    }));
   }, [viewState]);
 
   useEffect(() => {
@@ -215,11 +284,14 @@ export function M3uRawCodeEditor({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => () => {
-    if (viewStateTimerRef.current !== null) window.clearTimeout(viewStateTimerRef.current);
-    if (viewportFrameRef.current !== null) window.cancelAnimationFrame(viewportFrameRef.current);
-    onViewStateChangeRef.current?.(latestViewStateRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (viewStateTimerRef.current !== null) window.clearTimeout(viewStateTimerRef.current);
+      if (viewportFrameRef.current !== null) window.cancelAnimationFrame(viewportFrameRef.current);
+      onViewStateChangeRef.current?.(latestViewStateRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (findOpen) findInputRef.current?.focus();
@@ -229,17 +301,34 @@ export function M3uRawCodeEditor({
   const documentIndex = useMemo(() => indexRawDocument(text), [text]);
   const lineCount = text ? documentIndex.lines.length : 0;
   const renderedLineCount = Math.max(1, documentIndex.lines.length);
-  const startLine = Math.max(0, Math.floor(viewport.scrollTop / viewport.lineHeight) - VISIBLE_LINE_OVERSCAN);
-  const endLine = Math.min(renderedLineCount, Math.ceil((viewport.scrollTop + viewport.height) / viewport.lineHeight) + VISIBLE_LINE_OVERSCAN);
+  const startLine = Math.max(
+    0,
+    Math.floor(viewport.scrollTop / viewport.lineHeight) - VISIBLE_LINE_OVERSCAN,
+  );
+  const endLine = Math.min(
+    renderedLineCount,
+    Math.ceil((viewport.scrollTop + viewport.height) / viewport.lineHeight) + VISIBLE_LINE_OVERSCAN,
+  );
   const visibleOffsetTop = startLine * viewport.lineHeight - viewport.scrollTop;
-  const allWarnings = useMemo(() => [...new Set([...warnings, ...liveWarnings])], [liveWarnings, warnings]);
-  const warningLines = useMemo(() => new Set(allWarnings.map((warning) => warningLine(warning, lineCount)).filter((line): line is number => line !== null)), [allWarnings, lineCount]);
+  const allWarnings = useMemo(
+    () => [...new Set([...warnings, ...liveWarnings])],
+    [liveWarnings, warnings],
+  );
+  const warningLines = useMemo(
+    () =>
+      new Set(
+        allWarnings
+          .map((warning) => warningLine(warning, lineCount))
+          .filter((line): line is number => line !== null),
+      ),
+    [allWarnings, lineCount],
+  );
   const matches = useMemo(() => {
     const query = findQuery.trim().toLocaleLowerCase();
     if (!query) return [];
     const lowerText = text.toLocaleLowerCase();
     const values: number[] = [];
-    for (let start = 0; start < lowerText.length;) {
+    for (let start = 0; start < lowerText.length; ) {
       const match = lowerText.indexOf(query, start);
       if (match < 0) break;
       values.push(match);
@@ -261,19 +350,24 @@ export function M3uRawCodeEditor({
       return;
     }
     let active = true;
-    const timer = window.setTimeout(() => {
-      void parseM3uAsync(text).then((playlist) => {
-        if (!active) return;
-        setParseError(null);
-        setLiveWarnings(playlist.warnings);
-        setParsedEntryCount(playlist.entries.length);
-      }).catch((error: unknown) => {
-        if (!active) return;
-        setParseError(getErrorMessage(error, t('Invalid M3U format')));
-        setLiveWarnings([]);
-        setParsedEntryCount(null);
-      });
-    }, isModified ? 500 : 100);
+    const timer = window.setTimeout(
+      () => {
+        void parseM3uAsync(text)
+          .then((playlist) => {
+            if (!active) return;
+            setParseError(null);
+            setLiveWarnings(playlist.warnings);
+            setParsedEntryCount(playlist.entries.length);
+          })
+          .catch((error: unknown) => {
+            if (!active) return;
+            setParseError(getErrorMessage(error, t('Invalid M3U format')));
+            setLiveWarnings([]);
+            setParsedEntryCount(null);
+          });
+      },
+      isModified ? 500 : 100,
+    );
     return () => {
       active = false;
       window.clearTimeout(timer);
@@ -348,9 +442,10 @@ export function M3uRawCodeEditor({
     if (matches.length === 0) return;
     const editor = textareaRef.current;
     const current = editor?.selectionStart ?? 0;
-    const match = direction === 1
-      ? matches.find((value) => value > current) ?? matches[0]
-      : [...matches].reverse().find((value) => value < current) ?? matches.at(-1)!;
+    const match =
+      direction === 1
+        ? (matches.find((value) => value > current) ?? matches[0])
+        : ([...matches].reverse().find((value) => value < current) ?? matches.at(-1)!);
     if (match === undefined) return;
     editor?.focus();
     editor?.setSelectionRange(match, match + findQuery.trim().length);
@@ -366,7 +461,9 @@ export function M3uRawCodeEditor({
       return;
     }
     const caret = editor.selectionStart + replaceQuery.length;
-    setText(`${text.slice(0, editor.selectionStart)}${replaceQuery}${text.slice(editor.selectionEnd)}`);
+    setText(
+      `${text.slice(0, editor.selectionStart)}${replaceQuery}${text.slice(editor.selectionEnd)}`,
+    );
     window.requestAnimationFrame(() => {
       editor.setSelectionRange(caret, caret);
       syncViewState();
@@ -384,14 +481,16 @@ export function M3uRawCodeEditor({
     try {
       const playlist = parseM3u(text);
       setParseError(null);
-      setFormatPreview(generateM3u({
-        name: playlist.name,
-        epgUrls: playlist.epgUrls,
-        entries: playlist.entries,
-        extraHeaderAttributes: playlist.extraHeaderAttributes,
-        extraDirectives: playlist.extraDirectives,
-        preserveUnknownTags: true,
-      }));
+      setFormatPreview(
+        generateM3u({
+          name: playlist.name,
+          epgUrls: playlist.epgUrls,
+          entries: playlist.entries,
+          extraHeaderAttributes: playlist.extraHeaderAttributes,
+          extraDirectives: playlist.extraDirectives,
+          preserveUnknownTags: true,
+        }),
+      );
     } catch (error: unknown) {
       setParseError(getErrorMessage(error, t('Invalid M3U format')));
     }
@@ -404,7 +503,10 @@ export function M3uRawCodeEditor({
     const start = documentIndex.lineStarts[lineIndex] ?? 0;
     editor.focus();
     editor.setSelectionRange(start, start + (documentIndex.lines[lineIndex]?.length ?? 0));
-    editor.scrollTop = Math.max(0, (editor.scrollHeight / Math.max(1, lineCount)) * Math.max(0, line - 3));
+    editor.scrollTop = Math.max(
+      0,
+      (editor.scrollHeight / Math.max(1, lineCount)) * Math.max(0, line - 3),
+    );
     setViewport((current) => ({ ...current, scrollTop: editor.scrollTop }));
     syncViewState();
   };
@@ -429,57 +531,263 @@ export function M3uRawCodeEditor({
     <div className={styles.rawEditorWrapper}>
       <div className={styles.rawToolbar}>
         <div className={styles.rawToolbarMeta}>
-          <span>{t('{lines} lines · {chars} KB', { lines: number(lineCount), chars: number(Math.round(text.length / 1024)) })}</span>
+          <span>
+            {t('{lines} lines · {chars} KB', {
+              lines: number(lineCount),
+              chars: number(Math.round(text.length / 1024)),
+            })}
+          </span>
           {isModified && <span className={styles.rawModified}>{t('Unapplied changes')}</span>}
         </div>
         <div className={styles.rawToolbarActions}>
-          <Button variant="ghost" size="sm" type="button" onClick={() => setFindOpen((open) => !open)} aria-expanded={findOpen} aria-controls="m3u-raw-find-replace"><Search size={13} /> {t('Find')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={previewFormatting} disabled={!text.trim()}><WandSparkles size={13} /> {t('Format')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={() => { onSyncFromVisual?.(); setText(rawContent); }} disabled={!isModified && !onSyncFromVisual}><RefreshCw size={13} /> {t('Restore')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={() => { void navigator.clipboard.writeText(text); setCopied(true); window.setTimeout(() => setCopied(false), 2000); }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => setFindOpen((open) => !open)}
+            aria-expanded={findOpen}
+            aria-controls="m3u-raw-find-replace"
+          >
+            <Search size={13} /> {t('Find')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={previewFormatting}
+            disabled={!text.trim()}
+          >
+            <WandSparkles size={13} /> {t('Format')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => {
+              onSyncFromVisual?.();
+              setText(rawContent);
+            }}
+            disabled={!isModified && !onSyncFromVisual}
+          >
+            <RefreshCw size={13} /> {t('Restore')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => {
+              void navigator.clipboard.writeText(text);
+              setCopied(true);
+              window.setTimeout(() => setCopied(false), 2000);
+            }}
+          >
             {copied ? <Check size={13} /> : <Copy size={13} />} {t(copied ? 'Copied' : 'Copy')}
           </Button>
-          <Button variant="primary" size="sm" type="button" onClick={applyText} disabled={!isModified}>{t('Apply Changes')}</Button>
+          <Button
+            variant="primary"
+            size="sm"
+            type="button"
+            onClick={applyText}
+            disabled={!isModified}
+          >
+            {t('Apply Changes')}
+          </Button>
         </div>
       </div>
 
       {findOpen && (
-        <div id="m3u-raw-find-replace" className={styles.rawFindReplace} role="search" aria-label={t('Find and replace')}>
-          <label className={styles.rawFindField}><span>{t('Find')}</span><input ref={findInputRef} className="uiField" value={findQuery} onChange={(event) => setFindQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') selectMatch(event.shiftKey ? -1 : 1); }} /></label>
-          <span className={styles.rawMatchCount}>{number(matches.length)} {t('matches')}</span>
-          <Button variant="ghost" size="sm" type="button" onClick={() => selectMatch(-1)} disabled={matches.length === 0} aria-label={t('Previous match')}><ChevronUp size={14} /></Button>
-          <Button variant="ghost" size="sm" type="button" onClick={() => selectMatch(1)} disabled={matches.length === 0} aria-label={t('Next match')}><ChevronDown size={14} /></Button>
-          <label className={styles.rawFindField}><span>{t('Replace')}</span><input className="uiField" value={replaceQuery} onChange={(event) => setReplaceQuery(event.target.value)} /></label>
-          <Button variant="ghost" size="sm" type="button" onClick={replaceCurrent} disabled={matches.length === 0}><Replace size={13} /> {t('Replace')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={replaceAll} disabled={matches.length === 0}>{t('Replace All')}</Button>
-          <Button variant="ghost" size="sm" type="button" onClick={() => setFindOpen(false)} aria-label={t('Close find and replace')}><X size={14} /></Button>
+        <div
+          id="m3u-raw-find-replace"
+          className={styles.rawFindReplace}
+          role="search"
+          aria-label={t('Find and replace')}
+        >
+          <label className={styles.rawFindField}>
+            <span>{t('Find')}</span>
+            <input
+              ref={findInputRef}
+              className="uiField"
+              value={findQuery}
+              onChange={(event) => setFindQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') selectMatch(event.shiftKey ? -1 : 1);
+              }}
+            />
+          </label>
+          <span className={styles.rawMatchCount}>
+            {number(matches.length)} {t('matches')}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => selectMatch(-1)}
+            disabled={matches.length === 0}
+            aria-label={t('Previous match')}
+          >
+            <ChevronUp size={14} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => selectMatch(1)}
+            disabled={matches.length === 0}
+            aria-label={t('Next match')}
+          >
+            <ChevronDown size={14} />
+          </Button>
+          <label className={styles.rawFindField}>
+            <span>{t('Replace')}</span>
+            <input
+              className="uiField"
+              value={replaceQuery}
+              onChange={(event) => setReplaceQuery(event.target.value)}
+            />
+          </label>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={replaceCurrent}
+            disabled={matches.length === 0}
+          >
+            <Replace size={13} /> {t('Replace')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={replaceAll}
+            disabled={matches.length === 0}
+          >
+            {t('Replace All')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => setFindOpen(false)}
+            aria-label={t('Close find and replace')}
+          >
+            <X size={14} />
+          </Button>
         </div>
       )}
 
       {formatPreview && (
         <div className={styles.rawFormatPreview} role="region" aria-label={t('Formatting preview')}>
-          <div className={styles.rawFormatPreviewHeader}><div><strong>{t('Formatting preview')}</strong><span>{t('Review the canonical output before replacing your raw text.')}</span></div><div className={styles.rawToolbarActions}><Button variant="ghost" size="sm" type="button" onClick={() => setFormatPreview(null)}>{t('Cancel')}</Button><Button variant="primary" size="sm" type="button" onClick={() => { setText(formatPreview); setFormatPreview(null); }}>{t('Use Formatting')}</Button></div></div>
+          <div className={styles.rawFormatPreviewHeader}>
+            <div>
+              <strong>{t('Formatting preview')}</strong>
+              <span>{t('Review the canonical output before replacing your raw text.')}</span>
+            </div>
+            <div className={styles.rawToolbarActions}>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => setFormatPreview(null)}
+              >
+                {t('Cancel')}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                type="button"
+                onClick={() => {
+                  setText(formatPreview);
+                  setFormatPreview(null);
+                }}
+              >
+                {t('Use Formatting')}
+              </Button>
+            </div>
+          </div>
           <pre className={styles.rawFormatPreviewCode}>{formatPreview}</pre>
         </div>
       )}
 
-      {parseError && <div className={styles.rawParseError} role="alert">{parseError}</div>}
-      {!parseError && allWarnings.length > 0 && <div className={styles.rawWarnings} role="status">{allWarnings.slice(0, 5).map((warning, index) => { const line = warningLine(warning, lineCount); return line ? <button className={styles.rawWarning} type="button" key={`${index}-${warning}`} onClick={() => jumpToLine(line)}>{warning}</button> : <span key={`${index}-${warning}`}>{warning}</span>; })}{allWarnings.length > 5 && <span>{t('+ {count} more warnings', { count: number(allWarnings.length - 5) })}</span>}</div>}
+      {parseError && (
+        <div className={styles.rawParseError} role="alert">
+          {parseError}
+        </div>
+      )}
+      {!parseError && allWarnings.length > 0 && (
+        <div className={styles.rawWarnings} role="status">
+          {allWarnings.slice(0, 5).map((warning, index) => {
+            const line = warningLine(warning, lineCount);
+            return line ? (
+              <button
+                className={styles.rawWarning}
+                type="button"
+                key={`${index}-${warning}`}
+                onClick={() => jumpToLine(line)}
+              >
+                {warning}
+              </button>
+            ) : (
+              <span key={`${index}-${warning}`}>{warning}</span>
+            );
+          })}
+          {allWarnings.length > 5 && (
+            <span>{t('+ {count} more warnings', { count: number(allWarnings.length - 5) })}</span>
+          )}
+        </div>
+      )}
 
       <div className={styles.rawEditorSurface}>
         <div className={styles.rawLineNumbers} aria-hidden="true">
-          <M3uVisibleLineNumbers endLine={endLine} offsetTop={visibleOffsetTop} startLine={startLine} warningLines={warningLines} />
+          <M3uVisibleLineNumbers
+            endLine={endLine}
+            offsetTop={visibleOffsetTop}
+            startLine={startLine}
+            warningLines={warningLines}
+          />
         </div>
         <div className={styles.rawCodeStack}>
-          <M3uSyntaxHighlight endLine={endLine} lines={documentIndex.lines} offsetTop={visibleOffsetTop} scrollLeft={viewport.scrollLeft} startLine={startLine} />
-          <textarea ref={textareaRef} className={`${styles.rawTextarea} subtle-scrollbar`} value={text} onChange={(event) => setText(event.target.value)} onSelect={syncViewState} onKeyUp={syncViewState} onClick={syncViewState} onKeyDown={handleEditorKeyDown} onScroll={handleEditorScroll} spellCheck={false} autoCapitalize="off" autoCorrect="off" aria-label={t('Raw M3U Code')} />
+          <M3uSyntaxHighlight
+            endLine={endLine}
+            lines={documentIndex.lines}
+            offsetTop={visibleOffsetTop}
+            scrollLeft={viewport.scrollLeft}
+            startLine={startLine}
+          />
+          <textarea
+            ref={textareaRef}
+            className={`${styles.rawTextarea} subtle-scrollbar`}
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            onSelect={syncViewState}
+            onKeyUp={syncViewState}
+            onClick={syncViewState}
+            onKeyDown={handleEditorKeyDown}
+            onScroll={handleEditorScroll}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoCorrect="off"
+            aria-label={t('Raw M3U Code')}
+          />
         </div>
       </div>
 
       <footer className={styles.rawStatusBar}>
-        <span>{t('Line {line}, column {column}', { line: number(cursor.line), column: number(cursor.column) })}</span>
-        {cursor.selectionLength > 0 && <span>{number(cursor.selectionLength)} {t('selected')}</span>}
-        <span>{parsedEntryCount === null ? t('Checking playlist…') : t('{count} channels parsed', { count: number(parsedEntryCount) })}</span>
+        <span>
+          {t('Line {line}, column {column}', {
+            line: number(cursor.line),
+            column: number(cursor.column),
+          })}
+        </span>
+        {cursor.selectionLength > 0 && (
+          <span>
+            {number(cursor.selectionLength)} {t('selected')}
+          </span>
+        )}
+        <span>
+          {parsedEntryCount === null
+            ? t('Checking playlist…')
+            : t('{count} channels parsed', { count: number(parsedEntryCount) })}
+        </span>
         <span>{t('Ctrl+F Find · Ctrl+H Replace · Ctrl+Enter Apply · Ctrl+S Save')}</span>
       </footer>
     </div>

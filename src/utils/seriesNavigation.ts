@@ -26,7 +26,7 @@ export interface NextEpisodeResult {
 export function findNextEpisode(
   episodesBySeason: SeriesEpisodesBySeason | undefined,
   currentEpisodeId: string | number,
-  currentSeasonNum: string | number | undefined
+  currentSeasonNum: string | number | undefined,
 ): NextEpisodeResult | null {
   if (!episodesBySeason) return null;
 
@@ -36,7 +36,7 @@ export function findNextEpisode(
   const episodeList = episodesBySeason[currentSeason] || [];
 
   const currentIndex = episodeList.findIndex(
-    (e) => e.id.toString() === currentEpisodeId.toString()
+    (e) => e.id.toString() === currentEpisodeId.toString(),
   );
 
   if (currentIndex !== -1 && currentIndex + 1 < episodeList.length) {

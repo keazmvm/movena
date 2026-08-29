@@ -39,4 +39,3 @@ export async function applySbsTo2d(enabled: boolean, restoreMode: AspectMode): P
   await tauriApi.mpvSetProperty({ property: 'video-crop', value: enabled ? '50%x100%+0+0' : '' });
   await applyAspectRatio(enabled ? '16:9' : restoreMode, true);
 }
-

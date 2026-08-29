@@ -60,12 +60,19 @@ export function DownloadedSeriesView({ group, onClose }: DownloadedSeriesViewPro
         {group.seriesPosterUrl ? (
           <img src={group.seriesPosterUrl} alt="" className={styles.poster} />
         ) : (
-          <div className={styles.posterPlaceholder} aria-hidden="true"><HardDriveDownload size={32} /></div>
+          <div className={styles.posterPlaceholder} aria-hidden="true">
+            <HardDriveDownload size={32} />
+          </div>
         )}
         <div className={styles.headerCopy}>
           <h1 className={styles.title}>{group.seriesTitle}</h1>
           <p className={styles.subtitle}>
-            {tn('{count} episode downloaded', '{count} episodes downloaded', group.episodes.length, { count: number(group.episodes.length) })}
+            {tn(
+              '{count} episode downloaded',
+              '{count} episodes downloaded',
+              group.episodes.length,
+              { count: number(group.episodes.length) },
+            )}
           </p>
         </div>
       </div>
@@ -73,18 +80,26 @@ export function DownloadedSeriesView({ group, onClose }: DownloadedSeriesViewPro
       <div className={`${styles.seasons} subtle-scrollbar`}>
         {seasons.map(({ season, episodes }) => (
           <section key={season || 'unknown'} className={styles.season}>
-            <h2 className={styles.seasonTitle}>{season ? t('Season {number}', { number: season }) : t('Episodes')}</h2>
+            <h2 className={styles.seasonTitle}>
+              {season ? t('Season {number}', { number: season }) : t('Episodes')}
+            </h2>
             <div className={styles.episodeList}>
               {episodes.map((episode) => (
                 <div key={episode.id} className={styles.episodeRow}>
-                  <button type="button" className={styles.episodePlayBtn} onClick={() => handlePlay(episode)}>
+                  <button
+                    type="button"
+                    className={styles.episodePlayBtn}
+                    onClick={() => handlePlay(episode)}
+                  >
                     <Play size={16} fill="currentColor" />
                     <span className={styles.episodeLabel}>
                       {episode.episodeNum !== undefined ? `E${episode.episodeNum} · ` : ''}
                       {episode.episodeTitle || episode.title}
                     </span>
                   </button>
-                  <span className={styles.episodeSize}>{formatBytes(episode.sizeBytes, number)}</span>
+                  <span className={styles.episodeSize}>
+                    {formatBytes(episode.sizeBytes, number)}
+                  </span>
                   <button
                     type="button"
                     className={styles.removeBtn}

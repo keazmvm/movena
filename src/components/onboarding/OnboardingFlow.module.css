@@ -134,7 +134,9 @@
   text-align: left;
   box-shadow: var(--shadow-xs);
   cursor: pointer;
-  transition: border-color var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard);
+  transition:
+    border-color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
 }
 
 .sourceChoice:hover,
@@ -191,7 +193,9 @@
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard);
+  transition:
+    border-color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
 }
 
 .destinationTile:hover {
@@ -283,7 +287,6 @@
   .destinationGrid {
     grid-template-columns: 1fr;
   }
-
 }
 
 @media (max-width: 360px) {

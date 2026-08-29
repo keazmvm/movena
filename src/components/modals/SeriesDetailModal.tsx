@@ -1,6 +1,22 @@
 import { useEffect, useId, useState, useMemo, useRef } from 'react';
-import { CheckCircle2, ChevronDown, ChevronUp, Clock, Download, Heart, HardDriveDownload, MonitorPlay, Play, Settings, Star } from 'lucide-react';
-import { getXtreamCredentials, resolveXtreamSourceId, useAuthStore } from '../../store/useAuthStore';
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Download,
+  Heart,
+  HardDriveDownload,
+  MonitorPlay,
+  Play,
+  Settings,
+  Star,
+} from 'lucide-react';
+import {
+  getXtreamCredentials,
+  resolveXtreamSourceId,
+  useAuthStore,
+} from '../../store/useAuthStore';
 import { type XCEpisode } from '../../api/xc';
 import { useSeriesInfo } from '../../api/useDetails';
 import { usePlayerStore } from '../../store/usePlayerStore';
@@ -65,7 +81,9 @@ function XtreamSeriesDetailModal({
   const { handleMediaCardContextMenu } = useContextMenu();
   const credentials = useAuthStore((state) => {
     const resolvedSourceId = sourceId === 'xtream' ? state.profiles[0]?.id : sourceId;
-    return resolvedSourceId ? state.runtimes[resolvedSourceId]?.credentials ?? null : getXtreamCredentials();
+    return resolvedSourceId
+      ? (state.runtimes[resolvedSourceId]?.credentials ?? null)
+      : getXtreamCredentials();
   });
   const providerSeriesId = sourceItemId || seriesId;
   const resolvedSourceId = resolveXtreamSourceId(sourceId);
@@ -74,15 +92,15 @@ function XtreamSeriesDetailModal({
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   const titleId = useId();
-  
-  const isFav = useLibraryStore(state => state.favorites.some(f => f.id === seriesId));
-  const addFavorite = useLibraryStore(state => state.addFavorite);
-  const removeFavorite = useLibraryStore(state => state.removeFavorite);
 
-  const historyItem = useLibraryStore(state => state.history.find(h => h.id === seriesId));
-  const watchedIds = useLibraryStore(state => state.watched);
+  const isFav = useLibraryStore((state) => state.favorites.some((f) => f.id === seriesId));
+  const addFavorite = useLibraryStore((state) => state.addFavorite);
+  const removeFavorite = useLibraryStore((state) => state.removeFavorite);
+
+  const historyItem = useLibraryStore((state) => state.history.find((h) => h.id === seriesId));
+  const watchedIds = useLibraryStore((state) => state.watched);
   const remainingLabel = formatRemaining(historyItem?.currentTime, historyItem?.duration, language);
-  const downloadedByLibraryId = useDownloadStore(state => state.downloadedByLibraryId);
+  const downloadedByLibraryId = useDownloadStore((state) => state.downloadedByLibraryId);
 
   const [selectedSeason, setSelectedSeason] = useState<string>('');
   const initialEpisodeRef = useRef<HTMLButtonElement>(null);
@@ -90,20 +108,21 @@ function XtreamSeriesDetailModal({
 
   const { data, isLoading, error, isFetching, refetch } = useSeriesInfo(providerSeriesId, sourceId);
   const enriched = useTmdbDetailEnrichment('tv', seriesTitle);
-  
+
   const toggleFavorite = () => {
     if (isFav) removeFavorite(seriesId);
-    else addFavorite({
-      id: seriesId,
-      title: seriesTitle,
-      posterUrl: seriesPoster,
-      type: 'series',
-      sourceItemId: providerSeriesId,
-      sourceId: Object.values(data?.episodes ?? {})[0]?.[0]?.source_id || sourceId,
-      description: data?.info?.plot,
-    });
+    else
+      addFavorite({
+        id: seriesId,
+        title: seriesTitle,
+        posterUrl: seriesPoster,
+        type: 'series',
+        sourceItemId: providerSeriesId,
+        sourceId: Object.values(data?.episodes ?? {})[0]?.[0]?.source_id || sourceId,
+        description: data?.info?.plot,
+      });
   };
-  
+
   const [isRetryingDetails, setIsRetryingDetails] = useState(false);
   const prerequisiteError = !credentials
     ? `No credentials are loaded for Xtream source "${sourceId ?? 'default'}".`
@@ -165,8 +184,9 @@ function XtreamSeriesDetailModal({
   }, [seasons, t]);
 
   const displayedSeasonCount = enriched?.numberOfSeasons ?? seasons.length;
-  const displayedEpisodeCount = enriched?.numberOfEpisodes
-    ?? Object.values(data?.episodes ?? {}).reduce((count, episodes) => count + episodes.length, 0);
+  const displayedEpisodeCount =
+    enriched?.numberOfEpisodes ??
+    Object.values(data?.episodes ?? {}).reduce((count, episodes) => count + episodes.length, 0);
 
   useEffect(() => {
     setSelectedSeason('');
@@ -184,7 +204,9 @@ function XtreamSeriesDetailModal({
         } else if (savedSeasonStr && availableSeasons.includes(savedSeasonStr)) {
           setSelectedSeason(savedSeasonStr);
         } else {
-          setSelectedSeason([...availableSeasons].sort((left, right) => Number(left) - Number(right))[0] ?? '');
+          setSelectedSeason(
+            [...availableSeasons].sort((left, right) => Number(left) - Number(right))[0] ?? '',
+          );
         }
       }
     }
@@ -196,18 +218,20 @@ function XtreamSeriesDetailModal({
   const availableEpisodeKeys = useMemo(() => {
     const keys = new Set<string>();
     for (const [seasonNumber, episodes] of Object.entries(data?.episodes ?? {})) {
-      for (const episode of episodes) keys.add(episodeScheduleKey(seasonNumber, episode.episode_num));
+      for (const episode of episodes)
+        keys.add(episodeScheduleKey(seasonNumber, episode.episode_num));
     }
     return keys;
   }, [data?.episodes]);
 
   useEffect(() => {
     if (
-      positionedEpisodeRef.current
-      || !initialEpisodeNumber
-      || (initialSeasonNumber && selectedSeason !== String(initialSeasonNumber))
-      || !initialEpisodeRef.current
-    ) return;
+      positionedEpisodeRef.current ||
+      !initialEpisodeNumber ||
+      (initialSeasonNumber && selectedSeason !== String(initialSeasonNumber)) ||
+      !initialEpisodeRef.current
+    )
+      return;
     positionedEpisodeRef.current = true;
     initialEpisodeRef.current.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   }, [currentEpisodes, initialEpisodeNumber, initialSeasonNumber, selectedSeason]);
@@ -217,12 +241,14 @@ function XtreamSeriesDetailModal({
     customStartPos?: number,
     seasonOverride = selectedSeason,
   ) => {
-    const episodeLibraryId = resolvedSourceId ? xtreamItemId(resolvedSourceId, 'episode', episode.id) : episode.id.toString();
+    const episodeLibraryId = resolvedSourceId
+      ? xtreamItemId(resolvedSourceId, 'episode', episode.id)
+      : episode.id.toString();
 
     let startPosition = customStartPos;
     if (startPosition === undefined) {
       const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
-      startPosition = isSavedEp ? (historyItem.currentTime || 0) : 0;
+      startPosition = isSavedEp ? historyItem.currentTime || 0 : 0;
     }
 
     // A downloaded episode plays straight from disk — instantly, online or
@@ -272,7 +298,9 @@ function XtreamSeriesDetailModal({
 
   const handleDownloadSeason = () => {
     const episodesToDownload: DownloadableMediaItem[] = currentEpisodes.map((episode) => {
-      const episodeLibraryId = resolvedSourceId ? xtreamItemId(resolvedSourceId, 'episode', episode.id) : episode.id.toString();
+      const episodeLibraryId = resolvedSourceId
+        ? xtreamItemId(resolvedSourceId, 'episode', episode.id)
+        : episode.id.toString();
       const playback = resolveEpisodePlayback(episode, credentials);
       const parsedEpisode = parseEpisodeTitle(episode.title, {
         seriesTitle: cleanSeriesTitle,
@@ -281,7 +309,12 @@ function XtreamSeriesDetailModal({
       });
       return {
         id: episodeLibraryId,
-        title: formatEpisodePlaybackTitle(cleanSeriesTitle, selectedSeason, episode.episode_num, episode.title),
+        title: formatEpisodePlaybackTitle(
+          cleanSeriesTitle,
+          selectedSeason,
+          episode.episode_num,
+          episode.title,
+        ),
         type: 'series',
         streamUrl: playback?.streamUrl,
         httpHeaders: playback?.httpHeaders,
@@ -304,7 +337,8 @@ function XtreamSeriesDetailModal({
     if (!data?.episodes || !historyItem) return;
     const seasonKey = historyItem.seasonNum?.toString() || selectedSeason;
     const eps = data.episodes[seasonKey] || [];
-    const targetEp = eps.find((episode) => episode.id.toString() === historyItem.episodeId?.toString()) || eps[0];
+    const targetEp =
+      eps.find((episode) => episode.id.toString() === historyItem.episodeId?.toString()) || eps[0];
     if (targetEp) {
       if (seasonKey !== selectedSeason) {
         setSelectedSeason(seasonKey);
@@ -328,9 +362,16 @@ function XtreamSeriesDetailModal({
           detail={visibleErrorPresentation.detail}
           actionIcon={!error && !credentials ? Settings : undefined}
           actionLabel={error ? 'Try Again' : !credentials ? 'Open Settings' : 'Close'}
-          onAction={error
-            ? () => void retryDetails()
-            : !credentials ? () => { onClose(); navigate('/settings?section=sources'); } : onClose}
+          onAction={
+            error
+              ? () => void retryDetails()
+              : !credentials
+                ? () => {
+                    onClose();
+                    navigate('/settings?section=sources');
+                  }
+                : onClose
+          }
           isRetrying={isRetryingDetails || isFetching}
         />
       ) : isLoading ? (
@@ -367,7 +408,7 @@ function XtreamSeriesDetailModal({
               {/* Action Buttons below cover */}
               <div className={styles.actionButtons}>
                 {historyItem && historyItem.episodeNum ? (
-                  <button 
+                  <button
                     type="button"
                     className={styles.playBtn}
                     onClick={handleResumeClick}
@@ -376,20 +417,22 @@ function XtreamSeriesDetailModal({
                     <Play size={20} fill="currentColor" />
                     <span className={styles.playBtnLabel}>
                       <span>
-                        {t(historyItem.currentTime ? 'Resume' : 'Play')} S{historyItem.seasonNum}:E{historyItem.episodeNum}
+                        {t(historyItem.currentTime ? 'Resume' : 'Play')} S{historyItem.seasonNum}:E
+                        {historyItem.episodeNum}
                       </span>
-                      {resumeHint && (
-                        <span className={styles.playBtnHint}>{resumeHint}</span>
-                      )}
+                      {resumeHint && <span className={styles.playBtnHint}>{resumeHint}</span>}
                     </span>
                     {resumeProgress > 0 && (
                       <span className={styles.actionProgress} aria-hidden="true">
-                        <span className={styles.actionProgressFill} style={{ width: `${resumeProgress}%` }} />
+                        <span
+                          className={styles.actionProgressFill}
+                          style={{ width: `${resumeProgress}%` }}
+                        />
                       </span>
                     )}
                   </button>
                 ) : currentEpisodes.length > 0 ? (
-                  <button 
+                  <button
                     type="button"
                     className={styles.playBtn}
                     onClick={() => {
@@ -410,7 +453,7 @@ function XtreamSeriesDetailModal({
                   aria-label={t(isFav ? 'Remove from favorites' : 'Add to favorites')}
                   aria-pressed={isFav}
                 >
-                  <Heart size={18} fill={isFav ? "currentColor" : "none"} />
+                  <Heart size={18} fill={isFav ? 'currentColor' : 'none'} />
                   <span>{t(isFav ? 'In Favorites' : 'Add to Favorites')}</span>
                 </button>
               </div>
@@ -419,25 +462,42 @@ function XtreamSeriesDetailModal({
             {/* Right: details header, metadata, plot, and season/episode browser */}
             <div className={`${styles.detailsArea} subtle-scrollbar`}>
               <div className={styles.headerBlock}>
-                <h1 id={titleId} className={styles.title}>{cleanSeriesTitle}</h1>
+                <h1 id={titleId} className={styles.title}>
+                  {cleanSeriesTitle}
+                </h1>
 
                 <div className={styles.mediaFacts}>
-                  {Number.isFinite(releaseYear) && <span className={styles.factItem}>{releaseYear}</span>}
+                  {Number.isFinite(releaseYear) && (
+                    <span className={styles.factItem}>{releaseYear}</span>
+                  )}
                   {enriched?.runtimeMinutes && (
-                    <span className={styles.factItem}><Clock size={14} /> {language === 'en'
-                      ? `${number(enriched.runtimeMinutes)}m`
-                      : t('{count} min', { count: number(enriched.runtimeMinutes) })}</span>
+                    <span className={styles.factItem}>
+                      <Clock size={14} />{' '}
+                      {language === 'en'
+                        ? `${number(enriched.runtimeMinutes)}m`
+                        : t('{count} min', { count: number(enriched.runtimeMinutes) })}
+                    </span>
                   )}
                   {rating !== null && rating !== undefined && rating !== '' && (
                     <span className={styles.factItem}>
                       <Star size={14} fill="currentColor" className={styles.starIcon} /> {rating}
                     </span>
                   )}
-                  {genres && (
-                    <span className={styles.factItem}>{genres}</span>
+                  {genres && <span className={styles.factItem}>{genres}</span>}
+                  {displayedSeasonCount > 0 && (
+                    <span className={styles.factItem}>
+                      {tn('{count} season', '{count} seasons', displayedSeasonCount, {
+                        count: number(displayedSeasonCount),
+                      })}
+                    </span>
                   )}
-                  {displayedSeasonCount > 0 && <span className={styles.factItem}>{tn('{count} season', '{count} seasons', displayedSeasonCount, { count: number(displayedSeasonCount) })}</span>}
-                  {displayedEpisodeCount > 0 && <span className={styles.factItem}>{tn('{count} episode', '{count} episodes', displayedEpisodeCount, { count: number(displayedEpisodeCount) })}</span>}
+                  {displayedEpisodeCount > 0 && (
+                    <span className={styles.factItem}>
+                      {tn('{count} episode', '{count} episodes', displayedEpisodeCount, {
+                        count: number(displayedEpisodeCount),
+                      })}
+                    </span>
+                  )}
                   {displayCountry && <span className={styles.factItem}>{displayCountry}</span>}
                   {getPrimaryMediaTags(parsedTitle.tags).map((tag) => (
                     <span
@@ -451,7 +511,9 @@ function XtreamSeriesDetailModal({
                 </div>
               </div>
 
-              <div className={`${styles.plot} ${detailsExpanded ? styles.expandedText : styles.collapsedText}`}>
+              <div
+                className={`${styles.plot} ${detailsExpanded ? styles.expandedText : styles.collapsedText}`}
+              >
                 {plot}
               </div>
 
@@ -467,7 +529,7 @@ function XtreamSeriesDetailModal({
                 </button>
               )}
 
-                {/* Episodes Section */}
+              {/* Episodes Section */}
               <section className={styles.episodeSection} aria-label={t('Episodes')}>
                 <div className={styles.episodeBrowserHeader}>
                   {seasons.length > 0 ? (
@@ -480,16 +542,18 @@ function XtreamSeriesDetailModal({
                   ) : null}
 
                   {currentEpisodes.length > 0 && (
-                    <button type="button" className={styles.downloadSeasonBtn} onClick={handleDownloadSeason}>
+                    <button
+                      type="button"
+                      className={styles.downloadSeasonBtn}
+                      onClick={handleDownloadSeason}
+                    >
                       <Download size={14} />
                       <span>{t('Download Season')}</span>
                     </button>
                   )}
                 </div>
 
-                <div
-                  className={styles.episodesList}
-                >
+                <div className={styles.episodesList}>
                   {currentEpisodes.map((episode) => {
                     const episodeLibraryId = resolvedSourceId
                       ? xtreamItemId(resolvedSourceId, 'episode', episode.id)
@@ -524,7 +588,8 @@ function XtreamSeriesDetailModal({
                       episodeTitle: parsedEpisode.cleanTitle,
                     };
 
-                    const isSavedEp = historyItem && historyItem.episodeId?.toString() === episode.id.toString();
+                    const isSavedEp =
+                      historyItem && historyItem.episodeId?.toString() === episode.id.toString();
                     const epProgress = isSavedEp
                       ? Math.min(100, Math.max(0, historyItem.progressPercentage))
                       : 0;
@@ -534,17 +599,26 @@ function XtreamSeriesDetailModal({
                       episode.info?.duration,
                       episode.info?.duration_secs,
                     );
-                    const episodeStatus = isSavedEp && epProgress > 0
-                      ? remainingLabel
-                      : isWatched ? t('Watched') : null;
+                    const episodeStatus =
+                      isSavedEp && epProgress > 0
+                        ? remainingLabel
+                        : isWatched
+                          ? t('Watched')
+                          : null;
                     const episodeLabel = [
-                      t('Season {season}, episode {episode}', { season: selectedSeason, episode: episode.episode_num }),
+                      t('Season {season}, episode {episode}', {
+                        season: selectedSeason,
+                        episode: episode.episode_num,
+                      }),
                       parsedEpisode.cleanTitle,
                       durationLabel,
                       episodeStatus,
-                    ].filter(Boolean).join(', ');
-                    const isRequestedEpisode = initialEpisodeNumber === Number(episode.episode_num)
-                      && (!initialSeasonNumber || String(initialSeasonNumber) === selectedSeason);
+                    ]
+                      .filter(Boolean)
+                      .join(', ');
+                    const isRequestedEpisode =
+                      initialEpisodeNumber === Number(episode.episode_num) &&
+                      (!initialSeasonNumber || String(initialSeasonNumber) === selectedSeason);
 
                     return (
                       <button
@@ -553,7 +627,11 @@ function XtreamSeriesDetailModal({
                         ref={isRequestedEpisode ? initialEpisodeRef : undefined}
                         className={`${styles.episodeCard} ${isSavedEp && epProgress > 0 ? styles.currentEpisodeCard : ''} ${isRequestedEpisode ? styles.requestedEpisodeCard : ''}`}
                         onClick={() => handlePlayEpisode(episode)}
-                        onContextMenu={(e) => handleMediaCardContextMenu(e, episodeItem, { onPlay: () => handlePlayEpisode(episode) })}
+                        onContextMenu={(e) =>
+                          handleMediaCardContextMenu(e, episodeItem, {
+                            onPlay: () => handlePlayEpisode(episode),
+                          })
+                        }
                         aria-label={episodeLabel}
                         aria-current={isRequestedEpisode ? 'true' : undefined}
                       >
@@ -592,11 +670,15 @@ function XtreamSeriesDetailModal({
                             <span className={styles.episodeBadge}>E{episode.episode_num}</span>
                             <span className={styles.episodeTitle}>{parsedEpisode.cleanTitle}</span>
                           </div>
-                          {episode.info?.plot && <p className={styles.episodePlot}>{episode.info.plot}</p>}
+                          {episode.info?.plot && (
+                            <p className={styles.episodePlot}>{episode.info.plot}</p>
+                          )}
                           <div className={styles.episodeMeta}>
                             {durationLabel && <span>{durationLabel}</span>}
                             {episodeStatus && (
-                              <span className={`${styles.episodeStatus} ${isWatched && !isSavedEp ? styles.watchedStatus : ''}`}>
+                              <span
+                                className={`${styles.episodeStatus} ${isWatched && !isSavedEp ? styles.watchedStatus : ''}`}
+                              >
                                 {isWatched && !isSavedEp && <CheckCircle2 size={13} />}
                                 {episodeStatus}
                               </span>
@@ -607,7 +689,9 @@ function XtreamSeriesDetailModal({
                     );
                   })}
                   {currentEpisodes.length === 0 && (
-                    <div className={styles.emptyEpisodes}>{t('No episodes available for this season.')}</div>
+                    <div className={styles.emptyEpisodes}>
+                      {t('No episodes available for this season.')}
+                    </div>
                   )}
                   <SeriesUpcomingEpisodes
                     seriesId={seriesId}

@@ -18,7 +18,10 @@ export interface HomeSectionPref {
 }
 
 /** Display order matches Movena's original fixed Discover layout. */
-export const DEFAULT_HOME_SECTIONS: HomeSectionPref[] = HOME_SECTION_IDS.map((id) => ({ id, enabled: true }));
+export const DEFAULT_HOME_SECTIONS: HomeSectionPref[] = HOME_SECTION_IDS.map((id) => ({
+  id,
+  enabled: true,
+}));
 
 /** User-facing label per section, used by both Discover and its settings section. */
 export const HOME_SECTION_LABELS: Record<HomeSectionId, string> = {
@@ -62,7 +65,11 @@ export function sanitizeHomeSections(value: unknown): HomeSectionPref[] {
   return result;
 }
 
-export function moveHomeSection(sections: HomeSectionPref[], index: number, direction: -1 | 1): HomeSectionPref[] {
+export function moveHomeSection(
+  sections: HomeSectionPref[],
+  index: number,
+  direction: -1 | 1,
+): HomeSectionPref[] {
   const target = index + direction;
   if (target < 0 || target >= sections.length) return sections;
   const next = [...sections];

@@ -10,17 +10,15 @@ export const detailQueryKeys = {
 
 function useSourceCredentials(sourceId?: string) {
   const resolvedSourceId = resolveXtreamSourceId(sourceId);
-  return useAuthStore((state) => (
-    resolvedSourceId ? state.runtimes[resolvedSourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  return useAuthStore((state) =>
+    resolvedSourceId
+      ? (state.runtimes[resolvedSourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
 }
 
 /** One canonical, source-isolated query per detail resource. */
-export function useVodInfo(
-  vodId: string | number | undefined,
-  sourceId?: string,
-  enabled = true,
-) {
+export function useVodInfo(vodId: string | number | undefined, sourceId?: string, enabled = true) {
   const credentials = useSourceCredentials(sourceId);
   const resolvedSourceId = resolveXtreamSourceId(sourceId);
   const authScope = getXtreamQueryScope(resolvedSourceId, credentials);
@@ -51,10 +49,12 @@ export function useSeriesInfo(
       const data = await getSeriesInfo(credentials!, seriesId!.toString(), signal);
       return {
         ...data,
-        episodes: Object.fromEntries(Object.entries(data.episodes ?? {}).map(([season, episodes]) => [
-          season,
-          episodes.map((episode) => ({ ...episode, source_id: resolvedSourceId })),
-        ])),
+        episodes: Object.fromEntries(
+          Object.entries(data.episodes ?? {}).map(([season, episodes]) => [
+            season,
+            episodes.map((episode) => ({ ...episode, source_id: resolvedSourceId })),
+          ]),
+        ),
       };
     },
     enabled: enabled && !!credentials && seriesId !== undefined && seriesId !== '',

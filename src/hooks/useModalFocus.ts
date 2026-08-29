@@ -34,9 +34,8 @@ export function useModalFocus<T extends HTMLElement>({
   useLayoutEffect(() => {
     if (!enabled) return;
 
-    const previouslyFocused = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -52,9 +51,9 @@ export function useModalFocus<T extends HTMLElement>({
 
       if (event.key !== 'Tab') return;
 
-      const focusable = Array.from(
-        modal.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      ).filter((element) => !element.closest('[hidden], [inert]'));
+      const focusable = Array.from(modal.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (element) => !element.closest('[hidden], [inert]'),
+      );
 
       if (focusable.length === 0) {
         event.preventDefault();

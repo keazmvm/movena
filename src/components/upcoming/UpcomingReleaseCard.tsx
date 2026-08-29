@@ -33,8 +33,10 @@ interface UpcomingReleaseCardProps {
 }
 
 function releaseTitle(release: UpcomingRelease): string {
-  return parseMediaDisplayTitle(release.favorite.title, release.favorite.year)?.cleanTitle
-    ?? release.favorite.title;
+  return (
+    parseMediaDisplayTitle(release.favorite.title, release.favorite.year)?.cleanTitle ??
+    release.favorite.title
+  );
 }
 
 function formatCountdownInline(remaining: CountdownParts): string {
@@ -76,10 +78,15 @@ function CompactRelease({ release, now, countdownEnabled, onOpen }: CompactRelea
     : date(new Date(`${release.airDate}T12:00:00`), { month: 'short', day: 'numeric' });
   const phase = releasePhase(release, now);
   const statusLabel = releaseStatusLabel(release, now);
-  const countdownText = phase === 'upcoming' && remaining && !remaining.elapsed ? formatCountdownInline(remaining) : null;
+  const countdownText =
+    phase === 'upcoming' && remaining && !remaining.elapsed
+      ? formatCountdownInline(remaining)
+      : null;
 
   return (
-    <article className={`${styles.compactCard} ${phase === 'released' ? styles.compactCardReleased : ''}`}>
+    <article
+      className={`${styles.compactCard} ${phase === 'released' ? styles.compactCardReleased : ''}`}
+    >
       <button
         type="button"
         className={styles.compactSpotlight}
@@ -90,7 +97,9 @@ function CompactRelease({ release, now, countdownEnabled, onOpen }: CompactRelea
           {primary.artworkUrl ? (
             <img src={primary.artworkUrl} alt="" loading="lazy" />
           ) : (
-            <span className={styles.compactArtworkFallback} aria-hidden="true"><Film size={28} /></span>
+            <span className={styles.compactArtworkFallback} aria-hidden="true">
+              <Film size={28} />
+            </span>
           )}
         </span>
 
@@ -100,14 +109,20 @@ function CompactRelease({ release, now, countdownEnabled, onOpen }: CompactRelea
               <CalendarClock size={12} aria-hidden="true" />
               <span>{dateLabel}</span>
               {statusLabel && !countdownText && (
-                <span className={phase === 'released' ? styles.releasedInline : styles.statusInline}>
-                  <span className={styles.countdownDot} aria-hidden="true">·</span>
+                <span
+                  className={phase === 'released' ? styles.releasedInline : styles.statusInline}
+                >
+                  <span className={styles.countdownDot} aria-hidden="true">
+                    ·
+                  </span>
                   <span>{t(statusLabel)}</span>
                 </span>
               )}
               {countdownText && (
                 <span className={styles.countdownInline} aria-label="Release countdown">
-                  <span className={styles.countdownDot} aria-hidden="true">·</span>
+                  <span className={styles.countdownDot} aria-hidden="true">
+                    ·
+                  </span>
                   <span>{countdownText}</span>
                 </span>
               )}
@@ -120,7 +135,15 @@ function CompactRelease({ release, now, countdownEnabled, onOpen }: CompactRelea
             <span className={styles.compactSubtitle}>
               {release.summarySubtitle}
               {(release.followingReleaseCount ?? 0) > 0 && (
-                <> · {tn('{count} more announced', '{count} more announced', release.followingReleaseCount ?? 0)}</>
+                <>
+                  {' '}
+                  ·{' '}
+                  {tn(
+                    '{count} more announced',
+                    '{count} more announced',
+                    release.followingReleaseCount ?? 0,
+                  )}
+                </>
               )}
             </span>
           </div>
@@ -138,22 +161,38 @@ function ScheduleReleaseTile({ release, now, countdownEnabled, onOpen }: Compact
   const remaining = countdownEnabled && target ? countdownParts(target, now) : null;
   const displayTitle = releaseTitle(primary);
   const dateLabel = exactTime
-    ? date(exactTime, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
-    : date(new Date(`${release.airDate}T12:00:00`), { weekday: 'short', month: 'short', day: 'numeric' });
+    ? date(exactTime, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      })
+    : date(new Date(`${release.airDate}T12:00:00`), {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
 
   const phase = releasePhase(release, now);
   const statusLabel = releaseStatusLabel(release, now);
-  const eyebrowLabel = phase === 'released'
-    ? t('Recently released')
-    : release.episodeCount > 1
-      ? t('{count} episodes', { count: release.episodeCount })
-      : release.kind === 'movie'
-        ? t('Movie premiere')
-        : t('Upcoming episode');
-  const countdownText = phase === 'upcoming' && remaining && !remaining.elapsed ? formatCountdownInline(remaining) : null;
+  const eyebrowLabel =
+    phase === 'released'
+      ? t('Recently released')
+      : release.episodeCount > 1
+        ? t('{count} episodes', { count: release.episodeCount })
+        : release.kind === 'movie'
+          ? t('Movie premiere')
+          : t('Upcoming episode');
+  const countdownText =
+    phase === 'upcoming' && remaining && !remaining.elapsed
+      ? formatCountdownInline(remaining)
+      : null;
 
   return (
-    <article className={`${styles.releaseTile} ${phase === 'released' ? styles.releaseTileReleased : ''}`}>
+    <article
+      className={`${styles.releaseTile} ${phase === 'released' ? styles.releaseTileReleased : ''}`}
+    >
       <button
         type="button"
         className={styles.releaseTileAction}
@@ -165,7 +204,9 @@ function ScheduleReleaseTile({ release, now, countdownEnabled, onOpen }: Compact
             {primary.artworkUrl ? (
               <img src={primary.artworkUrl} alt="" loading="lazy" />
             ) : (
-              <span className={styles.releaseTileArtworkFallback} aria-hidden="true"><Film size={24} /></span>
+              <span className={styles.releaseTileArtworkFallback} aria-hidden="true">
+                <Film size={24} />
+              </span>
             )}
           </span>
           <span className={styles.releaseTileCopy}>
@@ -181,7 +222,9 @@ function ScheduleReleaseTile({ release, now, countdownEnabled, onOpen }: Compact
                 <time dateTime={exactTime?.toISOString() ?? release.airDate}>{dateLabel}</time>
               </span>
               {statusLabel && !countdownText && (
-                <span className={phase === 'released' ? styles.releasedInline : styles.statusInline}>
+                <span
+                  className={phase === 'released' ? styles.releasedInline : styles.statusInline}
+                >
                   <span>{t(statusLabel)}</span>
                 </span>
               )}
@@ -221,7 +264,10 @@ export function UpcomingReleaseCard({
 
   useEffect(() => {
     if (providedNow) return undefined;
-    const timer = window.setInterval(() => setInternalNow(new Date()), countdownEnabled ? 1_000 : 60_000);
+    const timer = window.setInterval(
+      () => setInternalNow(new Date()),
+      countdownEnabled ? 1_000 : 60_000,
+    );
     return () => window.clearInterval(timer);
   }, [countdownEnabled, providedNow]);
 
@@ -231,8 +277,17 @@ export function UpcomingReleaseCard({
     if (customReleases) return grouped;
     const horizons = groupReleasesByHorizon(grouped, now, historyDays);
     return variant === 'discover'
-      ? nextReleasePerFavorite([...horizons.today, ...horizons.thisWeek, ...horizons.nextWeek, ...horizons.later], now)
-      : [...horizons.recentlyReleased, ...horizons.today, ...horizons.thisWeek, ...horizons.nextWeek, ...horizons.later];
+      ? nextReleasePerFavorite(
+          [...horizons.today, ...horizons.thisWeek, ...horizons.nextWeek, ...horizons.later],
+          now,
+        )
+      : [
+          ...horizons.recentlyReleased,
+          ...horizons.today,
+          ...horizons.thisWeek,
+          ...horizons.nextWeek,
+          ...horizons.later,
+        ];
   }, [customReleases, historyDays, now, schedule.data, variant]);
   const displayedReleases = limit && limit > 0 ? groupedReleases.slice(0, limit) : groupedReleases;
   const hasReleases = displayedReleases.length > 0;
@@ -273,11 +328,16 @@ export function UpcomingReleaseCard({
   if (schedule.isEnabled && !schedule.isLoading && !hasReleases && !showEmpty) return null;
 
   return (
-    <section className={`${styles.section} ${styles[variant]}`} aria-labelledby={variant === 'discover' ? 'coming-up-heading' : undefined}>
+    <section
+      className={`${styles.section} ${styles[variant]}`}
+      aria-labelledby={variant === 'discover' ? 'coming-up-heading' : undefined}
+    >
       {variant === 'discover' && (
         <div className={styles.sectionHeader}>
           <div>
-            <h2 className={styles.sectionTitle} id="coming-up-heading">{t('Coming Up')}</h2>
+            <h2 className={styles.sectionTitle} id="coming-up-heading">
+              {t('Coming Up')}
+            </h2>
             <p className={styles.sectionSubtitle}>{t('The next release from each favorite')}</p>
           </div>
           <div className={styles.headerActions}>
@@ -304,8 +364,14 @@ export function UpcomingReleaseCard({
               </div>
             )}
             {onViewAll && (
-              <Button variant="ghost" size="sm" onClick={onViewAll} className={styles.scheduleButton}>
-                <span>{t('View schedule')}</span><ChevronRight size={16} aria-hidden="true" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onViewAll}
+                className={styles.scheduleButton}
+              >
+                <span>{t('View schedule')}</span>
+                <ChevronRight size={16} aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -315,7 +381,9 @@ export function UpcomingReleaseCard({
       {!schedule.isEnabled ? (
         <div className={styles.statusPanel}>
           <CalendarClock size={20} aria-hidden="true" />
-          <span>{t('Add a movie or series to Favorites and connect TMDB to see its next release here.')}</span>
+          <span>
+            {t('Add a movie or series to Favorites and connect TMDB to see its next release here.')}
+          </span>
         </div>
       ) : schedule.isLoading ? (
         <div className={styles.statusPanel} role="status">
@@ -326,8 +394,17 @@ export function UpcomingReleaseCard({
         <div className={styles.statusPanel}>
           <CalendarClock size={20} aria-hidden="true" />
           <span>
-            {schedule.isError ? t('Could not check release dates right now.') : t('No release dates are currently listed for your favorites.')}
-            {schedule.isError && <small className={styles.technicalError}>{getErrorMessage(schedule.error, 'Release schedule query failed without an error message.')}</small>}
+            {schedule.isError
+              ? t('Could not check release dates right now.')
+              : t('No release dates are currently listed for your favorites.')}
+            {schedule.isError && (
+              <small className={styles.technicalError}>
+                {getErrorMessage(
+                  schedule.error,
+                  'Release schedule query failed without an error message.',
+                )}
+              </small>
+            )}
           </span>
         </div>
       ) : variant === 'discover' ? (

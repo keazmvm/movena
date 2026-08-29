@@ -127,7 +127,7 @@ describe('M3U Editor UI components', () => {
         entries={sampleEntries}
         healthStatuses={{}}
         onUpdateEntries={onUpdateEntries}
-      />
+      />,
     );
 
     const editButtons = screen.getAllByLabelText(/Edit channel/);
@@ -141,11 +141,15 @@ describe('M3U Editor UI components', () => {
     expect(onUpdateEntries).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'entry-1', title: 'BBC One FHD', description: 'BBC flagship channel',
-          catchupSource: 'https://archive.test/{utc}', year: '2024', rating: 8.2,
+          id: 'entry-1',
+          title: 'BBC One FHD',
+          description: 'BBC flagship channel',
+          catchupSource: 'https://archive.test/{utc}',
+          year: '2024',
+          rating: 8.2,
           extraAttributes: { 'vendor-id': 'bbc-one' },
         }),
-      ])
+      ]),
     );
   });
 
@@ -153,7 +157,9 @@ describe('M3U Editor UI components', () => {
     render(<M3uEditor initialSourceId={sampleProfile.id} />);
     await waitFor(() => expect(screen.getAllByLabelText(/Edit channel/).length).toBeGreaterThan(0));
     fireEvent.click(screen.getAllByLabelText(/Edit channel/)[0]!);
-    fireEvent.change(screen.getByLabelText('Channel Name'), { target: { value: 'BBC One Edited' } });
+    fireEvent.change(screen.getByLabelText('Channel Name'), {
+      target: { value: 'BBC One Edited' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(screen.getByText('BBC One Edited')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
@@ -161,10 +167,14 @@ describe('M3U Editor UI components', () => {
   });
 
   it('migrates and restores a source-scoped legacy autosaved draft', async () => {
-    localStorage.setItem(`movena-m3u-editor-draft-v1:${sampleProfile.id}`, JSON.stringify({
-      content: '#EXTM3U\n#EXTINF:-1 group-title="Drafts",Recovered Channel\nhttps://stream.test/recovered.m3u8',
-      savedAt: Date.now(),
-    }));
+    localStorage.setItem(
+      `movena-m3u-editor-draft-v1:${sampleProfile.id}`,
+      JSON.stringify({
+        content:
+          '#EXTM3U\n#EXTINF:-1 group-title="Drafts",Recovered Channel\nhttps://stream.test/recovered.m3u8',
+        savedAt: Date.now(),
+      }),
+    );
     render(<M3uEditor initialSourceId={sampleProfile.id} />);
     await waitFor(() => expect(screen.getByText('Recovered Channel')).toBeTruthy());
     expect(screen.getByText(/Unsaved draft/)).toBeTruthy();
@@ -177,7 +187,7 @@ describe('M3U Editor UI components', () => {
         entries={sampleEntries}
         healthStatuses={{}}
         onUpdateEntries={onUpdateEntries}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Batch Tools' }));
@@ -186,18 +196,21 @@ describe('M3U Editor UI components', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Apply Clean/ }));
     expect(onUpdateEntries).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ id: 'entry-1' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ id: 'entry-1' })]),
     );
   });
 
   it('supports keyboard-first row navigation and selection', () => {
-    render(<M3uChannelTable entries={sampleEntries} healthStatuses={{}} onUpdateEntries={vi.fn()} />);
+    render(
+      <M3uChannelTable entries={sampleEntries} healthStatuses={{}} onUpdateEntries={vi.fn()} />,
+    );
     const grid = screen.getByRole('grid', { name: /Channels\. Use arrow keys/ });
     grid.focus();
     fireEvent.keyDown(grid, { key: ' ' });
-    expect((screen.getByLabelText(`Select channel ${sampleEntries[0]!.title}`) as HTMLInputElement).checked).toBe(true);
+    expect(
+      (screen.getByLabelText(`Select channel ${sampleEntries[0]!.title}`) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
     fireEvent.keyDown(grid, { key: 'ArrowDown' });
     fireEvent.keyDown(grid, { key: 'Enter' });
     const editDialog = screen.getByRole('dialog', { name: 'Edit Channel' });
@@ -214,12 +227,7 @@ describe('M3U Editor UI components', () => {
 
   it('renames and merges groups in the Category Manager', () => {
     const onUpdateEntries = vi.fn();
-    render(
-      <M3uGroupManager
-        entries={sampleEntries}
-        onUpdateEntries={onUpdateEntries}
-      />
-    );
+    render(<M3uGroupManager entries={sampleEntries} onUpdateEntries={onUpdateEntries} />);
 
     expect(screen.getByText('UK Live')).toBeTruthy();
     expect(screen.getByText('Sports')).toBeTruthy();
@@ -232,9 +240,7 @@ describe('M3U Editor UI components', () => {
     fireEvent.click(screen.getByLabelText('Save rename'));
 
     expect(onUpdateEntries).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ groupTitle: 'Cinema' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ groupTitle: 'Cinema' })]),
     );
   });
 
@@ -260,7 +266,7 @@ describe('M3U Editor UI components', () => {
         healthStatuses={{}}
         onUpdateHealthStatuses={vi.fn()}
         onUpdateEntries={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/1 exact URL duplicates can be removed safely/)).toBeTruthy();
@@ -274,14 +280,28 @@ describe('M3U Editor UI components', () => {
       channelCount: 1,
       programmeCount: 0,
     };
-    const entries = [sampleEntries[0]!, { ...sampleEntries[1]!, title: 'BBC One [HD]', tvgId: undefined, url: 'invalid' }];
+    const entries = [
+      sampleEntries[0]!,
+      { ...sampleEntries[1]!, title: 'BBC One [HD]', tvgId: undefined, url: 'invalid' },
+    ];
     const onUpdateEntries = vi.fn();
-    render(<M3uStreamHealthChecker entries={entries} healthStatuses={{}} onUpdateHealthStatuses={vi.fn()} onUpdateEntries={onUpdateEntries} guide={guide} sourceId="m3u-demo-1" />);
+    render(
+      <M3uStreamHealthChecker
+        entries={entries}
+        healthStatuses={{}}
+        onUpdateHealthStatuses={vi.fn()}
+        onUpdateEntries={onUpdateEntries}
+        guide={guide}
+        sourceId="m3u-demo-1"
+      />,
+    );
     expect(screen.getByText('Playlist Validation')).toBeTruthy();
     expect(screen.getByText('EPG Matching Assistant')).toBeTruthy();
     expect(screen.getByText('Stream URL uses an invalid or unsupported scheme.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Apply High Confidence' }));
-    expect(onUpdateEntries).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ id: 'entry-2', tvgId: 'bbc.one' })]));
+    expect(onUpdateEntries).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: 'entry-2', tvgId: 'bbc.one' })]),
+    );
   });
 
   it('runs the stream checker and records timed results', async () => {
@@ -293,17 +313,24 @@ describe('M3U Editor UI components', () => {
         healthStatuses={{}}
         onUpdateHealthStatuses={onUpdateHealthStatuses}
         onUpdateEntries={vi.fn()}
-      />
+      />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Start Check' }));
-    await waitFor(() => expect(onUpdateHealthStatuses).toHaveBeenLastCalledWith({
-      'entry-1': expect.objectContaining({ status: 'online', checkedAt: expect.any(Number) }),
-    }));
+    await waitFor(() =>
+      expect(onUpdateHealthStatuses).toHaveBeenLastCalledWith({
+        'entry-1': expect.objectContaining({ status: 'online', checkedAt: expect.any(Number) }),
+      }),
+    );
   });
 
   it('clears in-progress statuses when a stream check is stopped', async () => {
     let resolveProbe!: (value: { status: string; latencyMs: number }) => void;
-    invokeMock.mockImplementation(() => new Promise((resolve) => { resolveProbe = resolve; }));
+    invokeMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveProbe = resolve;
+        }),
+    );
     const updates = vi.fn();
 
     function Harness() {
@@ -312,7 +339,10 @@ describe('M3U Editor UI components', () => {
         <M3uStreamHealthChecker
           entries={[sampleEntries[0]!]}
           healthStatuses={statuses}
-          onUpdateHealthStatuses={(next) => { setStatuses(next); updates(next); }}
+          onUpdateHealthStatuses={(next) => {
+            setStatuses(next);
+            updates(next);
+          }}
           onUpdateEntries={vi.fn()}
         />
       );
@@ -335,7 +365,7 @@ describe('M3U Editor UI components', () => {
         healthStatuses={{ removed: { status: 'offline', latencyMs: 20, checkedAt: 1 } }}
         onUpdateHealthStatuses={onUpdateHealthStatuses}
         onUpdateEntries={vi.fn()}
-      />
+      />,
     );
     await waitFor(() => expect(onUpdateHealthStatuses).toHaveBeenCalledWith({}));
     expect(screen.queryByRole('button', { name: /Delete Offline/ })).toBeNull();
@@ -349,12 +379,15 @@ describe('M3U Editor UI components', () => {
         rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttps://stream.example.test/stream\n"
         onApplyRawText={onApply}
         onSyncFromVisual={vi.fn()}
-      />
+      />,
     );
 
     const textarea = screen.getByLabelText('Raw M3U Code');
     await user.clear(textarea);
-    await user.type(textarea, '#EXTM3U\n#EXTINF:-1,Modified Channel\nhttps://stream.example.test/mod\n');
+    await user.type(
+      textarea,
+      '#EXTM3U\n#EXTINF:-1,Modified Channel\nhttps://stream.example.test/mod\n',
+    );
 
     const applyButton = screen.getByRole('button', { name: 'Apply Changes' });
     await user.click(applyButton);
@@ -368,7 +401,7 @@ describe('M3U Editor UI components', () => {
       <M3uRawCodeEditor
         rawContent="#EXTM3U\n#EXTINF:-1,Sample Channel\nhttps://stream.example.test/stream\n"
         onApplyRawText={vi.fn()}
-      />
+      />,
     );
 
     const textarea = screen.getByLabelText('Raw M3U Code');
@@ -386,13 +419,12 @@ describe('M3U Editor UI components', () => {
   });
 
   it('keeps large raw playlists virtualized and shows a scrollbar', async () => {
-    const rawContent = ['#EXTM3U', ...Array.from({ length: 6_100 }, (_, index) => `#EXTINF:-1,Channel ${index + 1}`)].join('\n');
+    const rawContent = [
+      '#EXTM3U',
+      ...Array.from({ length: 6_100 }, (_, index) => `#EXTINF:-1,Channel ${index + 1}`),
+    ].join('\n');
     const { container } = render(
-      <M3uRawCodeEditor
-        rawContent={rawContent}
-        knownEntryCount={3_050}
-        onApplyRawText={vi.fn()}
-      />
+      <M3uRawCodeEditor rawContent={rawContent} knownEntryCount={3_050} onApplyRawText={vi.fn()} />,
     );
 
     const textarea = screen.getByLabelText('Raw M3U Code');
@@ -402,7 +434,11 @@ describe('M3U Editor UI components', () => {
 
     (textarea as HTMLTextAreaElement).scrollTop = 100_000;
     fireEvent.scroll(textarea);
-    await waitFor(() => expect(Number(container.querySelector('[data-raw-line-number]')?.textContent)).toBeGreaterThan(1_000));
+    await waitFor(() =>
+      expect(
+        Number(container.querySelector('[data-raw-line-number]')?.textContent),
+      ).toBeGreaterThan(1_000),
+    );
     expect(container.querySelectorAll('[data-raw-line-number]').length).toBeLessThan(100);
   });
 });

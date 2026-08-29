@@ -10,7 +10,10 @@ export function M3uEditorPage() {
   return (
     <PageTransition>
       <div className={styles.page}>
-        <M3uEditor initialSourceId={sourceId} onClose={() => navigate('/settings?section=sources')} />
+        <M3uEditor
+          initialSourceId={sourceId}
+          onClose={() => navigate('/settings?section=sources')}
+        />
       </div>
     </PageTransition>
   );

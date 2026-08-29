@@ -56,18 +56,51 @@ export function Sidebar() {
   const navItems = [
     { icons: { line: RiHome5Line, fill: RiHome5Fill }, label: 'Home', path: '/' },
     { icons: { line: RiTv2Line, fill: RiTv2Fill }, label: 'Live TV', path: '/live' },
-    { icons: { line: RiCalendarScheduleLine, fill: RiCalendarScheduleFill }, label: 'TV Guide', path: '/epg' },
+    {
+      icons: { line: RiCalendarScheduleLine, fill: RiCalendarScheduleFill },
+      label: 'TV Guide',
+      path: '/epg',
+    },
     { icons: { line: RiMovie2Line, fill: RiMovie2Fill }, label: 'Movies', path: '/movies' },
     { icons: { line: RiSlideshow3Line, fill: RiSlideshow3Fill }, label: 'Series', path: '/series' },
     { icons: { line: RiSearchLine, fill: RiSearchFill }, label: 'Search', path: '/search' },
   ];
 
   const libraryItems = [
-    ...(upcomingEnabled ? [{ icons: { line: RiCalendarScheduleLine, fill: RiCalendarScheduleFill }, label: 'Coming Up', path: '/upcoming', badge: 0 }] : []),
-    { icons: { line: RiHistoryLine, fill: RiHistoryFill }, label: 'Continue Watching', path: '/continue', badge: history.length },
-    { icons: { line: RiHeartLine, fill: RiHeartFill }, label: 'Favorites', path: '/favorites', badge: favorites.length },
-    { icons: { line: RiFolderLine, fill: RiFolderFill }, label: 'Collections', path: '/collections', badge: collections.length },
-    { icons: { line: RiDownload2Line, fill: RiDownload2Fill }, label: 'Downloads', path: '/downloads', badge: downloads.length },
+    ...(upcomingEnabled
+      ? [
+          {
+            icons: { line: RiCalendarScheduleLine, fill: RiCalendarScheduleFill },
+            label: 'Coming Up',
+            path: '/upcoming',
+            badge: 0,
+          },
+        ]
+      : []),
+    {
+      icons: { line: RiHistoryLine, fill: RiHistoryFill },
+      label: 'Continue Watching',
+      path: '/continue',
+      badge: history.length,
+    },
+    {
+      icons: { line: RiHeartLine, fill: RiHeartFill },
+      label: 'Favorites',
+      path: '/favorites',
+      badge: favorites.length,
+    },
+    {
+      icons: { line: RiFolderLine, fill: RiFolderFill },
+      label: 'Collections',
+      path: '/collections',
+      badge: collections.length,
+    },
+    {
+      icons: { line: RiDownload2Line, fill: RiDownload2Fill },
+      label: 'Downloads',
+      path: '/downloads',
+      badge: downloads.length,
+    },
   ];
 
   return (
@@ -98,11 +131,18 @@ export function Sidebar() {
               aria-label={isCollapsed ? t(item.label) : undefined}
               onMouseEnter={() => prefetch(item.path)}
               onFocus={() => prefetch(item.path)}
-              className={({ isActive }) => isActive ? `${styles.navItem} ${styles.active}` : styles.navItem}
+              className={({ isActive }) =>
+                isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
+              }
             >
               {({ isActive }) => (
                 <>
-                  <StateIcon icons={item.icons} active={isActive} className={styles.icon} size={20} />
+                  <StateIcon
+                    icons={item.icons}
+                    active={isActive}
+                    className={styles.icon}
+                    size={20}
+                  />
                   <span className={styles.labelSlot}>
                     <span className={styles.label}>{t(item.label)}</span>
                   </span>
@@ -121,15 +161,28 @@ export function Sidebar() {
             <NavLink
               key={item.path}
               to={item.path}
-              title={isCollapsed ? `${t(item.label)}${item.badge > 0 ? ` (${number(item.badge)})` : ''}` : undefined}
-              aria-label={isCollapsed
-                ? `${t(item.label)}${item.badge > 0 ? `, ${tn('{count} item', '{count} items', item.badge, { count: number(item.badge) })}` : ''}`
-                : undefined}
-              className={({ isActive }) => isActive ? `${styles.navItem} ${styles.active}` : styles.navItem}
+              title={
+                isCollapsed
+                  ? `${t(item.label)}${item.badge > 0 ? ` (${number(item.badge)})` : ''}`
+                  : undefined
+              }
+              aria-label={
+                isCollapsed
+                  ? `${t(item.label)}${item.badge > 0 ? `, ${tn('{count} item', '{count} items', item.badge, { count: number(item.badge) })}` : ''}`
+                  : undefined
+              }
+              className={({ isActive }) =>
+                isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
+              }
             >
               {({ isActive }) => (
                 <>
-                  <StateIcon icons={item.icons} active={isActive} className={styles.icon} size={20} />
+                  <StateIcon
+                    icons={item.icons}
+                    active={isActive}
+                    className={styles.icon}
+                    size={20}
+                  />
                   <span className={styles.labelSlot}>
                     <span className={styles.label}>{t(item.label)}</span>
                     {item.badge > 0 && (
@@ -157,7 +210,11 @@ export function Sidebar() {
             to="/settings"
             title={isCollapsed ? t('Settings') : undefined}
             aria-label={isCollapsed ? t('Settings') : undefined}
-            className={({ isActive }) => isActive ? `${styles.navItem} ${styles.settingsLink} ${styles.active}` : `${styles.navItem} ${styles.settingsLink}`}
+            className={({ isActive }) =>
+              isActive
+                ? `${styles.navItem} ${styles.settingsLink} ${styles.active}`
+                : `${styles.navItem} ${styles.settingsLink}`
+            }
           >
             {({ isActive }) => (
               <>
@@ -174,11 +231,24 @@ export function Sidebar() {
             )}
           </NavLink>
 
-          <button type="button"
+          <button
+            type="button"
             className={styles.bottomToggleBtn}
             onClick={() => setIsCollapsed(!storedCollapsed)}
-            title={t(isCompactViewport ? 'Sidebar stays compact in narrow layouts' : storedCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
-            aria-label={t(isCompactViewport ? 'Sidebar stays compact in narrow layouts' : storedCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
+            title={t(
+              isCompactViewport
+                ? 'Sidebar stays compact in narrow layouts'
+                : storedCollapsed
+                  ? 'Expand sidebar'
+                  : 'Collapse sidebar',
+            )}
+            aria-label={t(
+              isCompactViewport
+                ? 'Sidebar stays compact in narrow layouts'
+                : storedCollapsed
+                  ? 'Expand sidebar'
+                  : 'Collapse sidebar',
+            )}
             disabled={isCompactViewport}
           >
             <span className={styles.toggleIcon} aria-hidden="true">

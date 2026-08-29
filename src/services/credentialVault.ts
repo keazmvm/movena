@@ -11,4 +11,3 @@ export async function loadProviderPassword(): Promise<string | null> {
 export async function deleteProviderPassword(): Promise<void> {
   await tauriApi.credentialDelete();
 }
-

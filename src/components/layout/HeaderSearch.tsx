@@ -68,7 +68,7 @@ export function HeaderSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const suppressFocusUntilRef = useRef(0);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(
-    null
+    null,
   );
 
   /** The one place that actually closes the dropdown — every selection path
@@ -163,10 +163,7 @@ export function HeaderSearch({
 
     const handleFocusOutside = (event: FocusEvent) => {
       const target = event.target as Node;
-      if (
-        !searchWrapperRef.current?.contains(target)
-        && !dropdownRef.current?.contains(target)
-      ) {
+      if (!searchWrapperRef.current?.contains(target) && !dropdownRef.current?.contains(target)) {
         closeDropdown();
       }
     };
@@ -191,7 +188,7 @@ export function HeaderSearch({
   const suggestionError = getCombinedErrorMessage([moviesError, seriesError, liveError], '');
 
   const searchableItems = useMemo(
-    () => searchEnabled ? [...movies, ...series, ...live] : [],
+    () => (searchEnabled ? [...movies, ...series, ...live] : []),
     [searchEnabled, movies, series, live],
   );
 
@@ -204,19 +201,21 @@ export function HeaderSearch({
   const recentOptions = recentSearches.slice(0, 6);
   const showRecentDropdown = isFocused && !query.trim() && recentOptions.length > 0;
   const currentSuggestionQuery = query.trim();
-  const isSuggestionPending = currentSuggestionQuery.length >= MIN_SUGGESTION_QUERY_LENGTH
-    && currentSuggestionQuery !== suggestionQuery;
-  const showSuggestionsDropdown = isFocused
-    && suggestionQuery.length >= MIN_SUGGESTION_QUERY_LENGTH;
+  const isSuggestionPending =
+    currentSuggestionQuery.length >= MIN_SUGGESTION_QUERY_LENGTH &&
+    currentSuggestionQuery !== suggestionQuery;
+  const showSuggestionsDropdown =
+    isFocused && suggestionQuery.length >= MIN_SUGGESTION_QUERY_LENGTH;
   const isDropdownOpen = showRecentDropdown || showSuggestionsDropdown;
   const optionCount = showRecentDropdown
     ? recentOptions.length
     : showSuggestionsDropdown && !isSuggestionPending && suggestions.length > 0
       ? suggestions.length + 1
       : 0;
-  const activeOptionId = activeOptionIndex >= 0 && optionCount > 0
-    ? `${popupId}-option-${showRecentDropdown ? 'recent' : 'suggestion'}-${activeOptionIndex}`
-    : undefined;
+  const activeOptionId =
+    activeOptionIndex >= 0 && optionCount > 0
+      ? `${popupId}-option-${showRecentDropdown ? 'recent' : 'suggestion'}-${activeOptionIndex}`
+      : undefined;
 
   useEffect(() => {
     setActiveOptionIndex(-1);
@@ -405,7 +404,7 @@ export function HeaderSearch({
               </div>
             ))}
           </div>,
-          document.body
+          document.body,
         )}
 
       {showSuggestionsDropdown &&
@@ -430,31 +429,28 @@ export function HeaderSearch({
                   <div role="gridcell" className={styles.resultsSummary}>
                     <SearchIcon size={13} aria-hidden="true" />
                     <span>
-                      {tn(
-                        '{count} result found',
-                        '{count} results found',
-                        suggestions.length,
-                        { count: number(suggestions.length) },
-                      )}
+                      {tn('{count} result found', '{count} results found', suggestions.length, {
+                        count: number(suggestions.length),
+                      })}
                     </span>
                   </div>
                 </div>
                 {suggestions.map((item, index) => {
-                  const parsedTitle = item.type === 'live'
-                    ? null
-                    : parseMediaDisplayTitle(item.title, item.year, customRules);
-                  const displayTitle = item.type === 'live'
-                    ? getDisplayTitle(item.title, item.type, customRules)
-                    : parsedTitle?.cleanTitle || item.title;
+                  const parsedTitle =
+                    item.type === 'live'
+                      ? null
+                      : parseMediaDisplayTitle(item.title, item.year, customRules);
+                  const displayTitle =
+                    item.type === 'live'
+                      ? getDisplayTitle(item.title, item.type, customRules)
+                      : parsedTitle?.cleanTitle || item.title;
                   const displayYear = parsedTitle?.releaseYear;
-                  const mediaType = item.type === 'vod'
-                    ? 'Movie'
-                    : item.type === 'series'
-                      ? 'Series'
-                      : 'Live TV';
-                  const displayRating = typeof item.rating === 'number' && item.rating > 0
-                    ? number(item.rating, { maximumFractionDigits: 1 })
-                    : null;
+                  const mediaType =
+                    item.type === 'vod' ? 'Movie' : item.type === 'series' ? 'Series' : 'Live TV';
+                  const displayRating =
+                    typeof item.rating === 'number' && item.rating > 0
+                      ? number(item.rating, { maximumFractionDigits: 1 })
+                      : null;
                   const isFavorite = favorites.some((favorite) => favorite.id === item.id);
                   const isWatched = watched.includes(item.id);
 
@@ -562,7 +558,9 @@ export function HeaderSearch({
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={handleViewAll}
                     >
-                      <span className={styles.viewAllLabel}>{t('View all results for “{query}”', { query })}</span>
+                      <span className={styles.viewAllLabel}>
+                        {t('View all results for “{query}”', { query })}
+                      </span>
                       <ArrowRight size={15} aria-hidden="true" />
                     </button>
                   </div>
@@ -574,13 +572,17 @@ export function HeaderSearch({
                   <SearchIcon size={17} />
                 </span>
                 <span className={styles.noSuggestionsCopy}>
-                  <strong>{t(suggestionError ? 'Quick search unavailable' : 'No quick matches')}</strong>
-                  <span className={suggestionError ? styles.technicalError : undefined}>{suggestionError || t('Press Enter to search everything')}</span>
+                  <strong>
+                    {t(suggestionError ? 'Quick search unavailable' : 'No quick matches')}
+                  </strong>
+                  <span className={suggestionError ? styles.technicalError : undefined}>
+                    {suggestionError || t('Press Enter to search everything')}
+                  </span>
                 </span>
               </div>
             )}
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

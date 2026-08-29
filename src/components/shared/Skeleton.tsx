@@ -2,13 +2,19 @@ import type { CSSProperties } from 'react';
 import styles from './Skeleton.module.css';
 import { useI18n } from '../../i18n';
 
-function SkeletonBlock({ className = '', style }: { className?: string | undefined; style?: CSSProperties | undefined }) {
+function SkeletonBlock({
+  className = '',
+  style,
+}: {
+  className?: string | undefined;
+  style?: CSSProperties | undefined;
+}) {
   return <div className={`${styles.skeleton} ${className}`} style={style} />;
 }
 
 function MediaCardSkeleton({
   viewMode = 'grid',
-  isLiveTv = false
+  isLiveTv = false,
 }: {
   viewMode?: 'grid' | 'list' | undefined;
   isLiveTv?: boolean | undefined;
@@ -17,7 +23,9 @@ function MediaCardSkeleton({
     return (
       <div className={styles.listCard}>
         {isLiveTv && <SkeletonBlock className={styles.listChannelNumber} />}
-        <SkeletonBlock className={`${styles.listPoster} ${isLiveTv ? styles.listPosterLive : ''}`} />
+        <SkeletonBlock
+          className={`${styles.listPoster} ${isLiveTv ? styles.listPosterLive : ''}`}
+        />
         <div className={styles.listMeta}>
           <SkeletonBlock className={styles.titleLine} />
           <SkeletonBlock className={styles.shortLine} />
@@ -31,9 +39,11 @@ function MediaCardSkeleton({
     <div className={`${styles.card} ${isLiveTv ? styles.cardLiveTvGrid : ''}`}>
       <div className={styles.posterFrame}>
         <SkeletonBlock className={`${styles.poster} ${isLiveTv ? styles.posterLiveTvGrid : ''}`} />
-        <div className={`${styles.posterFooterSkeleton} ${isLiveTv ? styles.posterFooterSkeletonLive : ''}`}>
-            <SkeletonBlock className={styles.posterTitleLine} />
-            <SkeletonBlock className={styles.posterMetaLine} />
+        <div
+          className={`${styles.posterFooterSkeleton} ${isLiveTv ? styles.posterFooterSkeletonLive : ''}`}
+        >
+          <SkeletonBlock className={styles.posterTitleLine} />
+          <SkeletonBlock className={styles.posterMetaLine} />
         </div>
       </div>
     </div>
@@ -44,17 +54,19 @@ export function TextLineSkeleton({ width = 180 }: { width?: number | undefined }
   return <SkeletonBlock className={styles.textLine} style={{ width }} />;
 }
 
-export function GridSkeleton({ 
-  count = 12, 
+export function GridSkeleton({
+  count = 12,
   viewMode = 'grid',
-  isLiveTv = false
-}: { 
+  isLiveTv = false,
+}: {
   count?: number | undefined;
   viewMode?: 'grid' | 'list' | undefined;
   isLiveTv?: boolean | undefined;
 }) {
   return (
-    <div className={viewMode === 'list' ? styles.listGrid : (isLiveTv ? styles.gridLiveTv : styles.grid)}>
+    <div
+      className={viewMode === 'list' ? styles.listGrid : isLiveTv ? styles.gridLiveTv : styles.grid}
+    >
       {Array.from({ length: count }).map((_, index) => (
         <MediaCardSkeleton key={index} viewMode={viewMode} isLiveTv={isLiveTv} />
       ))}

@@ -12,19 +12,39 @@ const actions = vi.hoisted(() => ({
   handleOverlayClick: vi.fn(),
 }));
 
-vi.mock('../../src/components/player/useMpvSession', () => ({ useMpvSession: session.useMpvSession }));
-vi.mock('../../src/components/player/usePlayerActions', () => ({ usePlayerActions: () => actions }));
+vi.mock('../../src/components/player/useMpvSession', () => ({
+  useMpvSession: session.useMpvSession,
+}));
+vi.mock('../../src/components/player/usePlayerActions', () => ({
+  usePlayerActions: () => actions,
+}));
 vi.mock('../../src/components/player/usePlayerChrome', () => ({
   usePlayerChrome: () => ({ setPointerOverChrome: vi.fn(), cursorStyle: 'default' }),
 }));
-vi.mock('../../src/components/player/useWatchProgress', () => ({ useWatchProgress: () => vi.fn() }));
-vi.mock('../../src/hooks/useContextMenu', () => ({ useContextMenu: () => ({ handlePlayerContextMenu: vi.fn() }) }));
-vi.mock('../../src/components/player/VodControls', () => ({ VodControls: () => <button>Normal player controls</button> }));
-vi.mock('../../src/components/player/LiveControls', () => ({ LiveControls: () => <button>Normal live controls</button> }));
-vi.mock('../../src/components/player/FeedbackHud', () => ({ FeedbackHud: () => <div>Stale pause feedback</div> }));
-vi.mock('../../src/components/player/SeriesPlaybackPrompts', () => ({ SeriesPlaybackPrompts: () => <div>Playback prompt</div> }));
-vi.mock('../../src/components/player/EpisodesDrawer', () => ({ EpisodesDrawer: () => <div>Episodes drawer</div> }));
-vi.mock('../../src/components/player/ChannelsDrawer', () => ({ ChannelsDrawer: () => <div>Channels drawer</div> }));
+vi.mock('../../src/components/player/useWatchProgress', () => ({
+  useWatchProgress: () => vi.fn(),
+}));
+vi.mock('../../src/hooks/useContextMenu', () => ({
+  useContextMenu: () => ({ handlePlayerContextMenu: vi.fn() }),
+}));
+vi.mock('../../src/components/player/VodControls', () => ({
+  VodControls: () => <button>Normal player controls</button>,
+}));
+vi.mock('../../src/components/player/LiveControls', () => ({
+  LiveControls: () => <button>Normal live controls</button>,
+}));
+vi.mock('../../src/components/player/FeedbackHud', () => ({
+  FeedbackHud: () => <div>Stale pause feedback</div>,
+}));
+vi.mock('../../src/components/player/SeriesPlaybackPrompts', () => ({
+  SeriesPlaybackPrompts: () => <div>Playback prompt</div>,
+}));
+vi.mock('../../src/components/player/EpisodesDrawer', () => ({
+  EpisodesDrawer: () => <div>Episodes drawer</div>,
+}));
+vi.mock('../../src/components/player/ChannelsDrawer', () => ({
+  ChannelsDrawer: () => <div>Channels drawer</div>,
+}));
 
 import { PlayerShell } from '../../src/components/player/PlayerShell';
 import { usePlayerStore } from '../../src/store/usePlayerStore';
@@ -37,12 +57,14 @@ describe('player error interaction boundary', () => {
       retryPlayback: session.retryPlayback,
       isRetrying: false,
     });
-    act(() => usePlayerStore.getState().playStream({
-      id: 'movie-1',
-      title: 'Movie',
-      type: 'vod',
-      streamUrl: 'https://media.test/movie',
-    }));
+    act(() =>
+      usePlayerStore.getState().playStream({
+        id: 'movie-1',
+        title: 'Movie',
+        type: 'vod',
+        streamUrl: 'https://media.test/movie',
+      }),
+    );
   });
 
   it('shows the exact playback failure without mounting click-through controls', () => {
@@ -67,11 +89,16 @@ describe('player error interaction boundary', () => {
       retryPlayback: session.retryPlayback,
       isRetrying: false,
     });
-    act(() => usePlayerStore.getState().setResolverStatus({
-      provider: 'twitch',
-      phase: 'ad-break',
-      expectedDurationSeconds: 30,
-    }, usePlayerStore.getState().sessionId ?? undefined));
+    act(() =>
+      usePlayerStore.getState().setResolverStatus(
+        {
+          provider: 'twitch',
+          phase: 'ad-break',
+          expectedDurationSeconds: 30,
+        },
+        usePlayerStore.getState().sessionId ?? undefined,
+      ),
+    );
 
     render(<PlayerShell />);
 

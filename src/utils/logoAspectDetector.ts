@@ -1,6 +1,6 @@
 /**
  * Smart aspect ratio detector for Live TV channel logos.
- * 
+ *
  * Many IPTV providers force 16:9 or 4:3 widescreen logos into 1:1 square raster files
  * without maintaining aspect ratio. This module analyzes logo pixel data to detect
  * squished/stretched patterns and returns the corrective aspect ratio.
@@ -49,7 +49,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   if (width < 8 || height < 8) return 'original';
 
   // 1. Estimate background color from outer borders
-  let bgR = 0, bgG = 0, bgB = 0, bgA = 0;
+  let bgR = 0,
+    bgG = 0,
+    bgB = 0,
+    bgA = 0;
   let borderPixelCount = 0;
 
   for (let x = 0; x < width; x++) {
@@ -84,7 +87,10 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   const isBgTransparent = bgA < 32;
 
   // 2. Identify foreground pixels and bounding box
-  let minX = width, maxX = 0, minY = height, maxY = 0;
+  let minX = width,
+    maxX = 0,
+    minY = height,
+    maxY = 0;
   let fgCount = 0;
 
   // Luminance map for gradient calculation
@@ -162,14 +168,18 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
   const gradRatio = gradX / Math.max(1, gradY);
 
   // 4. Calculate spatial inertia moments of foreground (to measure elongation of symbols)
-  let sumX = 0, sumY = 0;
+  let sumX = 0,
+    sumY = 0;
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       const idx = (y * width + x) * 4;
       const a = pixel(data, idx + 3);
-      const isFg = isBgTransparent 
-        ? a >= 32 
-        : (Math.abs(pixel(data, idx) - bgR) + Math.abs(pixel(data, idx + 1) - bgG) + Math.abs(pixel(data, idx + 2) - bgB)) > 40;
+      const isFg = isBgTransparent
+        ? a >= 32
+        : Math.abs(pixel(data, idx) - bgR) +
+            Math.abs(pixel(data, idx + 1) - bgG) +
+            Math.abs(pixel(data, idx + 2) - bgB) >
+          40;
       if (isFg) {
         sumX += x;
         sumY += y;
@@ -187,9 +197,12 @@ export function detectAspectFromImageData(imageData: ImageData): LogoAspect {
     for (let x = minX; x <= maxX; x++) {
       const idx = (y * width + x) * 4;
       const a = pixel(data, idx + 3);
-      const isFg = isBgTransparent 
-        ? a >= 32 
-        : (Math.abs(pixel(data, idx) - bgR) + Math.abs(pixel(data, idx + 1) - bgG) + Math.abs(pixel(data, idx + 2) - bgB)) > 40;
+      const isFg = isBgTransparent
+        ? a >= 32
+        : Math.abs(pixel(data, idx) - bgR) +
+            Math.abs(pixel(data, idx + 1) - bgG) +
+            Math.abs(pixel(data, idx + 2) - bgB) >
+          40;
       if (isFg) {
         const dx = x - centerX;
         const dy = y - centerY;

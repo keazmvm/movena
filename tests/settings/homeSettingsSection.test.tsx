@@ -17,14 +17,22 @@ describe('Home layout settings', () => {
     const user = userEvent.setup();
     render(<HomeSettingsSection />);
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Show Recently Added Movies' }) as HTMLInputElement;
+    const checkbox = screen.getByRole('checkbox', {
+      name: 'Show Recently Added Movies',
+    }) as HTMLInputElement;
     expect(checkbox.checked).toBe(true);
 
     await user.click(checkbox);
-    expect(useSettingsStore.getState().homeSections.find((s) => s.id === 'recentMovies')).toEqual({ id: 'recentMovies', enabled: false });
+    expect(useSettingsStore.getState().homeSections.find((s) => s.id === 'recentMovies')).toEqual({
+      id: 'recentMovies',
+      enabled: false,
+    });
 
     await user.click(checkbox);
-    expect(useSettingsStore.getState().homeSections.find((s) => s.id === 'recentMovies')).toEqual({ id: 'recentMovies', enabled: true });
+    expect(useSettingsStore.getState().homeSections.find((s) => s.id === 'recentMovies')).toEqual({
+      id: 'recentMovies',
+      enabled: true,
+    });
   });
 
   it('moves a row down and its neighbor up in response', async () => {
@@ -34,15 +42,25 @@ describe('Home layout settings', () => {
     await user.click(screen.getByRole('button', { name: 'Move Coming Up down' }));
 
     expect(useSettingsStore.getState().homeSections.map((s) => s.id)).toEqual([
-      'continueWatching', 'upcoming', 'recentMovies', 'recentSeries', 'popularMovies', 'popularSeries', 'liveChannels',
+      'continueWatching',
+      'upcoming',
+      'recentMovies',
+      'recentSeries',
+      'popularMovies',
+      'popularSeries',
+      'liveChannels',
     ]);
   });
 
   it('disables the up arrow for the first row and the down arrow for the last row', () => {
     render(<HomeSettingsSection />);
 
-    expect(screen.getByRole('button', { name: 'Move Coming Up up' }).hasAttribute('disabled')).toBe(true);
-    expect(screen.getByRole('button', { name: 'Move Live TV Channels down' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Move Coming Up up' }).hasAttribute('disabled')).toBe(
+      true,
+    );
+    expect(
+      screen.getByRole('button', { name: 'Move Live TV Channels down' }).hasAttribute('disabled'),
+    ).toBe(true);
   });
 
   it('does not offer a visibility toggle for Coming Up, which is controlled elsewhere', () => {

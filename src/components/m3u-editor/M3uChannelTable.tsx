@@ -1,12 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  Trash2,
-  Edit2,
-  Copy,
-  Plus,
-  Sparkles,
-} from 'lucide-react';
+import { Trash2, Edit2, Copy, Plus, Sparkles } from 'lucide-react';
 import type { M3uEntry, M3uMediaType } from '../../api/m3u';
 import type { M3uHealthStatuses } from './M3uStreamHealthChecker';
 import { useSettingsStore } from '../../store/useSettingsStore';
@@ -47,12 +41,22 @@ export function M3uChannelTable({
 
   // Search & Filter state
   const initialFilters = useMemo(readM3uTableFilters, []);
-  const [searchQuery, setSearchQuery] = useState<string>(rememberFilters ? initialFilters.searchQuery : '');
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(rememberFilters ? initialFilters.selectedGroup : null);
+  const [searchQuery, setSearchQuery] = useState<string>(
+    rememberFilters ? initialFilters.searchQuery : '',
+  );
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(
+    rememberFilters ? initialFilters.selectedGroup : null,
+  );
   const [groupSearch, setGroupSearch] = useState('');
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<'all' | M3uMediaType>(rememberFilters ? initialFilters.mediaTypeFilter : 'all');
-  const [healthFilter, setHealthFilter] = useState<M3uTableHealthFilter>(rememberFilters ? initialFilters.healthFilter : 'all');
-  const [sortBy, setSortBy] = useState<M3uTableSort>(rememberFilters ? initialFilters.sortBy : 'default');
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<'all' | M3uMediaType>(
+    rememberFilters ? initialFilters.mediaTypeFilter : 'all',
+  );
+  const [healthFilter, setHealthFilter] = useState<M3uTableHealthFilter>(
+    rememberFilters ? initialFilters.healthFilter : 'all',
+  );
+  const [sortBy, setSortBy] = useState<M3uTableSort>(
+    rememberFilters ? initialFilters.sortBy : 'default',
+  );
 
   // Selection & keyboard state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -70,7 +74,10 @@ export function M3uChannelTable({
       localStorage.removeItem(M3U_TABLE_FILTER_STORAGE_KEY);
       return;
     }
-    localStorage.setItem(M3U_TABLE_FILTER_STORAGE_KEY, JSON.stringify({ selectedGroup, mediaTypeFilter, healthFilter, sortBy }));
+    localStorage.setItem(
+      M3U_TABLE_FILTER_STORAGE_KEY,
+      JSON.stringify({ selectedGroup, mediaTypeFilter, healthFilter, sortBy }),
+    );
   }, [healthFilter, mediaTypeFilter, rememberFilters, selectedGroup, sortBy]);
 
   // Group counts & sidebar
@@ -89,13 +96,17 @@ export function M3uChannelTable({
   }, [allGroupNames, selectedGroup]);
 
   // Channel filtering
-  const filteredEntries = useMemo(() => filterAndSortM3uEntries(entries, healthStatuses, {
-    searchQuery,
-    selectedGroup,
-    mediaTypeFilter,
-    healthFilter,
-    sortBy,
-  }), [entries, selectedGroup, mediaTypeFilter, healthFilter, searchQuery, sortBy, healthStatuses]);
+  const filteredEntries = useMemo(
+    () =>
+      filterAndSortM3uEntries(entries, healthStatuses, {
+        searchQuery,
+        selectedGroup,
+        mediaTypeFilter,
+        healthFilter,
+        sortBy,
+      }),
+    [entries, selectedGroup, mediaTypeFilter, healthFilter, searchQuery, sortBy, healthStatuses],
+  );
 
   const rowSize = density === 'compact' ? 36 : 48;
   const rowVirtualizer = useVirtualizer({
@@ -107,10 +118,17 @@ export function M3uChannelTable({
     initialRect: { width: 800, height: 600 },
   });
   const measuredRows = rowVirtualizer.getVirtualItems();
-  const virtualRows = measuredRows.length > 0 ? measuredRows : Array.from(
-    { length: Math.min(50, filteredEntries.length) },
-    (_, index) => ({ index, key: filteredEntries[index]?.id ?? index, start: index * rowSize, end: (index + 1) * rowSize, size: rowSize, lane: 0 }),
-  );
+  const virtualRows =
+    measuredRows.length > 0
+      ? measuredRows
+      : Array.from({ length: Math.min(50, filteredEntries.length) }, (_, index) => ({
+          index,
+          key: filteredEntries[index]?.id ?? index,
+          start: index * rowSize,
+          end: (index + 1) * rowSize,
+          size: rowSize,
+          lane: 0,
+        }));
 
   useEffect(() => {
     setFocusedIndex((index) => Math.max(0, Math.min(index, filteredEntries.length - 1)));
@@ -142,11 +160,14 @@ export function M3uChannelTable({
     setSelectedIds(new Set());
   };
 
-  const handleBulkDelete = () => confirmDestructive ? setPendingDelete('bulk') : performBulkDelete();
+  const handleBulkDelete = () =>
+    confirmDestructive ? setPendingDelete('bulk') : performBulkDelete();
 
   const handleBulkMoveCategory = (targetGroup: string) => {
     if (!targetGroup) return;
-    const updated = entries.map((e) => (selectedIds.has(e.id) ? { ...e, groupTitle: targetGroup } : e));
+    const updated = entries.map((e) =>
+      selectedIds.has(e.id) ? { ...e, groupTitle: targetGroup } : e,
+    );
     onUpdateEntries(updated);
     setSelectedIds(new Set());
   };
@@ -186,12 +207,14 @@ export function M3uChannelTable({
     }
   };
 
-  const handleDeleteEntry = (id: string) => confirmDestructive ? setPendingDelete(id) : performDeleteEntry(id);
+  const handleDeleteEntry = (id: string) =>
+    confirmDestructive ? setPendingDelete(id) : performDeleteEntry(id);
 
   const handleListKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget || filteredEntries.length === 0) return;
     let nextIndex = focusedIndex;
-    if (event.key === 'ArrowDown') nextIndex = Math.min(filteredEntries.length - 1, focusedIndex + 1);
+    if (event.key === 'ArrowDown')
+      nextIndex = Math.min(filteredEntries.length - 1, focusedIndex + 1);
     else if (event.key === 'ArrowUp') nextIndex = Math.max(0, focusedIndex - 1);
     else if (event.key === 'Home') nextIndex = 0;
     else if (event.key === 'End') nextIndex = filteredEntries.length - 1;
@@ -215,8 +238,13 @@ export function M3uChannelTable({
     rowVirtualizer.scrollToIndex(nextIndex, { align: 'auto' });
   };
 
-  const editingEntry = useMemo(() => entries.find((e) => e.id === editingEntryId) || null, [entries, editingEntryId]);
-  const editingIndex = editingEntry ? filteredEntries.findIndex((e) => e.id === editingEntry.id) : -1;
+  const editingEntry = useMemo(
+    () => entries.find((e) => e.id === editingEntryId) || null,
+    [entries, editingEntryId],
+  );
+  const editingIndex = editingEntry
+    ? filteredEntries.findIndex((e) => e.id === editingEntry.id)
+    : -1;
 
   return (
     <div className={`${styles.workspace} ${density === 'compact' ? styles.workspaceCompact : ''}`}>
@@ -228,7 +256,13 @@ export function M3uChannelTable({
         width={sidebarWidth}
         onWidthChange={(width) => updateSetting('m3uEditorSidebarWidth', width)}
         ariaLabel="Playlist categories"
-        headerContent={<WorkspaceSidebarSearch value={groupSearch} onChange={setGroupSearch} placeholder="Filter categories..." />}
+        headerContent={
+          <WorkspaceSidebarSearch
+            value={groupSearch}
+            onChange={setGroupSearch}
+            placeholder="Filter categories..."
+          />
+        }
       >
         <div className={styles.categoryList}>
           <button
@@ -264,7 +298,10 @@ export function M3uChannelTable({
               value={selectedGroup ?? ''}
               options={[
                 { value: '', label: t('All Channels') },
-                ...groupStats.map((group) => ({ value: group.name, label: `${group.name} (${number(group.count)})` })),
+                ...groupStats.map((group) => ({
+                  value: group.name,
+                  label: `${group.name} (${number(group.count)})`,
+                })),
               ]}
               onChange={(value) => setSelectedGroup(value || null)}
               width="100%"
@@ -356,11 +393,23 @@ export function M3uChannelTable({
             <span>{t('{count} channels selected', { count: number(selectedIds.size) })}</span>
             <div className={styles.bulkActions}>
               {selectedIds.size < filteredEntries.length && (
-                <Button variant="ghost" size="sm" type="button" onClick={() => setSelectedIds(new Set(filteredEntries.map((entry) => entry.id)))}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => setSelectedIds(new Set(filteredEntries.map((entry) => entry.id)))}
+                >
                   {t('Select all {count} results', { count: number(filteredEntries.length) })}
                 </Button>
               )}
-              <Button variant="ghost" size="sm" type="button" onClick={() => setSelectedIds(new Set())}>{t('Clear')}</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+              >
+                {t('Clear')}
+              </Button>
               <Select
                 value=""
                 options={[
@@ -396,7 +445,9 @@ export function M3uChannelTable({
         <div className={styles.tableHeader}>
           <input
             type="checkbox"
-            checked={filteredEntries.length > 0 && filteredEntries.every((e) => selectedIds.has(e.id))}
+            checked={
+              filteredEntries.length > 0 && filteredEntries.every((e) => selectedIds.has(e.id))
+            }
             onChange={handleToggleSelectAllFiltered}
             aria-label={t('Select all filtered channels')}
           />
@@ -415,121 +466,145 @@ export function M3uChannelTable({
           className={styles.channelList}
           tabIndex={0}
           role="grid"
-          aria-label={t('Channels. Use arrow keys to navigate, Enter to edit, Space to select, and Delete to remove.')}
-          aria-activedescendant={filteredEntries[focusedIndex] ? `m3u-row-${filteredEntries[focusedIndex].id}` : undefined}
+          aria-label={t(
+            'Channels. Use arrow keys to navigate, Enter to edit, Space to select, and Delete to remove.',
+          )}
+          aria-activedescendant={
+            filteredEntries[focusedIndex]
+              ? `m3u-row-${filteredEntries[focusedIndex].id}`
+              : undefined
+          }
           onKeyDown={handleListKeyDown}
         >
           {filteredEntries.length > 0 ? (
-            <div className={styles.virtualChannelCanvas} style={{ height: `${Math.max(rowVirtualizer.getTotalSize(), filteredEntries.length * rowSize)}px` }}>
-            {virtualRows.map((virtualRow) => {
-              const entry = filteredEntries[virtualRow.index];
-              if (!entry) return null;
-              const isSelected = selectedIds.has(entry.id);
-              const health = healthStatuses[entry.id];
-              const healthStatus = health === 'checking' ? 'checking' : health?.status;
-              const healthError = health === 'checking' ? undefined : health?.errorMessage;
+            <div
+              className={styles.virtualChannelCanvas}
+              style={{
+                height: `${Math.max(rowVirtualizer.getTotalSize(), filteredEntries.length * rowSize)}px`,
+              }}
+            >
+              {virtualRows.map((virtualRow) => {
+                const entry = filteredEntries[virtualRow.index];
+                if (!entry) return null;
+                const isSelected = selectedIds.has(entry.id);
+                const health = healthStatuses[entry.id];
+                const healthStatus = health === 'checking' ? 'checking' : health?.status;
+                const healthError = health === 'checking' ? undefined : health?.errorMessage;
 
-              return (
-                <div
-                  key={entry.id}
-                  id={`m3u-row-${entry.id}`}
-                  role="row"
-                  aria-selected={isSelected}
-                  className={`${styles.channelRow} ${styles.channelRowVirtual} ${isSelected ? styles.channelRowSelected : ''} ${focusedIndex === virtualRow.index ? styles.channelRowFocused : ''}`}
-                  style={{ height: `${virtualRow.size}px`, transform: `translateY(${virtualRow.start}px)` }}
-                  onDoubleClick={() => setEditingEntryId(entry.id)}
-                  onClick={(event) => {
-                    if ((event.target as HTMLElement).closest('button, input')) return;
-                    setFocusedIndex(virtualRow.index);
-                    listRef.current?.focus();
-                  }}
-                >
-                  <div role="gridcell"><input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleToggleRow(entry.id)}
-                      aria-label={t('Select channel {title}', { title: entry.title })}
-                    /></div>
-
-                  <span role="gridcell" className={styles.channelNumber}>
-                    {entry.channelNumber || '—'}
-                  </span>
-
-                  <div role="gridcell" className={styles.channelLogoWrapper}>
-                    {entry.logo ? (
-                      <img
-                        src={entry.logo}
-                        alt=""
-                        className={styles.channelLogoImg}
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
+                return (
+                  <div
+                    key={entry.id}
+                    id={`m3u-row-${entry.id}`}
+                    role="row"
+                    aria-selected={isSelected}
+                    className={`${styles.channelRow} ${styles.channelRowVirtual} ${isSelected ? styles.channelRowSelected : ''} ${focusedIndex === virtualRow.index ? styles.channelRowFocused : ''}`}
+                    style={{
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    onDoubleClick={() => setEditingEntryId(entry.id)}
+                    onClick={(event) => {
+                      if ((event.target as HTMLElement).closest('button, input')) return;
+                      setFocusedIndex(virtualRow.index);
+                      listRef.current?.focus();
+                    }}
+                  >
+                    <div role="gridcell">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleRow(entry.id)}
+                        aria-label={t('Select channel {title}', { title: entry.title })}
                       />
-                    ) : (
-                      <span className={styles.channelLogoFallback}>
-                        {entry.title.slice(0, 2).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
+                    </div>
 
-                  <div role="gridcell" className={styles.channelInfo}>
-                    <span className={styles.channelTitle} title={entry.title}>
-                      {entry.title}
+                    <span role="gridcell" className={styles.channelNumber}>
+                      {entry.channelNumber || '—'}
                     </span>
-                    {entry.tvgId && (
-                      <span className={styles.channelTvg} title={`EPG ID: ${entry.tvgId}`}>
-                        EPG: {entry.tvgId}
+
+                    <div role="gridcell" className={styles.channelLogoWrapper}>
+                      {entry.logo ? (
+                        <img
+                          src={entry.logo}
+                          alt=""
+                          className={styles.channelLogoImg}
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span className={styles.channelLogoFallback}>
+                          {entry.title.slice(0, 2).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+
+                    <div role="gridcell" className={styles.channelInfo}>
+                      <span className={styles.channelTitle} title={entry.title}>
+                        {entry.title}
                       </span>
-                    )}
-                  </div>
+                      {entry.tvgId && (
+                        <span className={styles.channelTvg} title={`EPG ID: ${entry.tvgId}`}>
+                          EPG: {entry.tvgId}
+                        </span>
+                      )}
+                    </div>
 
-                  <span role="gridcell" className={styles.channelGroupBadge} title={entry.groupTitle}>
-                    {entry.groupTitle || 'General'}
-                  </span>
-
-                  <span role="gridcell" className={styles.channelTypeBadge}>
-                    {entry.type === 'vod' ? t('Movie') : entry.type === 'series' ? t('Series') : t('Live')}
-                  </span>
-
-                  <div role="gridcell">
                     <span
-                      className={`${styles.healthDot} ${healthStatus === 'online' ? styles.healthOnline : healthStatus === 'offline' ? styles.healthOffline : healthStatus === 'unauthorized' || healthStatus === 'timeout' ? styles.healthWarning : healthStatus === 'checking' ? styles.healthChecking : styles.healthUnknown}`}
-                      title={`${healthStatus === 'online' ? t('Online') : healthStatus === 'offline' ? t('Offline') : healthStatus === 'unauthorized' ? t('Unauthorized') : healthStatus === 'timeout' ? t('Timed out') : healthStatus === 'checking' ? t('Testing') : t('Untested')}${healthError ? `: ${healthError}` : ''}`}
-                    />
-                  </div>
+                      role="gridcell"
+                      className={styles.channelGroupBadge}
+                      title={entry.groupTitle}
+                    >
+                      {entry.groupTitle || 'General'}
+                    </span>
 
-                  <div role="gridcell" className={styles.rowActions}>
-                    <IconButton
-                      size="sm"
-                      type="button"
-                      onClick={() => setEditingEntryId(entry.id)}
-                      aria-label={t('Edit channel {title}', { title: entry.title })}
-                      title={t('Edit Channel')}
-                    >
-                      <Edit2 size={13} />
-                    </IconButton>
-                    <IconButton
-                      size="sm"
-                      type="button"
-                      onClick={() => handleDuplicateEntry(entry)}
-                      aria-label={t('Duplicate channel {title}', { title: entry.title })}
-                      title={t('Duplicate Channel')}
-                    >
-                      <Copy size={13} />
-                    </IconButton>
-                    <IconButton
-                      size="sm"
-                      type="button"
-                      onClick={() => handleDeleteEntry(entry.id)}
-                      aria-label={t('Delete channel {title}', { title: entry.title })}
-                      title={t('Delete Channel')}
-                    >
-                      <Trash2 size={13} />
-                    </IconButton>
+                    <span role="gridcell" className={styles.channelTypeBadge}>
+                      {entry.type === 'vod'
+                        ? t('Movie')
+                        : entry.type === 'series'
+                          ? t('Series')
+                          : t('Live')}
+                    </span>
+
+                    <div role="gridcell">
+                      <span
+                        className={`${styles.healthDot} ${healthStatus === 'online' ? styles.healthOnline : healthStatus === 'offline' ? styles.healthOffline : healthStatus === 'unauthorized' || healthStatus === 'timeout' ? styles.healthWarning : healthStatus === 'checking' ? styles.healthChecking : styles.healthUnknown}`}
+                        title={`${healthStatus === 'online' ? t('Online') : healthStatus === 'offline' ? t('Offline') : healthStatus === 'unauthorized' ? t('Unauthorized') : healthStatus === 'timeout' ? t('Timed out') : healthStatus === 'checking' ? t('Testing') : t('Untested')}${healthError ? `: ${healthError}` : ''}`}
+                      />
+                    </div>
+
+                    <div role="gridcell" className={styles.rowActions}>
+                      <IconButton
+                        size="sm"
+                        type="button"
+                        onClick={() => setEditingEntryId(entry.id)}
+                        aria-label={t('Edit channel {title}', { title: entry.title })}
+                        title={t('Edit Channel')}
+                      >
+                        <Edit2 size={13} />
+                      </IconButton>
+                      <IconButton
+                        size="sm"
+                        type="button"
+                        onClick={() => handleDuplicateEntry(entry)}
+                        aria-label={t('Duplicate channel {title}', { title: entry.title })}
+                        title={t('Duplicate Channel')}
+                      >
+                        <Copy size={13} />
+                      </IconButton>
+                      <IconButton
+                        size="sm"
+                        type="button"
+                        onClick={() => handleDeleteEntry(entry.id)}
+                        aria-label={t('Delete channel {title}', { title: entry.title })}
+                        title={t('Delete Channel')}
+                      >
+                        <Trash2 size={13} />
+                      </IconButton>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
             </div>
           ) : (
             <div className={styles.emptyNotice}>
@@ -549,7 +624,10 @@ export function M3uChannelTable({
         isOpen={Boolean(editingEntry || isAddingChannel)}
         entry={isAddingChannel ? null : editingEntry}
         existingGroups={allGroupNames}
-        onClose={() => { setEditingEntryId(null); setIsAddingChannel(false); }}
+        onClose={() => {
+          setEditingEntryId(null);
+          setIsAddingChannel(false);
+        }}
         onSave={handleSaveEntry}
         hasPrevious={editingIndex > 0}
         hasNext={editingIndex >= 0 && editingIndex < filteredEntries.length - 1}
@@ -575,7 +653,9 @@ export function M3uChannelTable({
       {pendingDelete && (
         <ConfirmDialog
           title={t(pendingDelete === 'bulk' ? 'Delete selected channels?' : 'Delete this channel?')}
-          description={t('The deletion remains undoable until the editor is closed or its history is cleared.')}
+          description={t(
+            'The deletion remains undoable until the editor is closed or its history is cleared.',
+          )}
           confirmLabel={t('Delete')}
           danger
           onConfirm={() => {

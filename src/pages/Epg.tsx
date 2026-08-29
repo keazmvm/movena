@@ -1,4 +1,12 @@
-import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { CalendarClock, ChevronLeft, ChevronRight, Minus, Play, Plus, Tv, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +18,11 @@ import { lookupXmltvChannel, useXmltvGuide, type XmltvGuide } from '../api/xmltv
 import { useCategories, useHiddenCategoryIds } from '../api/useCategories';
 import { useLiveStreams } from '../api/useCatalog';
 import type { CatalogItem } from '../api/useCatalog';
-import { getXtreamCredentials, selectPrimaryXtreamCredentials, useAuthStore } from '../store/useAuthStore';
+import {
+  getXtreamCredentials,
+  selectPrimaryXtreamCredentials,
+  useAuthStore,
+} from '../store/useAuthStore';
 import { useSourceStore } from '../store/useSourceStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -33,9 +45,22 @@ import { useI18n } from '../i18n';
 import { useLogoAspect } from '../hooks/useLogoAspect';
 import { epgNowScrollLeft } from '../utils/epgGeometry';
 
-function EpgChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: string | undefined; channelKey: string; sourceId?: string | undefined }) {
+function EpgChannelLogo({
+  posterUrl,
+  channelKey,
+  sourceId,
+}: {
+  posterUrl?: string | undefined;
+  channelKey: string;
+  sourceId?: string | undefined;
+}) {
   const logoAspect = useLogoAspect(posterUrl, channelKey, sourceId);
-  const aspectClass = logoAspect === '16:9' ? styles.logoUnsquish169 : (logoAspect === '4:3' ? styles.logoUnsquish43 : '');
+  const aspectClass =
+    logoAspect === '16:9'
+      ? styles.logoUnsquish169
+      : logoAspect === '4:3'
+        ? styles.logoUnsquish43
+        : '';
 
   if (!posterUrl) {
     return (
@@ -46,12 +71,7 @@ function EpgChannelLogo({ posterUrl, channelKey, sourceId }: { posterUrl?: strin
   }
 
   return (
-    <img
-      className={`${styles.channelLogo} ${aspectClass}`}
-      src={posterUrl}
-      alt=""
-      loading="lazy"
-    />
+    <img className={`${styles.channelLogo} ${aspectClass}`} src={posterUrl} alt="" loading="lazy" />
   );
 }
 
@@ -102,10 +122,20 @@ export function Epg() {
   const zoomPercent = useSettingsStore((state) => state.epgZoomPercent ?? DEFAULT_ZOOM_PERCENT);
   const updateSetting = useSettingsStore((state) => state.updateSetting);
   const customTitleRules = useSettingsStore((state) => state.customTitleRules);
-  const [selected, setSelected] = useState<{ channel: CatalogItem; programme: EpgProgramme } | null>(null);
+  const [selected, setSelected] = useState<{
+    channel: CatalogItem;
+    programme: EpgProgramme;
+  } | null>(null);
   const [channelSearchQuery, setChannelSearchQuery] = useState('');
 
-  const { data: allChannels = [], isLoading, isError, error, isFetching, refetch } = useLiveStreams();
+  const {
+    data: allChannels = [],
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+  } = useLiveStreams();
   const {
     data: categories = [],
     isError: isCategoriesError,
@@ -148,10 +178,13 @@ export function Epg() {
     }
   }, [channels, selected]);
 
-  const selectCategory = useCallback((categoryId: string | null) => {
-    setActiveCategoryId(categoryId);
-    setSelected(null);
-  }, [setActiveCategoryId]);
+  const selectCategory = useCallback(
+    (categoryId: string | null) => {
+      setActiveCategoryId(categoryId);
+      setSelected(null);
+    },
+    [setActiveCategoryId],
+  );
 
   // Ticks the now line and live-programme highlighting along. Half a minute is
   // finer than any programme boundary and costs one render.
@@ -183,16 +216,19 @@ export function Epg() {
     maximumWindowEnd,
     Math.max(windowStart + MIN_WINDOW_HOURS * HOUR, xmltvWindowEnd, providerWindowEnd),
   );
-  const reportProgrammeEnd = useCallback((end: number) => {
-    if (!Number.isFinite(end)) return;
-    setProviderWindowEnd((current) => Math.max(current, Math.min(end, maximumWindowEnd)));
-  }, [maximumWindowEnd]);
+  const reportProgrammeEnd = useCallback(
+    (end: number) => {
+      if (!Number.isFinite(end)) return;
+      setProviderWindowEnd((current) => Math.max(current, Math.min(end, maximumWindowEnd)));
+    },
+    [maximumWindowEnd],
+  );
 
   const pixelsPerMinute = BASE_PIXELS_PER_MINUTE * (zoomPercent / 100);
   const timelineWidth = ((windowEnd - windowStart) / MINUTE) * pixelsPerMinute;
   const offsetOf = useCallback(
     (time: number) => ((time - windowStart) / MINUTE) * pixelsPerMinute,
-    [windowStart, pixelsPerMinute]
+    [windowStart, pixelsPerMinute],
   );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -206,31 +242,38 @@ export function Epg() {
     isScrollingResetDelay: 100,
   });
 
-  const jumpToNow = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    scrollerRef.current?.scrollTo({
-      left: epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute, NOW_INSET),
-      behavior,
-    });
-  }, [pixelsPerMinute, windowStart]);
+  const jumpToNow = useCallback(
+    (behavior: ScrollBehavior = 'smooth') => {
+      scrollerRef.current?.scrollTo({
+        left: epgNowScrollLeft(Date.now(), windowStart, pixelsPerMinute, NOW_INSET),
+        behavior,
+      });
+    },
+    [pixelsPerMinute, windowStart],
+  );
 
-  const shiftTimeline = useCallback((minutes: number) => {
-    scrollerRef.current?.scrollBy({ left: minutes * pixelsPerMinute, behavior: 'smooth' });
-  }, [pixelsPerMinute]);
+  const shiftTimeline = useCallback(
+    (minutes: number) => {
+      scrollerRef.current?.scrollBy({ left: minutes * pixelsPerMinute, behavior: 'smooth' });
+    },
+    [pixelsPerMinute],
+  );
 
   const syncHorizontalClip = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const scroller = event.currentTarget;
     scroller.style.setProperty('--timeline-scroll-left', `${scroller.scrollLeft}px`);
-    setTimelineViewport((current) => (
+    setTimelineViewport((current) =>
       current.scrollLeft === scroller.scrollLeft && current.width === scroller.clientWidth
         ? current
-        : { scrollLeft: scroller.scrollLeft, width: scroller.clientWidth }
-    ));
+        : { scrollLeft: scroller.scrollLeft, width: scroller.clientWidth },
+    );
   }, []);
 
   useEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
-    const update = () => setTimelineViewport({ scrollLeft: scroller.scrollLeft, width: scroller.clientWidth });
+    const update = () =>
+      setTimelineViewport({ scrollLeft: scroller.scrollLeft, width: scroller.clientWidth });
     update();
     if (typeof ResizeObserver === 'undefined') {
       window.addEventListener('resize', update);
@@ -280,39 +323,51 @@ export function Epg() {
       const playable = playableFromMediaItem({ ...channel, type: 'live' }, credentials);
       if (playable) playStream(playable);
     },
-    [credentials, playStream]
+    [credentials, playStream],
   );
 
-  const playProgramme = useCallback((channel: CatalogItem, programme: EpgProgramme) => {
-    const playable = playableFromMediaItem({ ...channel, type: 'live' }, credentials);
-    if (!playable) return;
-    let archiveUrl: string | null = null;
-    if (channel.sourceId?.startsWith('m3u-')) {
-      const entry = useSourceStore.getState().runtimes[channel.sourceId]?.playlist?.entries
-        .find((candidate) => candidate.id === channel.sourceItemId || candidate.id === channel.id);
-      archiveUrl = resolveM3uCatchupUrl(entry, programme, Date.now(), { requireEnded: true });
-    } else if (channel.sourceItemId && channel.catchup === 'xtream') {
-      const xtreamCredentials = channel.sourceId ? getXtreamCredentials(channel.sourceId) : credentials;
-      archiveUrl = resolveXtreamCatchupUrl(
-        { stream_id: Number(channel.sourceItemId), tv_archive: 1, tv_archive_duration: channel.catchupDays ?? 0 },
-        xtreamCredentials,
-        programme,
-        { requireEnded: true },
-      );
-    }
-    if (archiveUrl) {
-      playStream({
-        ...playable,
-        type: 'vod',
-        title: `${channel.title} · ${programme.title}`,
-        streamUrl: archiveUrl,
-        startPosition: 0,
-        knownDuration: Math.max(0, (programme.end - programme.start) / 1000),
-      });
-      return;
-    }
-    playChannel(channel);
-  }, [credentials, playChannel, playStream]);
+  const playProgramme = useCallback(
+    (channel: CatalogItem, programme: EpgProgramme) => {
+      const playable = playableFromMediaItem({ ...channel, type: 'live' }, credentials);
+      if (!playable) return;
+      let archiveUrl: string | null = null;
+      if (channel.sourceId?.startsWith('m3u-')) {
+        const entry = useSourceStore
+          .getState()
+          .runtimes[
+            channel.sourceId
+          ]?.playlist?.entries.find((candidate) => candidate.id === channel.sourceItemId || candidate.id === channel.id);
+        archiveUrl = resolveM3uCatchupUrl(entry, programme, Date.now(), { requireEnded: true });
+      } else if (channel.sourceItemId && channel.catchup === 'xtream') {
+        const xtreamCredentials = channel.sourceId
+          ? getXtreamCredentials(channel.sourceId)
+          : credentials;
+        archiveUrl = resolveXtreamCatchupUrl(
+          {
+            stream_id: Number(channel.sourceItemId),
+            tv_archive: 1,
+            tv_archive_duration: channel.catchupDays ?? 0,
+          },
+          xtreamCredentials,
+          programme,
+          { requireEnded: true },
+        );
+      }
+      if (archiveUrl) {
+        playStream({
+          ...playable,
+          type: 'vod',
+          title: `${channel.title} · ${programme.title}`,
+          streamUrl: archiveUrl,
+          startPosition: 0,
+          knownDuration: Math.max(0, (programme.end - programme.start) / 1000),
+        });
+        return;
+      }
+      playChannel(channel);
+    },
+    [credentials, playChannel, playStream],
+  );
 
   const hours = useMemo(() => {
     const marks: number[] = [];
@@ -331,7 +386,11 @@ export function Epg() {
       <div className={appStyles.catalogMain}>
         <CatalogPageHeader
           title="TV Guide"
-          meta={isLoading ? t('Loading channels') : t('{count} channels', { count: number(channels.length) })}
+          meta={
+            isLoading
+              ? t('Loading channels')
+              : t('{count} channels', { count: number(channels.length) })
+          }
         />
 
         {!sources.isAvailable ? (
@@ -373,16 +432,29 @@ export function Epg() {
 
               <div className={styles.timelineTools}>
                 <div className={styles.timeNav} aria-label={t('Timeline navigation')}>
-                  <button type="button" className={styles.timeShiftBtn} onClick={() => shiftTimeline(-60)} aria-label={t('One hour earlier')}>
+                  <button
+                    type="button"
+                    className={styles.timeShiftBtn}
+                    onClick={() => shiftTimeline(-60)}
+                    aria-label={t('One hour earlier')}
+                  >
                     <ChevronLeft size={15} />
                   </button>
-                  <button type="button" className={styles.nowBtn} onClick={() => jumpToNow()} aria-label={t('Jump to current time')}>
+                  <button
+                    type="button"
+                    className={styles.nowBtn}
+                    onClick={() => jumpToNow()}
+                    aria-label={t('Jump to current time')}
+                  >
                     <span>{t('Now')}</span>
-                    <time dateTime={new Date(now).toISOString()}>
-                      {time(now)}
-                    </time>
+                    <time dateTime={new Date(now).toISOString()}>{time(now)}</time>
                   </button>
-                  <button type="button" className={styles.timeShiftBtn} onClick={() => shiftTimeline(60)} aria-label={t('One hour later')}>
+                  <button
+                    type="button"
+                    className={styles.timeShiftBtn}
+                    onClick={() => shiftTimeline(60)}
+                    aria-label={t('One hour later')}
+                  >
                     <ChevronRight size={15} />
                   </button>
                 </div>
@@ -398,10 +470,14 @@ export function Epg() {
                     value={zoomPercent}
                     aria-label={t('Timeline zoom')}
                     aria-valuetext={t('{percent} percent', { percent: number(zoomPercent) })}
-                    style={{
-                      '--zoom-progress': `${((zoomPercent - MIN_ZOOM_PERCENT) / (MAX_ZOOM_PERCENT - MIN_ZOOM_PERCENT)) * 100}%`,
-                    } as React.CSSProperties}
-                    onChange={(event) => updateSetting('epgZoomPercent', Number(event.target.value))}
+                    style={
+                      {
+                        '--zoom-progress': `${((zoomPercent - MIN_ZOOM_PERCENT) / (MAX_ZOOM_PERCENT - MIN_ZOOM_PERCENT)) * 100}%`,
+                      } as React.CSSProperties
+                    }
+                    onChange={(event) =>
+                      updateSetting('epgZoomPercent', Number(event.target.value))
+                    }
                   />
                   <Plus className={styles.zoomIcon} size={13} aria-hidden="true" />
                   <span className={styles.zoomValue}>{number(zoomPercent)}%</span>
@@ -418,11 +494,13 @@ export function Epg() {
             >
               <div
                 className={styles.canvas}
-                style={{
-                  width: CHANNEL_WIDTH + timelineWidth,
-                  height: rows.getTotalSize() + RULER_HEIGHT,
-                  '--ruler-height': `${RULER_HEIGHT}px`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    width: CHANNEL_WIDTH + timelineWidth,
+                    height: rows.getTotalSize() + RULER_HEIGHT,
+                    '--ruler-height': `${RULER_HEIGHT}px`,
+                  } as React.CSSProperties
+                }
               >
                 <div className={styles.ruler}>
                   <div className={styles.rulerCorner}>
@@ -442,9 +520,7 @@ export function Epg() {
                       className={styles.hourMark}
                       style={{ left: CHANNEL_WIDTH + offsetOf(hourTime) }}
                     >
-                      <span className={styles.hourLabel}>
-                        {time(hourTime)}
-                      </span>
+                      <span className={styles.hourLabel}>{time(hourTime)}</span>
                       {new Date(hourTime).getHours() === 0 && (
                         <span className={styles.dayLabel}>
                           {date(hourTime, { weekday: 'short', day: 'numeric', month: 'short' })}
@@ -536,9 +612,24 @@ interface EpgRowProps {
 }
 
 const EpgRow = memo(function EpgRow({
-  channel, xmltv, xmltvLoading, top, windowStart, windowEnd, offsetOf, now, selectedId,
-  selectedChannelId, alternate, onSelect, onPlay, onProgrammeEnd, requestEnabled, customTitleRules,
-  timelineScrollLeft, timelineViewportWidth,
+  channel,
+  xmltv,
+  xmltvLoading,
+  top,
+  windowStart,
+  windowEnd,
+  offsetOf,
+  now,
+  selectedId,
+  selectedChannelId,
+  alternate,
+  onSelect,
+  onPlay,
+  onProgrammeEnd,
+  requestEnabled,
+  customTitleRules,
+  timelineScrollLeft,
+  timelineViewportWidth,
 }: EpgRowProps) {
   const { t, time, number } = useI18n();
 
@@ -547,7 +638,7 @@ const EpgRow = memo(function EpgRow({
   // two sources from both being consulted for the same lane.
   const fromXmltv = useMemo(
     () => lookupXmltvChannel(xmltv, channel.epgChannelId, channel.title, channel.sourceId),
-    [xmltv, channel.epgChannelId, channel.title, channel.sourceId]
+    [xmltv, channel.epgChannelId, channel.title, channel.sourceId],
   );
 
   const {
@@ -557,14 +648,16 @@ const EpgRow = memo(function EpgRow({
     error,
     isSuccess: providerResolved,
     canFetch: canFetchProvider,
-  } = useChannelEpg(channel.sourceItemId || channel.id, requestEnabled && !fromXmltv?.length, channel.sourceId);
+  } = useChannelEpg(
+    channel.sourceItemId || channel.id,
+    requestEnabled && !fromXmltv?.length,
+    channel.sourceId,
+  );
 
   const programmes = fromXmltv?.length ? fromXmltv : fromProvider;
-  const isLoading = programmes.length === 0 && (
-    providerLoading
-    || xmltvLoading
-    || (canFetchProvider && !providerResolved && !isError)
-  );
+  const isLoading =
+    programmes.length === 0 &&
+    (providerLoading || xmltvLoading || (canFetchProvider && !providerResolved && !isError));
 
   useEffect(() => {
     const latest = programmes.reduce((end, programme) => Math.max(end, programme.end), 0);
@@ -573,7 +666,7 @@ const EpgRow = memo(function EpgRow({
 
   const visible = useMemo(
     () => programmes.filter((p) => p.end > windowStart && p.start < windowEnd),
-    [programmes, windowStart, windowEnd]
+    [programmes, windowStart, windowEnd],
   );
 
   const cleanChannelName = useMemo(
@@ -582,8 +675,12 @@ const EpgRow = memo(function EpgRow({
   );
 
   return (
-    <div className={`${styles.row} ${alternate ? styles.rowAlternate : ''}`} style={{ top, height: ROW_HEIGHT }}>
-      <button type="button"
+    <div
+      className={`${styles.row} ${alternate ? styles.rowAlternate : ''}`}
+      style={{ top, height: ROW_HEIGHT }}
+    >
+      <button
+        type="button"
         className={`${styles.channel} ${selectedChannelId === channel.id ? styles.channelSelected : ''}`}
         onClick={() => onPlay(channel)}
         title={cleanChannelName}
@@ -612,7 +709,13 @@ const EpgRow = memo(function EpgRow({
             className={styles.laneEmptyRow}
             role="status"
             aria-label={t(isError ? 'Guide unavailable' : 'No guide data')}
-          >{isError && <span>{getErrorMessage(error, 'Channel guide query failed without an error message.')}</span>}</div>
+          >
+            {isError && (
+              <span>
+                {getErrorMessage(error, 'Channel guide query failed without an error message.')}
+              </span>
+            )}
+          </div>
         ) : (
           visible.map((programme) => {
             // Clipped to the window so a programme that started yesterday still
@@ -638,29 +741,37 @@ const EpgRow = memo(function EpgRow({
             );
 
             return (
-              <button type="button"
+              <button
+                type="button"
                 key={programme.id}
                 className={[
                   styles.programme,
                   live ? styles.programmeLive : '',
                   now >= programme.end ? styles.programmePast : '',
-                  selectedChannelId === channel.id && selectedId === programme.id ? styles.programmeSelected : '',
+                  selectedChannelId === channel.id && selectedId === programme.id
+                    ? styles.programmeSelected
+                    : '',
                 ].join(' ')}
-                style={{
-                  left: programmeLeft,
-                  width: programmeWidth,
-                  '--programme-left': `${offsetOf(from)}px`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    left: programmeLeft,
+                    width: programmeWidth,
+                    '--programme-left': `${offsetOf(from)}px`,
+                  } as React.CSSProperties
+                }
                 disabled={!isReachable}
                 aria-hidden={!isReachable || undefined}
                 tabIndex={isReachable ? undefined : -1}
                 onClick={() => onSelect(programme)}
                 onDoubleClick={() => onPlay(channel)}
               >
-                {live && <span className={styles.programmeProgress} style={{ width: `${progress}%` }} />}
+                {live && (
+                  <span className={styles.programmeProgress} style={{ width: `${progress}%` }} />
+                )}
                 <span className={styles.programmeTitle}>{cleanProgTitle}</span>
                 <span className={styles.programmeTime}>
-                  {time(programme.start)} · {number(Math.round((programme.end - programme.start) / MINUTE))} min
+                  {time(programme.start)} ·{' '}
+                  {number(Math.round((programme.end - programme.start) / MINUTE))} min
                 </span>
               </button>
             );
@@ -681,13 +792,24 @@ interface ProgrammeDetailProps {
   customTitleRules: readonly CustomTitleRule[];
 }
 
-function ProgrammeDetail({ selection, now, onPlay, onClose, customTitleRules }: ProgrammeDetailProps) {
+function ProgrammeDetail({
+  selection,
+  now,
+  onPlay,
+  onClose,
+  customTitleRules,
+}: ProgrammeDetailProps) {
   const { t, time, number } = useI18n();
   if (!selection) {
     return (
-      <aside className={`${styles.detail} ${styles.detailEmpty}`} aria-label={t('Programme details')}>
+      <aside
+        className={`${styles.detail} ${styles.detailEmpty}`}
+        aria-label={t('Programme details')}
+      >
         <span className={styles.detailEmptyTitle}>{t('No programme selected')}</span>
-        <span className={styles.detailEmptyHint}>{t('Select a programme in the guide to view its details.')}</span>
+        <span className={styles.detailEmptyHint}>
+          {t('Select a programme in the guide to view its details.')}
+        </span>
       </aside>
     );
   }
@@ -695,7 +817,10 @@ function ProgrammeDetail({ selection, now, onPlay, onClose, customTitleRules }: 
   const { channel, programme } = selection;
   const live = now >= programme.start && now < programme.end;
   const progress = live
-    ? Math.max(0, Math.min(100, ((now - programme.start) / (programme.end - programme.start)) * 100))
+    ? Math.max(
+        0,
+        Math.min(100, ((now - programme.start) / (programme.end - programme.start)) * 100),
+      )
     : 0;
   const cleanChannelName = parseLiveChannelTitle(channel.title, customTitleRules).cleanTitle;
   const cleanProgTitle = cleanProgrammeTitle(
@@ -713,12 +838,22 @@ function ProgrammeDetail({ selection, now, onPlay, onClose, customTitleRules }: 
         </div>
         <h2 className={styles.detailTitle}>{cleanProgTitle}</h2>
         <div className={styles.detailMeta}>
-          {live && <span className={styles.detailLive}><i />{t('Live')}</span>}
-          <span>{time(programme.start)}–{time(programme.end)}</span>
+          {live && (
+            <span className={styles.detailLive}>
+              <i />
+              {t('Live')}
+            </span>
+          )}
+          <span>
+            {time(programme.start)}–{time(programme.end)}
+          </span>
           <span>{number(Math.round((programme.end - programme.start) / MINUTE))} min</span>
         </div>
         {live && (
-          <div className={styles.detailProgress} aria-label={t('{percent} percent complete', { percent: number(Math.round(progress)) })}>
+          <div
+            className={styles.detailProgress}
+            aria-label={t('{percent} percent complete', { percent: number(Math.round(progress)) })}
+          >
             <span style={{ width: `${progress}%` }} />
           </div>
         )}
@@ -726,11 +861,20 @@ function ProgrammeDetail({ selection, now, onPlay, onClose, customTitleRules }: 
       </div>
 
       <div className={styles.detailActions}>
-        <button type="button" className={styles.watchBtn} onClick={() => onPlay(channel, programme)}>
+        <button
+          type="button"
+          className={styles.watchBtn}
+          onClick={() => onPlay(channel, programme)}
+        >
           <Play size={15} />
           {t('Watch')}
         </button>
-        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={t('Close details')}>
+        <button
+          type="button"
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label={t('Close details')}
+        >
           <X size={16} />
         </button>
       </div>

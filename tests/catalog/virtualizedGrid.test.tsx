@@ -29,13 +29,15 @@ beforeAll(() => {
 
 describe('virtualized grid resizing', () => {
   it('preserves mounted card artwork when the virtualizer invalidates row geometry', () => {
-    const items: MediaItem[] = [{
-      id: 'youtube-live',
-      title: 'YouTube Live',
-      posterUrl: '',
-      type: 'live',
-      streamUrl: 'https://www.youtube.com/@channel/live',
-    }];
+    const items: MediaItem[] = [
+      {
+        id: 'youtube-live',
+        title: 'YouTube Live',
+        posterUrl: '',
+        type: 'live',
+        streamUrl: 'https://www.youtube.com/@channel/live',
+      },
+    ];
     const view = render(
       <MemoryRouter>
         <VirtualizedGrid items={items} isLiveTv gap={16} />

@@ -1,6 +1,11 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { ASPECT_OPTIONS, aspectLabelFor, aspectSettingsFor } from '../../src/utils/aspect';
-import { formatDurationLabel, formatRemaining, formatTime, historyCardSubtitle } from '../../src/utils/time';
+import {
+  formatDurationLabel,
+  formatRemaining,
+  formatTime,
+  historyCardSubtitle,
+} from '../../src/utils/time';
 import { loadAllUiMessageCatalogs } from '../../src/i18n';
 
 beforeAll(async () => {
@@ -33,11 +38,20 @@ describe('time presentation', () => {
   });
 
   it('combines episode identity with remaining time for history cards', () => {
-    expect(historyCardSubtitle({
-      id: 'series', title: 'Show', posterUrl: '', type: 'series',
-      progressPercentage: 50, lastWatchedAt: 0, currentTime: 60, duration: 120,
-      seasonNum: 2, episodeNum: 3,
-    })).toBe('S2 E3 · 1 min left');
+    expect(
+      historyCardSubtitle({
+        id: 'series',
+        title: 'Show',
+        posterUrl: '',
+        type: 'series',
+        progressPercentage: 50,
+        lastWatchedAt: 0,
+        currentTime: 60,
+        duration: 120,
+        seasonNum: 2,
+        episodeNum: 3,
+      }),
+    ).toBe('S2 E3 · 1 min left');
   });
 });
 
@@ -45,7 +59,10 @@ describe('aspect ratio contracts', () => {
   it('defines every mode with all four native mpv properties', () => {
     for (const option of ASPECT_OPTIONS) {
       expect(Object.keys(option.settings).sort()).toEqual([
-        'keepaspect', 'panscan', 'video-aspect-override', 'video-unscaled',
+        'keepaspect',
+        'panscan',
+        'video-aspect-override',
+        'video-unscaled',
       ]);
     }
   });
@@ -53,7 +70,10 @@ describe('aspect ratio contracts', () => {
   it('clears mode-specific values when switching back to fit', () => {
     expect(aspectSettingsFor('zoom')).toMatchObject({ panscan: '1', keepaspect: 'yes' });
     expect(aspectSettingsFor('16:9')).toEqual({
-      'video-aspect-override': '16:9', keepaspect: 'yes', panscan: '0', 'video-unscaled': 'no',
+      'video-aspect-override': '16:9',
+      keepaspect: 'yes',
+      panscan: '0',
+      'video-unscaled': 'no',
     });
   });
 

@@ -74,33 +74,42 @@ export function Upcoming() {
     [groupedReleases, historyDays, now],
   );
   const recentlyReleasedCount = allHorizons.recentlyReleased.length;
-  const upcomingCount = allHorizons.today.length
-    + allHorizons.thisWeek.length
-    + allHorizons.nextWeek.length
-    + allHorizons.later.length;
-  const visibleCount = horizons.recentlyReleased.length
-    + horizons.today.length
-    + horizons.thisWeek.length
-    + horizons.nextWeek.length
-    + horizons.later.length;
-  const visibleReleases = useMemo(() => [
-    ...horizons.recentlyReleased,
-    ...horizons.today,
-    ...horizons.thisWeek,
-    ...horizons.nextWeek,
-    ...horizons.later,
-  ], [horizons]);
-  const trackedFavorites = favorites.filter((item) => item.type === 'series' || item.type === 'vod');
-  const canLoadSchedule = upcomingEnabled && tmdbEnabled && Boolean(tmdbApiKey.trim()) && trackedFavorites.length > 0;
-  const updatedLabel = schedule.dataUpdatedAt > 0
-    ? date(schedule.dataUpdatedAt, { hour: 'numeric', minute: '2-digit' })
-    : null;
+  const upcomingCount =
+    allHorizons.today.length +
+    allHorizons.thisWeek.length +
+    allHorizons.nextWeek.length +
+    allHorizons.later.length;
+  const visibleCount =
+    horizons.recentlyReleased.length +
+    horizons.today.length +
+    horizons.thisWeek.length +
+    horizons.nextWeek.length +
+    horizons.later.length;
+  const visibleReleases = useMemo(
+    () => [
+      ...horizons.recentlyReleased,
+      ...horizons.today,
+      ...horizons.thisWeek,
+      ...horizons.nextWeek,
+      ...horizons.later,
+    ],
+    [horizons],
+  );
+  const trackedFavorites = favorites.filter(
+    (item) => item.type === 'series' || item.type === 'vod',
+  );
+  const canLoadSchedule =
+    upcomingEnabled && tmdbEnabled && Boolean(tmdbApiKey.trim()) && trackedFavorites.length > 0;
+  const updatedLabel =
+    schedule.dataUpdatedAt > 0
+      ? date(schedule.dataUpdatedAt, { hour: 'numeric', minute: '2-digit' })
+      : null;
   const headerMeta = schedule.isLoading
     ? t('Checking release dates…')
     : t('{upcoming} upcoming · {released} recently released', {
-      upcoming: number(upcomingCount),
-      released: number(recentlyReleasedCount),
-    });
+        upcoming: number(upcomingCount),
+        released: number(recentlyReleasedCount),
+      });
 
   return (
     <PageTransition>
@@ -108,24 +117,32 @@ export function Upcoming() {
         <CatalogPageHeader
           title={t('Coming Up')}
           meta={canLoadSchedule ? headerMeta : t('Release dates for your saved movies and series')}
-          actions={canLoadSchedule ? (
-            <Button
-              size="sm"
-              onClick={() => void schedule.refetch()}
-              disabled={schedule.isFetching}
-              aria-label="Refresh release schedule"
-            >
-              <RefreshCw className={schedule.isFetching ? styles.spinning : undefined} size={14} aria-hidden="true" />
-              <span>{t(schedule.isFetching ? 'Updating…' : 'Refresh')}</span>
-            </Button>
-          ) : undefined}
+          actions={
+            canLoadSchedule ? (
+              <Button
+                size="sm"
+                onClick={() => void schedule.refetch()}
+                disabled={schedule.isFetching}
+                aria-label="Refresh release schedule"
+              >
+                <RefreshCw
+                  className={schedule.isFetching ? styles.spinning : undefined}
+                  size={14}
+                  aria-hidden="true"
+                />
+                <span>{t(schedule.isFetching ? 'Updating…' : 'Refresh')}</span>
+              </Button>
+            ) : undefined
+          }
         />
 
         {!upcomingEnabled ? (
           <EmptyState
             icon={CalendarClock}
             title={t('Coming Up is disabled')}
-            description={t('Enable the release schedule in Coming Up settings to track saved movies and series.')}
+            description={t(
+              'Enable the release schedule in Coming Up settings to track saved movies and series.',
+            )}
             actionLabel={t('Open Settings')}
             onAction={() => navigate('/settings?section=coming-up')}
           />
@@ -133,7 +150,9 @@ export function Upcoming() {
           <EmptyState
             icon={CalendarClock}
             title={t('Connect TMDB to see your schedule')}
-            description={t('Add a TMDB API key in Library & Metadata settings to check release dates for your favorites.')}
+            description={t(
+              'Add a TMDB API key in Library & Metadata settings to check release dates for your favorites.',
+            )}
             actionLabel={t('Open Settings')}
             onAction={() => navigate('/settings?section=library-metadata')}
           />
@@ -141,7 +160,9 @@ export function Upcoming() {
           <EmptyState
             icon={CalendarClock}
             title={t('No favorite movies or series yet')}
-            description={t('Add movies or series to Favorites and Movena will keep their upcoming and recent release dates here.')}
+            description={t(
+              'Add movies or series to Favorites and Movena will keep their upcoming and recent release dates here.',
+            )}
           />
         ) : schedule.isLoading && !schedule.data ? (
           <EmptyState
@@ -153,8 +174,13 @@ export function Upcoming() {
           <EmptyState
             icon={CalendarClock}
             title={t('Release schedule unavailable')}
-            description={t('Movena could not check release dates right now. Your favorites are unchanged.')}
-            detail={getErrorMessage(schedule.error, 'Release schedule query failed without an error message.')}
+            description={t(
+              'Movena could not check release dates right now. Your favorites are unchanged.',
+            )}
+            detail={getErrorMessage(
+              schedule.error,
+              'Release schedule query failed without an error message.',
+            )}
             actionLabel={t('Try Again')}
             onAction={() => void schedule.refetch()}
           />
@@ -198,46 +224,77 @@ export function Upcoming() {
                   <section className={`${styles.timelineSection} ${styles.recentSection}`}>
                     <div className={styles.timelineHeadingRow}>
                       <h2 className={styles.timelineHeading}>{t('Recently Released')}</h2>
-                      <span className={styles.timelineHint}>{t('Kept for {count} days', { count: number(historyDays) })}</span>
+                      <span className={styles.timelineHint}>
+                        {t('Kept for {count} days', { count: number(historyDays) })}
+                      </span>
                     </div>
-                    <UpcomingReleaseCard onOpen={open} variant="schedule" releases={horizons.recentlyReleased} now={now} />
+                    <UpcomingReleaseCard
+                      onOpen={open}
+                      variant="schedule"
+                      releases={horizons.recentlyReleased}
+                      now={now}
+                    />
                   </section>
                 )}
 
                 {horizons.today.length > 0 && (
                   <section className={styles.timelineSection}>
                     <h2 className={styles.timelineHeading}>{t('Today')}</h2>
-                    <UpcomingReleaseCard onOpen={open} variant="schedule" releases={horizons.today} now={now} />
+                    <UpcomingReleaseCard
+                      onOpen={open}
+                      variant="schedule"
+                      releases={horizons.today}
+                      now={now}
+                    />
                   </section>
                 )}
 
                 {horizons.thisWeek.length > 0 && (
                   <section className={styles.timelineSection}>
                     <h2 className={styles.timelineHeading}>{t('Next 7 Days')}</h2>
-                    <UpcomingReleaseCard onOpen={open} variant="schedule" releases={horizons.thisWeek} now={now} />
+                    <UpcomingReleaseCard
+                      onOpen={open}
+                      variant="schedule"
+                      releases={horizons.thisWeek}
+                      now={now}
+                    />
                   </section>
                 )}
 
                 {horizons.nextWeek.length > 0 && (
                   <section className={styles.timelineSection}>
                     <h2 className={styles.timelineHeading}>{t('Following Week')}</h2>
-                    <UpcomingReleaseCard onOpen={open} variant="schedule" releases={horizons.nextWeek} now={now} />
+                    <UpcomingReleaseCard
+                      onOpen={open}
+                      variant="schedule"
+                      releases={horizons.nextWeek}
+                      now={now}
+                    />
                   </section>
                 )}
 
                 {horizons.later.length > 0 && (
                   <section className={styles.timelineSection}>
                     <h2 className={styles.timelineHeading}>{t('Later')}</h2>
-                    <UpcomingReleaseCard onOpen={open} variant="schedule" releases={horizons.later} now={now} />
+                    <UpcomingReleaseCard
+                      onOpen={open}
+                      variant="schedule"
+                      releases={horizons.later}
+                      now={now}
+                    />
                   </section>
                 )}
 
                 {visibleCount === 0 && (
                   <div className={styles.emptyFilter}>
                     <CalendarClock size={18} aria-hidden="true" />
-                    <span>{t(kindFilter === 'all'
-                      ? 'No release dates are currently listed for your favorites.'
-                      : 'No releases match the selected media type.')}</span>
+                    <span>
+                      {t(
+                        kindFilter === 'all'
+                          ? 'No release dates are currently listed for your favorites.'
+                          : 'No releases match the selected media type.',
+                      )}
+                    </span>
                   </div>
                 )}
               </div>

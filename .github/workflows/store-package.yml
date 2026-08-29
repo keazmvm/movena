@@ -97,4 +97,3 @@ jobs:
           $msixFiles = @(Get-ChildItem -Path "store-artifacts" -Filter "*.msix" -File)
           if ($msixFiles.Count -ne 1) { throw "Expected exactly one MSIX artifact, found $($msixFiles.Count)." }
           & msstore publish "." --inputFile $msixFiles[0].FullName --appId $env:STORE_PRODUCT_ID
-

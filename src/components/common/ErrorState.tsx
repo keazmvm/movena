@@ -43,9 +43,12 @@ export function ErrorState({
   className = '',
 }: ErrorStateProps) {
   const { t } = useI18n();
-  const ActionIcon = actionIcon === undefined
-    ? (/^(try again|reconnect)$/i.test(actionLabel ?? '') ? RefreshCw : null)
-    : actionIcon;
+  const ActionIcon =
+    actionIcon === undefined
+      ? /^(try again|reconnect)$/i.test(actionLabel ?? '')
+        ? RefreshCw
+        : null
+      : actionIcon;
   return (
     <section
       className={`${styles.container} ${compact ? styles.compact : ''} ${modal ? styles.modal : ''} ${player ? styles.player : ''} ${className}`}
@@ -69,9 +72,11 @@ export function ErrorState({
               onClick={onAction}
               disabled={isRetrying}
             >
-              {isRetrying
-                ? <LoaderCircle className={styles.spinner} size={16} />
-                : ActionIcon ? <ActionIcon size={16} /> : null}
+              {isRetrying ? (
+                <LoaderCircle className={styles.spinner} size={16} />
+              ) : ActionIcon ? (
+                <ActionIcon size={16} />
+              ) : null}
               <span>{isRetrying ? t('Trying again') : t(actionLabel)}</span>
             </Button>
           )}

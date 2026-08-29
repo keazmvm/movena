@@ -38,9 +38,11 @@ export function SeriesPlaybackPrompts() {
   const eofReached = usePlayerStore((s) => s.eofReached);
   const chapters = usePlayerStore((s) => s.chapters);
   const playStream = usePlayerStore((s) => s.playStream);
-  const credentials = useAuthStore((s) => (
-    activeStream?.sourceId ? s.runtimes[activeStream.sourceId]?.credentials ?? null : getXtreamCredentials()
-  ));
+  const credentials = useAuthStore((s) =>
+    activeStream?.sourceId
+      ? (s.runtimes[activeStream.sourceId]?.credentials ?? null)
+      : getXtreamCredentials(),
+  );
   const autoPlayNextEpisode = useSettingsStore((s) => s.autoPlayNextEpisode);
   const skipIntroEnabled = useSettingsStore((s) => s.skipIntroEnabled);
   const skipRecapEnabled = useSettingsStore((s) => s.skipRecapEnabled);
@@ -55,17 +57,22 @@ export function SeriesPlaybackPrompts() {
       seasonNum: activeStream.seasonNum,
       episodeNum: activeStream.episodeNum,
     });
-  }, [activeStream?.title, activeStream?.seriesTitle, activeStream?.seasonNum, activeStream?.episodeNum]);
+  }, [
+    activeStream?.title,
+    activeStream?.seriesTitle,
+    activeStream?.seasonNum,
+    activeStream?.episodeNum,
+  ]);
 
-  const resolvedSeriesTitle = (
+  const resolvedSeriesTitle =
     activeStream?.seriesTitle ||
     parsedFromTitle?.seriesTitle ||
-    (activeStream?.title ? getSeriesBaseTitle(activeStream.title) : undefined)
-  );
+    (activeStream?.title ? getSeriesBaseTitle(activeStream.title) : undefined);
   const resolvedSeasonNum = activeStream?.seasonNum ?? parsedFromTitle?.seasonNum ?? null;
   const resolvedEpisodeNum = activeStream?.episodeNum ?? parsedFromTitle?.episodeNum ?? null;
 
-  const isSeries = activeStream?.type === 'series' || Boolean(resolvedSeasonNum && resolvedEpisodeNum);
+  const isSeries =
+    activeStream?.type === 'series' || Boolean(resolvedSeasonNum && resolvedEpisodeNum);
 
   // Shared with VodControls, so this is normally already in cache by the
   // time it's needed — no extra fetch on top of what the controls do.
@@ -85,7 +92,11 @@ export function SeriesPlaybackPrompts() {
 
   const next = useMemo(() => {
     if (!isSeries || !seriesData?.episodes || !activeStream) return null;
-    return findNextEpisode(seriesData.episodes, activeStream.sourceItemId || activeStream.id, activeStream.seasonNum);
+    return findNextEpisode(
+      seriesData.episodes,
+      activeStream.sourceItemId || activeStream.id,
+      activeStream.seasonNum,
+    );
   }, [isSeries, seriesData, activeStream]);
 
   const nextEpisodeDisplayTitle = useMemo(() => {
@@ -101,9 +112,10 @@ export function SeriesPlaybackPrompts() {
     if (!next || !activeStream?.seriesId) return;
     const playback = resolveEpisodePlayback(next.episode, credentials);
     if (!playback) return;
-    const baseTitle = getSeriesBaseTitle(
-      seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
-    ) || 'Series';
+    const baseTitle =
+      getSeriesBaseTitle(
+        seriesData?.info?.name || activeStream.seriesTitle || activeStream.title,
+      ) || 'Series';
     const parsedEpisode = parseEpisodeTitle(next.episode.title, {
       seriesTitle: baseTitle,
       seasonNum: next.seasonNum,
@@ -143,8 +155,11 @@ export function SeriesPlaybackPrompts() {
   // ── Prompt segments (Chapters preferred, IntroDB fallback) ──
 
   const segments = useMemo(
-    () => (anySkipActive ? resolvePlaybackPromptSegments(chapters, introDbSegments) : { intro: null, recap: null, outro: null }),
-    [chapters, introDbSegments, anySkipActive]
+    () =>
+      anySkipActive
+        ? resolvePlaybackPromptSegments(chapters, introDbSegments)
+        : { intro: null, recap: null, outro: null },
+    [chapters, introDbSegments, anySkipActive],
   );
 
   useEffect(() => {
@@ -158,7 +173,15 @@ export function SeriesPlaybackPrompts() {
       skipIntroEnabled,
       skipRecapEnabled,
     });
-  }, [activeStream, chapters, introDbSegments, segments, autoSkipIntro, skipIntroEnabled, skipRecapEnabled]);
+  }, [
+    activeStream,
+    chapters,
+    introDbSegments,
+    segments,
+    autoSkipIntro,
+    skipIntroEnabled,
+    skipRecapEnabled,
+  ]);
 
   // ── Automatic Intro / Recap Skipping ──────────────────────────
 
@@ -192,26 +215,50 @@ export function SeriesPlaybackPrompts() {
         }
       }
     }
-  }, [autoSkipIntro, activeStream, skipIntroEnabled, skipRecapEnabled, segments.intro, segments.recap, currentTime]);
+  }, [
+    autoSkipIntro,
+    activeStream,
+    skipIntroEnabled,
+    skipRecapEnabled,
+    segments.intro,
+    segments.recap,
+    currentTime,
+  ]);
 
   // ── Manual Skip Buttons ───────────────────────────────────────
 
   const showSkipIntro =
-    skipIntroEnabled && !autoSkipIntro && !!segments.intro && currentTime >= segments.intro.start && currentTime < segments.intro.skipTo - 0.5;
+    skipIntroEnabled &&
+    !autoSkipIntro &&
+    !!segments.intro &&
+    currentTime >= segments.intro.start &&
+    currentTime < segments.intro.skipTo - 0.5;
 
   const showSkipRecap =
-    skipRecapEnabled && !autoSkipIntro && !!segments.recap && currentTime >= segments.recap.start && currentTime < segments.recap.skipTo - 0.5;
+    skipRecapEnabled &&
+    !autoSkipIntro &&
+    !!segments.recap &&
+    currentTime >= segments.recap.start &&
+    currentTime < segments.recap.skipTo - 0.5;
 
   const shownRef = useRef({ intro: false, recap: false });
   useEffect(() => {
     if (showSkipIntro && !shownRef.current.intro) {
       shownRef.current.intro = true;
-      debugLog.info('player', `Skip prompts: showSkipIntro became true at currentTime=${currentTime}`, segments.intro);
+      debugLog.info(
+        'player',
+        `Skip prompts: showSkipIntro became true at currentTime=${currentTime}`,
+        segments.intro,
+      );
     }
     if (!showSkipIntro) shownRef.current.intro = false;
     if (showSkipRecap && !shownRef.current.recap) {
       shownRef.current.recap = true;
-      debugLog.info('player', `Skip prompts: showSkipRecap became true at currentTime=${currentTime}`, segments.recap);
+      debugLog.info(
+        'player',
+        `Skip prompts: showSkipRecap became true at currentTime=${currentTime}`,
+        segments.recap,
+      );
     }
     if (!showSkipRecap) shownRef.current.recap = false;
   }, [showSkipIntro, showSkipRecap, currentTime, segments.intro, segments.recap]);
@@ -273,14 +320,7 @@ export function SeriesPlaybackPrompts() {
     }, 1000);
 
     return clearCountdown;
-  }, [
-    activeStream?.id,
-    autoPlayNextEpisode,
-    clearCountdown,
-    eofReached,
-    hasNextEpisode,
-    isSeries,
-  ]);
+  }, [activeStream?.id, autoPlayNextEpisode, clearCountdown, eofReached, hasNextEpisode, isSeries]);
 
   const cancelCountdown = useCallback(() => {
     clearCountdown();

@@ -21,7 +21,10 @@ export function PlaybackSettingsSection() {
 
   return (
     <SettingsPageContent>
-      <SettingsGroup title="Video Output" description="Rendering and color behavior used whenever playback starts.">
+      <SettingsGroup
+        title="Video Output"
+        description="Rendering and color behavior used whenever playback starts."
+      >
         <SettingsRow
           title="Hardware Acceleration"
           description="Decode video on the GPU to reduce CPU usage."
@@ -104,7 +107,10 @@ export function PlaybackSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Streaming & Seeking" description="Balance responsiveness, memory use, and seek behavior.">
+      <SettingsGroup
+        title="Streaming & Seeking"
+        description="Balance responsiveness, memory use, and seek behavior."
+      >
         <SettingsRow
           title="Maximum Stream Buffer"
           description="Maximum memory available to mpv for stream buffering."
@@ -122,7 +128,10 @@ export function PlaybackSettingsSection() {
           />
         </SettingsRow>
 
-        <SettingsRow title="Pre-roll Buffer" description="Seconds mpv may buffer ahead during playback.">
+        <SettingsRow
+          title="Pre-roll Buffer"
+          description="Seconds mpv may buffer ahead during playback."
+        >
           <SegmentedControl
             value={settings.cacheSecs}
             onChange={(value) => settings.updateSetting('cacheSecs', value)}
@@ -130,7 +139,10 @@ export function PlaybackSettingsSection() {
           />
         </SettingsRow>
 
-        <SettingsRow title="Seek Step" description="Time skipped by the keyboard arrow keys and seek controls.">
+        <SettingsRow
+          title="Seek Step"
+          description="Time skipped by the keyboard arrow keys and seek controls."
+        >
           <SegmentedControl
             value={settings.seekJumpSecs}
             onChange={(value) => settings.updateSetting('seekJumpSecs', value)}
@@ -139,15 +151,27 @@ export function PlaybackSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Connection Recovery" description="How long startup may take and whether alternate stream URLs should be tried.">
-        <SettingsRow title="Startup Timeout" description="Time before a stream is considered unable to start.">
+      <SettingsGroup
+        title="Connection Recovery"
+        description="How long startup may take and whether alternate stream URLs should be tried."
+      >
+        <SettingsRow
+          title="Startup Timeout"
+          description="Time before a stream is considered unable to start."
+        >
           <SegmentedControl
             value={settings.startupTimeoutMs}
             onChange={(value) => settings.updateSetting('startupTimeoutMs', value)}
-            options={[10_000, 20_000, 30_000, 60_000].map((value) => ({ value, label: `${number(value / 1000)} s` }))}
+            options={[10_000, 20_000, 30_000, 60_000].map((value) => ({
+              value,
+              label: `${number(value / 1000)} s`,
+            }))}
           />
         </SettingsRow>
-        <SettingsRow title="Stream Failover" description="Try an alternate URL when the current stream fails.">
+        <SettingsRow
+          title="Stream Failover"
+          description="Try an alternate URL when the current stream fails."
+        >
           <SettingsToggle
             label="Enable stream failover"
             checked={settings.streamFailoverEnabled}
@@ -163,7 +187,10 @@ export function PlaybackSettingsSection() {
         </SettingsRow>
       </SettingsGroup>
 
-      <SettingsGroup title="Episodes" description="Automatic actions available during series playback.">
+      <SettingsGroup
+        title="Episodes"
+        description="Automatic actions available during series playback."
+      >
         <SettingsRow
           title="Auto-play Next Episode"
           description="Start the next episode after the current one ends, with time to cancel."

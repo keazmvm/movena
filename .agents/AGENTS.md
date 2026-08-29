@@ -42,7 +42,7 @@ behavior instead of relying on documentation or assumptions.
 - Do not add local provider tag/color maps, ad-hoc badges, native selects, or
   page-local copies of shared settings/sidebar/catalog controls.
 - `WorkspaceSidebar.module.css`'s `.resizing` state must keep `transition:
-  none` on the dragged `.sidebar` element. A `transition: width` active
+none` on the dragged `.sidebar` element. A `transition: width` active
   during the pointer drag fights the 1:1 cursor tracking in
   `WorkspaceSidebar.tsx`'s `handleResizeMove` — the sidebar visibly lags
   behind the cursor, easing a catch-up on every pixel step instead of

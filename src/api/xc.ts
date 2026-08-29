@@ -11,7 +11,7 @@ export const getStreamUrl = (
   creds: XCCredentials,
   type: 'live' | 'vod' | 'series',
   streamId: string | number,
-  extension?: string
+  extension?: string,
 ) => {
   const url = creds.url.endsWith('/') ? creds.url.slice(0, -1) : creds.url;
   const username = encodeURIComponent(creds.username);
@@ -39,7 +39,11 @@ import { getErrorMessage } from '../utils/error';
 export const PROVIDER_PRIMARY_TIMEOUT_MS = 5_000;
 export const PROVIDER_FAILOVER_BUDGET_MS = 8_000;
 
-export async function testServerLatency(serverUrl: string, username: string, password: string): Promise<number> {
+export async function testServerLatency(
+  serverUrl: string,
+  username: string,
+  password: string,
+): Promise<number> {
   let validUrl = serverUrl.trim();
   if (!/^https?:\/\//i.test(validUrl)) {
     validUrl = `https://${validUrl}`;
@@ -83,12 +87,16 @@ async function fetchSingleXC<T>(
   const settings = useSettingsStore.getState();
   const startTime = Date.now();
 
-  if (signal?.aborted) throw signal.reason ?? Object.assign(new Error('Provider request cancelled'), { name: 'AbortError' });
+  if (signal?.aborted)
+    throw (
+      signal.reason ??
+      Object.assign(new Error('Provider request cancelled'), { name: 'AbortError' })
+    );
 
   const url = new URL(getApiUrl(baseUrl));
   url.searchParams.append('username', creds.username);
   url.searchParams.append('password', creds.password);
-  
+
   for (const [key, value] of Object.entries(extraParams)) {
     url.searchParams.append(key, value);
   }
@@ -111,7 +119,9 @@ async function fetchSingleXC<T>(
     response = await fetch(url.toString(), { signal: requestController.signal });
   } catch (error: unknown) {
     const durationMs = Date.now() - startTime;
-    const timeoutSeconds = Number.isInteger(timeoutMs / 1000) ? `${timeoutMs / 1000}` : (timeoutMs / 1000).toFixed(1);
+    const timeoutSeconds = Number.isInteger(timeoutMs / 1000)
+      ? `${timeoutMs / 1000}`
+      : (timeoutMs / 1000).toFixed(1);
     const technicalCause = getErrorMessage(error, 'Fetch rejected without an error message.');
     const message = timedOut
       ? `Provider request timed out after ${timeoutSeconds}s`
@@ -193,18 +203,27 @@ async function fetchSingleXC<T>(
       durationMs,
       contentType,
       responseSize: raw.length,
-      responsePreview: raw.length > MAX_PREVIEW
-        ? raw.slice(0, MAX_PREVIEW) + `\n… (${(raw.length / 1024).toFixed(1)} KB total)`
-        : raw,
+      responsePreview:
+        raw.length > MAX_PREVIEW
+          ? raw.slice(0, MAX_PREVIEW) + `\n… (${(raw.length / 1024).toFixed(1)} KB total)`
+          : raw,
     });
-    debugLog.info('api', `XC API Request [${actionName}] -> ${response.status}`, { durationMs, action: actionName, responseSize: raw.length });
+    debugLog.info('api', `XC API Request [${actionName}] -> ${response.status}`, {
+      durationMs,
+      action: actionName,
+      responseSize: raw.length,
+    });
   }
 
   return data;
 }
 
 // Generic fetch wrapper for XC API with automatic alternative server fallback
-async function fetchXC<T>(creds: XCCredentials, extraParams: Record<string, string> = {}, signal?: AbortSignal): Promise<T> {
+async function fetchXC<T>(
+  creds: XCCredentials,
+  extraParams: Record<string, string> = {},
+  signal?: AbortSignal,
+): Promise<T> {
   const urlsToTry = [creds.url, ...(creds.alternativeUrls || [])].filter(Boolean);
   const failoverStartedAt = Date.now();
 
@@ -232,16 +251,23 @@ async function fetchXC<T>(creds: XCCredentials, extraParams: Record<string, stri
     } catch (error: unknown) {
       if (signal?.aborted || (error instanceof Error && error.name === 'AbortError')) throw error;
       let serverLabel = `Configured server ${index + 1}`;
-      try { serverLabel = new URL(currentUrl).host || serverLabel; } catch { /* The failure below includes invalid URL details. */ }
-      failures.push(`${serverLabel}: ${getErrorMessage(error, 'Request failed without an error message.')}`);
+      try {
+        serverLabel = new URL(currentUrl).host || serverLabel;
+      } catch {
+        /* The failure below includes invalid URL details. */
+      }
+      failures.push(
+        `${serverLabel}: ${getErrorMessage(error, 'Request failed without an error message.')}`,
+      );
     }
   }
 
-  throw new Error(failures.length > 0
-    ? failures.join('\n')
-    : 'Failed to connect to any configured XC server: no server request was attempted.');
+  throw new Error(
+    failures.length > 0
+      ? failures.join('\n')
+      : 'Failed to connect to any configured XC server: no server request was attempted.',
+  );
 }
-
 
 // 1. Authenticate
 export interface XCAuthResponse {
@@ -263,7 +289,10 @@ export interface XCVodCategory {
   category_name: string;
   parent_id: number;
 }
-export async function getVodCategories(creds: XCCredentials, signal?: AbortSignal): Promise<XCVodCategory[]> {
+export async function getVodCategories(
+  creds: XCCredentials,
+  signal?: AbortSignal,
+): Promise<XCVodCategory[]> {
   return fetchXC<XCVodCategory[]>(creds, { action: 'get_vod_categories' }, signal);
 }
 
@@ -282,7 +311,11 @@ export interface XCVodStream {
   custom_sid: string;
   direct_source: string;
 }
-export async function getVodStreams(creds: XCCredentials, categoryId?: string, signal?: AbortSignal): Promise<XCVodStream[]> {
+export async function getVodStreams(
+  creds: XCCredentials,
+  categoryId?: string,
+  signal?: AbortSignal,
+): Promise<XCVodStream[]> {
   const params: Record<string, string> = { action: 'get_vod_streams' };
   if (categoryId) params.category_id = categoryId;
   return fetchXC<XCVodStream[]>(creds, params, signal);
@@ -315,7 +348,11 @@ export interface XCVodInfo {
   };
 }
 
-export async function getVodInfo(creds: XCCredentials, vodId: string | number, signal?: AbortSignal): Promise<XCVodInfo> {
+export async function getVodInfo(
+  creds: XCCredentials,
+  vodId: string | number,
+  signal?: AbortSignal,
+): Promise<XCVodInfo> {
   return fetchXC<XCVodInfo>(creds, { action: 'get_vod_info', vod_id: vodId.toString() }, signal);
 }
 
@@ -325,7 +362,10 @@ export interface XCSeriesCategory {
   category_name: string;
   parent_id: number;
 }
-export async function getSeriesCategories(creds: XCCredentials, signal?: AbortSignal): Promise<XCSeriesCategory[]> {
+export async function getSeriesCategories(
+  creds: XCCredentials,
+  signal?: AbortSignal,
+): Promise<XCSeriesCategory[]> {
   return fetchXC<XCSeriesCategory[]>(creds, { action: 'get_series_categories' }, signal);
 }
 
@@ -348,7 +388,11 @@ export interface XCSeries {
   episode_run_time: string;
   category_id: string;
 }
-export async function getSeries(creds: XCCredentials, categoryId?: string, signal?: AbortSignal): Promise<XCSeries[]> {
+export async function getSeries(
+  creds: XCCredentials,
+  categoryId?: string,
+  signal?: AbortSignal,
+): Promise<XCSeries[]> {
   const params: Record<string, string> = { action: 'get_series' };
   if (categoryId) params.category_id = categoryId;
   return fetchXC<XCSeries[]>(creds, params, signal);
@@ -360,13 +404,15 @@ export interface XCEpisode {
   episode_num: string | number;
   title?: string | undefined;
   container_extension?: string | undefined;
-  info?: {
-    plot?: string | undefined;
-    duration_secs?: number | undefined;
-    duration?: string | undefined;
-    movie_image?: string | undefined;
-    rating?: string | undefined;
-  } | undefined;
+  info?:
+    | {
+        plot?: string | undefined;
+        duration_secs?: number | undefined;
+        duration?: string | undefined;
+        movie_image?: string | undefined;
+        rating?: string | undefined;
+      }
+    | undefined;
   custom_sid?: string | undefined;
   added?: string | undefined;
   season?: number | undefined;
@@ -402,8 +448,16 @@ export interface XCSeriesInfoResponse {
   episodes: Record<string, XCEpisode[]>;
 }
 
-export async function getSeriesInfo(creds: XCCredentials, seriesId: string, signal?: AbortSignal): Promise<XCSeriesInfoResponse> {
-  return fetchXC<XCSeriesInfoResponse>(creds, { action: 'get_series_info', series_id: seriesId }, signal);
+export async function getSeriesInfo(
+  creds: XCCredentials,
+  seriesId: string,
+  signal?: AbortSignal,
+): Promise<XCSeriesInfoResponse> {
+  return fetchXC<XCSeriesInfoResponse>(
+    creds,
+    { action: 'get_series_info', series_id: seriesId },
+    signal,
+  );
 }
 
 // 6. Fetch Live Categories
@@ -412,7 +466,10 @@ export interface XCLiveCategory {
   category_name: string;
   parent_id: number;
 }
-export async function getLiveCategories(creds: XCCredentials, signal?: AbortSignal): Promise<XCLiveCategory[]> {
+export async function getLiveCategories(
+  creds: XCCredentials,
+  signal?: AbortSignal,
+): Promise<XCLiveCategory[]> {
   return fetchXC<XCLiveCategory[]>(creds, { action: 'get_live_categories' }, signal);
 }
 
@@ -431,7 +488,11 @@ export interface XCLiveStream {
   direct_source: string;
   tv_archive_duration: number;
 }
-export async function getLiveStreams(creds: XCCredentials, categoryId?: string, signal?: AbortSignal): Promise<XCLiveStream[]> {
+export async function getLiveStreams(
+  creds: XCCredentials,
+  categoryId?: string,
+  signal?: AbortSignal,
+): Promise<XCLiveStream[]> {
   const params: Record<string, string> = { action: 'get_live_streams' };
   if (categoryId) params.category_id = categoryId;
   return fetchXC<XCLiveStream[]>(creds, params, signal);
@@ -468,17 +529,30 @@ export async function getChannelEPG(
   streamId: string | number,
   signal?: AbortSignal,
 ): Promise<XCEPGListing[]> {
-  const res = await fetchXC<XCShortEPGResponse>(creds, {
-    action: 'get_simple_data_table',
-    stream_id: streamId.toString(),
-  }, signal);
+  const res = await fetchXC<XCShortEPGResponse>(
+    creds,
+    {
+      action: 'get_simple_data_table',
+      stream_id: streamId.toString(),
+    },
+    signal,
+  );
   return Array.isArray(res?.epg_listings) ? res.epg_listings : [];
 }
 
-export async function getShortEPG(creds: XCCredentials, streamId: string | number, limit: number = 2, signal?: AbortSignal): Promise<XCShortEPGResponse> {
-  return fetchXC<XCShortEPGResponse>(creds, { 
-    action: 'get_short_epg', 
-    stream_id: streamId.toString(),
-    limit: limit.toString()
-  }, signal);
+export async function getShortEPG(
+  creds: XCCredentials,
+  streamId: string | number,
+  limit: number = 2,
+  signal?: AbortSignal,
+): Promise<XCShortEPGResponse> {
+  return fetchXC<XCShortEPGResponse>(
+    creds,
+    {
+      action: 'get_short_epg',
+      stream_id: streamId.toString(),
+      limit: limit.toString(),
+    },
+    signal,
+  );
 }

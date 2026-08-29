@@ -30,7 +30,7 @@ vi.mock('../../src/api/xmltv', () => ({
 }));
 vi.mock('../../src/api/useDetails', () => ({ useSeriesInfo: vi.fn(() => ({ data: undefined })) }));
 vi.mock('../../src/components/player/imageSettings', async (importOriginal) => ({
-  ...await importOriginal<typeof import('../../src/components/player/imageSettings')>(),
+  ...(await importOriginal<typeof import('../../src/components/player/imageSettings')>()),
   ...imageSettings,
 }));
 vi.mock('../../src/services/mediaDownload', () => ({
@@ -93,7 +93,12 @@ describe('player control variants', () => {
 
   it('renders live controls and toggles playback and the channel drawer', async () => {
     usePlayerStore.setState({
-      activeStream: { id: 'live-1', title: 'News', type: 'live', streamUrl: 'https://media.test/live.m3u8' },
+      activeStream: {
+        id: 'live-1',
+        title: 'News',
+        type: 'live',
+        streamUrl: 'https://media.test/live.m3u8',
+      },
     });
     withQueryClient(<LiveControls />);
 
@@ -105,7 +110,12 @@ describe('player control variants', () => {
 
   it('renders VOD controls and maps seek/speed interactions to native commands', async () => {
     usePlayerStore.setState({
-      activeStream: { id: 'vod-1', title: 'Film', type: 'vod', streamUrl: 'https://media.test/film.mp4' },
+      activeStream: {
+        id: 'vod-1',
+        title: 'Film',
+        type: 'vod',
+        streamUrl: 'https://media.test/film.mp4',
+      },
     });
     withQueryClient(<VodControls />);
 
@@ -121,7 +131,12 @@ describe('player control variants', () => {
 
   it('displays a hover tooltip with formatted time and dismisses on pointer leave', async () => {
     usePlayerStore.setState({
-      activeStream: { id: 'vod-1', title: 'Film', type: 'vod', streamUrl: 'https://media.test/film.mp4' },
+      activeStream: {
+        id: 'vod-1',
+        title: 'Film',
+        type: 'vod',
+        streamUrl: 'https://media.test/film.mp4',
+      },
       currentTime: 10,
       duration: 200,
     });
@@ -164,7 +179,12 @@ describe('player control variants', () => {
 
   it('optimistically updates timeline position and sets buffering when seeking', async () => {
     usePlayerStore.setState({
-      activeStream: { id: 'vod-1', title: 'Film', type: 'vod', streamUrl: 'https://media.test/film.mp4' },
+      activeStream: {
+        id: 'vod-1',
+        title: 'Film',
+        type: 'vod',
+        streamUrl: 'https://media.test/film.mp4',
+      },
       currentTime: 10,
       duration: 100,
       isBuffering: false,
@@ -181,7 +201,12 @@ describe('player control variants', () => {
 
   it('offers to download a title that is streaming live from the provider', () => {
     usePlayerStore.setState({
-      activeStream: { id: 'movie-1', title: 'A Movie', type: 'vod', streamUrl: 'https://provider.test/movie.mp4' },
+      activeStream: {
+        id: 'movie-1',
+        title: 'A Movie',
+        type: 'vod',
+        streamUrl: 'https://provider.test/movie.mp4',
+      },
     });
     withQueryClient(<VodControls />);
     expect(screen.getByRole('button', { name: 'Download current media' })).toBeTruthy();
@@ -189,11 +214,22 @@ describe('player control variants', () => {
 
   it('hides the download button once playing straight from a completed download', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Movie.mp4', fileName: 'Movie.mp4',
-      type: 'vod', title: 'A Movie', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'movie-1',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Movie.mp4',
+      fileName: 'Movie.mp4',
+      type: 'vod',
+      title: 'A Movie',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     usePlayerStore.setState({
-      activeStream: { id: 'movie-1', title: 'A Movie', type: 'vod', streamUrl: 'C:\\Downloads\\Movie.mp4' },
+      activeStream: {
+        id: 'movie-1',
+        title: 'A Movie',
+        type: 'vod',
+        streamUrl: 'C:\\Downloads\\Movie.mp4',
+      },
     });
 
     withQueryClient(<VodControls />);

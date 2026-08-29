@@ -93,23 +93,24 @@ export const desktopApi = {
     listen<MpvEvent>('mpv-event', ({ payload }) => handler(payload)),
   onDownloadEvent: (handler: (event: DownloadStatusEvent) => void) =>
     listen<DownloadStatusEvent>('download-event', ({ payload }) => handler(payload)),
-  onPointerMoved: (handler: () => void) =>
-    listen('pointer-moved', handler),
+  onPointerMoved: (handler: () => void) => listen('pointer-moved', handler),
 
   minimizeWindow: () => getCurrentWindow().minimize(),
   toggleMaximizeWindow: () => getCurrentWindow().toggleMaximize(),
   closeWindow: () => getCurrentWindow().close(),
   setAlwaysOnTop: (alwaysOnTop: boolean) => getCurrentWindow().setAlwaysOnTop(alwaysOnTop),
 
-  openPath: (options: DesktopOpenDialogOptions) => open({
-    ...(options.multiple !== undefined ? { multiple: options.multiple } : {}),
-    ...(options.directory !== undefined ? { directory: options.directory } : {}),
-    ...(options.filters !== undefined ? { filters: options.filters } : {}),
-  }),
-  savePath: (options: DesktopSaveDialogOptions) => save({
-    ...(options.defaultPath !== undefined ? { defaultPath: options.defaultPath } : {}),
-    ...(options.filters !== undefined ? { filters: options.filters } : {}),
-  }),
+  openPath: (options: DesktopOpenDialogOptions) =>
+    open({
+      ...(options.multiple !== undefined ? { multiple: options.multiple } : {}),
+      ...(options.directory !== undefined ? { directory: options.directory } : {}),
+      ...(options.filters !== undefined ? { filters: options.filters } : {}),
+    }),
+  savePath: (options: DesktopSaveDialogOptions) =>
+    save({
+      ...(options.defaultPath !== undefined ? { defaultPath: options.defaultPath } : {}),
+      ...(options.filters !== undefined ? { filters: options.filters } : {}),
+    }),
   openUrl: (url: string) => openUrl(url),
   revealItemInDir: (path: string) => revealItemInDir(path),
   getVersion: () => getVersion(),

@@ -28,20 +28,25 @@ afterEach(() => {
 
 describe('M3U worker adapter', () => {
   it('uses direct parsing below the worker threshold', async () => {
-    await expect(parseM3uAsync('#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live'))
-      .resolves.toMatchObject({ entries: [{ title: 'Channel' }] });
+    await expect(
+      parseM3uAsync('#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live'),
+    ).resolves.toMatchObject({ entries: [{ title: 'Channel' }] });
   });
 
   it('resolves and rejects matching worker responses without crossing request IDs', async () => {
     vi.stubGlobal('Worker', WorkerMock);
-    const first = parseM3uAsync(`#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`);
+    const first = parseM3uAsync(
+      `#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`,
+    );
     const worker = WorkerMock.latest!;
     const firstId = (worker.postMessage.mock.calls[0]![0] as { id: number }).id;
     worker.emit('message', { id: firstId + 99, error: 'stale' });
     worker.emit('message', { id: firstId, playlist: { entries: [], epgUrls: [], warnings: [] } });
     await expect(first).resolves.toMatchObject({ entries: [] });
 
-    const second = parseM3uAsync(`#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`);
+    const second = parseM3uAsync(
+      `#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`,
+    );
     const secondId = (worker.postMessage.mock.calls[1]![0] as { id: number }).id;
     worker.emit('message', { id: secondId, error: 'invalid guide' });
     await expect(second).rejects.toThrow('invalid guide');
@@ -49,13 +54,17 @@ describe('M3U worker adapter', () => {
 
   it('rejects pending work and replaces a worker after an error', async () => {
     vi.stubGlobal('Worker', WorkerMock);
-    const pending = parseM3uAsync(`#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`);
+    const pending = parseM3uAsync(
+      `#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`,
+    );
     const failedWorker = WorkerMock.latest!;
     failedWorker.emit('error', null);
     await expect(pending).rejects.toThrow('stopped unexpectedly');
     expect(failedWorker.terminate).toHaveBeenCalledOnce();
 
-    void parseM3uAsync(`#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`);
+    void parseM3uAsync(
+      `#EXTM3U\n#EXTINF:-1,Channel\nhttps://media.test/live\n${' '.repeat(100_000)}`,
+    );
     expect(WorkerMock.latest).not.toBe(failedWorker);
   });
 });

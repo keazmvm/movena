@@ -9,7 +9,11 @@ import { useDownloadStore } from '../../src/store/useDownloadStore';
 const movieItem: MediaItem = { id: 'movie-1', title: 'Inception', posterUrl: '', type: 'vod' };
 
 function renderCard(item: MediaItem, viewMode?: 'grid' | 'list') {
-  return render(<MemoryRouter><MediaCard item={item} viewMode={viewMode} /></MemoryRouter>);
+  return render(
+    <MemoryRouter>
+      <MediaCard item={item} viewMode={viewMode} />
+    </MemoryRouter>,
+  );
 }
 
 beforeEach(() => {
@@ -24,8 +28,14 @@ describe('MediaCard downloaded indicator', () => {
 
   it('shows a downloaded badge once the title is in the local download library', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
-      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'movie-1',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Inception.mp4',
+      fileName: 'Inception.mp4',
+      type: 'vod',
+      title: 'Inception',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     renderCard(movieItem);
     expect(screen.getByTitle('Downloaded')).toBeTruthy();
@@ -33,8 +43,14 @@ describe('MediaCard downloaded indicator', () => {
 
   it('only badges the specific downloaded title, not every card', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'some-other-movie', jobId: 'job-1', filePath: 'C:\\Downloads\\Other.mp4', fileName: 'Other.mp4',
-      type: 'vod', title: 'Other Movie', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'some-other-movie',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Other.mp4',
+      fileName: 'Other.mp4',
+      type: 'vod',
+      title: 'Other Movie',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     renderCard(movieItem);
     expect(screen.queryByTitle('Downloaded')).toBeNull();
@@ -42,8 +58,14 @@ describe('MediaCard downloaded indicator', () => {
 
   it('renders the downloaded indicator in list view too', () => {
     useDownloadStore.getState().addDownloadedItem({
-      id: 'movie-1', jobId: 'job-1', filePath: 'C:\\Downloads\\Inception.mp4', fileName: 'Inception.mp4',
-      type: 'vod', title: 'Inception', sizeBytes: 100, downloadedAt: Date.now(),
+      id: 'movie-1',
+      jobId: 'job-1',
+      filePath: 'C:\\Downloads\\Inception.mp4',
+      fileName: 'Inception.mp4',
+      type: 'vod',
+      title: 'Inception',
+      sizeBytes: 100,
+      downloadedAt: Date.now(),
     });
     renderCard(movieItem, 'list');
     expect(screen.getByTitle('Downloaded')).toBeTruthy();

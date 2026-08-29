@@ -8,7 +8,11 @@ vi.mock('../../src/api/ipc', () => ({
   tauriApi: { mpvSetProperty },
 }));
 
-import { applyImageAdjustment, applyImageAdjustments, DEFAULT_IMAGE_ADJUSTMENTS } from '../../src/components/player/imageSettings';
+import {
+  applyImageAdjustment,
+  applyImageAdjustments,
+  DEFAULT_IMAGE_ADJUSTMENTS,
+} from '../../src/components/player/imageSettings';
 
 beforeEach(() => {
   mpvSetProperty.mockReset().mockResolvedValue(undefined);
@@ -29,7 +33,7 @@ describe('applyImageAdjustments', () => {
     ]);
   });
 
-  it('shifts the 0-200% brightness value back to mpv\'s -100..100 range', async () => {
+  it("shifts the 0-200% brightness value back to mpv's -100..100 range", async () => {
     await applyImageAdjustments({ ...DEFAULT_IMAGE_ADJUSTMENTS, imageBrightness: 150 });
     expect(mpvSetProperty).toHaveBeenCalledWith({ property: 'brightness', value: 50 });
   });
@@ -64,13 +68,18 @@ describe('applyImageAdjustments', () => {
 
   it('preserves the native image command error for active-player callers', async () => {
     mpvSetProperty.mockRejectedValueOnce(new Error('mpv rejected brightness'));
-    await expect(applyImageAdjustments(DEFAULT_IMAGE_ADJUSTMENTS, true)).rejects.toThrow('mpv rejected brightness');
+    await expect(applyImageAdjustments(DEFAULT_IMAGE_ADJUSTMENTS, true)).rejects.toThrow(
+      'mpv rejected brightness',
+    );
   });
 });
 
 describe('applyImageAdjustment', () => {
   it('touches only the changed property, leaving the scaler kernel untouched', async () => {
-    await applyImageAdjustment('imageContrast', { ...DEFAULT_IMAGE_ADJUSTMENTS, imageContrast: 40 });
+    await applyImageAdjustment('imageContrast', {
+      ...DEFAULT_IMAGE_ADJUSTMENTS,
+      imageContrast: 40,
+    });
 
     // Regression guard: an earlier version resent the whole batch on every
     // slider tick, including `scale-blur`/`cscale-blur` — which makes
@@ -80,7 +89,10 @@ describe('applyImageAdjustment', () => {
   });
 
   it('only reaches the scaler kernel when sharpness itself changes', async () => {
-    await applyImageAdjustment('imageSharpness', { ...DEFAULT_IMAGE_ADJUSTMENTS, imageSharpness: 50 });
+    await applyImageAdjustment('imageSharpness', {
+      ...DEFAULT_IMAGE_ADJUSTMENTS,
+      imageSharpness: 50,
+    });
 
     expect(mpvSetProperty.mock.calls).toEqual([
       [{ property: 'scale-blur', value: -0.45 }],

@@ -27,7 +27,9 @@ describe('TMDB normalization', () => {
         cast: [{ id: 1, name: 'Keanu Reeves', character: 'Neo', profile_path: '/actor.jpg' }],
         crew: [{ id: 2, name: 'Lana Wachowski', job: 'Director' }],
       },
-      videos: { results: [{ id: 'trailer', key: 'dQw4w9WgXcQ', site: 'YouTube', type: 'Trailer' }] },
+      videos: {
+        results: [{ id: 'trailer', key: 'dQw4w9WgXcQ', site: 'YouTube', type: 'Trailer' }],
+      },
     });
 
     expect(movie).toMatchObject({
@@ -37,7 +39,10 @@ describe('TMDB normalization', () => {
       releaseYear: 1999,
       posterUrl: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
       backdropUrl: 'https://image.tmdb.org/t/p/w1280/icmmSD4vTTDKOq2vvdulafOGw93.jpg',
-      genres: [{ id: 28, name: 'Action' }, { id: null, name: 'Sci-Fi' }],
+      genres: [
+        { id: 28, name: 'Action' },
+        { id: null, name: 'Sci-Fi' },
+      ],
       videos: [{ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', site: 'YouTube' }],
     });
     expect(movie?.credits.cast[0]).toMatchObject({ name: 'Keanu Reeves', character: 'Neo' });
@@ -80,8 +85,18 @@ describe('TMDB normalization', () => {
       seasons: [{ seasonNumber: 1, episodeCount: 10 }],
       overview: '',
       genres: [],
-      nextEpisodeToAir: { name: 'The Next One', airDate: '2026-08-14', seasonNumber: 9, episodeNumber: 3 },
-      lastEpisodeToAir: { name: 'The Previous One', airDate: '2026-08-07', seasonNumber: 9, episodeNumber: 2 },
+      nextEpisodeToAir: {
+        name: 'The Next One',
+        airDate: '2026-08-14',
+        seasonNumber: 9,
+        episodeNumber: 3,
+      },
+      lastEpisodeToAir: {
+        name: 'The Previous One',
+        airDate: '2026-08-07',
+        seasonNumber: 9,
+        episodeNumber: 2,
+      },
     });
     expect(normalizeTmdbTv(null)).toBeNull();
     expect(normalizeTmdbTv({ id: 'wrong', name: 'Nope' })).toBeNull();
@@ -91,7 +106,13 @@ describe('TMDB normalization', () => {
     const credits = normalizeTmdbCredits({
       cast: [
         { id: 7, name: 'Actor', character: 'Neo', order: 2 },
-        { id: 7, name: 'Actor', character: 'Thomas Anderson', profile_path: '/actor.jpg', order: 1 },
+        {
+          id: 7,
+          name: 'Actor',
+          character: 'Thomas Anderson',
+          profile_path: '/actor.jpg',
+          order: 1,
+        },
         { name: 'No ID', character: 'One' },
         { name: 'No ID', character: 'One' },
       ],
@@ -125,7 +146,13 @@ describe('TMDB normalization', () => {
       page: 1,
       total_pages: 2,
       results: [
-        { id: 1, media_type: 'movie', title: 'Film', release_date: '2020-01-01', poster_path: '/p.jpg' },
+        {
+          id: 1,
+          media_type: 'movie',
+          title: 'Film',
+          release_date: '2020-01-01',
+          poster_path: '/p.jpg',
+        },
         { id: 2, media_type: 'tv', name: 'Show', first_air_date: '2021-01-01' },
         { id: 3, media_type: 'person', name: 'Person', profile_path: '/person.jpg' },
         { id: 'bad', media_type: 'movie', title: 'Bad' },

@@ -6,15 +6,14 @@ import { MediaDetailModals } from '../components/modals/MediaDetailModals';
 import { useMediaDetailState } from '../hooks/useMediaDetailState';
 
 export function Series() {
-  const {
-    selectedSeries,
-    setSelectedSeries,
-    handleCloseSeries,
-  } = useMediaDetailState();
+  const { selectedSeries, setSelectedSeries, handleCloseSeries } = useMediaDetailState();
 
-  const handleItemClick = useCallback((item: MediaItem) => {
-    setSelectedSeries(item);
-  }, [setSelectedSeries]);
+  const handleItemClick = useCallback(
+    (item: MediaItem) => {
+      setSelectedSeries(item);
+    },
+    [setSelectedSeries],
+  );
 
   return (
     <>
@@ -28,10 +27,7 @@ export function Series() {
         onItemClick={handleItemClick}
       />
 
-      <MediaDetailModals
-        selectedSeries={selectedSeries}
-        onCloseSeries={handleCloseSeries}
-      />
+      <MediaDetailModals selectedSeries={selectedSeries} onCloseSeries={handleCloseSeries} />
     </>
   );
 }

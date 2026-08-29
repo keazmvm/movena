@@ -149,14 +149,21 @@ export interface NormalizedTmdbSearchResponse {
 
 const IMAGE_HOST = 'image.tmdb.org';
 const IMAGE_PATH_PREFIX = '/t/p/';
-const YOUTUBE_HOSTS = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com', 'youtu.be']);
+const YOUTUBE_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
+  'youtu.be',
+]);
 const VIMEO_HOSTS = new Set(['vimeo.com', 'www.vimeo.com', 'player.vimeo.com']);
 const VALID_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const VALID_IMAGE_PATH = /^\/(?!\/)(?:[A-Za-z0-9._~!$&'()*+,;=:@%/-])+$/;
 
 function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? value as Record<string, unknown>
+    ? (value as Record<string, unknown>)
     : null;
 }
 
@@ -182,7 +189,8 @@ function integer(value: unknown, minimum = 0): number | null {
 
 function boundedNumber(value: unknown, minimum: number, maximum?: number): number | null {
   const number = finiteNumber(value);
-  if (number === null || number < minimum || (maximum !== undefined && number > maximum)) return null;
+  if (number === null || number < minimum || (maximum !== undefined && number > maximum))
+    return null;
   return number;
 }
 
@@ -251,9 +259,8 @@ export function sanitizeTmdbVideoUrl(value: unknown, site: unknown): string | nu
     if (!provider) return null;
 
     if (provider === 'YouTube') {
-      const videoId = parsed.hostname === 'youtu.be'
-        ? parsed.pathname.slice(1)
-        : parsed.searchParams.get('v');
+      const videoId =
+        parsed.hostname === 'youtu.be' ? parsed.pathname.slice(1) : parsed.searchParams.get('v');
       if (!videoId || !/^[A-Za-z0-9_-]{6,}$/.test(videoId)) return null;
       return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
     }
@@ -308,10 +315,12 @@ function uniqueTexts(values: unknown[]): string[] {
 }
 
 function creditRoleValues(value: unknown, field: 'character' | 'job'): string[] {
-  return array(value).flatMap((entry) => {
-    const item = record(entry);
-    return [text(item?.[field]) ?? text(item?.name)];
-  }).filter((entry): entry is string => entry !== null);
+  return array(value)
+    .flatMap((entry) => {
+      const item = record(entry);
+      return [text(item?.[field]) ?? text(item?.name)];
+    })
+    .filter((entry): entry is string => entry !== null);
 }
 
 function normalizeCredit(value: unknown, kind: 'cast' | 'crew'): NormalizedTmdbCredit | null {
@@ -319,12 +328,11 @@ function normalizeCredit(value: unknown, kind: 'cast' | 'crew'): NormalizedTmdbC
   const name = text(source?.name);
   if (!name) return null;
 
-  const characters = kind === 'cast'
-    ? [text(source?.character), ...creditRoleValues(source?.roles, 'character')]
-    : [];
-  const jobs = kind === 'crew'
-    ? [text(source?.job), ...creditRoleValues(source?.jobs, 'job')]
-    : [];
+  const characters =
+    kind === 'cast'
+      ? [text(source?.character), ...creditRoleValues(source?.roles, 'character')]
+      : [];
+  const jobs = kind === 'crew' ? [text(source?.job), ...creditRoleValues(source?.jobs, 'job')] : [];
   const roleList = uniqueTexts(characters);
   const jobList = uniqueTexts(jobs);
   return {
@@ -341,7 +349,10 @@ function normalizeCredit(value: unknown, kind: 'cast' | 'crew'): NormalizedTmdbC
   };
 }
 
-function mergeCredit(left: NormalizedTmdbCredit, right: NormalizedTmdbCredit): NormalizedTmdbCredit {
+function mergeCredit(
+  left: NormalizedTmdbCredit,
+  right: NormalizedTmdbCredit,
+): NormalizedTmdbCredit {
   return {
     ...left,
     creditId: left.creditId ?? right.creditId,
@@ -361,9 +372,10 @@ function normalizeCreditList(value: unknown, kind: 'cast' | 'crew'): NormalizedT
   for (const entry of array(value)) {
     const credit = normalizeCredit(entry, kind);
     if (!credit) continue;
-    const key = credit.id === null
-      ? `${credit.name.toLowerCase()}|${(credit.character ?? credit.job ?? '').toLowerCase()}`
-      : `id:${credit.id}`;
+    const key =
+      credit.id === null
+        ? `${credit.name.toLowerCase()}|${(credit.character ?? credit.job ?? '').toLowerCase()}`
+        : `id:${credit.id}`;
     const existingIndex = indexes.get(key);
     if (existingIndex === undefined) {
       indexes.set(key, result.length);
@@ -519,7 +531,11 @@ export function normalizeTmdbTv(payload: unknown): NormalizedTmdbTv | null {
 }
 
 function searchMediaType(source: Record<string, unknown>): TmdbMediaType | null {
-  if (source.media_type === 'movie' || source.media_type === 'tv' || source.media_type === 'person') {
+  if (
+    source.media_type === 'movie' ||
+    source.media_type === 'tv' ||
+    source.media_type === 'person'
+  ) {
     return source.media_type;
   }
   if (source.title !== undefined) return 'movie';
@@ -537,13 +553,16 @@ function normalizeSearchResult(payload: unknown): NormalizedTmdbSearchResult | n
 
   const title = text(mediaType === 'movie' ? source.title : source.name);
   if (!title) return null;
-  const releaseDate = normalizeDate(mediaType === 'movie' ? source.release_date : source.first_air_date);
-  const knownFor = mediaType === 'person'
-    ? array(source.known_for).flatMap((entry) => {
-        const normalized = normalizeSearchResult(entry);
-        return normalized ? [normalized] : [];
-      })
-    : [];
+  const releaseDate = normalizeDate(
+    mediaType === 'movie' ? source.release_date : source.first_air_date,
+  );
+  const knownFor =
+    mediaType === 'person'
+      ? array(source.known_for).flatMap((entry) => {
+          const normalized = normalizeSearchResult(entry);
+          return normalized ? [normalized] : [];
+        })
+      : [];
   return {
     mediaType,
     id: resultId,
