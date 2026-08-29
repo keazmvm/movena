@@ -2,8 +2,8 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { SubtitleAudioSettingsSection } from '@/components/settings/SubtitleAudioSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { SubtitleAudioSettingsSection } from '@/modules/settings/components/SubtitleAudioSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

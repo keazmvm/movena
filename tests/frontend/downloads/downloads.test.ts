@@ -14,9 +14,9 @@ import {
   transitionDownloadJob,
   updateDownloadProgress,
   type DownloadedItem,
-} from '@/utils/downloads';
-import { migrateDownloadState } from '@/store/useDownloadStore';
-import { useDownloadStore } from '@/store/useDownloadStore';
+} from '@/modules/downloads/lib/downloads';
+import { migrateDownloadState } from '@/modules/downloads/store/useDownloadStore';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
 
 describe('download domain helpers', () => {
   it('does not let a late native event revive a terminal queue entry', () => {

@@ -4,7 +4,7 @@ import {
   filterItemsByGenre,
   getAvailableGenres,
   sortCatalogItems,
-} from '@/utils/smartCatalogFilter';
+} from '@/modules/catalog/lib/smartCatalogFilter';
 
 const items = [
   { id: '1', title: 'Sky Sport UHD', posterUrl: '', type: 'live' as const, categoryId: '10' },

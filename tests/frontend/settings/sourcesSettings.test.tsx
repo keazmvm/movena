@@ -7,11 +7,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn(), isTauri: () => false }));
 vi.mock('@tauri-apps/plugin-dialog', () => ({ open: vi.fn() }));
 
-import { M3uSourceForm } from '@/components/forms/M3uSourceForm';
-import { AccountConnectionForm } from '@/components/forms/AccountConnectionForm';
-import { SourcesSettingsSection } from '@/components/settings/SourcesSettingsSection';
-import { useAuthStore, type XtreamSourceProfile } from '@/store/useAuthStore';
-import { useSourceStore, type M3uSourceProfile } from '@/store/useSourceStore';
+import { M3uSourceForm } from '@/modules/sources/components/M3uSourceForm';
+import { AccountConnectionForm } from '@/modules/sources/components/AccountConnectionForm';
+import { SourcesSettingsSection } from '@/modules/settings/components/SourcesSettingsSection';
+import { useAuthStore, type XtreamSourceProfile } from '@/modules/sources/store/useAuthStore';
+import { useSourceStore, type M3uSourceProfile } from '@/modules/sources/store/useSourceStore';
 
 const remoteProfile: M3uSourceProfile = {
   id: 'm3u-12345678',

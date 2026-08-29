@@ -16,25 +16,25 @@ const { movie } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/api/useCatalog', () => ({
+vi.mock('@/modules/catalog/data/useCatalog', () => ({
   useVodStreams: vi.fn(() => ({ data: [movie] })),
   useSeriesList: vi.fn(() => ({ data: [] })),
   useLiveStreams: vi.fn(() => ({ data: [] })),
 }));
 
-vi.mock('@/utils/search', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/search')>();
+vi.mock('@/modules/search/lib/search', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/modules/search/lib/search')>();
   return {
     ...actual,
     smartSearch: vi.fn(actual.smartSearch),
   };
 });
 
-import { HeaderSearch } from '@/components/layout/HeaderSearch';
-import { useLiveStreams, useSeriesList, useVodStreams } from '@/api/useCatalog';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { useSearchStore } from '@/store/useSearchStore';
-import { smartSearch } from '@/utils/search';
+import { HeaderSearch } from '@/modules/search/components/HeaderSearch';
+import { useLiveStreams, useSeriesList, useVodStreams } from '@/modules/catalog/data/useCatalog';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { useSearchStore } from '@/modules/search/store/useSearchStore';
+import { smartSearch } from '@/modules/search/lib/search';
 
 beforeEach(() => {
   localStorage.clear();

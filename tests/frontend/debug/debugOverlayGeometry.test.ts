@@ -3,7 +3,7 @@ import {
   fitHudGeometry,
   HUD_VIEWPORT_MARGIN,
   initialHudGeometry,
-} from '@/components/shared/debugOverlayGeometry';
+} from '@/modules/diagnostics/components/debugOverlayGeometry';
 
 describe('debug overlay geometry', () => {
   it('centers the default HUD in a large viewport', () => {

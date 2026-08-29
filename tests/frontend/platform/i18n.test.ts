@@ -1,17 +1,26 @@
 import { createElement } from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { Button } from '@/components/common/Button';
+import { Button } from '@/shared/ui/Button';
 import {
   createI18n,
   translateUiText,
   loadAllUiMessageCatalogs,
   UI_MESSAGE_CATALOGS,
   uiLocale,
-} from '@/i18n';
-import { UI_LANGUAGE_DEFINITIONS } from '@/i18nConfig';
-import { DE_MESSAGES } from '@/locales/de';
-import { useSettingsStore } from '@/store/useSettingsStore';
+  I18nProvider,
+} from '@/shared/i18n/i18n';
+import { UI_LANGUAGE_DEFINITIONS } from '@/shared/i18n/config';
+import { DE_MESSAGES } from '@/shared/i18n/locales/de';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+
+function TestI18nRoot() {
+  const language = useSettingsStore((state) => state.language);
+  return createElement(I18nProvider, {
+    language,
+    children: createElement(Button, null, 'Movies'),
+  });
+}
 
 beforeAll(async () => {
   await loadAllUiMessageCatalogs();
@@ -100,7 +109,7 @@ describe('UI localization', () => {
   });
 
   it('reactively updates shared controls when the persisted language changes', () => {
-    render(createElement(Button, null, 'Movies'));
+    render(createElement(TestI18nRoot));
     expect(screen.getByRole('button', { name: 'Movies' })).toBeTruthy();
 
     act(() => useSettingsStore.getState().updateSetting('language', 'de'));

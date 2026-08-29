@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useSearchStore } from '@/store/useSearchStore';
+import { useSearchStore } from '@/modules/search/store/useSearchStore';
 
 beforeEach(() => {
   localStorage.clear();

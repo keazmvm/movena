@@ -12,42 +12,42 @@ const actions = vi.hoisted(() => ({
   handleOverlayClick: vi.fn(),
 }));
 
-vi.mock('@/components/player/useMpvSession', () => ({
+vi.mock('@/modules/playback/components/useMpvSession', () => ({
   useMpvSession: session.useMpvSession,
 }));
-vi.mock('@/components/player/usePlayerActions', () => ({
+vi.mock('@/modules/playback/components/usePlayerActions', () => ({
   usePlayerActions: () => actions,
 }));
-vi.mock('@/components/player/usePlayerChrome', () => ({
+vi.mock('@/modules/playback/components/usePlayerChrome', () => ({
   usePlayerChrome: () => ({ setPointerOverChrome: vi.fn(), cursorStyle: 'default' }),
 }));
-vi.mock('@/components/player/useWatchProgress', () => ({
+vi.mock('@/modules/playback/components/useWatchProgress', () => ({
   useWatchProgress: () => vi.fn(),
 }));
-vi.mock('@/hooks/useContextMenu', () => ({
-  useContextMenu: () => ({ handlePlayerContextMenu: vi.fn() }),
+vi.mock('@/modules/playback/hooks/usePlayerContextMenus', () => ({
+  usePlayerContextMenus: () => ({ handlePlayerContextMenu: vi.fn() }),
 }));
-vi.mock('@/components/player/VodControls', () => ({
+vi.mock('@/modules/playback/components/VodControls', () => ({
   VodControls: () => <button>Normal player controls</button>,
 }));
-vi.mock('@/components/player/LiveControls', () => ({
+vi.mock('@/modules/playback/components/LiveControls', () => ({
   LiveControls: () => <button>Normal live controls</button>,
 }));
-vi.mock('@/components/player/FeedbackHud', () => ({
+vi.mock('@/modules/playback/components/FeedbackHud', () => ({
   FeedbackHud: () => <div>Stale pause feedback</div>,
 }));
-vi.mock('@/components/player/SeriesPlaybackPrompts', () => ({
+vi.mock('@/modules/playback/components/SeriesPlaybackPrompts', () => ({
   SeriesPlaybackPrompts: () => <div>Playback prompt</div>,
 }));
-vi.mock('@/components/player/EpisodesDrawer', () => ({
+vi.mock('@/modules/playback/components/EpisodesDrawer', () => ({
   EpisodesDrawer: () => <div>Episodes drawer</div>,
 }));
-vi.mock('@/components/player/ChannelsDrawer', () => ({
+vi.mock('@/modules/playback/components/ChannelsDrawer', () => ({
   ChannelsDrawer: () => <div>Channels drawer</div>,
 }));
 
-import { PlayerShell } from '@/components/player/PlayerShell';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { PlayerShell } from '@/modules/playback/components/PlayerShell';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 describe('player error interaction boundary', () => {
   beforeEach(() => {

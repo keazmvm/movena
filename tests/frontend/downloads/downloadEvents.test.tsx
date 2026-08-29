@@ -14,11 +14,11 @@ const notifications = vi.hoisted(() => ({
 
 vi.mock('@tauri-apps/api/core', () => ({ isTauri: vi.fn(() => true) }));
 vi.mock('@tauri-apps/api/event', () => ({ listen: events.listen }));
-vi.mock('@/services/mediaDownload', () => service);
-vi.mock('@/store/useNotificationStore', () => notifications);
+vi.mock('@/modules/downloads/services/mediaDownload', () => service);
+vi.mock('@/shared/notifications/useNotificationStore', () => notifications);
 
-import { useDownloadEvents } from '@/hooks/useDownloadEvents';
-import { useDownloadStore } from '@/store/useDownloadStore';
+import { useDownloadEvents } from '@/modules/downloads/hooks/useDownloadEvents';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
 
 let handler: ((event: { payload: any }) => void) | null = null;
 const unlisten = vi.fn();

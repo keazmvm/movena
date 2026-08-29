@@ -2,8 +2,8 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { PictureSettingsSection } from '@/components/settings/PictureSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { PictureSettingsSection } from '@/modules/settings/components/PictureSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

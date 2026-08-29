@@ -7,9 +7,9 @@ const native = vi.hoisted(() => ({
 }));
 
 vi.mock('@tauri-apps/api/core', () => ({ isTauri: () => true }));
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
 
-import { fetchXmltvGuide } from '@/api/xmltv';
+import { fetchXmltvGuide } from '@/modules/guide/data/xmltvClient';
 
 beforeEach(() => {
   vi.clearAllMocks();

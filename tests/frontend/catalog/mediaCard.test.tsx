@@ -3,8 +3,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { MediaCard, type MediaItem } from '@/components/catalog/MediaCard';
-import { useDownloadStore } from '@/store/useDownloadStore';
+import { MediaCard } from '@/modules/catalog/components/MediaCard';
+import type { MediaItem } from '@/modules/catalog/model/media';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
 
 const movieItem: MediaItem = { id: 'movie-1', title: 'Inception', posterUrl: '', type: 'vod' };
 

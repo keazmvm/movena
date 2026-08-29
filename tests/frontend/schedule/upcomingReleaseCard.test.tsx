@@ -3,15 +3,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { UpcomingReleaseCard } from '@/components/upcoming/UpcomingReleaseCard';
-import type { MediaItem } from '@/components/catalog/MediaCard';
-import type { UpcomingRelease } from '@/api/useUpcomingReleases';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { UpcomingReleaseCard } from '@/modules/guide/components/UpcomingReleaseCard';
+import type { MediaItem } from '@/modules/catalog/model/media';
+import type { UpcomingRelease } from '@/modules/guide/data/useUpcomingReleases';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const useUpcomingReleasesMock = vi.hoisted(() => vi.fn());
 
-vi.mock('@/api/useUpcomingReleases', () => ({
+vi.mock('@/modules/guide/data/useUpcomingReleases', () => ({
   useUpcomingReleases: useUpcomingReleasesMock,
 }));
 

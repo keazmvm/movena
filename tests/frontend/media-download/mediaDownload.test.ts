@@ -5,7 +5,7 @@ const { downloadMediaStart, downloadMediaDelete } = vi.hoisted(() => ({
   downloadMediaDelete: vi.fn(),
 }));
 
-vi.mock('@/api/ipc', () => ({
+vi.mock('@/platform/tauri', () => ({
   tauriApi: { downloadMediaStart, downloadMediaDelete },
 }));
 
@@ -15,10 +15,10 @@ import {
   downloadSeriesSeason,
   startMediaDownload,
   startQueuedDownloads,
-} from '@/services/mediaDownload';
-import { useDownloadStore } from '@/store/useDownloadStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { notify } from '@/store/useNotificationStore';
+} from '@/modules/downloads/services/mediaDownload';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { notify } from '@/shared/notifications/useNotificationStore';
 
 function activeJobCount() {
   return useDownloadStore.getState().jobs.filter((job) => job.state === 'downloading').length;

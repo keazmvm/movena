@@ -7,14 +7,14 @@ import {
   formatSignedMilliseconds,
   playerPhase,
   searchableDetails,
-} from '@/components/shared/debugOverlayModel';
+} from '@/modules/diagnostics/components/debugOverlayModel';
 import {
   emptyPlaylist,
   emptyRawEditorViewState,
   legacyDraftKey,
   playlistSnapshot,
-} from '@/components/m3u-editor/m3uEditorController';
-import { usePlayerStore } from '@/store/usePlayerStore';
+} from '@/modules/m3u-editor/components/m3uEditorController';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 const number = (value: number, options?: Intl.NumberFormatOptions) =>
   new Intl.NumberFormat('en', options).format(value);

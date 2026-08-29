@@ -10,7 +10,7 @@ import {
   parseCatchupTimestamp,
   resolveM3uCatchupUrl,
   resolveXtreamCatchupUrl,
-} from '@/utils/catchup';
+} from '@/modules/playback/lib/catchup';
 
 const NOW = Date.UTC(2026, 7, 12, 12, 0, 0);
 const programme = {

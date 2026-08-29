@@ -1,51 +1,58 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'framer-motion';
 import { MemoryRouter } from 'react-router-dom';
-import { type M3uEntry, type M3uPlaylist } from '@/api/m3u';
-import { detailQueryKeys } from '@/api/useDetails';
+import { type M3uEntry, type M3uPlaylist } from '@/modules/sources/data/m3uClient';
+import { detailQueryKeys } from '@/modules/catalog/data/useDetails';
 import {
   getCombinedSourceQueryScope,
   getM3uQueryScope,
   getUrlQueryScope,
   getXtreamQueryScope,
   queryKeys,
-} from '@/api/queryKeys';
-import type { UpcomingRelease } from '@/api/useUpcomingReleases';
-import type { XCSeriesInfoResponse, XCVodInfo } from '@/api/xc';
-import { desktopApi } from '@/api/desktop';
-import { tauriApi } from '@/api/ipc';
-import type { EpgProgramme } from '@/api/useEpg';
-import type { XmltvGuide } from '@/api/xmltv';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { WindowChrome } from '@/components/layout/WindowChrome';
-import { PageTransition } from '@/components/layout/PageTransition';
-import { MovieDetailModal } from '@/components/modals/MovieDetailModal';
-import { SeriesDetailModal } from '@/components/modals/SeriesDetailModal';
-import { M3uEditor } from '@/components/m3u-editor/M3uEditor';
-import { PlayerShell } from '@/components/player/PlayerShell';
-import { Downloads } from '@/pages/Downloads';
-import { Collections } from '@/pages/Collections';
-import { ContinueWatching } from '@/pages/ContinueWatching';
-import { Epg } from '@/pages/Epg';
-import { Home } from '@/pages/Home';
-import { Favorites } from '@/pages/Favorites';
-import { LiveTV } from '@/pages/LiveTV';
-import { Movies } from '@/pages/Movies';
-import { Search } from '@/pages/Search';
-import { Series } from '@/pages/Series';
-import { Settings } from '@/pages/Settings';
-import { Upcoming } from '@/pages/Upcoming';
-import { useDownloadStore } from '@/store/useDownloadStore';
-import { useAuthStore, type XCCredentials, type XtreamSourceProfile } from '@/store/useAuthStore';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { useSourceStore, type M3uSourceProfile } from '@/store/useSourceStore';
-import type { DownloadJob } from '@/utils/downloads';
-import { resolveSettingsSectionId, type SettingsSectionId } from '@/utils/settingsNavigation';
-import appStyles from '@/components/layout/AppLayout.module.css';
+} from '@/modules/sources/model/queryKeys';
+import type { UpcomingRelease } from '@/modules/guide/data/useUpcomingReleases';
+import type { XtreamSeriesInfoResponse, XtreamVodInfo } from '@/modules/sources/data/xtreamClient';
+import { desktopApi } from '@/platform/desktop';
+import { tauriApi } from '@/platform/tauri';
+import type { EpgProgramme } from '@/modules/guide/data/useEpg';
+import type { XmltvGuide } from '@/modules/guide/data/xmltvClient';
+import { Sidebar } from '@/app/shell/Sidebar';
+import { WindowChrome } from '@/app/shell/WindowChrome';
+import { PageTransition } from '@/app/shell/PageTransition';
+import { MovieDetailsDialog } from '@/modules/catalog/details/MovieDetailsDialog';
+import { SeriesDetailsDialog } from '@/modules/catalog/details/SeriesDetailsDialog';
+import { M3uEditor } from '@/modules/m3u-editor/components/M3uEditor';
+import { PlayerShell } from '@/modules/playback/components/PlayerShell';
+import { DownloadsPage } from '@/modules/downloads/pages/DownloadsPage';
+import { CollectionsPage } from '@/modules/library/pages/CollectionsPage';
+import { ContinueWatchingPage } from '@/modules/library/pages/ContinueWatchingPage';
+import { EpgPage } from '@/modules/guide/pages/EpgPage';
+import { HomePage } from '@/modules/catalog/pages/HomePage';
+import { FavoritesPage } from '@/modules/library/pages/FavoritesPage';
+import { LiveTvPage } from '@/modules/catalog/pages/LiveTVPage';
+import { MoviesPage } from '@/modules/catalog/pages/MoviesPage';
+import { SearchPage } from '@/modules/search/pages/SearchPage';
+import { SeriesPage } from '@/modules/catalog/pages/SeriesPage';
+import { SettingsPage } from '@/modules/settings/pages/SettingsPage';
+import { UpcomingPage } from '@/modules/guide/pages/UpcomingPage';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
+import {
+  useAuthStore,
+  type XtreamSourceProfile,
+} from '@/modules/sources/public/store/useAuthStore';
+import type { XtreamCredentials } from '@/modules/sources/public/model/xtream';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useSourceStore, type M3uSourceProfile } from '@/modules/sources/store/useSourceStore';
+import type { DownloadJob } from '@/modules/downloads/lib/downloads';
+import {
+  resolveSettingsSectionId,
+  type SettingsSectionId,
+} from '@/modules/settings/lib/settingsNavigation';
+import appStyles from '@/app/shell/AppLayout.module.css';
 import type { ReadmeSurface } from '../readmeSurfaces';
-import { NotFoundPage } from '@/App';
+import { NotFoundPage } from '@/app/router/AppRoutes';
 
 const SOURCE_ID = 'm3u-readme-fixture';
 const XTREAM_SOURCE_ID = 'xtream-readme-fixture';
@@ -118,7 +125,7 @@ const CHANNEL_LOGOS = {
   deutscheWelle: artwork(20, true),
 } as const;
 
-const XTREAM_CREDENTIALS: XCCredentials = {
+const XTREAM_CREDENTIALS: XtreamCredentials = {
   sourceId: XTREAM_SOURCE_ID,
   url: 'https://provider.example.test',
   username: 'readme-demo',
@@ -157,7 +164,7 @@ const XTREAM_PROFILE: XtreamSourceProfile = {
   updatedAt: Date.now(),
 };
 
-const DUNE_DETAILS: XCVodInfo = {
+const DUNE_DETAILS: XtreamVodInfo = {
   info: {
     movie_image: TMDB_ARTWORK.dunePartTwo.poster,
     backdrop_path: [TMDB_ARTWORK.dunePartTwo.backdrop],
@@ -190,7 +197,7 @@ function severanceEpisode(
   runtimeMinutes: number,
   _imagePath: string,
   plot: string,
-): XCSeriesInfoResponse['episodes'][string][number] {
+): XtreamSeriesInfoResponse['episodes'][string][number] {
   return {
     id: `severance-s${season}e${number}`,
     episode_num: number,
@@ -210,7 +217,7 @@ function severanceEpisode(
   };
 }
 
-const SEVERANCE_DETAILS: XCSeriesInfoResponse = {
+const SEVERANCE_DETAILS: XtreamSeriesInfoResponse = {
   seasons: [
     {
       id: 1,
@@ -1186,24 +1193,24 @@ function PlayerFixture({ surface }: { surface: ReadmeSurface }) {
 }
 
 function Surface({ surface }: { surface: ReadmeSurface }) {
-  if (surface === 'hero' || surface === 'light-theme') return <Home />;
-  if (surface === 'movies') return <Movies />;
-  if (surface === 'series') return <Series />;
-  if (surface === 'continue-watching') return <ContinueWatching />;
-  if (surface === 'favorites') return <Favorites />;
-  if (surface === 'collections') return <Collections />;
+  if (surface === 'hero' || surface === 'light-theme') return <HomePage />;
+  if (surface === 'movies') return <MoviesPage />;
+  if (surface === 'series') return <SeriesPage />;
+  if (surface === 'continue-watching') return <ContinueWatchingPage />;
+  if (surface === 'favorites') return <FavoritesPage />;
+  if (surface === 'collections') return <CollectionsPage />;
   if (surface === 'not-found') return <NotFoundPage />;
-  if (surface === 'live-tv') return <LiveTV />;
-  if (surface === 'live-epg') return <Epg />;
-  if (surface === 'upcoming') return <Upcoming />;
-  if (surface === 'search') return <Search />;
+  if (surface === 'live-tv') return <LiveTvPage />;
+  if (surface === 'live-epg') return <EpgPage />;
+  if (surface === 'upcoming') return <UpcomingPage />;
+  if (surface === 'search') return <SearchPage />;
   if (surface === 'downloads')
     return (
       <PageTransition>
-        <Downloads />
+        <DownloadsPage />
       </PageTransition>
     );
-  if (surface === 'settings' || surface === 'playback-settings') return <Settings />;
+  if (surface === 'settings' || surface === 'playback-settings') return <SettingsPage />;
   if (surface === 'm3u-editor')
     return <M3uEditor initialSourceId={SOURCE_ID} onClose={() => undefined} />;
   if (surface === 'm3u-raw-editor')
@@ -1211,8 +1218,8 @@ function Surface({ surface }: { surface: ReadmeSurface }) {
   if (surface === 'series-details') {
     return (
       <>
-        <Series />
-        <SeriesDetailModal
+        <SeriesPage />
+        <SeriesDetailsDialog
           seriesId="series-severance"
           sourceId={XTREAM_SOURCE_ID}
           sourceItemId="95396"
@@ -1227,8 +1234,8 @@ function Surface({ surface }: { surface: ReadmeSurface }) {
   }
   return (
     <>
-      <Movies />
-      <MovieDetailModal
+      <MoviesPage />
+      <MovieDetailsDialog
         movieId="movie-dune-part-two"
         sourceId={XTREAM_SOURCE_ID}
         sourceItemId="693134"

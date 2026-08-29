@@ -16,12 +16,15 @@ const tvmaze = vi.hoisted(() => ({
   getTvmazeUpcomingEpisodes: vi.fn(),
 }));
 
-vi.mock('@/api/tmdb', () => tmdb);
-vi.mock('@/api/tvmaze', () => tvmaze);
+vi.mock('@/modules/metadata/data/tmdbClient', () => tmdb);
+vi.mock('@/modules/metadata/data/tvMazeClient', () => tvmaze);
 
-import { selectUpcomingTmdbMatch, useUpcomingReleases } from '@/api/useUpcomingReleases';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import {
+  selectUpcomingTmdbMatch,
+  useUpcomingReleases,
+} from '@/modules/guide/data/useUpcomingReleases';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 it('selects the matching TMDB title and year instead of the first result', () => {
   const match = selectUpcomingTmdbMatch({ title: 'The Office', year: '2005' }, 'tv', [

@@ -4,19 +4,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/useCategories', () => ({
+vi.mock('@/modules/catalog/data/useCategories', () => ({
   useCategories: vi.fn(),
   useHiddenCategoryIds: vi.fn(),
 }));
 
-vi.mock('@/api/useCatalog', () => ({
+vi.mock('@/modules/catalog/data/useCatalog', () => ({
   useCatalogByType: vi.fn(),
 }));
 
-import { CategorySidebar } from '@/components/layout/CategorySidebar';
-import { useCatalogByType } from '@/api/useCatalog';
-import { useCategories, useHiddenCategoryIds } from '@/api/useCategories';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { CategorySidebar } from '@/modules/catalog/components/CategorySidebar';
+import { useCatalogByType } from '@/modules/catalog/data/useCatalog';
+import { useCategories, useHiddenCategoryIds } from '@/modules/catalog/data/useCategories';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const categoryResult = {
   data: [

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { redactDiagnosticText, redactDiagnosticValue, redactSensitiveText } from '@/utils/redact';
+import {
+  redactDiagnosticText,
+  redactDiagnosticValue,
+  redactSensitiveText,
+} from '@/shared/lib/redact';
 
 describe('diagnostic redaction', () => {
   it('redacts Xtream query credentials', () => {

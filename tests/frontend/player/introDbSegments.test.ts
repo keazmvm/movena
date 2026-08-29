@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePlaybackPromptSegments } from '@/utils/chapters';
+import { resolvePlaybackPromptSegments } from '@/modules/playback/lib/chapters';
 
 describe('resolvePlaybackPromptSegments (chapters + IntroDB merge)', () => {
   it('prefers embedded chapter markers over IntroDB segments for intro and outro', () => {

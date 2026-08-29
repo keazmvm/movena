@@ -4,15 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Film } from 'lucide-react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CatalogPage } from '@/components/catalog/CatalogPage';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useSourceStore } from '@/store/useSourceStore';
-import * as catalogApi from '@/api/useCatalog';
-import * as categoriesApi from '@/api/useCategories';
-import * as enabledSourcesHook from '@/hooks/useEnabledSources';
-import type { MediaItem } from '@/components/catalog/MediaCard';
+import { CatalogPage } from '@/modules/catalog/components/CatalogPage';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
+import { useSourceStore } from '@/modules/sources/store/useSourceStore';
+import * as catalogApi from '@/modules/catalog/data/useCatalog';
+import * as categoriesApi from '@/modules/catalog/data/useCategories';
+import * as enabledSourcesHook from '@/modules/sources/hooks/useEnabledSources';
+import type { MediaItem } from '@/modules/catalog/model/media';
 
-vi.mock('@/components/catalog/VirtualizedGrid', () => ({
+vi.mock('@/modules/catalog/components/VirtualizedGrid', () => ({
   VirtualizedGrid: ({
     items,
     onItemClick,

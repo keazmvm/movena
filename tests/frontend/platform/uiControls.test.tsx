@@ -5,23 +5,23 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { Select } from '@/components/shared/Select';
-import { SegmentedControl } from '@/components/common/SegmentedControl';
-import { TabStrip } from '@/components/common/TabStrip';
-import { SettingsRange, SettingsToggle } from '@/components/settings/SettingsControls';
-import { ErrorState } from '@/components/common/ErrorState';
-import { ToastContainer } from '@/components/shared/ToastContainer';
-import { useNotificationStore } from '@/store/useNotificationStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { Select } from '@/shared/ui/Select';
+import { SegmentedControl } from '@/shared/ui/SegmentedControl';
+import { TabStrip } from '@/shared/ui/TabStrip';
+import { SettingsRange, SettingsToggle } from '@/modules/settings/components/SettingsControls';
+import { ErrorState } from '@/shared/ui/ErrorState';
+import { ToastContainer } from '@/shared/ui/ToastContainer';
+import { useNotificationStore } from '@/shared/notifications/useNotificationStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 import {
   WORKSPACE_SIDEBAR_DEFAULT_WIDTH,
   WORKSPACE_SIDEBAR_MAX_WIDTH,
   WorkspaceSidebar,
-} from '@/components/common/WorkspaceSidebar';
-import { Button, IconButton } from '@/components/common/Button';
-import { MediaCardMenu } from '@/components/catalog/MediaCardMenu';
-import { MediaCard } from '@/components/catalog/MediaCard';
-import { useLibraryStore } from '@/store/useLibraryStore';
+} from '@/shared/ui/WorkspaceSidebar';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { MediaCardMenu } from '@/modules/catalog/components/MediaCardMenu';
+import { MediaCard } from '@/modules/catalog/components/MediaCard';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
 
 describe('custom control keyboard contracts', () => {
   it('keeps shared actions on the canonical button contract', async () => {
@@ -93,7 +93,7 @@ describe('custom control keyboard contracts', () => {
       ],
     });
 
-    render(<ToastContainer />);
+    render(<ToastContainer enabled suppressDuringPlayback={false} />);
     expect(screen.getByRole('alert').textContent).toContain('Connection failed');
 
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));

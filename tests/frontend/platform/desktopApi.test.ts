@@ -35,7 +35,7 @@ vi.mock('@tauri-apps/plugin-opener', () => ({
 vi.mock('@tauri-apps/plugin-process', () => ({ relaunch: mocks.relaunch }));
 vi.mock('@tauri-apps/plugin-updater', () => ({ check: mocks.check }));
 
-import { desktopApi } from '@/api/desktop';
+import { desktopApi } from '@/platform/desktop';
 
 beforeEach(() => {
   vi.clearAllMocks();

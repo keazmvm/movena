@@ -4,12 +4,12 @@ const { introDbFetchSegments } = vi.hoisted(() => ({
   introDbFetchSegments: vi.fn(),
 }));
 
-vi.mock('@/api/ipc', () => ({
+vi.mock('@/platform/tauri', () => ({
   tauriApi: { introDbFetchSegments },
 }));
 
-import { fetchIntroDbSegments } from '@/api/introdb';
-import { normalizeTmdbExternalIds } from '@/utils/tmdb';
+import { fetchIntroDbSegments } from '@/modules/playback/data/introDbClient';
+import { normalizeTmdbExternalIds } from '@/modules/metadata/model/tmdb';
 
 describe('IntroDB API client & normalization', () => {
   // The request is proxied through the Rust backend — see introdb.ts's

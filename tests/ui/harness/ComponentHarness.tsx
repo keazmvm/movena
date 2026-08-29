@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CircleHelp, FolderOpen, Grid2X2, List, RefreshCw } from 'lucide-react';
-import { Button, IconButton } from '@/components/common/Button';
-import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { ErrorState } from '@/components/common/ErrorState';
-import { SegmentedControl } from '@/components/common/SegmentedControl';
-import { TabStrip } from '@/components/common/TabStrip';
-import { MediaCard, type MediaItem } from '@/components/catalog/MediaCard';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
+import { ErrorState } from '@/shared/ui/ErrorState';
+import { SegmentedControl } from '@/shared/ui/SegmentedControl';
+import { TabStrip } from '@/shared/ui/TabStrip';
+import { MediaCard } from '@/modules/catalog/components/MediaCard';
+import type { MediaItem } from '@/modules/catalog/model/media';
 import {
   SettingsButton,
   SettingsGroup,
@@ -15,14 +16,14 @@ import {
   SettingsRange,
   SettingsRow,
   SettingsToggle,
-} from '@/components/settings/SettingsControls';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { DebugOverlay } from '@/components/shared/DebugOverlay';
-import { Select } from '@/components/shared/Select';
-import { GridSkeleton } from '@/components/shared/Skeleton';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import type { UiLanguage } from '@/i18nConfig';
+} from '@/modules/settings/components/SettingsControls';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { DebugOverlay } from '@/modules/diagnostics/components/DebugOverlay';
+import { Select } from '@/shared/ui/Select';
+import { GridSkeleton } from '@/shared/ui/Skeleton';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import type { UiLanguage } from '@/shared/i18n/config';
 import { UI_QA_SURFACES, isUiQaSurface, type UiQaSurface } from '../surfaces';
 import styles from './ComponentHarness.module.css';
 

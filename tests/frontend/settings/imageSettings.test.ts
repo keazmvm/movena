@@ -4,7 +4,7 @@ const { mpvSetProperty } = vi.hoisted(() => ({
   mpvSetProperty: vi.fn(),
 }));
 
-vi.mock('@/api/ipc', () => ({
+vi.mock('@/platform/tauri', () => ({
   tauriApi: { mpvSetProperty },
 }));
 
@@ -12,7 +12,7 @@ import {
   applyImageAdjustment,
   applyImageAdjustments,
   DEFAULT_IMAGE_ADJUSTMENTS,
-} from '@/components/player/imageSettings';
+} from '@/modules/playback/components/imageSettings';
 
 beforeEach(() => {
   mpvSetProperty.mockReset().mockResolvedValue(undefined);

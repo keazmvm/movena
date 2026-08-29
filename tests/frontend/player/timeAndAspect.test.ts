@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { ASPECT_OPTIONS, aspectLabelFor, aspectSettingsFor } from '@/utils/aspect';
+import { ASPECT_OPTIONS, aspectLabelFor, aspectSettingsFor } from '@/modules/catalog/lib/aspect';
 import {
   formatDurationLabel,
   formatRemaining,
   formatTime,
   historyCardSubtitle,
-} from '@/utils/time';
-import { loadAllUiMessageCatalogs } from '@/i18n';
+} from '@/shared/lib/time';
+import { loadAllUiMessageCatalogs } from '@/shared/i18n/i18n';
 
 beforeAll(async () => {
   await loadAllUiMessageCatalogs();

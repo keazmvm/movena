@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { findIntroChapter, findOutroChapter } from '@/utils/chapters';
-import { findNextEpisode } from '@/utils/seriesNavigation';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { findIntroChapter, findOutroChapter } from '@/modules/playback/lib/chapters';
+import { findNextEpisode } from '@/modules/playback/lib/seriesNavigation';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 describe('playback domain logic', () => {
   beforeEach(() => usePlayerStore.getState().closePlayer());

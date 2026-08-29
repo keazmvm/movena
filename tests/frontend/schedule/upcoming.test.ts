@@ -13,7 +13,7 @@ import {
   releaseStatusLabel,
   releaseCountdown,
   timestampCountdown,
-} from '@/utils/upcoming';
+} from '@/modules/guide/lib/upcoming';
 
 describe('upcoming release dates', () => {
   const today = new Date(2026, 7, 13, 19);

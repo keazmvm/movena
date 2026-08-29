@@ -4,7 +4,7 @@ import {
   HOME_SECTION_IDS,
   moveHomeSection,
   sanitizeHomeSections,
-} from '@/utils/homeSections';
+} from '@/modules/catalog/lib/homeSections';
 
 describe('sanitizeHomeSections', () => {
   it('returns the full default order for non-array input', () => {

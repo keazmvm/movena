@@ -2,9 +2,9 @@
 
 import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useGlobalDebugCapture } from '@/hooks/useGlobalDebugCapture';
-import { useDebugStore } from '@/store/useDebugStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { useGlobalDebugCapture } from '@/modules/diagnostics/hooks/useGlobalDebugCapture';
+import { useDebugStore } from '@/modules/diagnostics/store/useDebugStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 function CaptureHarness({ enabled }: { enabled: boolean }) {
   useGlobalDebugCapture(enabled);

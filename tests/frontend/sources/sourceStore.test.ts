@@ -14,15 +14,15 @@ const repository = vi.hoisted(() => ({
   writeLocalM3u: vi.fn(),
 }));
 
-vi.mock('@/services/m3uRepository', () => repository);
+vi.mock('@/modules/sources/services/m3uRepository', () => repository);
 
 import {
   ACTIVE_SOURCE_STORAGE_KEY,
   ENABLED_SOURCE_IDS_STORAGE_KEY,
   SOURCE_PROFILES_STORAGE_KEY,
   useSourceStore,
-} from '@/store/useSourceStore';
-import { queryClient } from '@/api/queryClient';
+} from '@/modules/sources/store/useSourceStore';
+import { queryClient } from '@/shared/query/queryClient';
 
 const document = {
   content:

@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { NotificationSettingsSection } from '@/components/settings/NotificationSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { NotificationSettingsSection } from '@/modules/settings/components/NotificationSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

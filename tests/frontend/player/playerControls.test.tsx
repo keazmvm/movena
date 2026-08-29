@@ -2,13 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ImageControls } from '@/components/player/ImageControls';
-import { LiveControls } from '@/components/player/LiveControls';
-import { VolumeControl } from '@/components/player/SharedControls';
-import { VodControls } from '@/components/player/VodControls';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { useDownloadStore } from '@/store/useDownloadStore';
+import { ImageControls } from '@/modules/playback/components/ImageControls';
+import { LiveControls } from '@/modules/playback/components/LiveControls';
+import { VolumeControl } from '@/modules/playback/components/SharedControls';
+import { VodControls } from '@/modules/playback/components/VodControls';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
 
 const native = vi.hoisted(() => ({
   mpvPlayPause: vi.fn().mockResolvedValue(undefined),
@@ -23,17 +23,19 @@ const imageSettings = vi.hoisted(() => ({
   applyImageAdjustments: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
-vi.mock('@/api/xmltv', () => ({
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
+vi.mock('@/modules/guide/data/xmltvClient', () => ({
   lookupXmltvChannel: vi.fn(() => undefined),
   useXmltvGuide: vi.fn(() => ({ data: undefined })),
 }));
-vi.mock('@/api/useDetails', () => ({ useSeriesInfo: vi.fn(() => ({ data: undefined })) }));
-vi.mock('@/components/player/imageSettings', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/components/player/imageSettings')>()),
+vi.mock('@/modules/catalog/data/useDetails', () => ({
+  useSeriesInfo: vi.fn(() => ({ data: undefined })),
+}));
+vi.mock('@/modules/playback/components/imageSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/modules/playback/components/imageSettings')>()),
   ...imageSettings,
 }));
-vi.mock('@/services/mediaDownload', () => ({
+vi.mock('@/modules/downloads/services/mediaDownload', () => ({
   startMediaDownload: vi.fn().mockResolvedValue(null),
 }));
 

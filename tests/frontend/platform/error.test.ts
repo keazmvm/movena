@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { getCombinedErrorMessage, getErrorMessage, getUserFacingErrorMessage } from '@/utils/error';
+import {
+  getCombinedErrorMessage,
+  getErrorMessage,
+  getUserFacingErrorMessage,
+} from '@/shared/lib/error';
 
 describe('error message normalization', () => {
   it('accepts useful strings, Error objects, and message-shaped values', () => {

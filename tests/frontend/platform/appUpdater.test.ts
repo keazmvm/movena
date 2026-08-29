@@ -5,9 +5,9 @@ const desktop = vi.hoisted(() => ({
   relaunch: vi.fn(),
 }));
 
-vi.mock('@/api/desktop', () => ({ desktopApi: desktop }));
+vi.mock('@/platform/desktop', () => ({ desktopApi: desktop }));
 
-import { checkForAppUpdates, installAppUpdate } from '@/services/appUpdater';
+import { checkForAppUpdates, installAppUpdate } from '@/modules/updates/services/appUpdater';
 
 beforeEach(() => {
   desktop.checkForUpdate.mockReset();

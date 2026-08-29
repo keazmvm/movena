@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { parseM3u } from '@/api/m3u';
-import { catalogQueryOptions, selectFoldedLiveCatalog } from '@/api/useCatalog';
-import { categoriesQueryOptions } from '@/api/useCategories';
-import type { EnabledSourcesSnapshot } from '@/hooks/useEnabledSources';
+import { parseM3u } from '@/modules/sources/data/m3uClient';
+import { catalogQueryOptions, selectFoldedLiveCatalog } from '@/modules/catalog/data/useCatalog';
+import { categoriesQueryOptions } from '@/modules/catalog/data/useCategories';
+import type { EnabledSourcesSnapshot } from '@/modules/sources/hooks/useEnabledSources';
 
 const xc = vi.hoisted(() => ({
   getLiveCategories: vi.fn(),
@@ -17,7 +17,7 @@ const xc = vi.hoisted(() => ({
   ),
 }));
 
-vi.mock('@/api/xc', () => xc);
+vi.mock('@/modules/sources/data/xtreamClient', () => xc);
 
 const credentials = {
   sourceId: 'xtream-one',

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { parseM3u } from '@/api/m3u';
-import { prefetchNavigationData } from '@/api/prefetch';
-import { queryClient } from '@/api/queryClient';
-import { queryKeys } from '@/api/queryKeys';
-import type { EnabledSourcesSnapshot } from '@/hooks/useEnabledSources';
+import { parseM3u } from '@/modules/sources/data/m3uClient';
+import { prefetchNavigationData } from '@/app/bootstrap/prefetch';
+import { queryClient } from '@/shared/query/queryClient';
+import { queryKeys } from '@/modules/sources/model/queryKeys';
+import type { EnabledSourcesSnapshot } from '@/modules/sources/hooks/useEnabledSources';
 
 const preloadRouteModule = vi.hoisted(() => vi.fn(() => Promise.resolve()));
-vi.mock('@/routes/routeModules', () => ({ preloadRouteModule }));
+vi.mock('@/app/router/routeModules', () => ({ preloadRouteModule }));
 
 const sourceId = 'm3u-prefetch-source';
 const queryScope = 'sources-prefetch';

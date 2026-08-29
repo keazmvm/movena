@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { applyAppearanceTheme } from '@/design/appearance';
-import { contrastRatio } from '@/utils/color';
+import { applyAppearanceTheme } from '@/shared/design/appearance';
+import { contrastRatio } from '@/shared/design/color';
 
 beforeEach(() => {
   document.documentElement.removeAttribute('data-theme');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { streamProviderBrand } from '@/utils/streamProvider';
+import { streamProviderBrand } from '@/modules/sources/lib/streamProvider';
 
 describe('stream provider branding', () => {
   it.each([

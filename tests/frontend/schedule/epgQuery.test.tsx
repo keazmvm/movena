@@ -5,10 +5,10 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 const xc = vi.hoisted(() => ({ getChannelEPG: vi.fn() }));
-vi.mock('@/api/xc', () => xc);
+vi.mock('@/modules/sources/data/xtreamClient', () => xc);
 
-import { decodeEpgText, useChannelEpg } from '@/api/useEpg';
-import { useAuthStore } from '@/store/useAuthStore';
+import { decodeEpgText, useChannelEpg } from '@/modules/guide/data/useEpg';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
 
 describe('provider EPG query mapping', () => {
   it('decodes base64 text but keeps ordinary text intact', () => {

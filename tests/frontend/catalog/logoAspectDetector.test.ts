@@ -6,7 +6,7 @@ import {
   detectAspectFromImageData,
   detectLogoAspect,
   getCachedLogoAspect,
-} from '@/utils/logoAspectDetector';
+} from '@/modules/catalog/lib/logoAspectDetector';
 
 beforeEach(() => {
   clearLogoAspectCache();

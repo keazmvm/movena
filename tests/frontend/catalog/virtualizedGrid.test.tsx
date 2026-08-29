@@ -13,8 +13,8 @@ vi.mock('@tanstack/react-virtual', () => ({
   }),
 }));
 
-import { VirtualizedGrid } from '@/components/catalog/VirtualizedGrid';
-import type { MediaItem } from '@/components/catalog/MediaCard';
+import { VirtualizedGrid } from '@/modules/catalog/components/VirtualizedGrid';
+import type { MediaItem } from '@/modules/catalog/model/media';
 
 beforeAll(() => {
   class TestResizeObserver {

@@ -2,15 +2,18 @@
 
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildLogoAspectMenuItem, useMediaContextMenus } from '@/hooks/useMediaContextMenus';
-import { useContextMenuStore } from '@/store/useContextMenuStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import {
+  buildLogoAspectMenuItem,
+  useMediaContextMenus,
+} from '@/modules/catalog/hooks/useMediaContextMenus';
+import { useContextMenuStore } from '@/shared/ui/context-menu/useContextMenuStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const { downloadMediaItemMock } = vi.hoisted(() => ({
   downloadMediaItemMock: vi.fn(() => Promise.resolve(null)),
 }));
 
-vi.mock('@/services/mediaDownload', () => ({
+vi.mock('@/modules/downloads/services/mediaDownload', () => ({
   downloadMediaItem: downloadMediaItemMock,
 }));
 

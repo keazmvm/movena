@@ -1,5 +1,5 @@
-import type { SettingsSectionId } from '@/utils/settingsNavigation';
-import { SETTINGS_SECTIONS } from '@/utils/settingsNavigation';
+import type { SettingsSectionId } from '@/modules/settings/lib/settingsNavigation';
+import { SETTINGS_SECTIONS } from '@/modules/settings/lib/settingsNavigation';
 import { UI_QA_SURFACES, type UiQaSurface } from './surfaces';
 import { README_SURFACES, type ReadmeSurface } from './readmeSurfaces';
 

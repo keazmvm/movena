@@ -1,15 +1,22 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useNotificationStore } from '@/store/useNotificationStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import {
+  configureNotificationRuntime,
+  useNotificationStore,
+} from '@/shared/notifications/useNotificationStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 beforeEach(() => {
   localStorage.clear();
   useSettingsStore.getState().resetSettings();
   useNotificationStore.setState({ notifications: [] });
   usePlayerStore.setState({ activeStream: null });
+  configureNotificationRuntime({
+    getPreferences: () => useSettingsStore.getState(),
+    isPlaybackActive: () => Boolean(usePlayerStore.getState().activeStream),
+  });
 });
 
 describe('notification store', () => {

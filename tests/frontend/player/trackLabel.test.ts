@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatTrackLabel } from '@/utils/trackLabel';
+import { formatTrackLabel } from '@/modules/playback/lib/trackLabel';
 
 describe('track labels', () => {
   it('keeps language visible when tracks share a provider title', () => {

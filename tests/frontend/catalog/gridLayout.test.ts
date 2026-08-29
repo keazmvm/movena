@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateGridLayout } from '@/utils/gridLayout';
+import { calculateGridLayout } from '@/modules/catalog/lib/gridLayout';
 
 describe('responsive grid layout', () => {
   it('uses the full standard-grid width without horizontal overflow or slack', () => {

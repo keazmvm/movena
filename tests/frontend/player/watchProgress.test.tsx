@@ -4,14 +4,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/xc', () => ({ getSeriesInfo: vi.fn(), getVodInfo: vi.fn() }));
+vi.mock('@/modules/sources/data/xtreamClient', () => ({
+  getSeriesInfo: vi.fn(),
+  getVodInfo: vi.fn(),
+}));
 
-import { detailQueryKeys } from '@/api/useDetails';
-import { getXtreamQueryScope } from '@/api/queryKeys';
-import { useWatchProgress } from '@/components/player/useWatchProgress';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { detailQueryKeys } from '@/modules/catalog/data/useDetails';
+import { getXtreamQueryScope } from '@/modules/sources/model/queryKeys';
+import { useWatchProgress } from '@/modules/playback/components/useWatchProgress';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 const sourceId = 'xtream-progress';
 const credentials = {

@@ -6,12 +6,14 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/useCatalog', async () => {
-  const actual = await vi.importActual<typeof import('@/api/useCatalog')>('@/api/useCatalog');
+vi.mock('@/modules/catalog/data/useCatalog', async () => {
+  const actual = await vi.importActual<typeof import('@/modules/catalog/data/useCatalog')>(
+    '@/modules/catalog/data/useCatalog',
+  );
   return { ...actual, useLiveStreams: vi.fn() };
 });
 
-vi.mock('@/api/xmltv', async () => {
+vi.mock('@/modules/guide/data/xmltvClient', async () => {
   return {
     useXmltvGuide: vi.fn().mockReturnValue({ data: null, isLoading: false }),
     lookupXmltvChannel: vi.fn(),
@@ -37,23 +39,25 @@ const useChannelEpg = vi.hoisted(() => {
   return vi.fn(() => result);
 });
 
-vi.mock('@/api/useEpg', () => ({ useChannelEpg }));
+vi.mock('@/modules/guide/data/useEpg', () => ({ useChannelEpg }));
 
-vi.mock('@/api/useCategories', async () => {
-  const actual = await vi.importActual<typeof import('@/api/useCategories')>('@/api/useCategories');
+vi.mock('@/modules/catalog/data/useCategories', async () => {
+  const actual = await vi.importActual<typeof import('@/modules/catalog/data/useCategories')>(
+    '@/modules/catalog/data/useCategories',
+  );
   return { ...actual, useCategories: vi.fn(), useHiddenCategoryIds: vi.fn() };
 });
 
-vi.mock('@/hooks/useEnabledSources', () => {
+vi.mock('@/modules/sources/hooks/useEnabledSources', () => {
   return {
     useEnabledSources: vi.fn().mockReturnValue({ isAvailable: true }),
   };
 });
 
-import { Epg } from '@/pages/Epg';
-import { epgNowScrollLeft } from '@/utils/epgGeometry';
-import { useLiveStreams } from '@/api/useCatalog';
-import { useCategories, useHiddenCategoryIds } from '@/api/useCategories';
+import { EpgPage } from '@/modules/guide/pages/EpgPage';
+import { epgNowScrollLeft } from '@/modules/guide/lib/epgGeometry';
+import { useLiveStreams } from '@/modules/catalog/data/useCatalog';
+import { useCategories, useHiddenCategoryIds } from '@/modules/catalog/data/useCategories';
 
 const channels = [
   {
@@ -86,7 +90,7 @@ function renderEpg() {
   return render(
     <MemoryRouter>
       <QueryClientProvider client={queryClient}>
-        <Epg />
+        <EpgPage />
       </QueryClientProvider>
     </MemoryRouter>,
   );

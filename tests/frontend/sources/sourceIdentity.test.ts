@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { sourceScopedItemKey, xtreamCategoryId, xtreamItemId } from '@/utils/sourceIdentity';
+import {
+  sourceScopedItemKey,
+  xtreamCategoryId,
+  xtreamItemId,
+} from '@/modules/sources/lib/sourceIdentity';
 
 describe('multi-source identities', () => {
   it('keeps identical provider ids isolated by source and media kind', () => {

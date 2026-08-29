@@ -16,23 +16,23 @@ const notifications = vi.hoisted(() => ({
   notify: { warning: vi.fn(), info: vi.fn(), error: vi.fn(), success: vi.fn() },
 }));
 
-vi.mock('@/api/desktop', () => ({ desktopApi: desktop }));
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
-vi.mock('@/components/player/aspect', () => ({
+vi.mock('@/platform/desktop', () => ({ desktopApi: desktop }));
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
+vi.mock('@/modules/playback/components/aspect', () => ({
   applyAspectRatio: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock('@/components/player/imageSettings', () => ({
+vi.mock('@/modules/playback/components/imageSettings', () => ({
   applyImageAdjustments: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock('@/components/player/fullscreen', () => ({
+vi.mock('@/modules/playback/components/fullscreen', () => ({
   setPlayerFullscreen: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock('@/store/useDebugStore', () => debug);
-vi.mock('@/store/useNotificationStore', () => notifications);
+vi.mock('@/modules/diagnostics/store/useDebugStore', () => debug);
+vi.mock('@/shared/notifications/useNotificationStore', () => notifications);
 
-import { useMpvSession } from '@/components/player/useMpvSession';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { useMpvSession } from '@/modules/playback/components/useMpvSession';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 let eventHandler:
   | ((event: { type: string; name?: string; data?: unknown; sessionId?: string }) => void)

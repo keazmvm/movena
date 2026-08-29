@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const native = vi.hoisted(() => ({ m3uProbeStream: vi.fn() }));
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
-import type { M3uEntry } from '@/api/m3u';
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
+import type { M3uEntry } from '@/modules/sources/data/m3uClient';
 import {
   cleanChannelTitle,
   detectDuplicates,
@@ -14,8 +14,8 @@ import {
   buildEpgMatchSuggestions,
   mergeDuplicateEntries,
   applyTransformPreset,
-} from '@/utils/m3uEditor';
-import type { XmltvGuide } from '@/api/xmltv';
+} from '@/modules/m3u-editor/lib/m3uEditor';
+import type { XmltvGuide } from '@/modules/guide/data/xmltvClient';
 
 const createEntry = (overrides: Partial<M3uEntry>): M3uEntry => ({
   id: 'm3u-1',

@@ -3,7 +3,7 @@ import {
   clearPlaybackRecovery,
   readPlaybackRecovery,
   writePlaybackRecovery,
-} from '@/utils/playbackRecovery';
+} from '@/modules/playback/lib/playbackRecovery';
 
 describe('playback recovery marker', () => {
   it('round trips safe playback metadata without a stream URL', () => {

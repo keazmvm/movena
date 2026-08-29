@@ -3,7 +3,7 @@ import {
   createRecordingFileName,
   createRecordingOutput,
   joinRecordingPath,
-} from '@/utils/recording';
+} from '@/modules/playback/lib/recording';
 
 describe('recording output paths', () => {
   const now = new Date('2026-08-10T12:34:56.789Z');

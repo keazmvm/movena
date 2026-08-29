@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { invalidateSourceQueries, queryClient } from '@/api/queryClient';
+import { invalidateSourceQueries, queryClient } from '@/shared/query/queryClient';
 
 beforeEach(() => queryClient.clear());
 

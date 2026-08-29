@@ -14,7 +14,7 @@ const native = vi.hoisted(() => ({
   sourceSecretStore: vi.fn(),
 }));
 
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
 
 import {
   deleteM3uCache,
@@ -25,19 +25,23 @@ import {
   readLocalM3u,
   storeM3uCache,
   storeM3uConnection,
-} from '@/services/m3uRepository';
+} from '@/modules/sources/services/m3uRepository';
 import {
   deleteXtreamCredentials,
   loadXtreamCredentials,
   storeXtreamCredentials,
-} from '@/services/xtreamRepository';
+} from '@/modules/sources/services/xtreamRepository';
 import {
   deleteProviderPassword,
   loadProviderPassword,
   storeProviderPassword,
-} from '@/services/credentialVault';
-import { deleteTmdbApiKey, loadTmdbApiKey, storeTmdbApiKey } from '@/services/tmdbCredentialVault';
-import { useSettingsStore } from '@/store/useSettingsStore';
+} from '@/modules/sources/services/credentialVault';
+import {
+  deleteTmdbApiKey,
+  loadTmdbApiKey,
+  storeTmdbApiKey,
+} from '@/modules/metadata/services/tmdbCredentialVault';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   vi.clearAllMocks();

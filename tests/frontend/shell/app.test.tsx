@@ -3,46 +3,46 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/components/layout/Sidebar', () => ({
+vi.mock('@/app/shell/Sidebar', () => ({
   Sidebar: () => <nav aria-label="Mock sidebar">Mock sidebar</nav>,
 }));
-vi.mock('@/components/player/PlayerShell', () => ({
+vi.mock('@/modules/playback/components/PlayerShell', () => ({
   PlayerShell: () => null,
 }));
-vi.mock('@/components/shared/ToastContainer', () => ({
+vi.mock('@/shared/ui/ToastContainer', () => ({
   ToastContainer: () => null,
 }));
-vi.mock('@/components/common/ConnectionStatus', () => ({
+vi.mock('@/app/components/ConnectionStatus', () => ({
   ConnectionStatus: () => null,
 }));
-vi.mock('@/components/common/ContextMenu', () => ({
+vi.mock('@/shared/ui/ContextMenu', () => ({
   ContextMenu: () => null,
 }));
-vi.mock('@/components/onboarding/OnboardingFlow', () => ({
+vi.mock('@/modules/onboarding/components/OnboardingFlow', () => ({
   OnboardingFlow: () => <div>Mock onboarding</div>,
 }));
-vi.mock('@/components/common/ShortcutHelperModal', () => ({
-  ShortcutHelperModal: ({ onClose }: { onClose: () => void }) => (
+vi.mock('@/app/components/ShortcutHelperDialog', () => ({
+  ShortcutHelperDialog: ({ onClose }: { onClose: () => void }) => (
     <button onClick={onClose}>Mock shortcuts</button>
   ),
 }));
-vi.mock('@/hooks/useContextMenu', () => ({
-  useContextMenu: () => ({ handleAppBackdropContextMenu: vi.fn() }),
+vi.mock('@/modules/playback/hooks/usePlayerContextMenus', () => ({
+  usePlayerContextMenus: () => ({ handleAppBackdropContextMenu: vi.fn() }),
 }));
-vi.mock('@/hooks/useDownloadEvents', () => ({
+vi.mock('@/modules/downloads/hooks/useDownloadEvents', () => ({
   useDownloadEvents: vi.fn(),
 }));
-vi.mock('@/pages/Home', () => ({
-  Home: () => <div>Mock home</div>,
+vi.mock('@/modules/catalog/pages/HomePage', () => ({
+  HomePage: () => <div>Mock home</div>,
 }));
-vi.mock('@/pages/Search', () => ({
-  Search: () => <div>Mock search</div>,
+vi.mock('@/modules/search/pages/SearchPage', () => ({
+  SearchPage: () => <div>Mock search</div>,
 }));
 
-import App from '@/App';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { useSourceStore } from '@/store/useSourceStore';
+import App from '@/app/App';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useSourceStore } from '@/modules/sources/store/useSourceStore';
 
 beforeEach(() => {
   Object.defineProperty(window, 'requestIdleCallback', {

@@ -3,7 +3,7 @@ import {
   filterSettingsSections,
   resolveSettingsSectionId,
   SETTINGS_SECTIONS,
-} from '@/utils/settingsNavigation';
+} from '@/modules/settings/lib/settingsNavigation';
 
 describe('settings navigation search', () => {
   it('finds settings by feature keywords, not only their visible labels', () => {

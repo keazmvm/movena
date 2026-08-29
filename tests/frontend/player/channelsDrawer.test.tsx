@@ -6,20 +6,24 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/useCatalog', async () => {
-  const actual = await vi.importActual<typeof import('@/api/useCatalog')>('@/api/useCatalog');
+vi.mock('@/modules/catalog/data/useCatalog', async () => {
+  const actual = await vi.importActual<typeof import('@/modules/catalog/data/useCatalog')>(
+    '@/modules/catalog/data/useCatalog',
+  );
   return { ...actual, useLiveStreams: vi.fn() };
 });
 
-vi.mock('@/api/useCategories', async () => {
-  const actual = await vi.importActual<typeof import('@/api/useCategories')>('@/api/useCategories');
+vi.mock('@/modules/catalog/data/useCategories', async () => {
+  const actual = await vi.importActual<typeof import('@/modules/catalog/data/useCategories')>(
+    '@/modules/catalog/data/useCategories',
+  );
   return { ...actual, useCategories: vi.fn(), useHiddenCategoryIds: vi.fn() };
 });
 
-import { ChannelsDrawer } from '@/components/player/ChannelsDrawer';
-import { useLiveStreams } from '@/api/useCatalog';
-import { useCategories, useHiddenCategoryIds } from '@/api/useCategories';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { ChannelsDrawer } from '@/modules/playback/components/ChannelsDrawer';
+import { useLiveStreams } from '@/modules/catalog/data/useCatalog';
+import { useCategories, useHiddenCategoryIds } from '@/modules/catalog/data/useCategories';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 const categories = [
   { category_id: 'uk', category_name: 'UK | General', parent_id: 0 },

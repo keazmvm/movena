@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DebugOverlay } from '@/components/shared/DebugOverlay';
-import { useDebugStore } from '@/store/useDebugStore';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { DebugOverlay } from '@/modules/diagnostics/components/DebugOverlay';
+import { useDebugStore } from '@/modules/diagnostics/store/useDebugStore';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 function renderHud() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });

@@ -8,7 +8,7 @@ import {
   isLightColor,
   LIGHT_CONTRAST_TEXT,
   relativeLuminance,
-} from '@/utils/color';
+} from '@/shared/design/color';
 
 describe('color contrast helpers', () => {
   it('uses dark text for bright and mid-luminance accents', () => {

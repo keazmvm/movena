@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isRadioStream, normalizeRadioDisplayMetadata } from '@/utils/radio';
+import { isRadioStream, normalizeRadioDisplayMetadata } from '@/modules/playback/lib/radio';
 
 describe('radio metadata helpers', () => {
   it('detects radio=true across common M3U attribute representations', () => {

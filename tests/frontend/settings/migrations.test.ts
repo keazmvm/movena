@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { migrateLibraryState } from '@/store/useLibraryStore';
-import { migrateSettingsState } from '@/store/useSettingsStore';
+import { migrateLibraryState } from '@/modules/library/store/useLibraryStore';
+import { migrateSettingsState } from '@/modules/settings/store/useSettingsStore';
 
 describe('persisted-state migrations', () => {
   it('drops obsolete metadata-only downloads', () => {

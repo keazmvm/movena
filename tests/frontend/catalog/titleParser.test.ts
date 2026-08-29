@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countryName, parseCategoryName } from '@/utils/categoryName';
+import { countryName, parseCategoryName } from '@/shared/lib/categoryName';
 import {
   applyCustomTitleRules,
   cleanProviderDescription,
@@ -10,13 +10,13 @@ import {
   parseMediaDisplayTitle,
   parseMediaTitle,
   stripAdFluff,
-} from '@/utils/titleParser';
+} from '@/modules/catalog/lib/titleParser';
 import {
   filterMediaTagsByVisibility,
   getMediaTagCategory,
   getTagColorType,
   normalizeMediaTag,
-} from '@/utils/mediaTags';
+} from '@/shared/lib/mediaTags';
 
 describe('provider title normalization', () => {
   it('extracts every marker from the reported VOD prefix', () => {

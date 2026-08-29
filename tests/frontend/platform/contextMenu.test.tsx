@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ContextMenu } from '@/components/common/ContextMenu';
-import { useContextMenuStore } from '@/store/useContextMenuStore';
+import { ContextMenu } from '@/shared/ui/ContextMenu';
+import { useContextMenuStore } from '@/shared/ui/context-menu/useContextMenuStore';
 
 beforeEach(() => {
   useContextMenuStore.getState().closeContextMenu();

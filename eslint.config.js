@@ -58,11 +58,15 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/api/desktop.ts', 'src/api/ipc.ts', 'tests/**/*.{ts,tsx}'],
+    files: ['src/platform/**/*.ts', 'tests/**/*.{ts,tsx}'],
     rules: { 'no-restricted-imports': 'off' },
   },
   {
     files: ['tests/**/*.{ts,tsx}'],
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
+  {
+    files: ['src/shared/i18n/i18n.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
 );

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { countHiddenCategories, isCategoryHidden } from '@/utils/categorySidebar';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { countHiddenCategories, isCategoryHidden } from '@/modules/catalog/lib/categorySidebar';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const rows = [
   { id: 'movies', country: 'DE' },

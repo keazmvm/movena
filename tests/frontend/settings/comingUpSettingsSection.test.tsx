@@ -3,8 +3,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ComingUpSettingsSection } from '@/components/settings/ComingUpSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { ComingUpSettingsSection } from '@/modules/settings/components/ComingUpSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

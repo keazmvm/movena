@@ -3,9 +3,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { Sidebar } from '@/app/shell/Sidebar';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 describe('Sidebar library counts', () => {
   const originalMatchMedia = window.matchMedia;

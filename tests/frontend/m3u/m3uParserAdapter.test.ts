@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseM3uAsync, resetM3uParserWorkerForTests } from '@/services/m3uParser';
+import {
+  parseM3uAsync,
+  resetM3uParserWorkerForTests,
+} from '@/modules/m3u-editor/services/m3uParser';
 
 class WorkerMock {
   static latest: WorkerMock | null = null;

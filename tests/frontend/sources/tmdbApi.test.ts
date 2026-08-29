@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getTmdbMovie, getTmdbTv, searchTmdb } from '@/api/tmdb';
+import { getTmdbMovie, getTmdbTv, searchTmdb } from '@/modules/metadata/data/tmdbClient';
 
 afterEach(() => vi.unstubAllGlobals());
 

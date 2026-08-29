@@ -5,12 +5,12 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/components/forms/AccountConnectionForm', () => ({
+vi.mock('@/modules/sources/components/AccountConnectionForm', () => ({
   AccountConnectionForm: ({ onSuccess }: { onSuccess?: () => void }) => (
     <button onClick={onSuccess}>Mock connect Xtream</button>
   ),
 }));
-vi.mock('@/components/forms/M3uSourceForm', () => ({
+vi.mock('@/modules/sources/components/M3uSourceForm', () => ({
   M3uSourceForm: ({ onSuccess, onCancel }: { onSuccess?: () => void; onCancel?: () => void }) => (
     <>
       <button onClick={onSuccess}>Mock connect M3U</button>
@@ -19,8 +19,8 @@ vi.mock('@/components/forms/M3uSourceForm', () => ({
   ),
 }));
 
-import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { OnboardingFlow } from '@/modules/onboarding/components/OnboardingFlow';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 function LocationProbe() {
   const location = useLocation();

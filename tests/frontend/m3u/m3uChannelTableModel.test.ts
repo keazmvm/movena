@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { M3uEntry } from '@/api/m3u';
+import type { M3uEntry } from '@/modules/sources/data/m3uClient';
 import {
   collectM3uGroupStats,
   DEFAULT_M3U_TABLE_FILTERS,
   filterAndSortM3uEntries,
   M3U_TABLE_FILTER_STORAGE_KEY,
   readM3uTableFilters,
-} from '@/components/m3u-editor/m3uChannelTableModel';
+} from '@/modules/m3u-editor/components/m3uChannelTableModel';
 
 const entry = (id: string, overrides: Partial<M3uEntry> = {}): M3uEntry => ({
   id,

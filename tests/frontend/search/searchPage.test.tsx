@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
-vi.mock('@/api/useCatalog', () => {
+vi.mock('@/modules/catalog/data/useCatalog', () => {
   const query = {
     data: [],
     isLoading: false,
@@ -21,19 +21,19 @@ vi.mock('@/api/useCatalog', () => {
   };
 });
 
-vi.mock('@/hooks/useEnabledSources', () => ({
+vi.mock('@/modules/sources/hooks/useEnabledSources', () => ({
   useEnabledSources: vi.fn(() => ({ isAvailable: true })),
 }));
 
-vi.mock('@/components/layout/PageTransition', () => ({
+vi.mock('@/app/shell/PageTransition', () => ({
   PageTransition: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-vi.mock('@/components/catalog/CatalogViewToggle', () => ({
+vi.mock('@/modules/catalog/components/CatalogViewToggle', () => ({
   CatalogViewToggle: () => <div data-testid="catalog-view-toggle" />,
 }));
 
-vi.mock('@/components/catalog/VirtualizedGrid', () => ({
+vi.mock('@/modules/catalog/components/VirtualizedGrid', () => ({
   VirtualizedGrid: ({
     items,
     onItemClick,
@@ -51,15 +51,15 @@ vi.mock('@/components/catalog/VirtualizedGrid', () => ({
   ),
 }));
 
-vi.mock('@/components/modals/MovieDetailModal', () => ({
-  MovieDetailModal: ({ movieTitle }: { movieTitle: string }) => (
+vi.mock('@/modules/catalog/details/MovieDetailsDialog', () => ({
+  MovieDetailsDialog: ({ movieTitle }: { movieTitle: string }) => (
     <div role="dialog" aria-label={`Movie details for ${movieTitle}`} />
   ),
 }));
 
-import { Search } from '@/pages/Search';
-import { useVodStreams } from '@/api/useCatalog';
-import { useSearchStore } from '@/store/useSearchStore';
+import { SearchPage } from '@/modules/search/pages/SearchPage';
+import { useVodStreams } from '@/modules/catalog/data/useCatalog';
+import { useSearchStore } from '@/modules/search/store/useSearchStore';
 
 beforeEach(() => {
   localStorage.clear();
@@ -78,7 +78,7 @@ describe('search page controls', () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={['/search']}>
-        <Search />
+        <SearchPage />
       </MemoryRouter>,
     );
 
@@ -98,7 +98,7 @@ describe('search page controls', () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={['/search?q=Dune&type=series']}>
-        <Search />
+        <SearchPage />
       </MemoryRouter>,
     );
 
@@ -128,7 +128,7 @@ describe('search page controls', () => {
 
     render(
       <MemoryRouter initialEntries={['/search?q=Dune&type=movies']}>
-        <Search />
+        <SearchPage />
       </MemoryRouter>,
     );
 

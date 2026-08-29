@@ -11,16 +11,18 @@ const appUpdater = vi.hoisted(() => ({
   installAppUpdate: vi.fn(),
 }));
 
-vi.mock('@/services/appDataReset', () => ({ clearAllAppData: clearAllAppDataMock }));
-vi.mock('@/services/appUpdater', () => appUpdater);
-vi.mock('@/services/tmdbCredentialVault', () => ({
+vi.mock('@/modules/settings/services/appDataReset', () => ({
+  clearAllAppData: clearAllAppDataMock,
+}));
+vi.mock('@/modules/updates/services/appUpdater', () => appUpdater);
+vi.mock('@/modules/metadata/services/tmdbCredentialVault', () => ({
   deleteTmdbApiKey: deleteTmdbApiKeyMock,
 }));
 
-import { AboutSettingsSection } from '@/components/settings/AboutSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { useNotificationStore } from '@/store/useNotificationStore';
-import { useUpdateStore } from '@/store/useUpdateStore';
+import { AboutSettingsSection } from '@/modules/settings/components/AboutSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useNotificationStore } from '@/shared/notifications/useNotificationStore';
+import { useUpdateStore } from '@/modules/updates/store/useUpdateStore';
 
 const updateHandle = { close: vi.fn().mockResolvedValue(undefined) } as unknown as never;
 const updateInfo = { version: '2.0.0', currentVersion: '1.0.0', body: 'Fixes things.' };

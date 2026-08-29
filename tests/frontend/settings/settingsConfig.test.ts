@@ -9,8 +9,8 @@ import {
   serializeSettingsConfig,
   SETTINGS_CONFIG_FORMAT,
   SETTINGS_CONFIG_VERSION,
-} from '@/services/settingsConfig';
-import { useSettingsStore } from '@/store/useSettingsStore';
+} from '@/modules/settings/services/settingsConfig';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

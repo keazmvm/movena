@@ -1,19 +1,22 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { tauriApi } from '@/api/ipc';
-import { queryClient } from '@/api/queryClient';
-import { clearAllAppData } from '@/services/appDataReset';
-import { storeM3uConnection, loadM3uConnection } from '@/services/m3uRepository';
-import { storeXtreamCredentials, loadXtreamCredentials } from '@/services/xtreamRepository';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useDownloadStore } from '@/store/useDownloadStore';
-import { useLibraryStore } from '@/store/useLibraryStore';
-import { useSearchStore } from '@/store/useSearchStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { useSourceStore } from '@/store/useSourceStore';
-import { useStreamVerificationStore } from '@/store/useStreamVerificationStore';
-import { writePlaybackRecovery } from '@/utils/playbackRecovery';
+import { tauriApi } from '@/platform/tauri';
+import { queryClient } from '@/shared/query/queryClient';
+import { clearAllAppData } from '@/modules/settings/services/appDataReset';
+import { storeM3uConnection, loadM3uConnection } from '@/modules/sources/services/m3uRepository';
+import {
+  storeXtreamCredentials,
+  loadXtreamCredentials,
+} from '@/modules/sources/services/xtreamRepository';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
+import { useDownloadStore } from '@/modules/downloads/store/useDownloadStore';
+import { useLibraryStore } from '@/modules/library/store/useLibraryStore';
+import { useSearchStore } from '@/modules/search/store/useSearchStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useSourceStore } from '@/modules/sources/store/useSourceStore';
+import { useStreamVerificationStore } from '@/modules/sources/store/useStreamVerificationStore';
+import { writePlaybackRecovery } from '@/modules/playback/lib/playbackRecovery';
 
 const m3uId = 'm3u-12345678';
 const xtreamId = 'xtream-12345678';

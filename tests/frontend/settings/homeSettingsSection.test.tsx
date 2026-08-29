@@ -3,9 +3,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { HomeSettingsSection } from '@/components/settings/HomeSettingsSection';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { DEFAULT_HOME_SECTIONS } from '@/utils/homeSections';
+import { HomeSettingsSection } from '@/modules/settings/components/HomeSettingsSection';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { DEFAULT_HOME_SECTIONS } from '@/modules/catalog/lib/homeSections';
 
 beforeEach(() => {
   localStorage.clear();

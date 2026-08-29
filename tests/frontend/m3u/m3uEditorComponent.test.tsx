@@ -9,14 +9,14 @@ const invokeMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@tauri-apps/api/core', () => ({ invoke: invokeMock, isTauri: () => false }));
 
-import { M3uEditor } from '@/components/m3u-editor/M3uEditor';
-import { M3uChannelTable } from '@/components/m3u-editor/M3uChannelTable';
-import { M3uGroupManager } from '@/components/m3u-editor/M3uGroupManager';
-import { M3uStreamHealthChecker } from '@/components/m3u-editor/M3uStreamHealthChecker';
-import { M3uRawCodeEditor } from '@/components/m3u-editor/M3uRawCodeEditor';
-import { useSourceStore, type M3uSourceProfile } from '@/store/useSourceStore';
-import type { M3uEntry } from '@/api/m3u';
-import type { XmltvGuide } from '@/api/xmltv';
+import { M3uEditor } from '@/modules/m3u-editor/components/M3uEditor';
+import { M3uChannelTable } from '@/modules/m3u-editor/components/M3uChannelTable';
+import { M3uGroupManager } from '@/modules/m3u-editor/components/M3uGroupManager';
+import { M3uStreamHealthChecker } from '@/modules/m3u-editor/components/M3uStreamHealthChecker';
+import { M3uRawCodeEditor } from '@/modules/m3u-editor/components/M3uRawCodeEditor';
+import { useSourceStore, type M3uSourceProfile } from '@/modules/sources/store/useSourceStore';
+import type { M3uEntry } from '@/modules/sources/data/m3uClient';
+import type { XmltvGuide } from '@/modules/guide/data/xmltvClient';
 
 const sampleProfile: M3uSourceProfile = {
   id: 'm3u-demo-1',

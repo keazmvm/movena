@@ -18,7 +18,7 @@ const sourceFiles = walk(sourceRoot).filter((path) =>
   ['.css', '.ts', '.tsx'].includes(extname(path)),
 );
 const cssFiles = sourceFiles.filter((path) => extname(path) === '.css');
-const tokenSource = join(sourceRoot, 'index.css');
+const tokenSource = join(sourceRoot, 'shared', 'design', 'index.css');
 const violations = [];
 const globalLayerTokens = new Set([
   '--z-sidebar',
@@ -97,7 +97,7 @@ for (const path of cssFiles) {
     if (!globalLayerTokens.has(match[1])) report(path, 'undeclared global layer token', match);
   }
 
-  if (relative(sourceRoot, path).replaceAll('\\', '/').startsWith('components/player/')) {
+  if (relative(sourceRoot, path).replaceAll('\\', '/').startsWith('modules/playback/')) {
     for (const match of withoutComments.matchAll(/(?:-webkit-)?backdrop-filter\s*:\s*([^;]+)/gi)) {
       if (match[1].trim() !== 'none')
         report(path, 'player surfaces cannot use backdrop-filter', match);
@@ -139,12 +139,12 @@ for (const path of sourceFiles.filter((sourcePath) =>
 
   const sourcePath = relative(sourceRoot, path).replaceAll('\\', '/');
   const ownsModalPrimitive =
-    sourcePath === 'components/common/ModalShell.tsx' ||
-    sourcePath === 'components/common/DetailModalShell.tsx';
+    sourcePath === 'shared/ui/DialogShell.tsx' ||
+    sourcePath === 'modules/catalog/components/DetailsDialogShell.tsx';
   if (
     /aria-modal\s*=\s*["{]true/.test(content) &&
     !ownsModalPrimitive &&
-    !/<(?:ModalShell|DetailModalShell)\b/.test(content)
+    !/<(?:DialogShell|DetailsDialogShell)\b/.test(content)
   ) {
     report(path, 'modal surfaces must compose a shared portal modal primitive', {
       0: 'aria-modal="true"',
@@ -152,7 +152,8 @@ for (const path of sourceFiles.filter((sourcePath) =>
     });
   }
   const isPlayerSource =
-    sourcePath.startsWith('components/player/') || sourcePath === 'hooks/usePlayerContextMenus.tsx';
+    sourcePath.startsWith('modules/playback/') ||
+    sourcePath === 'modules/playback/hooks/usePlayerContextMenus.tsx';
   const sourceFile = ts.createSourceFile(
     path,
     content,
@@ -240,12 +241,15 @@ for (const path of sourceFiles.filter((sourcePath) =>
 const referencedCssModules = new Set();
 const cssModuleUsages = new Map();
 const dynamicCssModuleAllowances = new Map([
-  ['components/common/SegmentedControl.module.css', new Set(['md', 'sm'])],
-  ['components/shared/DebugOverlay.module.css', new Set(['debug', 'error', 'info', 'warn'])],
-  ['components/shared/ToastContainer.module.css', new Set(['error', 'info', 'success', 'warning'])],
-  ['components/upcoming/UpcomingReleaseCard.module.css', new Set(['discover', 'schedule'])],
+  ['shared/ui/SegmentedControl.module.css', new Set(['md', 'sm'])],
   [
-    'pages/Downloads.module.css',
+    'modules/diagnostics/components/DebugOverlay.module.css',
+    new Set(['debug', 'error', 'info', 'warn']),
+  ],
+  ['shared/ui/ToastContainer.module.css', new Set(['error', 'info', 'success', 'warning'])],
+  ['modules/guide/components/UpcomingReleaseCard.module.css', new Set(['discover', 'schedule'])],
+  [
+    'modules/downloads/pages/DownloadsPage.module.css',
     new Set([
       'statuscompleted',
       'statusdownloading',
@@ -270,7 +274,9 @@ for (const path of sourceFiles.filter((sourcePath) =>
     if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier))
       continue;
     if (!statement.moduleSpecifier.text.endsWith('.module.css')) continue;
-    const cssPath = resolve(dirname(path), statement.moduleSpecifier.text);
+    const cssPath = statement.moduleSpecifier.text.startsWith('@/')
+      ? resolve(sourceRoot, statement.moduleSpecifier.text.slice(2))
+      : resolve(dirname(path), statement.moduleSpecifier.text);
     referencedCssModules.add(cssPath);
     const localName = statement.importClause?.name?.text;
     if (!localName) continue;

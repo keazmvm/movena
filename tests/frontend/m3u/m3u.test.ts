@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { generateM3u, getM3uSeriesGroups, parseM3u, parseM3uEpisodeTitle } from '@/api/m3u';
-import { mapM3uCatalog } from '@/api/useCatalog';
-import { useSourceStore } from '@/store/useSourceStore';
-import { playableFromMediaItem } from '@/utils/playback';
+import {
+  generateM3u,
+  getM3uSeriesGroups,
+  parseM3u,
+  parseM3uEpisodeTitle,
+} from '@/modules/sources/data/m3uClient';
+import { mapM3uCatalog } from '@/modules/catalog/data/useCatalog';
+import { useSourceStore } from '@/modules/sources/store/useSourceStore';
+import { playableFromMediaItem } from '@/modules/playback/lib/playback';
 
 describe('M3U parsing and catalog mapping', () => {
   it('parses extended metadata, guide URLs, relative URLs, and request headers', () => {

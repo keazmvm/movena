@@ -2,9 +2,9 @@
 
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { usePlayerContextMenus } from '@/hooks/usePlayerContextMenus';
-import { useContextMenuStore } from '@/store/useContextMenuStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { usePlayerContextMenus } from '@/modules/playback/hooks/usePlayerContextMenus';
+import { useContextMenuStore } from '@/shared/ui/context-menu/useContextMenuStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),

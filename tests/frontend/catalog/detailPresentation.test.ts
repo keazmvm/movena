@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildDetailPresentation } from '@/components/modals/detailPresentation';
+import { buildDetailPresentation } from '@/modules/catalog/details/detailPresentation';
 
 describe('shared detail presentation', () => {
   it('prefers normalized metadata and identifies directors across aggregated jobs', () => {

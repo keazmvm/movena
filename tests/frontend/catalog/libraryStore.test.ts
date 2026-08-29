@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useLibraryStore, type WatchProgress } from '@/store/useLibraryStore';
-import { useNotificationStore } from '@/store/useNotificationStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { useLibraryStore, type WatchProgress } from '@/modules/library/store/useLibraryStore';
+import { useNotificationStore } from '@/shared/notifications/useNotificationStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const movie = { id: 'movie-1', title: 'Movie', posterUrl: 'poster', type: 'vod' as const };
 

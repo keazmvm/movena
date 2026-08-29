@@ -10,11 +10,11 @@ const desktop = vi.hoisted(() => ({
   relaunch: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('@/api/desktop', () => ({ desktopApi: desktop }));
+vi.mock('@/platform/desktop', () => ({ desktopApi: desktop }));
 
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { useDebugStore } from '@/store/useDebugStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import { useDebugStore } from '@/modules/diagnostics/store/useDebugStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 function BrokenView(): never {
   throw new Error('Failed at https://provider.test/live/private-user/private-password/42');

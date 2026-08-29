@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { UI_QA_SURFACES } from './surfaces';
 import { PRODUCTION_UI_QA_SCENARIOS } from './scenarios';
-import { UI_LANGUAGES } from '@/i18nConfig';
+import { UI_LANGUAGES } from '@/shared/i18n/config';
 
 const MINIMUM_POINTER_TARGET = 24;
 const REPRESENTATIVE_SCREENSHOTS = new Set(['primitives', 'settings-controls', 'developer-hud']);

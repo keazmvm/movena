@@ -2,8 +2,8 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { migrateSettingsState, useSettingsStore } from '@/store/useSettingsStore';
-import { useCatalogCategorySelection } from '@/hooks/useCatalogCategorySelection';
+import { migrateSettingsState, useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { useCatalogCategorySelection } from '@/modules/catalog/hooks/useCatalogCategorySelection';
 
 beforeEach(() => {
   localStorage.clear();
@@ -257,7 +257,7 @@ describe('settings store', () => {
   });
 
   it('excludes ephemeral window and onboarding state from portable snapshot keys', async () => {
-    const { SETTINGS_SNAPSHOT_KEYS } = await import('@/store/useSettingsStore');
+    const { SETTINGS_SNAPSHOT_KEYS } = await import('@/modules/settings/store/useSettingsStore');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('onboardingDismissed');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('sidebarCollapsed');
     expect(SETTINGS_SNAPSHOT_KEYS).not.toContain('epgXmltvUrl');

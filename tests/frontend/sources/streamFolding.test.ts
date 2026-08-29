@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { MediaItem } from '@/components/catalog/MediaCard';
-import { foldLiveChannels } from '@/utils/streamFolding';
+import type { MediaItem } from '@/modules/catalog/model/media';
+import { foldLiveChannels } from '@/modules/catalog/lib/streamFolding';
 
 describe('stream folding', () => {
   it('passes single channels or non-live media through untouched', () => {

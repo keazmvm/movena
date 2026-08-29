@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseM3uAsync } from '@/services/m3uParser';
+import { parseM3uAsync } from '@/modules/m3u-editor/services/m3uParser';
 
 describe('asynchronous M3U parser boundary', () => {
   it('preserves source identity, base URL resolution, and inherited headers', async () => {

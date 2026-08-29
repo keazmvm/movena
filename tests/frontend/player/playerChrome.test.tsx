@@ -2,10 +2,10 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { usePlayerChrome } from '@/components/player/usePlayerChrome';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerChrome } from '@/modules/playback/components/usePlayerChrome';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
-vi.mock('@/components/player/fullscreen', () => ({
+vi.mock('@/modules/playback/components/fullscreen', () => ({
   setCursorHidden: vi.fn().mockResolvedValue(undefined),
 }));
 

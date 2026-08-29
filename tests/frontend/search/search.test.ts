@@ -6,7 +6,7 @@ import {
   normalizeText,
   smartSearch,
   toCompact,
-} from '@/utils/search';
+} from '@/modules/search/lib/search';
 
 const items = [
   {

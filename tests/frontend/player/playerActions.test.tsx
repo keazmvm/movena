@@ -10,12 +10,12 @@ const native = vi.hoisted(() => ({
 }));
 const fullscreen = vi.hoisted(() => ({ toggleWindowFullscreen: vi.fn() }));
 
-vi.mock('@/api/ipc', () => ({ tauriApi: native }));
-vi.mock('@/components/player/fullscreen', () => fullscreen);
+vi.mock('@/platform/tauri', () => ({ tauriApi: native }));
+vi.mock('@/modules/playback/components/fullscreen', () => fullscreen);
 
-import { usePlayerActions } from '@/components/player/usePlayerActions';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { usePlayerActions } from '@/modules/playback/components/usePlayerActions';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const vod = {
   id: 'vod-1',

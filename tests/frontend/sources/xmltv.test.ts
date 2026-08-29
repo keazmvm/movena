@@ -8,7 +8,7 @@ import {
   parseXmltv,
   parseXmltvTime,
   settleWithConcurrency,
-} from '@/api/xmltv';
+} from '@/modules/guide/data/xmltvClient';
 
 const XML = `<?xml version="1.0"?>
 <tv>

@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ensureUiMessages } from '@/i18n';
-import { isUiLanguage } from '@/i18nConfig';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { applyAppearanceTheme } from '@/design/appearance';
-import '@/index.css';
+import { ensureUiMessages } from '@/shared/i18n/i18n';
+import { isUiLanguage } from '@/shared/i18n/config';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { applyAppearanceTheme } from '@/shared/design/appearance';
+import '@/shared/design/index.css';
 import { ComponentHarness } from './ComponentHarness';
 import { ReadmeHarness } from './ReadmeHarness';
 import { README_SURFACES, type ReadmeSurface } from '../readmeSurfaces';

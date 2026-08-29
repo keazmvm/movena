@@ -4,17 +4,17 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/useDetails', () => ({
+vi.mock('@/modules/catalog/data/useDetails', () => ({
   useSeriesInfo: vi.fn(),
 }));
 
-vi.mock('@/hooks/useContextMenu', () => ({
-  useContextMenu: () => ({ handleMediaCardContextMenu: vi.fn() }),
+vi.mock('@/modules/catalog/public', () => ({
+  useMediaContextMenus: () => ({ handleMediaCardContextMenu: vi.fn() }),
 }));
 
-import { EpisodesDrawer } from '@/components/player/EpisodesDrawer';
-import { useSeriesInfo } from '@/api/useDetails';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { EpisodesDrawer } from '@/modules/playback/components/EpisodesDrawer';
+import { useSeriesInfo } from '@/modules/catalog/data/useDetails';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 const seriesData = {
   info: { name: 'South Park' },

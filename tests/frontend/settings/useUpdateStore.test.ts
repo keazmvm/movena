@@ -8,10 +8,10 @@ const appUpdater = vi.hoisted(() => ({
   installAppUpdate: vi.fn(),
 }));
 
-vi.mock('@/services/appUpdater', () => appUpdater);
+vi.mock('@/modules/updates/services/appUpdater', () => appUpdater);
 
-import { useUpdateStore } from '@/store/useUpdateStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { useUpdateStore } from '@/modules/updates/store/useUpdateStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 const closeMock = vi.fn().mockResolvedValue(undefined);
 const fakeHandle = { close: closeMock } as unknown as never;

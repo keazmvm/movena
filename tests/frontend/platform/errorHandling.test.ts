@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getErrorPresentation, shouldRetryQuery } from '@/utils/error';
+import { getErrorPresentation, shouldRetryQuery } from '@/shared/lib/error';
 
 describe('user-facing error handling', () => {
   it('classifies transport failures while redacting their private detail', () => {

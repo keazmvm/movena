@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const documents = vi.hoisted(() => new Map<string, { content: string; baseUrl: string }>());
-vi.mock('@/services/m3uRepository', () => ({
+vi.mock('@/modules/sources/services/m3uRepository', () => ({
   deleteM3uCache: vi.fn(async (key: string) => {
     documents.delete(key);
   }),
@@ -16,7 +16,7 @@ import {
   deleteM3uVersion,
   listM3uVersions,
   saveM3uVersion,
-} from '@/services/m3uVersionHistory';
+} from '@/modules/m3u-editor/services/m3uVersionHistory';
 
 beforeEach(() => {
   vi.stubGlobal('indexedDB', undefined);

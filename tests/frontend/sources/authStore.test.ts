@@ -11,11 +11,11 @@ const repository = vi.hoisted(() => ({
   loadXtreamCredentials: vi.fn(),
   deleteXtreamCredentials: vi.fn(),
 }));
-const xc = vi.hoisted(() => ({ authenticateXC: vi.fn() }));
+const xc = vi.hoisted(() => ({ authenticateXtream: vi.fn() }));
 
-vi.mock('@/services/credentialVault', () => vault);
-vi.mock('@/services/xtreamRepository', () => repository);
-vi.mock('@/api/xc', () => xc);
+vi.mock('@/modules/sources/services/credentialVault', () => vault);
+vi.mock('@/modules/sources/services/xtreamRepository', () => repository);
+vi.mock('@/modules/sources/data/xtreamClient', () => xc);
 
 import {
   AUTH_PROFILE_STORAGE_KEY,
@@ -23,12 +23,11 @@ import {
   XTREAM_PROFILES_STORAGE_KEY,
   selectIsAuthenticated,
   useAuthStore,
-  type XCServerInfo,
-  type XCUserInfo,
-} from '@/store/useAuthStore';
-import { useSourceStore } from '@/store/useSourceStore';
+} from '@/modules/sources/store/useAuthStore';
+import type { XtreamServerInfo, XtreamUserInfo } from '@/modules/sources/model/xtream';
+import { useSourceStore } from '@/modules/sources/store/useSourceStore';
 
-const userInfo: XCUserInfo = {
+const userInfo: XtreamUserInfo = {
   username: 'alice',
   password: 'not-persisted',
   message: '',
@@ -41,7 +40,7 @@ const userInfo: XCUserInfo = {
   max_connections: '1',
   allowed_output_formats: ['m3u8'],
 };
-const serverInfo: XCServerInfo = {
+const serverInfo: XtreamServerInfo = {
   url: 'primary.test',
   port: '80',
   https_port: '443',
@@ -58,7 +57,7 @@ beforeEach(() => {
   repository.storeXtreamCredentials.mockResolvedValue(undefined);
   repository.deleteXtreamCredentials.mockResolvedValue(undefined);
   vault.deleteProviderPassword.mockResolvedValue(undefined);
-  xc.authenticateXC.mockResolvedValue({ user_info: userInfo, server_info: serverInfo });
+  xc.authenticateXtream.mockResolvedValue({ user_info: userInfo, server_info: serverInfo });
   useAuthStore.setState({
     profiles: [],
     runtimes: {},

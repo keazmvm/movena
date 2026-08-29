@@ -4,13 +4,13 @@ import {
   getTvmazeEpisodes,
   getTvmazeUpcomingEpisodes,
   searchTvmazeShows,
-} from '@/api/tvmaze';
+} from '@/modules/metadata/data/tvMazeClient';
 import {
   findFutureTvmazeEpisodes,
   findNextTvmazeEpisode,
   normalizeTvmazeAirstamp,
   normalizeTvmazeShowSearch,
-} from '@/utils/tvmaze';
+} from '@/modules/metadata/model/tvMaze';
 
 afterEach(() => vi.unstubAllGlobals());
 

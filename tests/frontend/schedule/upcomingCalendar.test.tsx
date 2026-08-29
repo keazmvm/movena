@@ -3,9 +3,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UpcomingCalendar } from '@/components/upcoming/UpcomingCalendar';
-import { useSettingsStore } from '@/store/useSettingsStore';
-import { groupUpcomingReleases } from '@/utils/upcoming';
+import { UpcomingCalendar } from '@/modules/guide/components/UpcomingCalendar';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
+import { groupUpcomingReleases } from '@/modules/guide/lib/upcoming';
 
 beforeEach(() => {
   useSettingsStore.setState({ language: 'en' });

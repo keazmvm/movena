@@ -7,7 +7,7 @@ import {
   normalizeTmdbTv,
   sanitizeTmdbImageUrl,
   sanitizeTmdbVideoUrl,
-} from '@/utils/tmdb';
+} from '@/modules/metadata/model/tmdb';
 
 describe('TMDB normalization', () => {
   it('normalizes a movie and safely maps artwork and videos', () => {

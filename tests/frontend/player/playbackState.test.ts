@@ -4,7 +4,7 @@ import {
   classifyStartupTimeout,
   createIdlePlaybackState,
   reducePlaybackState,
-} from '@/utils/playbackState';
+} from '@/modules/playback/lib/playbackState';
 
 const started = (generation = 1, at = 1_000) =>
   reducePlaybackState(createIdlePlaybackState(), { type: 'session-started', generation, at }).state;

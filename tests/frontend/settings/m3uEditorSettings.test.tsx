@@ -2,8 +2,8 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { M3uEditorSettings } from '@/components/settings/M3uEditorSettings';
-import { migrateSettingsState, useSettingsStore } from '@/store/useSettingsStore';
+import { M3uEditorSettings } from '@/modules/settings/components/M3uEditorSettings';
+import { migrateSettingsState, useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
 beforeEach(() => {
   localStorage.clear();

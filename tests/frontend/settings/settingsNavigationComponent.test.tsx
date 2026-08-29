@@ -2,7 +2,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SettingsNavigation } from '@/components/settings/SettingsNavigation';
+import { SettingsNavigation } from '@/modules/settings/components/SettingsNavigation';
 
 const originalMatchMedia = window.matchMedia;
 

@@ -6,7 +6,7 @@ import {
   getUrlQueryScope,
   getXtreamQueryScope,
   queryKeys,
-} from '@/api/queryKeys';
+} from '@/modules/sources/model/queryKeys';
 
 describe('provider-scoped query keys', () => {
   const credentials = {

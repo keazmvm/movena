@@ -5,13 +5,16 @@ const { mpvSetProperty, playerSetFullscreen } = vi.hoisted(() => ({
   playerSetFullscreen: vi.fn(),
 }));
 
-vi.mock('@/api/ipc', () => ({
+vi.mock('@/platform/tauri', () => ({
   tauriApi: { mpvSetProperty, playerSetFullscreen },
 }));
 
-import { applyAspectRatio, applySbsTo2d } from '@/components/player/aspect';
-import { setPlayerFullscreen, toggleWindowFullscreen } from '@/components/player/fullscreen';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { applyAspectRatio, applySbsTo2d } from '@/modules/playback/components/aspect';
+import {
+  setPlayerFullscreen,
+  toggleWindowFullscreen,
+} from '@/modules/playback/components/fullscreen';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
 
 beforeEach(() => {
   mpvSetProperty.mockReset().mockResolvedValue(undefined);

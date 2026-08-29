@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }));
 
 import { invoke } from '@tauri-apps/api/core';
-import { tauriApi, type MpvStartOptions } from '@/api/ipc';
+import { tauriApi, type MpvStartOptions } from '@/platform/tauri';
 
 const invokeMock = vi.mocked(invoke);
 

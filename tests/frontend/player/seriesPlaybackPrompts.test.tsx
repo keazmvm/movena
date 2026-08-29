@@ -3,24 +3,24 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { tauriApi } from '@/api/ipc';
-import { SeriesPlaybackPrompts } from '@/components/player/SeriesPlaybackPrompts';
-import { useSeriesInfo } from '@/api/useDetails';
-import { useIntroDbSegments } from '@/api/useIntroDb';
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+import { tauriApi } from '@/platform/tauri';
+import { SeriesPlaybackPrompts } from '@/modules/playback/components/SeriesPlaybackPrompts';
+import { useSeriesInfo } from '@/modules/catalog/data/useDetails';
+import { useIntroDbSegments } from '@/modules/playback/data/useIntroDb';
+import { usePlayerStore } from '@/modules/playback/store/usePlayerStore';
+import { useSettingsStore } from '@/modules/settings/store/useSettingsStore';
 
-vi.mock('@/api/ipc', () => ({
+vi.mock('@/platform/tauri', () => ({
   tauriApi: {
     mpvSeek: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
-vi.mock('@/api/useDetails', () => ({
+vi.mock('@/modules/catalog/data/useDetails', () => ({
   useSeriesInfo: vi.fn(),
 }));
 
-vi.mock('@/api/useIntroDb', () => ({
+vi.mock('@/modules/playback/data/useIntroDb', () => ({
   useIntroDbSegments: vi.fn(),
 }));
 

@@ -3,7 +3,7 @@ import {
   formatVerifiedResolution,
   normalizeVerifiedStreams,
   useStreamVerificationStore,
-} from '@/store/useStreamVerificationStore';
+} from '@/modules/sources/store/useStreamVerificationStore';
 
 describe('stream verification store', () => {
   beforeEach(() => {

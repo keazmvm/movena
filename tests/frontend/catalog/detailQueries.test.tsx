@@ -5,10 +5,10 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const xc = vi.hoisted(() => ({ getSeriesInfo: vi.fn(), getVodInfo: vi.fn() }));
-vi.mock('@/api/xc', () => xc);
+vi.mock('@/modules/sources/data/xtreamClient', () => xc);
 
-import { useSeriesInfo, useVodInfo } from '@/api/useDetails';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useSeriesInfo, useVodInfo } from '@/modules/catalog/data/useDetails';
+import { useAuthStore } from '@/modules/sources/store/useAuthStore';
 
 const sourceId = 'xtream-details';
 const credentials = {
