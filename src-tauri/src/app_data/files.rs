@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use super::MAX_M3U_BYTES;
+use crate::sources::MAX_M3U_BYTES;
 const MAX_SETTINGS_CONFIG_BYTES: u64 = 1024 * 1024;
 
 fn validate_settings_path(path: &str) -> Result<PathBuf, String> {

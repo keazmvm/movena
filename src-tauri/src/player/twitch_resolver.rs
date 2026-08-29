@@ -139,7 +139,7 @@ fn resolver_executable_name() -> &'static str {
     "twitch-resolver"
 }
 
-use super::native_player_options::first_existing_file;
+use super::options::first_existing_file;
 
 fn bundled_resolver_path(app: &AppHandle) -> Option<PathBuf> {
     let mut candidates = Vec::new();

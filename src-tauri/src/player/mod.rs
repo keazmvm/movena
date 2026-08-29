@@ -16,27 +16,25 @@ use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager, State};
 
 #[cfg(test)]
-use super::native_player_diagnostics::{build_diagnostic_sample, DIAGNOSTIC_PROPERTIES};
-use super::native_player_diagnostics::{
-    collect_diagnostic_sample, node_to_json, sanitize_mpv_log_text,
-};
+use self::diagnostics::{build_diagnostic_sample, DIAGNOSTIC_PROPERTIES};
+use self::diagnostics::{collect_diagnostic_sample, node_to_json, sanitize_mpv_log_text};
 #[cfg(target_os = "windows")]
-use super::native_player_options::bundled_ytdlp_path;
+use self::options::bundled_ytdlp_path;
 #[cfg(test)]
-use super::native_player_options::first_existing_file;
+use self::options::first_existing_file;
 #[cfg(any(target_os = "windows", test))]
-use super::native_player_options::ytdlp_script_option;
-use super::native_player_options::{build_http_options, MpvHttpOptions};
-use super::native_player_property::{validate_mpv_property, MpvPropertyUpdate};
+use self::options::ytdlp_script_option;
+use self::options::{build_http_options, MpvHttpOptions};
+use self::property::{validate_mpv_property, MpvPropertyUpdate};
 
 #[cfg(target_os = "macos")]
-use crate::macos_embed;
+use crate::platform::macos as macos_embed;
 
 #[derive(Default)]
 pub struct NativePlayerManager {
     handle: Mutex<Option<usize>>,
     session_id: Mutex<Option<String>>,
-    twitch_resolver: Mutex<Option<crate::twitch_resolver::TwitchResolverProcess>>,
+    twitch_resolver: Mutex<Option<twitch_resolver::TwitchResolverProcess>>,
     alive: Arc<AtomicBool>,
     thread_handle: Mutex<Option<thread::JoinHandle<()>>>,
     /// Held for the whole of start/stop. Those commands run on Tauri's thread
@@ -283,7 +281,7 @@ pub fn mpv_start(
     } = options;
     let session_id =
         session_id.filter(|value| !value.is_empty() && value.len() <= 128 && value.is_ascii());
-    let is_twitch_live = crate::twitch_resolver::is_twitch_live_url(&url);
+    let is_twitch_live = twitch_resolver::is_twitch_live_url(&url);
     let http_options = if is_twitch_live {
         MpvHttpOptions::default()
     } else {
@@ -296,8 +294,7 @@ pub fn mpv_start(
 
     let mut twitch_resolver = None;
     let playback_url = if is_twitch_live {
-        let (playback_url, resolver) =
-            crate::twitch_resolver::start(&app, &url, session_id.clone())?;
+        let (playback_url, resolver) = twitch_resolver::start(&app, &url, session_id.clone())?;
         twitch_resolver = Some(resolver);
         playback_url
     } else {
@@ -1107,3 +1104,7 @@ pub fn mpv_set_property(
     }
     Ok(())
 }
+mod diagnostics;
+mod options;
+mod property;
+mod twitch_resolver;

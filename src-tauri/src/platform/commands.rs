@@ -11,11 +11,11 @@
 pub fn player_set_fullscreen(app: tauri::AppHandle, on: bool) -> Result<bool, String> {
     #[cfg(target_os = "macos")]
     {
-        Ok(crate::macos_embed::set_simple_fullscreen(&app, on))
+        Ok(super::macos::set_simple_fullscreen(&app, on))
     }
     #[cfg(target_os = "windows")]
     {
-        crate::windows_window::set_fullscreen(&app, on)
+        super::windows::set_fullscreen(&app, on)
     }
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
     {
@@ -36,7 +36,7 @@ pub fn player_set_fullscreen(app: tauri::AppHandle, on: bool) -> Result<bool, St
 pub fn player_set_cursor_hidden(app: tauri::AppHandle, hidden: bool) -> Result<bool, String> {
     #[cfg(target_os = "macos")]
     {
-        crate::macos_embed::set_cursor_hidden(&app, hidden);
+        super::macos::set_cursor_hidden(&app, hidden);
         Ok(true)
     }
     #[cfg(not(target_os = "macos"))]

@@ -4,7 +4,8 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
-use super::{m3u_cache, source_secrets::validate_source_id, MAX_M3U_BYTES};
+use super::{cache, MAX_M3U_BYTES};
+use crate::credentials::source::validate_source_id;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct M3uFetchOptions {
@@ -279,7 +280,7 @@ pub(crate) async fn m3u_fetch(
             let source_id = cache_key
                 .as_deref()
                 .ok_or_else(|| "The playlist cache is unavailable".to_string())?;
-            m3u_cache::load(&app, source_id)?
+            cache::load(&app, source_id)?
                 .ok_or_else(|| "The playlist cache is unavailable".to_string())
         }
         RemoteDownloadResult::Modified(download) => {
@@ -379,7 +380,7 @@ pub(crate) fn m3u_read_file(path: String) -> Result<M3uDocument, String> {
 }
 
 fn m3u_http_cache_path(app: &tauri::AppHandle, source_id: &str) -> Result<PathBuf, String> {
-    m3u_cache::http_cache_path(app, source_id)
+    cache::http_cache_path(app, source_id)
 }
 
 fn load_m3u_http_cache(

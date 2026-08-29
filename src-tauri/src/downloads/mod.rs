@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, State};
 
-use super::remote_media::{
+use crate::sources::remote::{
     remote_headers, safe_media_file_name, same_origin_redirect_policy, validate_remote_url,
 };
 #[derive(Deserialize)]

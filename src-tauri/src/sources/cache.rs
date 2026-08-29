@@ -5,7 +5,8 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
-use super::{remote_media::M3uDocument, source_secrets::validate_source_id, MAX_M3U_BYTES};
+use super::{remote::M3uDocument, MAX_M3U_BYTES};
+use crate::credentials::source::validate_source_id;
 
 const METADATA_LIMIT: usize = 16 * 1024;
 const LEGACY_SERIALIZED_LIMIT: u64 = (MAX_M3U_BYTES as u64 * 6) + METADATA_LIMIT as u64;

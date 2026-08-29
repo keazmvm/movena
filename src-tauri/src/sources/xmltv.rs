@@ -10,7 +10,7 @@ use quick_xml::{Reader, XmlVersion};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
-use super::remote_media::{
+use super::remote::{
     apply_conditional_headers, remote_cache_key, remote_headers, same_origin_redirect_policy,
     unix_time_ms, validate_remote_url, HttpValidators, M3uFetchOptions,
 };
