@@ -8,6 +8,57 @@ for tagged releases.
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-08-29
+
+This maintenance release reorganizes Movena around explicit product-domain
+boundaries, standardizes repository tooling and naming, and strengthens
+responsive, accessibility, visual, and packaged-desktop verification without
+changing routes, persisted data formats, Tauri commands, or playback events.
+
+### Added
+
+- Added automated architecture enforcement for layer violations, cross-module
+  private imports, direct Tauri usage outside the platform boundary, and
+  TypeScript dependency cycles.
+- Added Prettier configuration and repository-wide `format` and `format:check`
+  commands, with formatting enforced by the main quality gate.
+- Added broader production-surface visual baselines and Playwright coverage for
+  dark and light themes, translated copy, minimum logical window dimensions,
+  high-DPI rendering, intermediate workspace widths, and global layer order.
+- Added focused frontend units for application providers and startup behavior,
+  route composition, EPG rows and programme details, and intentional module
+  contracts exposed through `public` entry points.
+
+### Changed
+
+- Reorganized the frontend into `app`, domain `modules`, `platform`, and
+  `shared` layers, replacing catch-all API, component, hook, service, store,
+  utility, route, and page directories with explicit owners.
+- Reorganized the Rust backend into player, platform, source, credential,
+  download, metadata, and application-data domains while keeping native command
+  names, payloads, event contracts, and playback lifecycle semantics intact.
+- Made the Xtream client stateless, moved source orchestration into the sources
+  domain, extracted shared media and credential contracts, and decoupled i18n,
+  notifications, context menus, query infrastructure, and Tauri wrappers from
+  product stores.
+- Standardized internal naming for pages, dialogs, drawers, detail surfaces,
+  provider initialisms, portable settings, and Xtream integrations.
+- Consolidated frontend, UI, desktop, and fixture tests under `tests`, moved
+  specialized test configuration under `config`, and standardized developer
+  commands around `test:*`, `check:*`, and `format:*`.
+- Moved community policy files under `.github`, refreshed repository skills and
+  architecture documentation, and updated all canonical path references.
+- Improved narrow-layout behavior for the application shell and M3U workspace,
+  centralized dialog focus behavior, and kept off-screen EPG programmes out of
+  keyboard navigation.
+
+### Fixed
+
+- Made the packaged Windows first-run journey independent of previously saved
+  local settings by clearing browser persistence before reloading onboarding.
+- Corrected modal, drawer, checkbox, player-control, settings, and minimum-width
+  geometry and focus behavior covered by the expanded UI quality suite.
+
 ## [0.1.12] - 2026-08-28
 
 ### Added
@@ -437,7 +488,10 @@ public project considerably easier to evaluate.
   resolver teardown, accessibility, signing claims, checksums, licenses, and
   corresponding source.
 
-[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/movena-app/movena/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/movena-app/movena/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/movena-app/movena/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/movena-app/movena/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/movena-app/movena/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/movena-app/movena/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/movena-app/movena/compare/v0.1.7...v0.1.8
