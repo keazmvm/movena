@@ -21,7 +21,8 @@ The workflow:
 If a Store submission needs to be retried after the GitHub release is complete,
 run `Publish Microsoft Store Package` with the immutable release tag. That
 workflow downloads the existing release MSIX instead of rebuilding it, so the
-Store submission stays tied to the exact tagged artifact.
+Store submission stays tied to the exact tagged artifact. Store automation pins
+the CLI version because its package-input contract is release-sensitive.
 
 ## Release checklist
 

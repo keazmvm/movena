@@ -50,6 +50,8 @@ jobs:
           if ($msixFiles.Count -ne 1) { throw "Expected exactly one release MSIX, found $($msixFiles.Count)." }
       - name: Setup Microsoft Store Developer CLI
         uses: microsoft/microsoft-store-apppublisher@v1.4
+        with:
+          version: v0.3.9
       - name: Submit release MSIX
         shell: pwsh
         env:
@@ -62,6 +64,7 @@ jobs:
           $reconfigArgs = @('reconfigure', '--tenantId', $env:STORE_TENANT_ID, '--sellerId', $env:STORE_SELLER_ID, '--clientId', $env:STORE_CLIENT_ID, '--clientSecret', $env:STORE_CLIENT_SECRET)
           & msstore @reconfigArgs
           if ($LASTEXITCODE -ne 0) { throw "Microsoft Store CLI configuration failed." }
-          $inputDirectory = (Resolve-Path "windows-artifacts").Path
-          & msstore publish "." --inputDirectory $inputDirectory --appId $env:STORE_PRODUCT_ID
+          $msixFiles = @(Get-ChildItem -Path "windows-artifacts" -Filter "*.msix" -File)
+          if ($msixFiles.Count -ne 1) { throw "Expected exactly one release MSIX, found $($msixFiles.Count)." }
+          & msstore publish "." --inputFile $msixFiles[0].FullName --appId $env:STORE_PRODUCT_ID
           if ($LASTEXITCODE -ne 0) { throw "Microsoft Store submission failed." }

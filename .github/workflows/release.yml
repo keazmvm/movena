@@ -405,6 +405,8 @@ jobs:
       - name: Setup Microsoft Store Developer CLI
         if: steps.check-store-credentials.outputs.has_credentials == 'true'
         uses: microsoft/microsoft-store-apppublisher@v1.4
+        with:
+          version: v0.3.9
       - name: Submit to Microsoft Store
         if: steps.check-store-credentials.outputs.has_credentials == 'true'
         shell: pwsh
@@ -419,5 +421,4 @@ jobs:
           & msstore @reconfigArgs
           $msixFiles = @(Get-ChildItem -Path "windows-artifacts" -Filter "*.msix" -File)
           if ($msixFiles.Count -ne 1) { throw "Expected exactly one MSIX artifact, found $($msixFiles.Count)." }
-          $inputDirectory = (Resolve-Path "windows-artifacts").Path
-          & msstore publish "." --inputDirectory $inputDirectory --appId $env:STORE_PRODUCT_ID
+          & msstore publish "." --inputFile $msixFiles[0].FullName --appId $env:STORE_PRODUCT_ID
