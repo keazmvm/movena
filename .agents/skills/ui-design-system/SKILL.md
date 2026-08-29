@@ -6,7 +6,7 @@ description: CSS tokens, guidelines, layout math formulas, and custom component 
 # UI design system
 
 Canonical documentation: [docs/DESIGN_SYSTEM.md](../../../docs/DESIGN_SYSTEM.md)
-Global tokens: `src/index.css`
+Global tokens: `src/shared/design/index.css`
 
 ## Surface tokens quick-reference
 

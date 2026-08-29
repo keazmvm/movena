@@ -26,11 +26,12 @@ behavior instead of relying on documentation or assumptions.
 
 ## Architecture boundaries
 
-- Playback is native libmpv through `src-tauri/src/native_player.rs`; supported
-  Twitch live pages are resolved by `src-tauri/src/twitch_resolver.rs` before
+- Playback is native libmpv through `src-tauri/src/player/`; supported Twitch
+  live pages are resolved by `src-tauri/src/player/twitch_resolver.rs` before
   libmpv loads the loopback stream. Never add an HTML `<video>` fallback or a
   browser-only player.
-- Frontend native calls go through the typed wrappers in `src/api/ipc.ts`.
+- Frontend native calls go through the typed wrappers in
+  `src/platform/tauri.ts` and `src/platform/desktop.ts`.
 - Player commands that start, stop, or reconfigure mpv use
   `#[tauri::command(async)]`; playback state comes from mpv events.
 - Keep remote/server data in TanStack Query and local interaction state in
@@ -72,12 +73,12 @@ none` on the dragged `.sidebar` element. A `transition: width` active
 npm run check:design
 npm run setup:twitch
 npm run format:rust:check
-npm run typecheck
-npm run typecheck:test
+npm run check:types
+npm run check:types:frontend
 npm test
 npm run test:coverage
 npm run test:rust
-npm run cargo-check
+npm run check:rust
 npm run check
 ```
 

@@ -38,7 +38,7 @@ accent color for progress, indicators, and small state cues.
 
 Use the shared primitives before adding a local control:
 
-- `Button` in `src/components/common/Button.tsx` for default, primary, ghost,
+- `Button` in `src/shared/ui/Button.tsx` for default, primary, ghost,
   and danger actions.
 - `IconButton` from the same module for icon-only actions.
 - `uiField` for text, search, URL, number, and password fields. Add a local
@@ -110,9 +110,9 @@ player, but normal app navigation should always retain the functional bar.
 
 ## Media and player rules
 
-Provider metadata remains normalized by `src/utils/mediaTags.ts` and
-`src/utils/titleParser.ts`; feature code must not create local provider tag or
-color maps. Use the semantic aliases in `src/components/shared/icons.ts` for
+Provider metadata remains normalized by `src/shared/lib/mediaTags.ts` and
+`src/modules/catalog/lib/titleParser.ts`; feature code must not create local provider tag or
+color maps. Use the semantic aliases in `src/shared/ui/icons.ts` for
 icons. Their implementations come from Lucide; active state belongs to the
 surrounding selected surface and accessible state rather than a separate icon
 library.
@@ -137,7 +137,7 @@ Run these after visual changes:
 
 ```text
 npm run check:design
-npm run typecheck
+npm run check:types
 npm run test -- --run
 npm run test:ui
 ```

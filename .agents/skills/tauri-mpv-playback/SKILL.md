@@ -39,7 +39,7 @@ Canonical documentation:
 
 ```bash
 npm run test:rust
-npm run cargo-check
+npm run check:rust
 npm run check
 ```
 

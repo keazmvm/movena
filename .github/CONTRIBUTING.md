@@ -27,7 +27,7 @@ app with `npm run dev`.
 
 Read [the architecture guide](../docs/ARCHITECTURE.md) and the relevant ADR before
 changing native playback, credential handling, remote data, or state ownership.
-Keep frontend/native calls in `src/api/ipc.ts` or `src/api/desktop.ts`; do not
+Keep frontend/native calls in `src/platform/tauri.ts` or `src/platform/desktop.ts`; do not
 add ad-hoc Tauri invokes. Playback state is event-authoritative and credentials
 belong in the operating-system vault.
 

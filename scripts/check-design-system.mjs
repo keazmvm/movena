@@ -127,7 +127,7 @@ for (const path of sourceFiles.filter((sourcePath) =>
 )) {
   const content = readFileSync(path, 'utf8');
   for (const match of content.matchAll(/ease\s*:\s*['"]ease(?:In|Out|InOut)['"]/g)) {
-    report(path, 'Framer easing must use src/design/motion.ts', match);
+    report(path, 'Framer easing must use src/shared/design/motion.ts', match);
   }
 
   if (extname(path) !== '.tsx') continue;
