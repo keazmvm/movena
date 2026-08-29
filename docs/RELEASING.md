@@ -15,6 +15,13 @@ The workflow:
 5. Builds Linux packages (`.deb` and `.AppImage`).
 6. Generates an SPDX SBOM and `SHA256SUMS.txt`, records GitHub build provenance
    attestations, and publishes the GitHub release.
+7. Submits the generated MSIX to Microsoft Store when the project credentials
+   are configured.
+
+If a Store submission needs to be retried after the GitHub release is complete,
+run `Publish Microsoft Store Package` with the immutable release tag. That
+workflow downloads the existing release MSIX instead of rebuilding it, so the
+Store submission stays tied to the exact tagged artifact.
 
 ## Release checklist
 
