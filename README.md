@@ -23,8 +23,8 @@
   · <a href="https://movena.frtx.cc/">Website</a>
   · <a href="https://discord.gg/hRHpwVPjBN">Discord</a>
   · <a href="https://github.com/movena-app/movena/issues">Report an issue</a>
-  · <a href="SUPPORT.md">Support</a>
-  · <a href="CONTRIBUTING.md">Contribute</a>
+  · <a href=".github/SUPPORT.md">Support</a>
+  · <a href=".github/CONTRIBUTING.md">Contribute</a>
 </p>
 
 > [!IMPORTANT]
@@ -229,11 +229,11 @@ Contributions are welcome. Before submitting a change:
 
 ```bash
 npm run check
-npm run licenses:check
+npm run check:licenses
 ```
 
 Every commit needs a DCO sign-off created with `git commit -s`. Please read
-[CONTRIBUTING.md](CONTRIBUTING.md),
+[Contributing guide](.github/CONTRIBUTING.md),
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and
 [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) before substantial changes.
 Project direction is documented in the [roadmap](docs/ROADMAP.md).
@@ -242,7 +242,7 @@ Project direction is documented in the [roadmap](docs/ROADMAP.md).
 
 Movena keeps app data local and operates no media proxy or project account.
 Read the [privacy documentation](docs/PRIVACY.md) and
-[security policy](SECURITY.md) for data handling and private vulnerability
+[security policy](.github/SECURITY.md) for data handling and private vulnerability
 reporting.
 
 Movena is licensed under [GPL-3.0-or-later](LICENSE). Packaging and distribution
@@ -252,5 +252,5 @@ Third-party notices and asset provenance are in
 [docs/THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md),
 [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt), and
 [docs/ASSETS.md](docs/ASSETS.md). See the
-[Code of Conduct](CODE_OF_CONDUCT.md) and
+[Code of Conduct](.github/CODE_OF_CONDUCT.md) and
 [trademark guidance](docs/TRADEMARK.md) for community and branding terms.

@@ -37,7 +37,7 @@ behavior instead of relying on documentation or assumptions.
   Zustand. Provider-backed query keys must include the opaque source scope.
 - Store passwords only through the OS credential vault. Redact URLs, headers,
   credentials, and local paths from diagnostics.
-- Use the shared CSS tokens and controls. Run `npm run design:check` after CSS
+- Use the shared CSS tokens and controls. Run `npm run check:design` after CSS
   or token changes.
 - Do not add local provider tag/color maps, ad-hoc badges, native selects, or
   page-local copies of shared settings/sidebar/catalog controls.
@@ -69,7 +69,7 @@ none` on the dragged `.sidebar` element. A `transition: width` active
 ## Local verification
 
 ```bash
-npm run design:check
+npm run check:design
 npm run setup:twitch
 npm run format:rust:check
 npm run typecheck

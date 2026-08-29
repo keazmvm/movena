@@ -136,18 +136,18 @@ playback restores the saved theme without a separate player preference.
 Run these after visual changes:
 
 ```text
-npm run design:check
+npm run check:design
 npm run typecheck
 npm run test -- --run
-npm run ui:qa
+npm run test:ui
 ```
 
-The component QA harness is a separate Vite entry under `tests-ui/harness`.
+The component QA harness is a separate Vite entry under `tests/ui/harness`.
 It renders production primitives, content states, settings controls, and
 overlays without adding a development route or fixture code to the app.
-`npm run ui:qa` checks accessibility and the 960×600 logical-pixel geometry
+`npm run test:ui` checks accessibility and the 960×600 logical-pixel geometry
 contract, plus a 2× device-scale pass that preserves that viewport.
-`npm run ui:qa:visual` also compares the representative Windows screenshots.
+`npm run test:ui:visual` also compares the representative Windows screenshots.
 Update a baseline only after reviewing the rendered difference.
 
 Shared controls should have role-based tests for keyboard navigation, focus,

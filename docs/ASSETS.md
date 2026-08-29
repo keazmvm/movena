@@ -29,7 +29,7 @@ includes Discover, Live TV, timeline guide, VOD player, series player with
 episode drawer, movie and series details, upcoming release schedule, global
 search, M3U visual and raw code workspace, downloads, sources, playback
 settings, and light appearance. The deterministic fixture in
-`tests-ui/harness/ReadmeHarness.tsx` supplies an in-memory M3U playlist, XMLTV guide, library history, download
+`tests/ui/harness/ReadmeHarness.tsx` supplies an in-memory M3U playlist, XMLTV guide, library history, download
 queue, player state, and track metadata. Movie and series surfaces use real
 titles, factual metadata, and TMDB poster/backdrop artwork. Live TV surfaces use
 the real channel identities and marks documented below; their schedule times
@@ -60,7 +60,7 @@ is non-commercial, is attributed in the README and Movena About screen, and
 does not imply endorsement by TMDB or any title owner. TMDB content remains
 subject to TMDB's terms and any underlying rights. Exact poster and backdrop
 CDN URLs are recorded alongside the fixture constants in
-`tests-ui/harness/ReadmeHarness.tsx`. TMDB does not identify the original poster
+`tests/ui/harness/ReadmeHarness.tsx`. TMDB does not identify the original poster
 and backdrop creators or rightsholders on the title pages used here; no creator
 credit beyond the supplying title record was available.
 

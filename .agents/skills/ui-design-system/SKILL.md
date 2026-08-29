@@ -24,4 +24,4 @@ Category counts and action slots must remain stable on hover (do not shift the c
 
 ## Verification commands
 
-Run `npm run design:check` after CSS or token changes.
+Run `npm run check:design` after CSS or token changes.

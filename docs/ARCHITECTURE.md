@@ -130,13 +130,13 @@ src-tauri/src/       Rust commands and native playback
 src-tauri/capabilities/ Tauri permissions
 scripts/             Local checks and pinned native setup
 tests/               Frontend and Rust-adjacent regression tests
-tests-ui/            Playwright accessibility, geometry, locale, and visual QA
-tests-desktop/       Feature-gated WebDriver journeys against the real Tauri binary
+tests/ui/            Playwright accessibility, geometry, locale, and visual QA
+tests/desktop/       Feature-gated WebDriver journeys against the real Tauri binary
 docs/adr/            Durable architecture decisions and their consequences
 ```
 
-`npm run dead-code:check` runs Knip across production modules, tests, UI
-harnesses, configuration, and JavaScript build scripts. `npm run design:check`
+`npm run check:dead-code` runs Knip across production modules, tests, UI
+harnesses, configuration, and JavaScript build scripts. `npm run check:design`
 also rejects orphaned or unused CSS-module selectors, undefined or unused
 design tokens, and forbidden style drift. Dynamic CSS-module variants have a
 small explicit allowlist in the checker.
@@ -151,7 +151,7 @@ surviving from an earlier build.
 ```bash
 npm run check
 npm run build
-npm run public-tree:check
+npm run check:public-tree
 ```
 
 Push and pull-request CI run through `.github/workflows/compliance.yml`; release
@@ -161,7 +161,7 @@ start/stop, seek, fullscreen, track switching, recording, resize, and teardown.
 For Twitch, cover startup, pre-roll and mid-roll waiting states, recovery,
 replacement, close, resolver-process teardown, and loopback-listener teardown.
 
-`npm run desktop:e2e:all` compiles a separate `com.movena.desktop.e2e` binary
+`npm run test:desktop:all` compiles a separate `com.movena.desktop.e2e` binary
 with an embedded WebDriver and isolated credential-vault service. Production
 capabilities explicitly exclude that driver. The journey proves real IPC,
 vault/cache writes, and first-run navigation; it does not replace the native

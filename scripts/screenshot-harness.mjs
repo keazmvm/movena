@@ -37,7 +37,7 @@ export async function startScreenshotHarness(projectRoot) {
     [
       path.join(projectRoot, 'node_modules', 'vite', 'bin', 'vite.js'),
       '--config',
-      path.join(projectRoot, 'vite.ui-qa.config.ts'),
+      path.join(projectRoot, 'config', 'vite.ui.config.ts'),
       '--host',
       '127.0.0.1',
       '--port',

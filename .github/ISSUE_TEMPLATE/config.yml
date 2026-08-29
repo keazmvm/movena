@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/movena-app/movena/security/policy
     about: Report security issues privately; do not open a public issue.
   - name: Support guide
-    url: https://github.com/movena-app/movena/blob/main/SUPPORT.md
+    url: https://github.com/movena-app/movena/blob/main/.github/SUPPORT.md
     about: Read troubleshooting and privacy guidance before filing.

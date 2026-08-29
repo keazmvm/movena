@@ -17,7 +17,7 @@ package-lock.json
 
 # Binary and visual-baseline assets
 public/**/*.{png,jpg,jpeg,gif,webp,ico,icns,mp4,webm,woff,woff2}
-tests-ui/__screenshots__/
+tests/ui/__screenshots__/
 
 # Local caches and release output
 .cache/

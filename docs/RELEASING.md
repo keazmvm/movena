@@ -24,8 +24,8 @@ The workflow:
 2. Run `npm ci`, the platform's native setup (`npm run setup:mpv` on Windows
    and `npm run setup:twitch` everywhere),
    `npm audit --omit=dev --audit-level=high`,
-   `npm run licenses:check`, `npm run public-tree:check`, `npm run check`,
-   `npm run build`, and `npm run ui:qa:visual`. `setup:twitch` regenerates the
+   `npm run check:licenses`, `npm run check:public-tree`, `npm run check`,
+   `npm run build`, and `npm run test:ui:visual`. `setup:twitch` regenerates the
    license report before it is copied into the resolver bundle. The build
    cleans `dist/` first and rejects unexpected output extensions afterward.
 3. Run secret scanning and verify that no playlists, provider records,

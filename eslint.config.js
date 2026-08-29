@@ -20,8 +20,8 @@ export default tseslint.config(
     files: [
       'src/**/*.{ts,tsx}',
       'tests/**/*.{ts,tsx}',
-      'tests-ui/**/*.{ts,tsx}',
-      'tests-desktop/**/*.{ts,tsx}',
+      'tests/ui/**/*.{ts,tsx}',
+      'tests/desktop/**/*.{ts,tsx}',
     ],
     languageOptions: {
       ecmaVersion: 2023,
@@ -51,7 +51,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs', '*.config.{js,ts}', '*.conf.ts', 'vite*.ts', 'playwright*.ts'],
+    files: ['scripts/**/*.mjs', 'config/**/*.{js,ts}', '*.config.{js,ts}', '*.conf.ts', 'vite*.ts'],
     languageOptions: {
       ecmaVersion: 2023,
       globals: { ...globals.node },

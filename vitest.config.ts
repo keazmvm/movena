@@ -1,10 +1,14 @@
 import { defineConfig } from 'vitest/config';
+import path from 'node:path';
 
 export default defineConfig({
+  resolve: {
+    alias: { '@': path.resolve(import.meta.dirname, 'src') },
+  },
   test: {
     environment: 'happy-dom',
-    include: ['tests/**/*.test.{ts,tsx}'],
-    setupFiles: ['tests/setup.ts'],
+    include: ['tests/frontend/**/*.test.{ts,tsx}'],
+    setupFiles: ['tests/frontend/setup.ts'],
     clearMocks: true,
     restoreMocks: true,
     coverage: {
