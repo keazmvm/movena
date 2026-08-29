@@ -66,5 +66,5 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Microsoft Store CLI configuration failed." }
           $msixFiles = @(Get-ChildItem -Path "windows-artifacts" -Filter "*.msix" -File)
           if ($msixFiles.Count -ne 1) { throw "Expected exactly one release MSIX, found $($msixFiles.Count)." }
-          & msstore publish "." --inputFile $msixFiles[0].FullName --appId $env:STORE_PRODUCT_ID
+          & msstore publish $msixFiles[0].FullName --appId $env:STORE_PRODUCT_ID
           if ($LASTEXITCODE -ne 0) { throw "Microsoft Store submission failed." }
