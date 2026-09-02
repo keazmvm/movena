@@ -101,7 +101,7 @@
     "knip": "^6.32.3",
     "postcss": "^8.5.26",
     "prettier": "3.6.2",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "typescript-eslint": "^8.68.0",
     "vite": "^8.2.2",
     "vitest": "^4.1.11"
